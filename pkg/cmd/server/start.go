@@ -21,8 +21,15 @@ import (
 	"io"
 	"net"
 
-	"github.com/spf13/cobra"
+	"kubeshield.dev/whoami/apis/wardle/v1alpha1"
+	clientset "kubeshield.dev/whoami/client/clientset/versioned"
+	informers "kubeshield.dev/whoami/client/informers/externalversions"
+	sampleopenapi "kubeshield.dev/whoami/client/openapi"
+	"kubeshield.dev/whoami/pkg/admission/plugin/banflunder"
+	"kubeshield.dev/whoami/pkg/admission/wardleinitializer"
+	"kubeshield.dev/whoami/pkg/apiserver"
 
+	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -32,13 +39,6 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
-	"k8s.io/sample-apiserver/pkg/admission/plugin/banflunder"
-	"k8s.io/sample-apiserver/pkg/admission/wardleinitializer"
-	"k8s.io/sample-apiserver/pkg/apis/wardle/v1alpha1"
-	"k8s.io/sample-apiserver/pkg/apiserver"
-	clientset "k8s.io/sample-apiserver/pkg/generated/clientset/versioned"
-	informers "k8s.io/sample-apiserver/pkg/generated/informers/externalversions"
-	sampleopenapi "k8s.io/sample-apiserver/pkg/generated/openapi"
 )
 
 const defaultEtcdPathPrefix = "/registry/wardle.example.com"

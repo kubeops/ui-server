@@ -17,8 +17,9 @@ limitations under the License.
 package wardleinitializer
 
 import (
+	informers "kubeshield.dev/whoami/client/informers/externalversions"
+
 	"k8s.io/apiserver/pkg/admission"
-	informers "k8s.io/sample-apiserver/pkg/generated/informers/externalversions"
 )
 
 // WantsInternalWardleInformerFactory defines a function which sets InformerFactory for admission plugins that need it

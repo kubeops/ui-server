@@ -20,11 +20,11 @@ import (
 	"flag"
 	"os"
 
-	"k8s.io/klog"
+	"kubeshield.dev/whoami/pkg/cmd/server"
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/logs"
-	"k8s.io/sample-apiserver/pkg/cmd/server"
+	"k8s.io/klog"
 )
 
 func main() {

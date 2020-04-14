@@ -21,14 +21,15 @@ import (
 	"fmt"
 	"io"
 
+	"kubeshield.dev/whoami/apis/wardle"
+	informers "kubeshield.dev/whoami/client/informers/externalversions"
+	listers "kubeshield.dev/whoami/client/listers/wardle/v1alpha1"
+	"kubeshield.dev/whoami/pkg/admission/wardleinitializer"
+
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apiserver/pkg/admission"
-	"k8s.io/sample-apiserver/pkg/admission/wardleinitializer"
-	"k8s.io/sample-apiserver/pkg/apis/wardle"
-	informers "k8s.io/sample-apiserver/pkg/generated/informers/externalversions"
-	listers "k8s.io/sample-apiserver/pkg/generated/listers/wardle/v1alpha1"
 )
 
 // Register registers a plugin

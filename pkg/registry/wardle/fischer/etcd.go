@@ -17,12 +17,13 @@ limitations under the License.
 package fischer
 
 import (
+	"kubeshield.dev/whoami/apis/wardle"
+	"kubeshield.dev/whoami/pkg/registry"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 	"k8s.io/apiserver/pkg/registry/rest"
-	"k8s.io/sample-apiserver/pkg/apis/wardle"
-	"k8s.io/sample-apiserver/pkg/registry"
 )
 
 // NewREST returns a RESTStorage object that will work against API services.
@@ -46,5 +47,5 @@ func NewREST(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter) (*reg
 	if err := store.CompleteWithOptions(options); err != nil {
 		return nil, err
 	}
-	return &registry.REST{store}, nil
+	return &registry.REST{Store: store}, nil
 }

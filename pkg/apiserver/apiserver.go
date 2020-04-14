@@ -17,6 +17,12 @@ limitations under the License.
 package apiserver
 
 import (
+	"kubeshield.dev/whoami/apis/wardle"
+	"kubeshield.dev/whoami/apis/wardle/install"
+	wardleregistry "kubeshield.dev/whoami/pkg/registry"
+	fischerstorage "kubeshield.dev/whoami/pkg/registry/wardle/fischer"
+	flunderstorage "kubeshield.dev/whoami/pkg/registry/wardle/flunder"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -24,12 +30,6 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-
-	"k8s.io/sample-apiserver/pkg/apis/wardle"
-	"k8s.io/sample-apiserver/pkg/apis/wardle/install"
-	wardleregistry "k8s.io/sample-apiserver/pkg/registry"
-	fischerstorage "k8s.io/sample-apiserver/pkg/registry/wardle/fischer"
-	flunderstorage "k8s.io/sample-apiserver/pkg/registry/wardle/flunder"
 )
 
 var (
