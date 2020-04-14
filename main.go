@@ -17,25 +17,18 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"os"
 
-	"kubeshield.dev/identity-server/pkg/cmd/server"
+	"kubeshield.dev/identity-server/pkg/cmds"
 
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/logs"
-	"k8s.io/klog"
+	"kmodules.xyz/client-go/logs"
 )
 
 func main() {
 	logs.InitLogs()
 	defer logs.FlushLogs()
 
-	stopCh := genericapiserver.SetupSignalHandler()
-	options := server.NewIdentityServerOptions(os.Stdout, os.Stderr)
-	cmd := server.NewCommandStartIdentityServer(options, stopCh)
-	cmd.Flags().AddGoFlagSet(flag.CommandLine)
-	if err := cmd.Execute(); err != nil {
-		klog.Fatal(err)
+	if err := cmds.NewRootCmd().Execute(); err != nil {
+		os.Exit(1)
 	}
 }
