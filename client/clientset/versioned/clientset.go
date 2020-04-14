@@ -21,8 +21,7 @@ package versioned
 import (
 	"fmt"
 
-	wardlev1alpha1 "kubeshield.dev/whoami/client/clientset/versioned/typed/wardle/v1alpha1"
-	wardlev1beta1 "kubeshield.dev/whoami/client/clientset/versioned/typed/wardle/v1beta1"
+	identityv1alpha1 "kubeshield.dev/identity-server/client/clientset/versioned/typed/identity/v1alpha1"
 
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
@@ -31,26 +30,19 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
-	WardleV1alpha1() wardlev1alpha1.WardleV1alpha1Interface
-	WardleV1beta1() wardlev1beta1.WardleV1beta1Interface
+	IdentityV1alpha1() identityv1alpha1.IdentityV1alpha1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	wardleV1alpha1 *wardlev1alpha1.WardleV1alpha1Client
-	wardleV1beta1  *wardlev1beta1.WardleV1beta1Client
+	identityV1alpha1 *identityv1alpha1.IdentityV1alpha1Client
 }
 
-// WardleV1alpha1 retrieves the WardleV1alpha1Client
-func (c *Clientset) WardleV1alpha1() wardlev1alpha1.WardleV1alpha1Interface {
-	return c.wardleV1alpha1
-}
-
-// WardleV1beta1 retrieves the WardleV1beta1Client
-func (c *Clientset) WardleV1beta1() wardlev1beta1.WardleV1beta1Interface {
-	return c.wardleV1beta1
+// IdentityV1alpha1 retrieves the IdentityV1alpha1Client
+func (c *Clientset) IdentityV1alpha1() identityv1alpha1.IdentityV1alpha1Interface {
+	return c.identityV1alpha1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -74,11 +66,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
-	cs.wardleV1alpha1, err = wardlev1alpha1.NewForConfig(&configShallowCopy)
-	if err != nil {
-		return nil, err
-	}
-	cs.wardleV1beta1, err = wardlev1beta1.NewForConfig(&configShallowCopy)
+	cs.identityV1alpha1, err = identityv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -94,8 +82,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
-	cs.wardleV1alpha1 = wardlev1alpha1.NewForConfigOrDie(c)
-	cs.wardleV1beta1 = wardlev1beta1.NewForConfigOrDie(c)
+	cs.identityV1alpha1 = identityv1alpha1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -104,8 +91,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.wardleV1alpha1 = wardlev1alpha1.New(c)
-	cs.wardleV1beta1 = wardlev1beta1.New(c)
+	cs.identityV1alpha1 = identityv1alpha1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

@@ -1,4 +1,4 @@
-apiVersion: wardle.example.com/v1alpha1
+apiVersion: identity.kubeshield.io/v1alpha1
 kind: Flunder
 metadata:
   name: my-first-flunder

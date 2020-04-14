@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors.
+Copyright The Kubeshield Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import (
 	"flag"
 	"os"
 
-	"kubeshield.dev/whoami/pkg/cmd/server"
+	"kubeshield.dev/identity-server/pkg/cmd/server"
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/logs"
@@ -32,8 +32,8 @@ func main() {
 	defer logs.FlushLogs()
 
 	stopCh := genericapiserver.SetupSignalHandler()
-	options := server.NewWardleServerOptions(os.Stdout, os.Stderr)
-	cmd := server.NewCommandStartWardleServer(options, stopCh)
+	options := server.NewIdentityServerOptions(os.Stdout, os.Stderr)
+	cmd := server.NewCommandStartIdentityServer(options, stopCh)
 	cmd.Flags().AddGoFlagSet(flag.CommandLine)
 	if err := cmd.Execute(); err != nil {
 		klog.Fatal(err)

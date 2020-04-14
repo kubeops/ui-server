@@ -1,5 +1,5 @@
 # Copyright 2019 AppsCode Inc.
-# Copyright 2016 The Kubernetes Authors.
+# Copyright The Kubeshield Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@ SHELL=/bin/bash -o pipefail
 
 GO_PKG   := kubeshield.dev
 REPO     := $(notdir $(shell pwd))
-BIN      := whoami
+BIN      := identity-server
 COMPRESS ?= no
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 # CRD_OPTIONS          ?= "crd:trivialVersions=true"
 CRD_OPTIONS          ?= "crd:trivialVersions=true,preserveUnknownFields=false"
 CODE_GENERATOR_IMAGE ?= appscode/gengo:release-1.16
-API_GROUPS           ?= wardle:v1alpha1,v1beta1
+API_GROUPS           ?= identity:v1alpha1
 
 # Where to push the docker image.
 REGISTRY ?= kubeshield
@@ -160,7 +160,7 @@ clientset:
 		--env HTTPS_PROXY=$(HTTPS_PROXY)                          \
 		$(CODE_GENERATOR_IMAGE)                                   \
 		/go/src/k8s.io/code-generator/generate-groups.sh          \
-			all                                                   \
+			"deepcopy,defaulter,client"                           \
 			$(GO_PKG)/$(REPO)/client                              \
 			$(GO_PKG)/$(REPO)/apis                                \
 			"$(API_GROUPS)"                                       \

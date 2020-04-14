@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wardle-server
-  namespace: wardle
+  name: identity-server
+  namespace: identity
   labels:
     apiserver: "true"
 spec:
@@ -17,8 +17,8 @@ spec:
     spec:
       serviceAccountName: apiserver
       containers:
-      - name: wardle-server
-        # build from staging/src/kubeshield.dev/whoami/artifacts/simple-image/Dockerfile
+      - name: identity-server
+        # build from staging/src/kubeshield.dev/identity-server/artifacts/simple-image/Dockerfile
         # or
         # docker pull gcr.io/kubernetes-e2e-test-images/sample-apiserver:1.17
         # docker tag gcr.io/kubernetes-e2e-test-images/sample-apiserver:1.17 kube-sample-apiserver:latest

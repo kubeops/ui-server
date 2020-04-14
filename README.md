@@ -2,7 +2,7 @@
 
 Demonstration of how to use the k8s.io/apiserver library to build a functional API server.
 
-**Note:** go-get or vendor this package as `kubeshield.dev/whoami`.
+**Note:** go-get or vendor this package as `kubeshield.dev/identity-server`.
 
 ## Purpose
 
@@ -21,7 +21,7 @@ HEAD of this repo will match HEAD of k8s.io/apiserver, k8s.io/apimachinery, and 
 
 ## Where does it come from?
 
-`sample-apiserver` is synced from https://github.com/kubernetes/kubernetes/blob/master/staging/src/kubeshield.dev/whoami.
+`sample-apiserver` is synced from https://github.com/kubernetes/kubernetes/blob/master/staging/src/kubeshield.dev/identity-server.
 Code changes are made in that location, merged into `k8s.io/kubernetes` and later synced here.
 
 ## Fetch sample-apiserver and its dependencies
@@ -36,8 +36,8 @@ go about fetching this demo and its dependencies.
 When NOT using go 1.11 modules, you can use the following commands.
 
 ```sh
-go get -d kubeshield.dev/whoami
-cd $GOPATH/src/kubeshield.dev/whoami  # assuming your GOPATH has just one entry
+go get -d kubeshield.dev/identity-server
+cd $GOPATH/src/kubeshield.dev/identity-server  # assuming your GOPATH has just one entry
 godep restore
 ```
 
@@ -62,7 +62,7 @@ populate the `vendor` directory.
 If you are developing Kubernetes according to
 https://github.com/kubernetes/community/blob/master/contributors/guide/github-workflow.md
 then you already have a copy of this demo in
-`kubernetes/staging/src/kubeshield.dev/whoami` and its dependencies
+`kubernetes/staging/src/kubeshield.dev/identity-server` and its dependencies
 --- including the code generator --- are in usable locations.
 
 
@@ -187,19 +187,19 @@ only this superuser group is authorized.
 
    ``` shell
    curl -fv -k --cert client.p12:password \
-      https://localhost:8443/apis/wardle.example.com/v1alpha1/namespaces/default/flunders
+      https://localhost:8443/apis/identity.kubeshield.io/v1alpha1/namespaces/default/flunders
    ```
 
    Or use wget:
    ``` shell
    wget -O- --no-check-certificate \
       --certificate client.crt --private-key client.key \
-      https://localhost:8443/apis/wardle.example.com/v1alpha1/namespaces/default/flunders
+      https://localhost:8443/apis/identity.kubeshield.io/v1alpha1/namespaces/default/flunders
    ```
 
    Note: Recent OSX versions broke client certs with curl. On Mac try `brew install httpie` and then:
 
    ``` shell
    http --verify=no --cert client.crt --cert-key client.key \
-      https://localhost:8443/apis/wardle.example.com/v1alpha1/namespaces/default/flunders
+      https://localhost:8443/apis/identity.kubeshield.io/v1alpha1/namespaces/default/flunders
    ```

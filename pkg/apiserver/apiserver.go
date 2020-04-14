@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors.
+Copyright The Kubeshield Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,11 +17,10 @@ limitations under the License.
 package apiserver
 
 import (
-	"kubeshield.dev/whoami/apis/wardle"
-	"kubeshield.dev/whoami/apis/wardle/install"
-	wardleregistry "kubeshield.dev/whoami/pkg/registry"
-	fischerstorage "kubeshield.dev/whoami/pkg/registry/wardle/fischer"
-	flunderstorage "kubeshield.dev/whoami/pkg/registry/wardle/flunder"
+	"kubeshield.dev/identity-server/apis/identity"
+	"kubeshield.dev/identity-server/apis/identity/install"
+	"kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	whoamistorage "kubeshield.dev/identity-server/pkg/registry/identity/whoami"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -69,8 +68,8 @@ type Config struct {
 	ExtraConfig   ExtraConfig
 }
 
-// WardleServer contains state for a Kubernetes cluster master/api server.
-type WardleServer struct {
+// IdentityServer contains state for a Kubernetes cluster master/api server.
+type IdentityServer struct {
 	GenericAPIServer *genericapiserver.GenericAPIServer
 }
 
@@ -99,27 +98,22 @@ func (cfg *Config) Complete() CompletedConfig {
 	return CompletedConfig{&c}
 }
 
-// New returns a new instance of WardleServer from the given config.
-func (c completedConfig) New() (*WardleServer, error) {
+// New returns a new instance of IdentityServer from the given config.
+func (c completedConfig) New() (*IdentityServer, error) {
 	genericServer, err := c.GenericConfig.New("sample-apiserver", genericapiserver.NewEmptyDelegate())
 	if err != nil {
 		return nil, err
 	}
 
-	s := &WardleServer{
+	s := &IdentityServer{
 		GenericAPIServer: genericServer,
 	}
 
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(wardle.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identity.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 	v1alpha1storage := map[string]rest.Storage{}
-	v1alpha1storage["flunders"] = wardleregistry.RESTInPeace(flunderstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter))
-	v1alpha1storage["fischers"] = wardleregistry.RESTInPeace(fischerstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter))
+	v1alpha1storage[v1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
 	apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
-
-	v1beta1storage := map[string]rest.Storage{}
-	v1beta1storage["flunders"] = wardleregistry.RESTInPeace(flunderstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter))
-	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1storage
 
 	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
 		return nil, err

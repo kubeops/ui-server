@@ -55,7 +55,7 @@ You also need to change the image from ```kube-sample-apiserver:latest``` to ```
 ```yaml
 ...
       containers:
-      - name: wardle-server
+      - name: identity-server
         image: <YOUR_DOCKERHUB_USER>/kube-sample-apiserver:latest
         imagePullPolicy: Always
 ...
@@ -69,10 +69,10 @@ We will need to create several objects in order to setup the sample apiserver so
 
 ```
 # create the namespace to run the apiserver in
-kubectl create ns wardle
+kubectl create ns identity
 
 # create the service account used to run the server
-kubectl create -f artifacts/example/sa.yaml -n wardle
+kubectl create -f artifacts/example/sa.yaml -n identity
 
 # create the rolebindings that allow the service account user to delegate authz back to the kubernetes master for incoming requests to the apiserver
 kubectl create -f artifacts/example/auth-delegator.yaml -n kube-system
@@ -83,8 +83,8 @@ kubectl create -f artifacts/example/rbac.yaml
 kubectl create -f artifacts/example/rbac-bind.yaml
 
 # create the service and replication controller
-kubectl create -f artifacts/example/deployment.yaml -n wardle
-kubectl create -f artifacts/example/service.yaml -n wardle
+kubectl create -f artifacts/example/deployment.yaml -n identity
+kubectl create -f artifacts/example/service.yaml -n identity
 
 # create the apiservice object that tells kubernetes about your api extension and where in the cluster the server is located
 kubectl create -f artifacts/example/apiservice.yaml
@@ -106,5 +106,5 @@ kubectl get flunder my-first-flunder
 
 #outputs
 # NAME               KIND
-# my-first-flunder   Flunder.v1alpha1.wardle.example.com
+# my-first-flunder   Flunder.v1alpha1.identity.kubeshield.io
 ```
