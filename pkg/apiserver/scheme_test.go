@@ -1,5 +1,5 @@
 /*
-Copyright 2017 The Kubernetes Authors.
+Copyright The Kubeshield Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ package apiserver
 import (
 	"testing"
 
-	wardlefuzzer "kubeshield.dev/whoami/apis/wardle/fuzzer"
+	identityfuzzer "kubeshield.dev/whoami/apis/identity/fuzzer"
 
 	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )
 
 func TestRoundTripTypes(t *testing.T) {
-	roundtrip.RoundTripTestForScheme(t, Scheme, wardlefuzzer.Funcs)
+	roundtrip.RoundTripTestForScheme(t, Scheme, identityfuzzer.Funcs)
 }

@@ -20,10 +20,8 @@ package fake
 
 import (
 	clientset "kubeshield.dev/whoami/client/clientset/versioned"
-	wardlev1alpha1 "kubeshield.dev/whoami/client/clientset/versioned/typed/wardle/v1alpha1"
-	fakewardlev1alpha1 "kubeshield.dev/whoami/client/clientset/versioned/typed/wardle/v1alpha1/fake"
-	wardlev1beta1 "kubeshield.dev/whoami/client/clientset/versioned/typed/wardle/v1beta1"
-	fakewardlev1beta1 "kubeshield.dev/whoami/client/clientset/versioned/typed/wardle/v1beta1/fake"
+	identityv1alpha1 "kubeshield.dev/whoami/client/clientset/versioned/typed/identity/v1alpha1"
+	fakeidentityv1alpha1 "kubeshield.dev/whoami/client/clientset/versioned/typed/identity/v1alpha1/fake"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
@@ -79,12 +77,7 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 
 var _ clientset.Interface = &Clientset{}
 
-// WardleV1alpha1 retrieves the WardleV1alpha1Client
-func (c *Clientset) WardleV1alpha1() wardlev1alpha1.WardleV1alpha1Interface {
-	return &fakewardlev1alpha1.FakeWardleV1alpha1{Fake: &c.Fake}
-}
-
-// WardleV1beta1 retrieves the WardleV1beta1Client
-func (c *Clientset) WardleV1beta1() wardlev1beta1.WardleV1beta1Interface {
-	return &fakewardlev1beta1.FakeWardleV1beta1{Fake: &c.Fake}
+// IdentityV1alpha1 retrieves the IdentityV1alpha1Client
+func (c *Clientset) IdentityV1alpha1() identityv1alpha1.IdentityV1alpha1Interface {
+	return &fakeidentityv1alpha1.FakeIdentityV1alpha1{Fake: &c.Fake}
 }

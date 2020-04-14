@@ -1,13 +1,13 @@
 apiVersion: apiregistration.k8s.io/v1
 kind: APIService
 metadata:
-  name: v1alpha1.wardle.example.com
+  name: v1alpha1.identity.kubeshield.io
 spec:
   insecureSkipTLSVerify: true
-  group: wardle.example.com
+  group: identity.kubeshield.io
   groupPriorityMinimum: 1000
   versionPriority: 15
   service:
     name: api
-    namespace: wardle
+    namespace: identity
   version: v1alpha1

@@ -1,5 +1,5 @@
 /*
-Copyright 2017 The Kubernetes Authors.
+Copyright The Kubeshield Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ type REST struct {
 
 // RESTInPeace is just a simple function that panics on error.
 // Otherwise returns the given storage object. It is meant to be
-// a wrapper for wardle registries.
+// a wrapper for identity registries.
 func RESTInPeace(storage rest.StandardStorage, err error) rest.StandardStorage {
 	if err != nil {
 		err = fmt.Errorf("unable to create REST storage for a resource due to %v, will die", err)

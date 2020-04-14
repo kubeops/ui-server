@@ -230,6 +230,7 @@ func (s *SecureServingOptions) ApplyTo(config **server.SecureServingInfo) error 
 			return fmt.Errorf("unable to load server certificate: %v", err)
 		}
 		c.Cert = &tlsCert
+		c.CertFile = serverCertFile
 	} else if s.ServerCert.GeneratedCert != nil {
 		c.Cert = s.ServerCert.GeneratedCert
 	}
