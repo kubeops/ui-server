@@ -20,6 +20,9 @@ import (
 	"context"
 	"fmt"
 
+	"kubeshield.dev/whoami/apis/wardle"
+	"kubeshield.dev/whoami/apis/wardle/validation"
+
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -27,9 +30,6 @@ import (
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/storage"
 	"k8s.io/apiserver/pkg/storage/names"
-	"k8s.io/sample-apiserver/pkg/apis/wardle/validation"
-
-	"k8s.io/sample-apiserver/pkg/apis/wardle"
 )
 
 // NewStrategy creates and returns a flunderStrategy instance
