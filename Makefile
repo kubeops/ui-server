@@ -17,7 +17,7 @@ SHELL=/bin/bash -o pipefail
 
 GO_PKG   := kubeshield.dev
 REPO     := $(notdir $(shell pwd))
-BIN      := whoami
+BIN      := identity-server
 COMPRESS ?= no
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)

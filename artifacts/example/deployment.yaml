@@ -18,7 +18,7 @@ spec:
       serviceAccountName: apiserver
       containers:
       - name: identity-server
-        # build from staging/src/kubeshield.dev/whoami/artifacts/simple-image/Dockerfile
+        # build from staging/src/kubeshield.dev/identity-server/artifacts/simple-image/Dockerfile
         # or
         # docker pull gcr.io/kubernetes-e2e-test-images/sample-apiserver:1.17
         # docker tag gcr.io/kubernetes-e2e-test-images/sample-apiserver:1.17 kube-sample-apiserver:latest

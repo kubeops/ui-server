@@ -19,4 +19,4 @@ limitations under the License.
 // +kubebuilder:skip
 
 // Package api is the internal version of the API.
-package identity // import "kubeshield.dev/whoami/apis/identity"
+package identity // import "kubeshield.dev/identity-server/apis/identity"

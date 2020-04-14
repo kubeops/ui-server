@@ -19,9 +19,9 @@ limitations under the License.
 package fake
 
 import (
-	clientset "kubeshield.dev/whoami/client/clientset/versioned"
-	identityv1alpha1 "kubeshield.dev/whoami/client/clientset/versioned/typed/identity/v1alpha1"
-	fakeidentityv1alpha1 "kubeshield.dev/whoami/client/clientset/versioned/typed/identity/v1alpha1/fake"
+	clientset "kubeshield.dev/identity-server/client/clientset/versioned"
+	identityv1alpha1 "kubeshield.dev/identity-server/client/clientset/versioned/typed/identity/v1alpha1"
+	fakeidentityv1alpha1 "kubeshield.dev/identity-server/client/clientset/versioned/typed/identity/v1alpha1/fake"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"

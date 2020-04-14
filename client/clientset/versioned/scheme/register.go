@@ -19,7 +19,7 @@ limitations under the License.
 package scheme
 
 import (
-	identityv1alpha1 "kubeshield.dev/whoami/apis/identity/v1alpha1"
+	identityv1alpha1 "kubeshield.dev/identity-server/apis/identity/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"

@@ -17,10 +17,10 @@ limitations under the License.
 package apiserver
 
 import (
-	"kubeshield.dev/whoami/apis/identity"
-	"kubeshield.dev/whoami/apis/identity/install"
-	"kubeshield.dev/whoami/apis/identity/v1alpha1"
-	whoamistorage "kubeshield.dev/whoami/pkg/registry/identity/whoami"
+	"kubeshield.dev/identity-server/apis/identity"
+	"kubeshield.dev/identity-server/apis/identity/install"
+	"kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	whoamistorage "kubeshield.dev/identity-server/pkg/registry/identity/whoami"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

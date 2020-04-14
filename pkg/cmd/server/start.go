@@ -21,9 +21,9 @@ import (
 	"io"
 	"net"
 
-	"kubeshield.dev/whoami/apis/identity/v1alpha1"
-	sampleopenapi "kubeshield.dev/whoami/client/openapi"
-	"kubeshield.dev/whoami/pkg/apiserver"
+	"kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	sampleopenapi "kubeshield.dev/identity-server/client/openapi"
+	"kubeshield.dev/identity-server/pkg/apiserver"
 
 	"github.com/spf13/cobra"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"

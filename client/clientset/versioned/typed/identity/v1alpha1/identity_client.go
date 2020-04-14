@@ -19,8 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "kubeshield.dev/whoami/apis/identity/v1alpha1"
-	"kubeshield.dev/whoami/client/clientset/versioned/scheme"
+	v1alpha1 "kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	"kubeshield.dev/identity-server/client/clientset/versioned/scheme"
 
 	rest "k8s.io/client-go/rest"
 )

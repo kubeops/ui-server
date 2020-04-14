@@ -19,7 +19,7 @@ package install
 import (
 	"testing"
 
-	identityfuzzer "kubeshield.dev/whoami/apis/identity/fuzzer"
+	identityfuzzer "kubeshield.dev/identity-server/apis/identity/fuzzer"
 
 	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )

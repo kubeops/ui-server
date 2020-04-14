@@ -20,7 +20,7 @@ import (
 	"flag"
 	"os"
 
-	"kubeshield.dev/whoami/pkg/cmd/server"
+	"kubeshield.dev/identity-server/pkg/cmd/server"
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/logs"

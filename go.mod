@@ -1,4 +1,4 @@
-module kubeshield.dev/whoami
+module kubeshield.dev/identity-server
 
 go 1.12
 

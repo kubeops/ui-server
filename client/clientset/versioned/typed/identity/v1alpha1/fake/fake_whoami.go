@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "kubeshield.dev/whoami/apis/identity/v1alpha1"
+	v1alpha1 "kubeshield.dev/identity-server/apis/identity/v1alpha1"
 
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	testing "k8s.io/client-go/testing"
