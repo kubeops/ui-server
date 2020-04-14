@@ -35,7 +35,6 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 	k8s.io/api v0.17.3 // indirect
-	k8s.io/apiextensions-apiserver v0.17.3
 	k8s.io/apimachinery v0.17.3
 	k8s.io/apiserver v0.0.0-20191114103151-9ca1dc586682
 	k8s.io/client-go v12.0.0+incompatible
@@ -43,7 +42,6 @@ require (
 	k8s.io/kube-openapi v0.0.0-20191107075043-30be4d16710a
 	k8s.io/utils v0.0.0-20191114200735-6ca3b61696b6 // indirect
 	kmodules.xyz/client-go v0.0.0-20200201171629-70cdbdd3321b
-	sigs.k8s.io/yaml v1.1.0
 )
 
 replace (
