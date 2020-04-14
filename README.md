@@ -39,5 +39,4 @@ whoami.identity.kubeshield.io/<unknown> created
 
 ## How It Woks
 
-Identity Server is a Kubernetes extended apiserver (EAS). As an EAS, it has access to the user information which is making an api call to the "whoami" server.
-You can find the core of the implementation [here](https://github.com/kubeshield/identity-server/blob/78d0e36f63792380e7b630035579ab4f3bc2cc85/pkg/registry/identity/whoami/storage.go#L57).
+Identity Server is a Kubernetes extended apiserver (EAS). As an EAS, it has [access to the user](https://github.com/kubernetes/apiserver/blob/059effb5af64033b7d296c3347addd3226af60db/pkg/endpoints/filters/authentication.go#L49-L69) who is making an api call to the "whoami" server. You can find the core of the implementation [here](https://github.com/kubeshield/identity-server/blob/78d0e36f63792380e7b630035579ab4f3bc2cc85/pkg/registry/identity/whoami/storage.go#L57).
