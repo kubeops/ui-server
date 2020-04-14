@@ -53,7 +53,7 @@ endif
 ### These variables should not need tweaking.
 ###
 
-SRC_PKGS := api apis client pkg
+SRC_PKGS := apis client pkg
 SRC_DIRS := $(SRC_PKGS) *.go # directories which hold app source (not vendored)
 
 DOCKER_PLATFORMS := linux/amd64 linux/arm linux/arm64
@@ -166,42 +166,8 @@ clientset:
 			"$(API_GROUPS)"                                       \
 			--go-header-file "./hack/license/go.txt"
 
-# Generate CRD manifests
-.PHONY: gen-crds
-gen-crds:
-	@echo "Generating CRD manifests"
-	@docker run --rm 	                    \
-		-u $$(id -u):$$(id -g)              \
-		-v /tmp:/.cache                     \
-		-v $$(pwd):$(DOCKER_REPO_ROOT)      \
-		-w $(DOCKER_REPO_ROOT)              \
-	    --env HTTP_PROXY=$(HTTP_PROXY)      \
-	    --env HTTPS_PROXY=$(HTTPS_PROXY)    \
-		$(CODE_GENERATOR_IMAGE)             \
-		controller-gen                      \
-			$(CRD_OPTIONS)                  \
-			paths="./apis/..."              \
-			output:crd:artifacts:config=api/crds
-
-.PHONY: gen-bindata
-gen-bindata:
-	@docker run                                                 \
-	    -i                                                      \
-	    --rm                                                    \
-	    -u $$(id -u):$$(id -g)                                  \
-	    -v $$(pwd):/src                                         \
-	    -w /src/api/crds                                        \
-		-v /tmp:/.cache                                         \
-	    --env HTTP_PROXY=$(HTTP_PROXY)                          \
-	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
-	    $(BUILD_IMAGE)                                          \
-	    go-bindata -ignore=\\.go -ignore=\\.DS_Store -mode=0644 -modtime=1573722179 -o bindata.go -pkg crds ./...
-
-.PHONY: manifests
-manifests: gen-crds gen-bindata
-
 .PHONY: gen
-gen: clientset manifests
+gen: clientset
 
 fmt: $(BUILD_DIRS)
 	@docker run                                                 \
