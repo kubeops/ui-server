@@ -54,19 +54,19 @@ func (r *Storage) New() runtime.Object {
 	return &identity.WhoAmI{}
 }
 
-func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidation rest.ValidateObjectFunc, options *metav1.CreateOptions) (runtime.Object, error) {
+func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	user, ok := request.UserFrom(ctx)
 	if !ok {
 		return nil, kerr.NewBadRequest("missing user info")
 	}
-	req := obj.(*v1alpha1.WhoAmI)
+	req := obj.(*identity.WhoAmI)
 
-	extra := make(map[string]v1alpha1.ExtraValue)
+	extra := make(map[string]identity.ExtraValue)
 	for k, v := range user.GetExtra() {
-		extra[k] = v1alpha1.ExtraValue(v)
+		extra[k] = v
 	}
-	req.Response = &v1alpha1.WhoAmIResponse{
-		User: &v1alpha1.UserInfo{
+	req.Response = &identity.WhoAmIResponse{
+		User: &identity.UserInfo{
 			Username: user.GetName(),
 			UID:      user.GetUID(),
 			Groups:   user.GetGroups(),
