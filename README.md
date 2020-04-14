@@ -23,7 +23,7 @@ helm install identity-server appscode/identity-server
 ## Usage
 
 ```console
-$ kubectl create -f https://github.com/kubeshield/identity-server/raw/v0.0.6/artifacts/whoami.yaml
+$ kubectl create -f https://github.com/kubeshield/identity-server/raw/v0.0.6/artifacts/whoami.yaml --v=8
 
 I0414 10:07:56.932224    7000 request.go:1017] Request Body: {"apiVersion":"identity.kubeshield.io/v1alpha1","kind":"WhoAmI"}
 I0414 10:07:56.932282    7000 round_trippers.go:423] curl -k -v -XPOST  -H "Content-Type: application/json" -H "User-Agent: kubectl/v1.17.0 (linux/amd64) kubernetes/70132b0" -H "Accept: application/json" 'https://127.0.0.1:32769/apis/identity.kubeshield.io/v1alpha1/whoamis'
