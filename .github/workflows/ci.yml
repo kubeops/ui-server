@@ -27,13 +27,17 @@ jobs:
       id: buildx
       uses: crazy-max/ghaction-docker-buildx@v1
       with:
-        version: latest
+        buildx-version: latest
+        qemu-version: latest
 
     - name: Available platforms
       run: echo ${{ steps.buildx.outputs.platforms }}
 
-    - name: Run checks
+    - name: Prepare Host
       run: |
         sudo apt-get -qq update || true
         sudo apt-get install -y bzr
+
+    - name: Run checks
+      run: |
         make ci
