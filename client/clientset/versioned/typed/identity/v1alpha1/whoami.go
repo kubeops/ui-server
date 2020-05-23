@@ -19,8 +19,12 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	"context"
 
+	v1alpha1 "kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	scheme "kubeshield.dev/identity-server/client/clientset/versioned/scheme"
+
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	rest "k8s.io/client-go/rest"
 )
 
@@ -32,7 +36,7 @@ type WhoAmIsGetter interface {
 
 // WhoAmIInterface has methods to work with WhoAmI resources.
 type WhoAmIInterface interface {
-	Create(*v1alpha1.WhoAmI) (*v1alpha1.WhoAmI, error)
+	Create(ctx context.Context, whoAmI *v1alpha1.WhoAmI, opts v1.CreateOptions) (*v1alpha1.WhoAmI, error)
 	WhoAmIExpansion
 }
 
@@ -49,12 +53,13 @@ func newWhoAmIs(c *IdentityV1alpha1Client) *whoAmIs {
 }
 
 // Create takes the representation of a whoAmI and creates it.  Returns the server's representation of the whoAmI, and an error, if there is any.
-func (c *whoAmIs) Create(whoAmI *v1alpha1.WhoAmI) (result *v1alpha1.WhoAmI, err error) {
+func (c *whoAmIs) Create(ctx context.Context, whoAmI *v1alpha1.WhoAmI, opts v1.CreateOptions) (result *v1alpha1.WhoAmI, err error) {
 	result = &v1alpha1.WhoAmI{}
 	err = c.client.Post().
 		Resource("whoamis").
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(whoAmI).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
