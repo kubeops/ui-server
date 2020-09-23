@@ -73,7 +73,7 @@ TAG              := $(VERSION)_$(OS)_$(ARCH)
 TAG_PROD         := $(TAG)
 TAG_DBG          := $(VERSION)-dbg_$(OS)_$(ARCH)
 
-GO_VERSION       ?= 1.14
+GO_VERSION       ?= 1.15
 BUILD_IMAGE      ?= appscode/golang-dev:$(GO_VERSION)
 
 OUTBIN = bin/$(OS)_$(ARCH)/$(BIN)
@@ -299,7 +299,7 @@ unit-tests: $(BUILD_DIRS)
 	        OS=$(OS)                                            \
 	        VERSION=$(VERSION)                                  \
 	        KUBECONFIG=$${KUBECONFIG#$(HOME)}                   \
-	        ./hack/test.sh $(SRC_DIRS)                          \
+	        ./hack/test.sh $(SRC_PKGS)                          \
 	    "
 
 ADDTL_LINTERS   := goconst,gofmt,goimports,unparam
