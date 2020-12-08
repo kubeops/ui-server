@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package
-// +groupName=identity.kubeshield.io
+// +groupName=identity.kubeshield.cloud
 // +kubebuilder:skip
 
 // Package api is the internal version of the API.

@@ -33,7 +33,7 @@ import (
 	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
-const defaultEtcdPathPrefix = "/registry/identity.kubeshield.io"
+const defaultEtcdPathPrefix = "/registry/identity.kubeshield.cloud"
 
 // IdentityServerOptions contains state for master/api server
 type IdentityServerOptions struct {

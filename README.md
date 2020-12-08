@@ -25,16 +25,16 @@ helm install identity-server appscode/identity-server
 ```console
 $ kubectl create -f https://github.com/kubeshield/identity-server/raw/v0.1.1/artifacts/whoami.yaml --v=8
 
-I0414 10:07:56.932224    7000 request.go:1017] Request Body: {"apiVersion":"identity.kubeshield.io/v1alpha1","kind":"WhoAmI"}
-I0414 10:07:56.932282    7000 round_trippers.go:423] curl -k -v -XPOST  -H "Content-Type: application/json" -H "User-Agent: kubectl/v1.17.0 (linux/amd64) kubernetes/70132b0" -H "Accept: application/json" 'https://127.0.0.1:32769/apis/identity.kubeshield.io/v1alpha1/whoamis'
-I0414 10:07:56.934299    7000 round_trippers.go:443] POST https://127.0.0.1:32769/apis/identity.kubeshield.io/v1alpha1/whoamis 201 Created in 1 milliseconds
+I0414 10:07:56.932224    7000 request.go:1017] Request Body: {"apiVersion":"identity.kubeshield.cloud/v1alpha1","kind":"WhoAmI"}
+I0414 10:07:56.932282    7000 round_trippers.go:423] curl -k -v -XPOST  -H "Content-Type: application/json" -H "User-Agent: kubectl/v1.17.0 (linux/amd64) kubernetes/70132b0" -H "Accept: application/json" 'https://127.0.0.1:32769/apis/identity.kubeshield.cloud/v1alpha1/whoamis'
+I0414 10:07:56.934299    7000 round_trippers.go:443] POST https://127.0.0.1:32769/apis/identity.kubeshield.cloud/v1alpha1/whoamis 201 Created in 1 milliseconds
 I0414 10:07:56.934320    7000 round_trippers.go:449] Response Headers:
 I0414 10:07:56.934329    7000 round_trippers.go:452]     Cache-Control: no-cache, private
 I0414 10:07:56.934337    7000 round_trippers.go:452]     Content-Type: application/json
 I0414 10:07:56.934342    7000 round_trippers.go:452]     Date: Tue, 14 Apr 2020 17:07:56 GMT
 I0414 10:07:56.934348    7000 round_trippers.go:452]     Content-Length: 168
-I0414 10:07:56.934375    7000 request.go:1017] Response Body: {"kind":"WhoAmI","apiVersion":"identity.kubeshield.io/v1alpha1","response":{"user":{"username":"kubernetes-admin","groups":["system:masters","system:authenticated"]}}}
-whoami.identity.kubeshield.io/<unknown> created
+I0414 10:07:56.934375    7000 request.go:1017] Response Body: {"kind":"WhoAmI","apiVersion":"identity.kubeshield.cloud/v1alpha1","response":{"user":{"username":"kubernetes-admin","groups":["system:masters","system:authenticated"]}}}
+whoami.identity.kubeshield.cloud/<unknown> created
 ```
 
 ## How It Woks

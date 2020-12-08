@@ -30,7 +30,7 @@ type IdentityV1alpha1Interface interface {
 	WhoAmIsGetter
 }
 
-// IdentityV1alpha1Client is used to interact with features provided by the identity.kubeshield.io group.
+// IdentityV1alpha1Client is used to interact with features provided by the identity.kubeshield.cloud group.
 type IdentityV1alpha1Client struct {
 	restClient rest.Interface
 }

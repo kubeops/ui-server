@@ -18,7 +18,7 @@ limitations under the License.
 // +k8s:deepcopy-gen=package
 // +k8s:conversion-gen=kubeshield.dev/identity-server/apis/identity
 // +k8s:defaulter-gen=TypeMeta
-// +groupName=identity.kubeshield.io
+// +groupName=identity.kubeshield.cloud
 
 // Package v1alpha1 is the v1alpha1 version of the API.
 package v1alpha1 // import "kubeshield.dev/identity-server/apis/identity/v1alpha1"

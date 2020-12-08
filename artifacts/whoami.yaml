@@ -1,2 +1,2 @@
-apiVersion: identity.kubeshield.io/v1alpha1
+apiVersion: identity.kubeshield.cloud/v1alpha1
 kind: WhoAmI
