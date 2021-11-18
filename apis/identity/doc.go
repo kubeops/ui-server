@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package
-// +groupName=identity.kubeshield.cloud
+// +groupName=identity.k8s.appscode.com
 // +kubebuilder:skip
 
 // Package api is the internal version of the API.
-package identity // import "kubeshield.dev/identity-server/apis/identity"
+package identity // import "kubeops.dev/ui-server/apis/identity"

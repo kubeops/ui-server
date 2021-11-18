@@ -21,7 +21,7 @@ package fake
 import (
 	"context"
 
-	v1alpha1 "kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	v1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -33,9 +33,9 @@ type FakeWhoAmIs struct {
 	Fake *FakeIdentityV1alpha1
 }
 
-var whoamisResource = schema.GroupVersionResource{Group: "identity.kubeshield.cloud", Version: "v1alpha1", Resource: "whoamis"}
+var whoamisResource = schema.GroupVersionResource{Group: "identity.k8s.appscode.com", Version: "v1alpha1", Resource: "whoamis"}
 
-var whoamisKind = schema.GroupVersionKind{Group: "identity.kubeshield.cloud", Version: "v1alpha1", Kind: "WhoAmI"}
+var whoamisKind = schema.GroupVersionKind{Group: "identity.k8s.appscode.com", Version: "v1alpha1", Kind: "WhoAmI"}
 
 // Create takes the representation of a whoAmI and creates it.  Returns the server's representation of the whoAmI, and an error, if there is any.
 func (c *FakeWhoAmIs) Create(ctx context.Context, whoAmI *v1alpha1.WhoAmI, opts v1.CreateOptions) (result *v1alpha1.WhoAmI, err error) {

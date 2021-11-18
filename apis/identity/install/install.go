@@ -17,8 +17,8 @@ limitations under the License.
 package install
 
 import (
-	"kubeshield.dev/identity-server/apis/identity"
-	"kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	"kubeops.dev/ui-server/apis/identity"
+	"kubeops.dev/ui-server/apis/identity/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"

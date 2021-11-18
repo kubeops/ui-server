@@ -19,8 +19,8 @@ package whoami
 import (
 	"context"
 
-	"kubeshield.dev/identity-server/apis/identity"
-	"kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	"kubeops.dev/ui-server/apis/identity"
+	"kubeops.dev/ui-server/apis/identity/v1alpha1"
 
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

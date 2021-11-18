@@ -21,7 +21,7 @@ package versioned
 import (
 	"fmt"
 
-	identityv1alpha1 "kubeshield.dev/identity-server/client/clientset/versioned/typed/identity/v1alpha1"
+	identityv1alpha1 "kubeops.dev/ui-server/client/clientset/versioned/typed/identity/v1alpha1"
 
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"

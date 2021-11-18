@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "kubeshield.dev/identity-server/client/clientset/versioned/typed/identity/v1alpha1"
+	v1alpha1 "kubeops.dev/ui-server/client/clientset/versioned/typed/identity/v1alpha1"
 
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"

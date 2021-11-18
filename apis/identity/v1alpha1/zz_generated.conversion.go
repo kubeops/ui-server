@@ -24,7 +24,7 @@ package v1alpha1
 import (
 	unsafe "unsafe"
 
-	identity "kubeshield.dev/identity-server/apis/identity"
+	identity "kubeops.dev/ui-server/apis/identity"
 
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"

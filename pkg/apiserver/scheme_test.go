@@ -19,7 +19,7 @@ package apiserver
 import (
 	"testing"
 
-	identityfuzzer "kubeshield.dev/identity-server/apis/identity/fuzzer"
+	identityfuzzer "kubeops.dev/ui-server/apis/identity/fuzzer"
 
 	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )

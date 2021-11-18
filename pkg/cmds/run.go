@@ -19,28 +19,28 @@ package cmds
 import (
 	"io"
 
-	"kubeshield.dev/identity-server/pkg/cmds/server"
+	"kubeops.dev/ui-server/pkg/cmds/server"
 
-	"github.com/appscode/go/log"
-	v "github.com/appscode/go/version"
 	"github.com/spf13/cobra"
+	v "gomodules.xyz/x/version"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
+	"k8s.io/klog/v2"
 	"kmodules.xyz/client-go/tools/cli"
 )
 
 func NewCmdRun(out, errOut io.Writer, stopCh <-chan struct{}) *cobra.Command {
-	o := server.NewIdentityServerOptions(out, errOut)
+	o := server.NewUIServerOptions(out, errOut)
 
 	cmd := &cobra.Command{
 		Use:               "run",
-		Short:             "Launch an Identity API server",
-		Long:              "Launch an Identity API server",
+		Short:             "Launch a UI API server",
+		Long:              "Launch a UI API server",
 		DisableAutoGenTag: true,
 		PreRun: func(c *cobra.Command, args []string) {
 			cli.SendPeriodicAnalytics(c, v.Version.Version)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			log.Infof("Starting identity server version %s+%s ...", v.Version.Version, v.Version.CommitHash)
+			klog.Infof("Starting ui server version %s+%s ...", v.Version.Version, v.Version.CommitHash)
 
 			if err := o.Complete(); err != nil {
 				return err
@@ -48,7 +48,7 @@ func NewCmdRun(out, errOut io.Writer, stopCh <-chan struct{}) *cobra.Command {
 			if err := o.Validate(args); err != nil {
 				return err
 			}
-			if err := o.RunIdentityServer(stopCh); err != nil {
+			if err := o.RunUIServer(stopCh); err != nil {
 				return err
 			}
 			return nil

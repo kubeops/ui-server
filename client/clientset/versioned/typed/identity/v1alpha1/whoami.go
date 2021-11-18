@@ -21,8 +21,8 @@ package v1alpha1
 import (
 	"context"
 
-	v1alpha1 "kubeshield.dev/identity-server/apis/identity/v1alpha1"
-	scheme "kubeshield.dev/identity-server/client/clientset/versioned/scheme"
+	v1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	scheme "kubeops.dev/ui-server/client/clientset/versioned/scheme"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	rest "k8s.io/client-go/rest"

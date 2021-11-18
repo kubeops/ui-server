@@ -17,7 +17,7 @@ limitations under the License.
 package fuzzer
 
 import (
-	"kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	"kubeops.dev/ui-server/apis/identity/v1alpha1"
 
 	fuzz "github.com/google/gofuzz"
 	runtimeserializer "k8s.io/apimachinery/pkg/runtime/serializer"
