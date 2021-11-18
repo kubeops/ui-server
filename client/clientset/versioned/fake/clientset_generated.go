@@ -1,5 +1,5 @@
 /*
-Copyright The Kubeshield Authors.
+Copyright AppsCode Inc. and Contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ limitations under the License.
 package fake
 
 import (
-	clientset "kubeshield.dev/identity-server/client/clientset/versioned"
-	identityv1alpha1 "kubeshield.dev/identity-server/client/clientset/versioned/typed/identity/v1alpha1"
-	fakeidentityv1alpha1 "kubeshield.dev/identity-server/client/clientset/versioned/typed/identity/v1alpha1/fake"
+	clientset "kubeops.dev/ui-server/client/clientset/versioned"
+	identityv1alpha1 "kubeops.dev/ui-server/client/clientset/versioned/typed/identity/v1alpha1"
+	fakeidentityv1alpha1 "kubeops.dev/ui-server/client/clientset/versioned/typed/identity/v1alpha1/fake"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"

@@ -1,5 +1,5 @@
 /*
-Copyright The Kubeshield Authors.
+Copyright AppsCode Inc. and Contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,36 +17,26 @@ limitations under the License.
 package cmds
 
 import (
-	"flag"
 	"os"
 
-	"kubeshield.dev/identity-server/client/clientset/versioned/scheme"
+	"kubeops.dev/ui-server/client/clientset/versioned/scheme"
 
-	"github.com/appscode/go/flags"
-	v "github.com/appscode/go/version"
 	"github.com/spf13/cobra"
+	v "gomodules.xyz/x/version"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
-	"kmodules.xyz/client-go/logs"
-	"kmodules.xyz/client-go/tools/cli"
 )
 
 func NewRootCmd() *cobra.Command {
 	var rootCmd = &cobra.Command{
-		Use:               "grafana-operator [command]",
-		Short:             `Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes`,
+		Use:               "ui-operator [command]",
+		Short:             `kube-ui-server by AppsCode`,
 		DisableAutoGenTag: true,
 		PersistentPreRun: func(c *cobra.Command, args []string) {
-			flags.DumpAll(c.Flags())
-			cli.SendAnalytics(c, v.Version.Version)
-
 			utilruntime.Must(scheme.AddToScheme(clientsetscheme.Scheme))
 		},
 	}
-	rootCmd.PersistentFlags().AddGoFlagSet(flag.CommandLine)
-	logs.ParseFlags()
-	rootCmd.PersistentFlags().BoolVar(&cli.EnableAnalytics, "enable-analytics", cli.EnableAnalytics, "Send analytical events to Google Analytics")
 
 	rootCmd.AddCommand(v.NewCmdVersion())
 	stopCh := genericapiserver.SetupSignalHandler()

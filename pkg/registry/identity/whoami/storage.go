@@ -1,5 +1,5 @@
 /*
-Copyright The Kubeshield Authors.
+Copyright AppsCode Inc. and Contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package whoami
 import (
 	"context"
 
-	"kubeshield.dev/identity-server/apis/identity"
-	"kubeshield.dev/identity-server/apis/identity/v1alpha1"
+	"kubeops.dev/ui-server/apis/identity"
+	"kubeops.dev/ui-server/apis/identity/v1alpha1"
 
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

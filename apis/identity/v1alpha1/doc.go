@@ -1,5 +1,5 @@
 /*
-Copyright The Kubeshield Authors.
+Copyright AppsCode Inc. and Contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ limitations under the License.
 
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen=package
-// +k8s:conversion-gen=kubeshield.dev/identity-server/apis/identity
+// +k8s:conversion-gen=kubeops.dev/ui-server/apis/identity
 // +k8s:defaulter-gen=TypeMeta
-// +groupName=identity.kubeshield.cloud
+// +groupName=identity.k8s.appscode.com
 
 // Package v1alpha1 is the v1alpha1 version of the API.
-package v1alpha1 // import "kubeshield.dev/identity-server/apis/identity/v1alpha1"
+package v1alpha1 // import "kubeops.dev/ui-server/apis/identity/v1alpha1"

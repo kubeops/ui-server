@@ -1,5 +1,5 @@
 /*
-Copyright The Kubeshield Authors.
+Copyright AppsCode Inc. and Contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package apiserver
 import (
 	"testing"
 
-	identityfuzzer "kubeshield.dev/identity-server/apis/identity/fuzzer"
+	identityfuzzer "kubeops.dev/ui-server/apis/identity/fuzzer"
 
 	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )

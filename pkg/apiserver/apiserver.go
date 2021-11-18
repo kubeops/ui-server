@@ -1,5 +1,5 @@
 /*
-Copyright The Kubeshield Authors.
+Copyright AppsCode Inc. and Contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ limitations under the License.
 package apiserver
 
 import (
-	"kubeshield.dev/identity-server/apis/identity"
-	"kubeshield.dev/identity-server/apis/identity/install"
-	"kubeshield.dev/identity-server/apis/identity/v1alpha1"
-	whoamistorage "kubeshield.dev/identity-server/pkg/registry/identity/whoami"
+	"kubeops.dev/ui-server/apis/identity"
+	"kubeops.dev/ui-server/apis/identity/install"
+	"kubeops.dev/ui-server/apis/identity/v1alpha1"
+	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -68,8 +68,8 @@ type Config struct {
 	ExtraConfig   ExtraConfig
 }
 
-// IdentityServer contains state for a Kubernetes cluster master/api server.
-type IdentityServer struct {
+// UIServer contains state for a Kubernetes cluster master/api server.
+type UIServer struct {
 	GenericAPIServer *genericapiserver.GenericAPIServer
 }
 
@@ -98,14 +98,14 @@ func (cfg *Config) Complete() CompletedConfig {
 	return CompletedConfig{&c}
 }
 
-// New returns a new instance of IdentityServer from the given config.
-func (c completedConfig) New() (*IdentityServer, error) {
+// New returns a new instance of UIServer from the given config.
+func (c completedConfig) New() (*UIServer, error) {
 	genericServer, err := c.GenericConfig.New("sample-apiserver", genericapiserver.NewEmptyDelegate())
 	if err != nil {
 		return nil, err
 	}
 
-	s := &IdentityServer{
+	s := &UIServer{
 		GenericAPIServer: genericServer,
 	}
 

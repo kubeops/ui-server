@@ -1,5 +1,5 @@
 /*
-Copyright The Kubeshield Authors.
+Copyright AppsCode Inc. and Contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,35 +21,36 @@ import (
 	"io"
 	"net"
 
-	"kubeshield.dev/identity-server/apis/identity/v1alpha1"
-	sampleopenapi "kubeshield.dev/identity-server/client/openapi"
-	"kubeshield.dev/identity-server/pkg/apiserver"
+	"kubeops.dev/ui-server/apis/identity/v1alpha1"
+	sampleopenapi "kubeops.dev/ui-server/client/openapi"
+	"kubeops.dev/ui-server/pkg/apiserver"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
+	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
-	"kmodules.xyz/client-go/meta"
+	"k8s.io/apiserver/pkg/util/feature"
 	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
-const defaultEtcdPathPrefix = "/registry/identity.kubeshield.cloud"
+const defaultEtcdPathPrefix = "/registry/k8s.appscode.com"
 
-// IdentityServerOptions contains state for master/api server
-type IdentityServerOptions struct {
+// UIServerOptions contains state for master/api server
+type UIServerOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions
 
 	StdOut io.Writer
 	StdErr io.Writer
 }
 
-// NewIdentityServerOptions returns a new IdentityServerOptions
-func NewIdentityServerOptions(out, errOut io.Writer) *IdentityServerOptions {
-	o := &IdentityServerOptions{
+// NewUIServerOptions returns a new UIServerOptions
+func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
+	_ = feature.DefaultMutableFeatureGate.Set(fmt.Sprintf("%s=false", features.APIPriorityAndFairness))
+	o := &UIServerOptions{
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
 			apiserver.Codecs.LegacyCodec(v1alpha1.SchemeGroupVersion),
-			genericoptions.NewProcessInfo("identity-server", meta.Namespace()),
 		),
 
 		StdOut: out,
@@ -60,20 +61,20 @@ func NewIdentityServerOptions(out, errOut io.Writer) *IdentityServerOptions {
 	return o
 }
 
-// Validate validates IdentityServerOptions
-func (o IdentityServerOptions) Validate(args []string) error {
+// Validate validates UIServerOptions
+func (o UIServerOptions) Validate(args []string) error {
 	var errors []error
 	errors = append(errors, o.RecommendedOptions.Validate()...)
 	return utilerrors.NewAggregate(errors)
 }
 
 // Complete fills in fields required to have valid data
-func (o *IdentityServerOptions) Complete() error {
+func (o *UIServerOptions) Complete() error {
 	return nil
 }
 
-// Config returns config for the api server given IdentityServerOptions
-func (o *IdentityServerOptions) Config() (*apiserver.Config, error) {
+// Config returns config for the api server given UIServerOptions
+func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	// TODO have a "real" external address
 	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts("localhost", nil, []net.IP{net.ParseIP("127.0.0.1")}); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
@@ -97,8 +98,8 @@ func (o *IdentityServerOptions) Config() (*apiserver.Config, error) {
 	return config, nil
 }
 
-// RunIdentityServer starts a new IdentityServer given IdentityServerOptions
-func (o IdentityServerOptions) RunIdentityServer(stopCh <-chan struct{}) error {
+// RunUIServer starts a new UIServer given UIServerOptions
+func (o UIServerOptions) RunUIServer(stopCh <-chan struct{}) error {
 	config, err := o.Config()
 	if err != nil {
 		return err
@@ -109,7 +110,7 @@ func (o IdentityServerOptions) RunIdentityServer(stopCh <-chan struct{}) error {
 		return err
 	}
 
-	server.GenericAPIServer.AddPostStartHookOrDie("start-identity-server-informers", func(context genericapiserver.PostStartHookContext) error {
+	server.GenericAPIServer.AddPostStartHookOrDie("start-ui-server-informers", func(context genericapiserver.PostStartHookContext) error {
 		config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
 		return nil
 	})

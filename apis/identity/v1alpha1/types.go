@@ -1,5 +1,5 @@
 /*
-Copyright The Kubeshield Authors.
+Copyright AppsCode Inc. and Contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -53,18 +53,18 @@ type WhoAmIResponse struct {
 type UserInfo struct {
 	// The name that uniquely identifies this user among all active users.
 	// +optional
-	Username string `json:"username,omitempty" protobuf:"bytes,1,opt,name=username"`
+	Username string `json:"username,omitempty"`
 	// A unique value that identifies this user across time. If this user is
 	// deleted and another user by the same name is added, they will have
 	// different UIDs.
 	// +optional
-	UID string `json:"uid,omitempty" protobuf:"bytes,2,opt,name=uid"`
+	UID string `json:"uid,omitempty"`
 	// The names of groups this user is a part of.
 	// +optional
-	Groups []string `json:"groups,omitempty" protobuf:"bytes,3,rep,name=groups"`
+	Groups []string `json:"groups,omitempty"`
 	// Any additional information provided by the authenticator.
 	// +optional
-	Extra map[string]ExtraValue `json:"extra,omitempty" protobuf:"bytes,4,rep,name=extra"`
+	Extra map[string]ExtraValue `json:"extra,omitempty"`
 }
 
 // ExtraValue masks the value so protobuf can generate

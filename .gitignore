@@ -33,3 +33,5 @@ _testmain.go
 /.go
 
 **/apiserver.local.config
+
+.DS_Store

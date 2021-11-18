@@ -1,5 +1,5 @@
 /*
-Copyright The Kubeshield Authors.
+Copyright AppsCode Inc. and Contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "kubeshield.dev/identity-server/apis/identity/v1alpha1"
-	"kubeshield.dev/identity-server/client/clientset/versioned/scheme"
+	v1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	"kubeops.dev/ui-server/client/clientset/versioned/scheme"
 
 	rest "k8s.io/client-go/rest"
 )
@@ -30,7 +30,7 @@ type IdentityV1alpha1Interface interface {
 	WhoAmIsGetter
 }
 
-// IdentityV1alpha1Client is used to interact with features provided by the identity.kubeshield.cloud group.
+// IdentityV1alpha1Client is used to interact with features provided by the identity.k8s.appscode.com group.
 type IdentityV1alpha1Client struct {
 	restClient rest.Interface
 }
