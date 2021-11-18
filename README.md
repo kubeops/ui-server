@@ -2,8 +2,8 @@
 [![Build Status](https://github.com/kubeshield/identity-server/workflows/CI/badge.svg)](https://github.com/kubeshield/identity-server/actions?workflow=CI)
 [![codecov](https://codecov.io/gh/kubeshield/identity-server/branch/master/graph/badge.svg)](https://codecov.io/gh/kubeshield/identity-server)
 [![Docker Pulls](https://img.shields.io/docker/pulls/kubeshield/identity-server.svg)](https://hub.docker.com/r/kubeshield/identity-server/)
-[![Slack](https://slack.appscode.com/badge.svg)](https://slack.appscode.com)
-[![Twitter](https://img.shields.io/twitter/follow/kubeshield.svg?style=social&logo=twitter&label=Follow)](https://twitter.com/intent/follow?screen_name=kubeshield)
+[![Slack](https://shields.io/badge/Join_Slack-salck?color=4A154B&logo=slack)](https://slack.appscode.com)
+[![Twitter](https://img.shields.io/twitter/follow/kubeops.svg?style=social&logo=twitter&label=Follow)](https://twitter.com/intent/follow?screen_name=Kubeops)
 
 # identity-server
 
