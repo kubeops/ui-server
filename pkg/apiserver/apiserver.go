@@ -17,9 +17,12 @@ limitations under the License.
 package apiserver
 
 import (
-	"kubeops.dev/ui-server/apis/identity/install"
+	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	uiinstall "kubeops.dev/ui-server/apis/ui/install"
+	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
+	podviewstorage "kubeops.dev/ui-server/pkg/registry/ui/podview"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -28,6 +31,10 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	restclient "k8s.io/client-go/rest"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
 var (
@@ -39,7 +46,9 @@ var (
 )
 
 func init() {
-	install.Install(Scheme)
+	identityinstall.Install(Scheme)
+	uiinstall.Install(Scheme)
+	_ = clientgoscheme.AddToScheme(Scheme)
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
@@ -58,7 +67,7 @@ func init() {
 
 // ExtraConfig holds custom apiserver config
 type ExtraConfig struct {
-	// Place you custom config here.
+	ClientConfig *restclient.Config
 }
 
 // Config defines the config for the apiserver
@@ -108,14 +117,44 @@ func (c completedConfig) New() (*UIServer, error) {
 		GenericAPIServer: genericServer,
 	}
 
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
-
-	v1alpha1storage := map[string]rest.Storage{}
-	v1alpha1storage[identityv1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
-	apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
-
-	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+	mapper, err := apiutil.NewDynamicRESTMapper(c.ExtraConfig.ClientConfig)
+	if err != nil {
 		return nil, err
+	}
+
+	ctrlClient, err := client.New(c.ExtraConfig.ClientConfig, client.Options{
+		Scheme: Scheme,
+		Mapper: mapper,
+		Opts: client.WarningHandlerOptions{
+			SuppressWarnings:   false,
+			AllowDuplicateLogs: false,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[identityv1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(uiv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
 	}
 
 	return s, nil
