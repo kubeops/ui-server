@@ -22,6 +22,7 @@ import (
 	"net"
 
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -30,6 +31,7 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	"k8s.io/apiserver/pkg/util/feature"
+	common "k8s.io/kube-openapi/pkg/common"
 	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
@@ -86,13 +88,24 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	// Fixes https://github.com/Azure/AKS/issues/522
 	clientcmd.Fix(serverConfig.ClientConfig)
 
-	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(identityv1alpha1.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
+	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(func(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
+		identitydefs := identityv1alpha1.GetOpenAPIDefinitions(ref)
+		uidefs := uiv1alpha1.GetOpenAPIDefinitions(ref)
+		defs := make(map[string]common.OpenAPIDefinition, len(identitydefs)+len(uidefs))
+		for k, v := range identitydefs {
+			defs[k] = v
+		}
+		for k, v := range uidefs {
+			defs[k] = v
+		}
+		return defs
+	}, openapi.NewDefinitionNamer(apiserver.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"
 	serverConfig.OpenAPIConfig.Info.Version = "v0.0.1"
 
 	config := &apiserver.Config{
 		GenericConfig: serverConfig,
-		ExtraConfig:   apiserver.ExtraConfig{},
+		ExtraConfig:   apiserver.ExtraConfig{ClientConfig: serverConfig.ClientConfig},
 	}
 	return config, nil
 }

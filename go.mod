@@ -9,12 +9,14 @@ require (
 	go.bytebuilders.dev/license-verifier v0.9.5
 	gomodules.xyz/logs v0.0.6
 	gomodules.xyz/x v0.0.8
+	k8s.io/api v0.21.1
 	k8s.io/apimachinery v0.21.1
 	k8s.io/apiserver v0.21.1
 	k8s.io/client-go v0.21.1
 	k8s.io/klog/v2 v2.8.0
 	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
 	kmodules.xyz/client-go v0.0.0-20211116191353-a321f503ea3a
+	kmodules.xyz/resource-metrics v0.0.5
 	sigs.k8s.io/controller-runtime v0.9.0
 )
 
@@ -99,6 +101,7 @@ require (
 	gomodules.xyz/flags v0.1.3 // indirect
 	gomodules.xyz/homedir v0.1.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
+	gomodules.xyz/pointer v0.1.0 // indirect
 	gomodules.xyz/sets v0.2.0 // indirect
 	gomodules.xyz/wait v0.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -109,10 +112,10 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	k8s.io/api v0.21.1 // indirect
 	k8s.io/cli-runtime v0.21.1 // indirect
 	k8s.io/component-base v0.21.1 // indirect
 	k8s.io/utils v0.0.0-20210802155522-efc7438f0176 // indirect
+	kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.15 // indirect
 	sigs.k8s.io/kustomize/api v0.8.8 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.10.17 // indirect
