@@ -21,6 +21,7 @@ import (
 
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 
+	promapi "github.com/prometheus/client_golang/api"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
@@ -34,7 +35,8 @@ import (
 )
 
 type Storage struct {
-	c         client.Client
+	kc        client.Client
+	pc        promapi.Client
 	convertor rest.TableConvertor
 }
 
@@ -43,9 +45,10 @@ var _ rest.Scoper = &Storage{}
 var _ rest.Lister = &Storage{}
 var _ rest.Getter = &Storage{}
 
-func NewStorage(c client.Client) *Storage {
+func NewStorage(kc client.Client, pc promapi.Client) *Storage {
 	return &Storage{
-		c: c,
+		kc: kc,
+		pc: pc,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    uiv1alpha1.GroupName,
 			Resource: uiv1alpha1.ResourcePodViews,
@@ -72,7 +75,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	}
 
 	var pod core.Pod
-	err := r.c.Get(ctx, client.ObjectKey{Namespace: ns, Name: name}, &pod)
+	err := r.kc.Get(ctx, client.ObjectKey{Namespace: ns, Name: name}, &pod)
 	if err != nil {
 		return nil, err
 	}
@@ -156,10 +159,16 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
 
-	// TODO: convert options
+	opts := client.ListOptions{Namespace: ns}
+	if options != nil {
+		opts.LabelSelector = options.LabelSelector
+		opts.FieldSelector = options.FieldSelector
+		opts.Limit = options.Limit
+		opts.Continue = options.Continue
+	}
 
 	var podlist core.PodList
-	err := r.c.List(ctx, &podlist, client.InNamespace(ns))
+	err := r.kc.List(ctx, &podlist, &opts)
 	if err != nil {
 		return nil, err
 	}

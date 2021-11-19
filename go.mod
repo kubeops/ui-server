@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/go-openapi/spec v0.19.5
 	github.com/google/gofuzz v1.1.0
+	github.com/prometheus/client_golang v1.11.0
 	github.com/spf13/cobra v1.1.3
 	go.bytebuilders.dev/license-verifier v0.9.5
 	gomodules.xyz/logs v0.0.6
@@ -74,7 +75,6 @@ require (
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.11.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.18.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
