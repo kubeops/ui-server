@@ -143,9 +143,6 @@ github.com/imdario/mergo
 # github.com/inconshreveable/mousetrap v1.0.0
 ## explicit
 github.com/inconshreveable/mousetrap
-# github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
-## explicit
-github.com/jpillora/go-ogle-analytics
 # github.com/json-iterator/go v1.1.11
 ## explicit; go 1.12
 github.com/json-iterator/go
@@ -339,9 +336,6 @@ gomodules.xyz/clock
 # gomodules.xyz/flags v0.1.3
 ## explicit; go 1.16
 gomodules.xyz/flags
-# gomodules.xyz/homedir v0.1.0
-## explicit; go 1.15
-gomodules.xyz/homedir
 # gomodules.xyz/jsonpatch/v2 v2.2.0
 ## explicit; go 1.12
 gomodules.xyz/jsonpatch/v2
@@ -359,7 +353,6 @@ gomodules.xyz/sets
 gomodules.xyz/wait
 # gomodules.xyz/x v0.0.8
 ## explicit; go 1.12
-gomodules.xyz/x/analytics
 gomodules.xyz/x/version
 # google.golang.org/appengine v1.6.7
 ## explicit; go 1.11
@@ -1002,10 +995,7 @@ k8s.io/utils/trace
 ## explicit; go 1.17
 kmodules.xyz/client-go
 kmodules.xyz/client-go/meta
-kmodules.xyz/client-go/tools/analytics
-kmodules.xyz/client-go/tools/cli
 kmodules.xyz/client-go/tools/clientcmd
-kmodules.xyz/client-go/tools/clusterid
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1

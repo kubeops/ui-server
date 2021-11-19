@@ -19,12 +19,9 @@ package cmds
 import (
 	"os"
 
-	identityinstall "kubeops.dev/ui-server/apis/identity/install"
-
 	"github.com/spf13/cobra"
 	v "gomodules.xyz/x/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
 )
 
 func NewRootCmd() *cobra.Command {
@@ -32,9 +29,6 @@ func NewRootCmd() *cobra.Command {
 		Use:               "ui-operator [command]",
 		Short:             `kube-ui-server by AppsCode`,
 		DisableAutoGenTag: true,
-		PersistentPreRun: func(c *cobra.Command, args []string) {
-			identityinstall.Install(clientsetscheme.Scheme)
-		},
 	}
 
 	rootCmd.AddCommand(v.NewCmdVersion())

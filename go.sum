@@ -266,7 +266,6 @@ github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht
 github.com/jonboulle/clockwork v0.1.0 h1:VKV+ZcuP6l3yW9doeqz6ziZGgcynBVQO+obU0+0hcPo=
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/jpillora/backoff v1.0.0/go.mod h1:J/6gKK9jxlEcS3zixgDgUAsiuZ7yrSoa/FX5e0EB2j4=
-github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef h1:jLpa0vamfyIGeIJ/CfUJEWoKriw4ODeOgF1XxDvgMZ4=
 github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef/go.mod h1:PlwhC7q1VSK73InDzdDatVetQrTsQHIbOvcJAZzitY0=
 github.com/json-iterator/go v1.1.6/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
 github.com/json-iterator/go v1.1.7/go.mod h1:KdQUCv79m/52Kvf8AW2vK1V8akMuk1QjK/uOdHXbAo4=
@@ -685,7 +684,6 @@ gomodules.xyz/encoding v0.0.2/go.mod h1:ZD+5Llh/9P/xTqoiurjs2w3XfAV2jNtsh04FbucI
 gomodules.xyz/flags v0.1.3 h1:jQ06+EfmoMv5NvjXvJon03dOhLU+FF0TQMWN7I6qpzs=
 gomodules.xyz/flags v0.1.3/go.mod h1:e+kvBLnqdEWGG670SKOYag1CXStM2Slrxq01OIK3tFs=
 gomodules.xyz/homedir v0.0.0-20201104190528-bcd4d5d94b84/go.mod h1:rNt5O0KsgdJjAD/UXuxhO2N3b5TegqEk1T8HG9eraH4=
-gomodules.xyz/homedir v0.1.0 h1:qnY/+0XQbMk/UcpImZCJYeSI1rNa2BFtcJ/xqxzCpow=
 gomodules.xyz/homedir v0.1.0/go.mod h1:rNt5O0KsgdJjAD/UXuxhO2N3b5TegqEk1T8HG9eraH4=
 gomodules.xyz/jsonpatch/v2 v2.2.0 h1:4pT439QV83L+G9FkcCriY6EkpcK6r6bK+A5FBUMI7qY=
 gomodules.xyz/jsonpatch/v2 v2.2.0/go.mod h1:WXp+iVDkoLQqPudfQ9GBlwB2eZ5DKOnjQZCYdOS8GPY=
