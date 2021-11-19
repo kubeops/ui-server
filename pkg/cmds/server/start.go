@@ -21,8 +21,7 @@ import (
 	"io"
 	"net"
 
-	"kubeops.dev/ui-server/apis/identity/v1alpha1"
-	sampleopenapi "kubeops.dev/ui-server/client/openapi"
+	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -50,7 +49,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 	o := &UIServerOptions{
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
-			apiserver.Codecs.LegacyCodec(v1alpha1.SchemeGroupVersion),
+			apiserver.Codecs.LegacyCodec(identityv1alpha1.GroupVersion),
 		),
 
 		StdOut: out,
@@ -87,9 +86,9 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	// Fixes https://github.com/Azure/AKS/issues/522
 	clientcmd.Fix(serverConfig.ClientConfig)
 
-	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(sampleopenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
-	serverConfig.OpenAPIConfig.Info.Title = "Identity"
-	serverConfig.OpenAPIConfig.Info.Version = "0.1"
+	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(identityv1alpha1.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
+	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"
+	serverConfig.OpenAPIConfig.Info.Version = "v0.0.1"
 
 	config := &apiserver.Config{
 		GenericConfig: serverConfig,

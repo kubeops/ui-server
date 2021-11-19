@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package v1alpha1 is the v1alpha1 version of the API.
+
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen=package
-// +k8s:conversion-gen=kubeops.dev/ui-server/apis/identity
 // +k8s:defaulter-gen=TypeMeta
 // +groupName=identity.k8s.appscode.com
-
-// Package v1alpha1 is the v1alpha1 version of the API.
 package v1alpha1 // import "kubeops.dev/ui-server/apis/identity/v1alpha1"

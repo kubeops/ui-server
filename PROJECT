@@ -1,0 +1,16 @@
+domain: k8s.appscode.com
+layout:
+- go.kubebuilder.io/v3
+multigroup: true
+projectName: ui-server
+repo: kubeops.dev/ui-server
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k8s.appscode.com
+  group: identity
+  kind: WhoAmI
+  path: kubeops.dev/ui-server/apis/identity/v1alpha1
+  version: v1alpha1
+version: "3"

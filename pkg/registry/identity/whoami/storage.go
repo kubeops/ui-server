@@ -19,10 +19,9 @@ package whoami
 import (
 	"context"
 
-	"kubeops.dev/ui-server/apis/identity"
-	"kubeops.dev/ui-server/apis/identity/v1alpha1"
+	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 
-	kerr "k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -42,31 +41,30 @@ func NewStorage() *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return v1alpha1.SchemeGroupVersion.WithKind(v1alpha1.ResourceKindWhoAmI)
+	return identityv1alpha1.GroupVersion.WithKind(identityv1alpha1.ResourceKindWhoAmI)
 }
 
 func (r *Storage) NamespaceScoped() bool {
 	return false
 }
 
-// Getter
 func (r *Storage) New() runtime.Object {
-	return &identity.WhoAmI{}
+	return &identityv1alpha1.WhoAmI{}
 }
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	user, ok := request.UserFrom(ctx)
 	if !ok {
-		return nil, kerr.NewBadRequest("missing user info")
+		return nil, apierrors.NewBadRequest("missing user info")
 	}
-	req := obj.(*identity.WhoAmI)
+	req := obj.(*identityv1alpha1.WhoAmI)
 
-	extra := make(map[string]identity.ExtraValue)
+	extra := make(map[string]identityv1alpha1.ExtraValue)
 	for k, v := range user.GetExtra() {
 		extra[k] = v
 	}
-	req.Response = &identity.WhoAmIResponse{
-		User: &identity.UserInfo{
+	req.Response = &identityv1alpha1.WhoAmIResponse{
+		User: &identityv1alpha1.UserInfo{
 			Username: user.GetName(),
 			UID:      user.GetUID(),
 			Groups:   user.GetGroups(),
