@@ -186,6 +186,7 @@ github.com/pkg/errors
 github.com/pmezard/go-difflib/difflib
 # github.com/prometheus/client_golang v1.11.0 => github.com/prometheus/client_golang v1.10.0
 ## explicit; go 1.13
+github.com/prometheus/client_golang/api
 github.com/prometheus/client_golang/prometheus
 github.com/prometheus/client_golang/prometheus/internal
 github.com/prometheus/client_golang/prometheus/promhttp
