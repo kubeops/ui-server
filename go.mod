@@ -15,6 +15,7 @@ require (
 	k8s.io/klog/v2 v2.8.0
 	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
 	kmodules.xyz/client-go v0.0.0-20211116191353-a321f503ea3a
+	sigs.k8s.io/controller-runtime v0.9.0
 )
 
 require (
@@ -113,7 +114,6 @@ require (
 	k8s.io/component-base v0.21.1 // indirect
 	k8s.io/utils v0.0.0-20210802155522-efc7438f0176 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.15 // indirect
-	sigs.k8s.io/controller-runtime v0.9.0 // indirect
 	sigs.k8s.io/kustomize/api v0.8.8 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.10.17 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.2 // indirect

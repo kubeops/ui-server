@@ -17,9 +17,8 @@ limitations under the License.
 package apiserver
 
 import (
-	"kubeops.dev/ui-server/apis/identity"
 	"kubeops.dev/ui-server/apis/identity/install"
-	"kubeops.dev/ui-server/apis/identity/v1alpha1"
+	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -100,7 +99,7 @@ func (cfg *Config) Complete() CompletedConfig {
 
 // New returns a new instance of UIServer from the given config.
 func (c completedConfig) New() (*UIServer, error) {
-	genericServer, err := c.GenericConfig.New("sample-apiserver", genericapiserver.NewEmptyDelegate())
+	genericServer, err := c.GenericConfig.New("kube-ui-server", genericapiserver.NewEmptyDelegate())
 	if err != nil {
 		return nil, err
 	}
@@ -109,11 +108,11 @@ func (c completedConfig) New() (*UIServer, error) {
 		GenericAPIServer: genericServer,
 	}
 
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identity.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 	v1alpha1storage := map[string]rest.Storage{}
-	v1alpha1storage[v1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
-	apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+	v1alpha1storage[identityv1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
+	apiGroupInfo.VersionedResourcesStorageMap["identityv1alpha1"] = v1alpha1storage
 
 	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
 		return nil, err

@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 SHELL=/bin/bash -o pipefail
 
 PRODUCT_OWNER_NAME := appscode
@@ -55,7 +56,7 @@ endif
 ### These variables should not need tweaking.
 ###
 
-SRC_PKGS := apis client cmd pkg # directories which hold app source excluding tests (not vendored)
+SRC_PKGS := apis cmd pkg # directories which hold app source excluding tests (not vendored)
 SRC_DIRS := $(SRC_PKGS) # directories which hold app source (not vendored)
 
 DOCKER_PLATFORMS := linux/amd64 linux/arm64
@@ -138,27 +139,9 @@ version:
 	@echo ::set-output name=commit_hash::$(commit_hash)
 	@echo ::set-output name=commit_timestamp::$(commit_timestamp)
 
-# Generate a typed clientset
+# Generate code for Kubernetes types
 .PHONY: clientset
 clientset:
-	@rm -rf apis/identity/v1alpha1/zz_generated.conversion.go
-	# for EAS types
-	@docker run --rm                                            \
-		-u $$(id -u):$$(id -g)                                    \
-		-v /tmp:/.cache                                           \
-		-v $$(pwd):$(DOCKER_REPO_ROOT)                            \
-		-w $(DOCKER_REPO_ROOT)                                    \
-		--env HTTP_PROXY=$(HTTP_PROXY)                            \
-		--env HTTPS_PROXY=$(HTTPS_PROXY)                          \
-		$(CODE_GENERATOR_IMAGE)                                   \
-		/go/src/k8s.io/code-generator/generate-internal-groups.sh \
-			"deepcopy,defaulter,conversion,openapi"               \
-			$(GO_PKG)/$(REPO)/client                              \
-			$(GO_PKG)/$(REPO)/apis                                \
-			$(GO_PKG)/$(REPO)/apis                                \
-			"$(API_GROUPS)"                                       \
-			--go-header-file "./hack/license/go.txt"
-	# for both CRD and EAS types
 	@docker run --rm                                            \
 		-u $$(id -u):$$(id -g)                                    \
 		-v /tmp:/.cache                                           \
@@ -168,14 +151,48 @@ clientset:
 		--env HTTPS_PROXY=$(HTTPS_PROXY)                          \
 		$(CODE_GENERATOR_IMAGE)                                   \
 		/go/src/k8s.io/code-generator/generate-groups.sh          \
-			"deepcopy,defaulter,client"                           \
-			$(GO_PKG)/$(REPO)/client                              \
-			$(GO_PKG)/$(REPO)/apis                                \
-			"$(API_GROUPS)"                                       \
+			"deepcopy,defaulter"                                    \
+			$(GO_PKG)/$(REPO)/client                                \
+			$(GO_PKG)/$(REPO)/apis                                  \
+			"$(API_GROUPS)"                                         \
 			--go-header-file "./hack/license/go.txt"
+# 	rm -rf ./apis/identity/v1beta1/zz_generated.conversion.go
+# 	@docker run --rm                                            \
+# 		-u $$(id -u):$$(id -g)                                    \
+# 		-v /tmp:/.cache                                           \
+# 		-v $$(pwd):$(DOCKER_REPO_ROOT)                            \
+# 		-w $(DOCKER_REPO_ROOT)                                    \
+# 		--env HTTP_PROXY=$(HTTP_PROXY)                            \
+# 		--env HTTPS_PROXY=$(HTTPS_PROXY)                          \
+# 		$(CODE_GENERATOR_IMAGE)                                   \
+# 		/go/bin/conversion-gen --go-header-file ./hack/license/go.txt \
+# 			--input-dirs $(GO_PKG)/$(REPO)/apis/identity/v1beta1 \
+# 			-O zz_generated.conversion
+
+
+# Generate openapi schema
+.PHONY: openapi
+openapi: $(addprefix openapi-, $(subst :,_, $(API_GROUPS)))
+openapi-%:
+	@echo "Generating openapi schema for $(subst _,/,$*)"
+	@mkdir -p .config/api-rules
+	@docker run --rm                                     \
+		-u $$(id -u):$$(id -g)                           \
+		-v /tmp:/.cache                                  \
+		-v $$(pwd):$(DOCKER_REPO_ROOT)                   \
+		-w $(DOCKER_REPO_ROOT)                           \
+		--env HTTP_PROXY=$(HTTP_PROXY)                   \
+		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
+		$(CODE_GENERATOR_IMAGE)                          \
+		openapi-gen                                      \
+			--v 1 --logtostderr                          \
+			--go-header-file "./hack/license/go.txt" \
+			--input-dirs "$(GO_PKG)/$(REPO)/apis/$(subst _,/,$*),k8s.io/apimachinery/pkg/apis/meta/v1" \
+			--output-package "$(GO_PKG)/$(REPO)/apis/$(subst _,/,$*)" \
+			--report-filename .config/api-rules/violation_exceptions.list
 
 .PHONY: gen
-gen: clientset
+gen: clientset openapi
 
 fmt: $(BUILD_DIRS)
 	@docker run                                                 \

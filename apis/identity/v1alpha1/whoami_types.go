@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package identity
+package v1alpha1
 
 import (
 	"fmt"
@@ -22,37 +22,47 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// +genclient
-// +genclient:nonNamespaced
-// +genclient:skipVerbs=update,delete,deleteCollection,get,list,watch,patch
+const (
+	ResourceKindWhoAmI = "WhoAmI"
+	ResourceWhoAmI     = "whoami"
+	ResourceWhoAmIs    = "whoamis"
+)
+
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// WhoAmI is the Schema for the whoamis API
 type WhoAmI struct {
-	metav1.TypeMeta
+	metav1.TypeMeta `json:",inline"`
 	// Response describes the attributes for the identity response.
-	Response *WhoAmIResponse
+	// +optional
+	Response *WhoAmIResponse `json:"response,omitempty"`
 }
 
 // WhoAmIResponse describes an admission response.
 type WhoAmIResponse struct {
 	// Result contains extra details into why an admission request was denied.
 	// This field IS NOT consulted in any way if "Allowed" is "true".
-	User *UserInfo
+	// +optional
+	User *UserInfo `json:"user,omitempty"`
 }
 
 // UserInfo holds the information about the user needed to implement the
 // user.Info interface.
 type UserInfo struct {
 	// The name that uniquely identifies this user among all active users.
-	Username string
+	// +optional
+	Username string `json:"username,omitempty"`
 	// A unique value that identifies this user across time. If this user is
 	// deleted and another user by the same name is added, they will have
 	// different UIDs.
-	UID string
+	// +optional
+	UID string `json:"uid,omitempty"`
 	// The names of groups this user is a part of.
-	Groups []string
+	// +optional
+	Groups []string `json:"groups,omitempty"`
 	// Any additional information provided by the authenticator.
-	Extra map[string]ExtraValue
+	// +optional
+	Extra map[string]ExtraValue `json:"extra,omitempty"`
 }
 
 // ExtraValue masks the value so protobuf can generate
@@ -62,4 +72,8 @@ type ExtraValue []string
 
 func (t ExtraValue) String() string {
 	return fmt.Sprintf("%v", []string(t))
+}
+
+func init() {
+	SchemeBuilder.Register(&WhoAmI{})
 }

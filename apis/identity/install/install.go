@@ -17,7 +17,6 @@ limitations under the License.
 package install
 
 import (
-	"kubeops.dev/ui-server/apis/identity"
 	"kubeops.dev/ui-server/apis/identity/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -26,6 +25,5 @@ import (
 
 // Install registers the API group and adds types to a scheme
 func Install(scheme *runtime.Scheme) {
-	utilruntime.Must(identity.AddToScheme(scheme))
 	utilruntime.Must(v1alpha1.AddToScheme(scheme))
 }
