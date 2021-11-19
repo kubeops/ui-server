@@ -20,6 +20,7 @@ import (
 	"context"
 
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
+	"kubeops.dev/ui-server/pkg/prometheus"
 
 	promapi "github.com/prometheus/client_golang/api"
 	core "k8s.io/api/core/v1"
@@ -83,16 +84,16 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, err
 	}
 
-	return toPodView(&pod), nil
+	return toPodView(&pod)
 }
 
-func toPodView(pod *core.Pod) *uiv1alpha1.PodView {
+func toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 	podview := uiv1alpha1.PodView{
 		// TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: pod.ObjectMeta,
 		Spec: uiv1alpha1.PodViewSpec{
 			Resources: uiv1alpha1.ResourceView{
-				// Limits:   pod.Spec.res,
+				Limits:   nil,
 				Requests: nil,
 				Usage:    nil,
 			},
@@ -104,7 +105,7 @@ func toPodView(pod *core.Pod) *uiv1alpha1.PodView {
 	podview.ManagedFields = nil
 	delete(podview.ObjectMeta.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
 
-	var limits, requests /*, usage*/ core.ResourceList
+	var limits, requests core.ResourceList
 
 	podview.Spec.Containers = make([]uiv1alpha1.ContainerView, 0, len(pod.Spec.Containers))
 	for _, c := range pod.Spec.Containers {
@@ -144,13 +145,18 @@ func toPodView(pod *core.Pod) *uiv1alpha1.PodView {
 		limits = rsapi.MaxResourceList(limits, c.Resources.Limits)
 		requests = rsapi.MaxResourceList(requests, c.Resources.Requests)
 	}
+
+	usage, err := prometheus.GetPodResourceUsage(pod.ObjectMeta)
+	if err != nil {
+		return nil, err
+	}
 	podview.Spec.Resources = uiv1alpha1.ResourceView{
 		Limits:   limits,
 		Requests: requests,
-		Usage:    nil,
+		Usage:    usage,
 	}
 
-	return &podview
+	return &podview, nil
 }
 
 func (r *Storage) NewList() runtime.Object {
@@ -171,20 +177,24 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		opts.Continue = options.Continue
 	}
 
-	var podlist core.PodList
-	err := r.kc.List(ctx, &podlist, &opts)
+	var podList core.PodList
+	err := r.kc.List(ctx, &podList, &opts)
 	if err != nil {
 		return nil, err
 	}
 
-	podviews := make([]uiv1alpha1.PodView, 0, len(podlist.Items))
-	for _, pod := range podlist.Items {
-		podviews = append(podviews, *toPodView(&pod))
+	podviews := make([]uiv1alpha1.PodView, 0, len(podList.Items))
+	for _, pod := range podList.Items {
+		podView, err := toPodView(&pod)
+		if err != nil {
+			return nil, err
+		}
+		podviews = append(podviews, *podView)
 	}
 
 	result := uiv1alpha1.PodViewList{
 		TypeMeta: metav1.TypeMeta{},
-		ListMeta: podlist.ListMeta,
+		ListMeta: podList.ListMeta,
 		Items:    podviews,
 	}
 	result.ListMeta.SelfLink = ""
