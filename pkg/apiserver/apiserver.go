@@ -112,7 +112,7 @@ func (c completedConfig) New() (*UIServer, error) {
 
 	v1alpha1storage := map[string]rest.Storage{}
 	v1alpha1storage[identityv1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
-	apiGroupInfo.VersionedResourcesStorageMap["identityv1alpha1"] = v1alpha1storage
+	apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
 		return nil, err
