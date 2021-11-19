@@ -51,7 +51,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 	o := &UIServerOptions{
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
-			apiserver.Codecs.LegacyCodec(identityv1alpha1.GroupVersion),
+			apiserver.Codecs.LegacyCodec(identityv1alpha1.GroupVersion, uiv1alpha1.GroupVersion),
 		),
 
 		StdOut: out,
