@@ -429,7 +429,7 @@ uninstall:
 
 .PHONY: purge
 purge: uninstall
-	kubectl delete crds -l app.kubernetes.io/name=cert-manager
+	@true
 
 .PHONY: dev
 dev: gen fmt push
