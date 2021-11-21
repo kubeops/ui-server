@@ -97,8 +97,9 @@ func toPodView(pod *core.Pod) *uiv1alpha1.PodView {
 		},
 		Status: pod.Status,
 	}
-	podview.ObjectMeta.SelfLink = ""
-	delete(podview.ObjectMeta.Labels, "kubectl.kubernetes.io/last-applied-configuration")
+	podview.SelfLink = ""
+	podview.ManagedFields = nil
+	delete(podview.ObjectMeta.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
 
 	var limits, requests /*, usage*/ core.ResourceList
 
