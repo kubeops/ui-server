@@ -167,6 +167,9 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	}
 	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
 	ki, err := shared.GetKubernetesInfo(mgr.GetConfig(), kubernetes.NewForConfigOrDie(mgr.GetConfig()))
+	if err != nil {
+		return nil, err
+	}
 
 	s := &UIServer{
 		GenericAPIServer: genericServer,
