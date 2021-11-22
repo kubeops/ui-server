@@ -83,3 +83,7 @@ type GenericResourceList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []GenericResource `json:"items"`
 }
+
+func init() {
+	SchemeBuilder.Register(&GenericResource{}, &GenericResourceList{})
+}
