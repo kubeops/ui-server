@@ -18,6 +18,7 @@ package podview
 
 import (
 	"context"
+	"errors"
 
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/prometheus"
@@ -40,6 +41,7 @@ type Storage struct {
 	kc        client.Client
 	a         authorizer.Authorizer
 	pc        promv1.API
+	gr        schema.GroupResource
 	convertor rest.TableConvertor
 }
 
@@ -53,6 +55,10 @@ func NewStorage(kc client.Client, a authorizer.Authorizer, pc promv1.API) *Stora
 		kc: kc,
 		a:  a,
 		pc: pc,
+		gr: schema.GroupResource{
+			Group:    "",
+			Resource: "pods",
+		},
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    uiv1alpha1.GroupName,
 			Resource: uiv1alpha1.ResourcePodViews,
@@ -77,9 +83,29 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+
+	attrs := authorizer.AttributesRecord{
+		User:      user,
+		Verb:      "get",
+		Namespace: ns,
+		APIGroup:  r.gr.Group,
+		Resource:  r.gr.Resource,
+		Name:      name,
+	}
+	decision, why, err := r.a.Authorize(ctx, attrs)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
+	if decision != authorizer.DecisionAllow {
+		return nil, apierrors.NewForbidden(r.gr, name, errors.New(why))
+	}
 
 	var pod core.Pod
-	err := r.kc.Get(ctx, client.ObjectKey{Namespace: ns, Name: name}, &pod)
+	err = r.kc.Get(ctx, client.ObjectKey{Namespace: ns, Name: name}, &pod)
 	if err != nil {
 		return nil, err
 	}
@@ -169,6 +195,20 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
 
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+
+	attrs := authorizer.AttributesRecord{
+		User:      user,
+		Verb:      "get",
+		Namespace: ns,
+		APIGroup:  r.gr.Group,
+		Resource:  r.gr.Resource,
+		Name:      "",
+	}
+
 	opts := client.ListOptions{Namespace: ns}
 	if options != nil {
 		opts.LabelSelector = options.LabelSelector
@@ -185,6 +225,15 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 	podviews := make([]uiv1alpha1.PodView, 0, len(podList.Items))
 	for _, pod := range podList.Items {
+		attrs.Name = pod.Name
+		decision, _, err := r.a.Authorize(ctx, attrs)
+		if err != nil {
+			return nil, apierrors.NewInternalError(err)
+		}
+		if decision != authorizer.DecisionAllow {
+			continue
+		}
+
 		podView, err := r.toPodView(&pod)
 		if err != nil {
 			return nil, err
