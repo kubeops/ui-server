@@ -145,6 +145,11 @@ API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,Con
 API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ContainerView,EnvFrom
 API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ContainerView,VolumeDevices
 API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ContainerView,VolumeMounts
+API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ControlPlaneInfo,DNSNames
+API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ControlPlaneInfo,EmailAddresses
+API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ControlPlaneInfo,IPAddresses
+API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ControlPlaneInfo,URIs
+API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,GenericResourceStatus,Conditions
 API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,PodViewSpec,Containers
 API rule violation: names_match,k8s.io/api/core/v1,AzureDiskVolumeSource,DataDiskURI
 API rule violation: names_match,k8s.io/api/core/v1,ContainerStatus,LastTerminationState
@@ -191,3 +196,9 @@ API rule violation: names_match,k8s.io/apimachinery/pkg/runtime,Unknown,Raw
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,IntVal
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,StrVal
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,Type
+API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ControlPlaneInfo,URIs
+API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,APIGroup
+API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,AppResource
+API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,Count
+API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,Kind
+API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,TotalResource
