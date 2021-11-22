@@ -32,6 +32,7 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"kmodules.xyz/client-go/tools/clusterid"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -39,8 +40,8 @@ import (
 
 type Storage struct {
 	kc        client.Client
+	clusterID string
 	a         authorizer.Authorizer
-	ki        *uiv1alpha1.KubernetesInfo
 	convertor rest.TableConvertor
 }
 
@@ -48,11 +49,11 @@ var _ rest.GroupVersionKindProvider = &Storage{}
 var _ rest.Scoper = &Storage{}
 var _ rest.Lister = &Storage{}
 
-func NewStorage(kc client.Client, a authorizer.Authorizer, ki *uiv1alpha1.KubernetesInfo) *Storage {
+func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
 	return &Storage{
-		kc: kc,
-		a:  a,
-		ki: ki,
+		kc:        kc,
+		clusterID: clusterID,
+		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    uiv1alpha1.GroupName,
 			Resource: uiv1alpha1.ResourceResourceSummaries,
@@ -121,9 +122,10 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				Namespace: "",
 			},
 			Spec: uiv1alpha1.ResourceSummarySpec{
-				Kubernetes: r.ki,
-				APIGroup:   gvk.Group,
-				Kind:       gvk.Kind,
+				ClusterName: clusterid.ClusterName(),
+				ClusterID:   r.clusterID,
+				APIGroup:    gvk.Group,
+				Kind:        gvk.Kind,
 				// TotalResource: core.ResourceRequirements{},
 				// AppResource:   core.ResourceRequirements{},
 				Count: 0,

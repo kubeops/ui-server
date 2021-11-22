@@ -29,12 +29,13 @@ const (
 )
 
 type ResourceSummarySpec struct {
-	Kubernetes    *KubernetesInfo `json:"kubernetes"`
-	APIGroup      string
-	Kind          string
-	TotalResource core.ResourceRequirements
-	AppResource   core.ResourceRequirements
-	Count         int
+	ClusterName   string                    `json:"clusterName,omitempty"`
+	ClusterID     string                    `json:"clusterID,omitempty"`
+	APIGroup      string                    `json:"apiGroup,omitempty" json:"api_group,omitempty"`
+	Kind          string                    `json:"kind,omitempty" json:"kind,omitempty"`
+	TotalResource core.ResourceRequirements `json:"totalResource,omitempty" json:"total_resource"`
+	AppResource   core.ResourceRequirements `json:"appResource,omitempty" json:"app_resource"`
+	Count         int                       `json:"count,omitempty" json:"count,omitempty"`
 }
 
 type KubernetesInfo struct {

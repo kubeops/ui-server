@@ -29,7 +29,6 @@ import (
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/ui/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/ui/podview"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/ui/resourcesummary"
-	"kubeops.dev/ui-server/pkg/shared"
 
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
@@ -41,11 +40,11 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2/klogr"
 	"kmodules.xyz/authorizer/rbac"
+	cu "kmodules.xyz/client-go/client"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -169,7 +168,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
-	ki, err := shared.GetKubernetesInfo(mgr.GetConfig(), kubernetes.NewForConfigOrDie(mgr.GetConfig()))
+
+	cid, err := cu.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
 		return nil, err
 	}
@@ -200,8 +200,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, promv1.NewAPI(pc))
-		v1alpha1storage[uiv1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, rbacAuthorizer)
-		v1alpha1storage[uiv1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, rbacAuthorizer, ki)
+		v1alpha1storage[uiv1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[uiv1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

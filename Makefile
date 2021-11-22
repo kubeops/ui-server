@@ -24,7 +24,7 @@ BIN      := kube-ui-server
 COMPRESS ?= no
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
-CRD_OPTIONS          ?= "crd:trivialVersions=true,preserveUnknownFields=false,crdVersions={v1}"
+CRD_OPTIONS          ?= "crd:trivialVersions=true,preserveUnknownFields=false,crdVersions={v1},allowDangerousTypes=true"
 CODE_GENERATOR_IMAGE ?= appscode/gengo:release-1.21
 API_GROUPS           ?= identity:v1alpha1 ui:v1alpha1
 
@@ -191,8 +191,28 @@ openapi-%:
 			--output-package "$(GO_PKG)/$(REPO)/apis/$(subst _,/,$*)" \
 			--report-filename .config/api-rules/violation_exceptions.list
 
+# Generate CRD manifests
+.PHONY: gen-crds
+gen-crds:
+	@echo "Generating CRD manifests"
+	@docker run --rm	                    \
+		-u $$(id -u):$$(id -g)              \
+		-v /tmp:/.cache                     \
+		-v $$(pwd):$(DOCKER_REPO_ROOT)      \
+		-w $(DOCKER_REPO_ROOT)              \
+	    --env HTTP_PROXY=$(HTTP_PROXY)      \
+	    --env HTTPS_PROXY=$(HTTPS_PROXY)    \
+		$(CODE_GENERATOR_IMAGE)             \
+		controller-gen                      \
+			$(CRD_OPTIONS)                  \
+			paths="./apis/..."              \
+			output:crd:artifacts:config=crds
+
+.PHONY: manifests
+manifests: gen-crds
+
 .PHONY: gen
-gen: clientset openapi
+gen: clientset manifests openapi
 
 fmt: $(BUILD_DIRS)
 	@docker run                                                 \
