@@ -17,6 +17,7 @@ limitations under the License.
 package server
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -33,6 +34,8 @@ import (
 	"k8s.io/apiserver/pkg/util/feature"
 	common "k8s.io/kube-openapi/pkg/common"
 	"kmodules.xyz/client-go/tools/clientcmd"
+	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
 const defaultEtcdPathPrefix = "/registry/k8s.appscode.com"
@@ -111,13 +114,13 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 }
 
 // RunUIServer starts a new UIServer given UIServerOptions
-func (o UIServerOptions) RunUIServer(stopCh <-chan struct{}) error {
+func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 	config, err := o.Config()
 	if err != nil {
 		return err
 	}
 
-	server, err := config.Complete().New()
+	server, err := config.Complete().New(ctx)
 	if err != nil {
 		return err
 	}
@@ -127,5 +130,14 @@ func (o UIServerOptions) RunUIServer(stopCh <-chan struct{}) error {
 		return nil
 	})
 
-	return server.GenericAPIServer.PrepareRun().Run(stopCh)
+	err = server.Manager.Add(manager.RunnableFunc(func(ctx context.Context) error {
+		return server.GenericAPIServer.PrepareRun().Run(ctx.Done())
+	}))
+	if err != nil {
+		return err
+	}
+
+	setupLog := log.Log.WithName("setup")
+	setupLog.Info("starting manager")
+	return server.Manager.Start(ctx)
 }

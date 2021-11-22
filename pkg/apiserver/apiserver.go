@@ -17,13 +17,21 @@ limitations under the License.
 package apiserver
 
 import (
+	"context"
+	"fmt"
+
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	uiinstall "kubeops.dev/ui-server/apis/ui/install"
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
+	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/ui/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/ui/podview"
+	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/ui/resourcesummary"
+	"kubeops.dev/ui-server/pkg/shared"
 
+	core "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -31,10 +39,16 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
+	"k8s.io/klog/v2/klogr"
+	"kmodules.xyz/authorizer/rbac"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 var (
@@ -79,6 +93,7 @@ type Config struct {
 // UIServer contains state for a Kubernetes cluster master/api server.
 type UIServer struct {
 	GenericAPIServer *genericapiserver.GenericAPIServer
+	Manager          manager.Manager
 }
 
 type completedConfig struct {
@@ -107,31 +122,55 @@ func (cfg *Config) Complete() CompletedConfig {
 }
 
 // New returns a new instance of UIServer from the given config.
-func (c completedConfig) New() (*UIServer, error) {
+func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	genericServer, err := c.GenericConfig.New("kube-ui-server", genericapiserver.NewEmptyDelegate())
 	if err != nil {
 		return nil, err
 	}
 
-	s := &UIServer{
-		GenericAPIServer: genericServer,
-	}
+	// ctrl.SetLogger(...)
+	log.SetLogger(klogr.New())
 
-	mapper, err := apiutil.NewDynamicRESTMapper(c.ExtraConfig.ClientConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	ctrlClient, err := client.New(c.ExtraConfig.ClientConfig, client.Options{
-		Scheme: Scheme,
-		Mapper: mapper,
-		Opts: client.WarningHandlerOptions{
-			SuppressWarnings:   false,
-			AllowDuplicateLogs: false,
+	mgr, err := manager.New(c.ExtraConfig.ClientConfig, manager.Options{
+		Scheme:                 Scheme,
+		MetricsBindAddress:     "",
+		Port:                   0,
+		HealthProbeBindAddress: "",
+		LeaderElection:         false,
+		LeaderElectionID:       "5b87adeb.ui.kubedb.com",
+		ClientDisableCacheFor: []client.Object{
+			&core.Namespace{},
+			&core.Secret{},
+			&core.Pod{},
 		},
 	})
 	if err != nil {
+		return nil, fmt.Errorf("unable to start manager, reason: %v", err)
+	}
+	ctrlClient := mgr.GetClient()
+
+	r := reconcile.Func(func(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
+		return reconcile.Result{}, nil
+	})
+
+	if err := builder.ControllerManagedBy(mgr).For(&rbacv1.ClusterRole{}).Complete(r); err != nil {
 		return nil, err
+	}
+	if err := builder.ControllerManagedBy(mgr).For(&rbacv1.ClusterRoleBinding{}).Complete(r); err != nil {
+		return nil, err
+	}
+	if err := builder.ControllerManagedBy(mgr).For(&rbacv1.Role{}).Complete(r); err != nil {
+		return nil, err
+	}
+	if err := builder.ControllerManagedBy(mgr).For(&rbacv1.RoleBinding{}).Complete(r); err != nil {
+		return nil, err
+	}
+	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
+	ki, err := shared.GetKubernetesInfo(mgr.GetConfig(), kubernetes.NewForConfigOrDie(mgr.GetConfig()))
+
+	s := &UIServer{
+		GenericAPIServer: genericServer,
+		Manager:          mgr,
 	}
 
 	{
@@ -149,7 +188,9 @@ func (c completedConfig) New() (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(uiv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, nil)
+		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, nil)
+		v1alpha1storage[uiv1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[uiv1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, rbacAuthorizer, ki)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

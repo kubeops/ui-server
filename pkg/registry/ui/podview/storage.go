@@ -28,6 +28,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	rsapi "kmodules.xyz/resource-metrics/api"
@@ -36,6 +37,7 @@ import (
 
 type Storage struct {
 	kc        client.Client
+	a         authorizer.Authorizer
 	pc        promapi.Client
 	convertor rest.TableConvertor
 }
@@ -45,9 +47,10 @@ var _ rest.Scoper = &Storage{}
 var _ rest.Lister = &Storage{}
 var _ rest.Getter = &Storage{}
 
-func NewStorage(kc client.Client, pc promapi.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer, pc promapi.Client) *Storage {
 	return &Storage{
 		kc: kc,
+		a:  a,
 		pc: pc,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    uiv1alpha1.GroupName,
