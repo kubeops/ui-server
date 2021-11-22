@@ -34,8 +34,9 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	"k8s.io/apiserver/pkg/util/feature"
-	common "k8s.io/kube-openapi/pkg/common"
+	ou "kmodules.xyz/client-go/openapi"
 	"kmodules.xyz/client-go/tools/clientcmd"
+	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -57,7 +58,11 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 	o := &UIServerOptions{
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
-			apiserver.Codecs.LegacyCodec(identityv1alpha1.GroupVersion, uiv1alpha1.GroupVersion),
+			apiserver.Codecs.LegacyCodec(
+				auditorv1alpha1.SchemeGroupVersion,
+				identityv1alpha1.GroupVersion,
+				uiv1alpha1.GroupVersion,
+			),
 		),
 		ExtraOptions: prometheus.NewPrometheusConfig(),
 		StdOut:       out,
@@ -100,18 +105,13 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	// Fixes https://github.com/Azure/AKS/issues/522
 	clientcmd.Fix(serverConfig.ClientConfig)
 
-	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(func(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
-		identitydefs := identityv1alpha1.GetOpenAPIDefinitions(ref)
-		uidefs := uiv1alpha1.GetOpenAPIDefinitions(ref)
-		defs := make(map[string]common.OpenAPIDefinition, len(identitydefs)+len(uidefs))
-		for k, v := range identitydefs {
-			defs[k] = v
-		}
-		for k, v := range uidefs {
-			defs[k] = v
-		}
-		return defs
-	}, openapi.NewDefinitionNamer(apiserver.Scheme))
+	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
+		ou.GetDefinitions(
+			auditorv1alpha1.GetOpenAPIDefinitions,
+			identityv1alpha1.GetOpenAPIDefinitions,
+			uiv1alpha1.GetOpenAPIDefinitions,
+		),
+		openapi.NewDefinitionNamer(apiserver.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"
 	serverConfig.OpenAPIConfig.Info.Version = "v0.0.1"
 

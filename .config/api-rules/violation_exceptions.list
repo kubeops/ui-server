@@ -197,8 +197,3 @@ API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,StrVal
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,Type
 API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ControlPlaneInfo,URIs
-API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,APIGroup
-API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,AppResource
-API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,Count
-API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,Kind
-API rule violation: names_match,kubeops.dev/ui-server/apis/ui/v1alpha1,ResourceSummarySpec,TotalResource

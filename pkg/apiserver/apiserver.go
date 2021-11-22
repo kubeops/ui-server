@@ -25,6 +25,8 @@ import (
 	uiinstall "kubeops.dev/ui-server/apis/ui/install"
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/prometheus"
+	"kubeops.dev/ui-server/pkg/registry"
+	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/ui/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/ui/podview"
@@ -45,6 +47,9 @@ import (
 	"k8s.io/klog/v2/klogr"
 	"kmodules.xyz/authorizer/rbac"
 	cu "kmodules.xyz/client-go/client"
+	"kmodules.xyz/custom-resources/apis/auditor"
+	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
+	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -61,6 +66,7 @@ var (
 )
 
 func init() {
+	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
 	uiinstall.Install(Scheme)
 	_ = clientgoscheme.AddToScheme(Scheme)
@@ -169,6 +175,9 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	}
 	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
 
+	if err := builder.ControllerManagedBy(mgr).For(&core.Node{}).Complete(r); err != nil {
+		return nil, err
+	}
 	cid, err := cu.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
 		return nil, err
@@ -184,6 +193,17 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		Manager:          mgr,
 	}
 
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(auditor.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[auditorv1alpha1.ResourceSiteInfos] = registry.RESTInPeace(siteinfostorage.NewStorage(mgr.GetConfig(), ctrlClient))
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
 	{
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
