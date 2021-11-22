@@ -284,7 +284,7 @@ go.uber.org/zap/internal/bufferpool
 go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
-# golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
+# golang.org/x/crypto v0.0.0-20210314154223-e6e6c4f2bb5b
 ## explicit; go 1.11
 golang.org/x/crypto/cryptobyte
 golang.org/x/crypto/cryptobyte/asn1
@@ -1023,13 +1023,20 @@ k8s.io/utils/trace
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.0.0-20211122080435-dda064bb6a63
+# kmodules.xyz/client-go v0.0.0-20211122091731-6c471b24a4ea
 ## explicit; go 1.17
 kmodules.xyz/client-go
 kmodules.xyz/client-go/client
 kmodules.xyz/client-go/meta
+kmodules.xyz/client-go/openapi
 kmodules.xyz/client-go/tools/clientcmd
 kmodules.xyz/client-go/tools/clusterid
+# kmodules.xyz/custom-resources v0.0.0-20211122122929-366edc60bcf7
+## explicit; go 1.16
+kmodules.xyz/custom-resources/apis/auditor
+kmodules.xyz/custom-resources/apis/auditor/install
+kmodules.xyz/custom-resources/apis/auditor/v1alpha1
+kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
