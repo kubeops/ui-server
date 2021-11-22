@@ -22,7 +22,7 @@ import (
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/prometheus"
 
-	promapi "github.com/prometheus/client_golang/api"
+	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
@@ -39,7 +39,7 @@ import (
 type Storage struct {
 	kc        client.Client
 	a         authorizer.Authorizer
-	pc        promapi.Client
+	pc        promv1.API
 	convertor rest.TableConvertor
 }
 
@@ -48,7 +48,7 @@ var _ rest.Scoper = &Storage{}
 var _ rest.Lister = &Storage{}
 var _ rest.Getter = &Storage{}
 
-func NewStorage(kc client.Client, a authorizer.Authorizer, pc promapi.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer, pc promv1.API) *Storage {
 	return &Storage{
 		kc: kc,
 		a:  a,
@@ -84,10 +84,10 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, err
 	}
 
-	return toPodView(&pod)
+	return r.toPodView(&pod)
 }
 
-func toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
+func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 	podview := uiv1alpha1.PodView{
 		// TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: pod.ObjectMeta,
@@ -146,7 +146,7 @@ func toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 		requests = rsapi.MaxResourceList(requests, c.Resources.Requests)
 	}
 
-	usage, err := prometheus.GetPodResourceUsage(pod.ObjectMeta)
+	usage, err := prometheus.GetPodResourceUsage(r.pc, pod.ObjectMeta)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 	podviews := make([]uiv1alpha1.PodView, 0, len(podList.Items))
 	for _, pod := range podList.Items {
-		podView, err := toPodView(&pod)
+		podView, err := r.toPodView(&pod)
 		if err != nil {
 			return nil, err
 		}

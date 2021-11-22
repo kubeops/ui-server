@@ -25,23 +25,20 @@ import (
 	"strings"
 	"time"
 
-	promapi "github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func GetPodResourceUsage(obj metav1.ObjectMeta) (core.ResourceList, error) {
+func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) (core.ResourceList, error) {
 	resUsage := core.ResourceList{}
-	// todo: promAddr should be given by user
-	promAddr := "http://prometheus-kube-prometheus-prometheus.monitoring.svc:9090/"
 
 	promCPUQuery := fmt.Sprintf(`sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="%s", pod="%s", container!=""})`, obj.Namespace, obj.Name)
 	promMemoryQuery := fmt.Sprintf(`sum(container_memory_working_set_bytes{namespace="%s", pod="%s", container!="", image!=""})`, obj.Namespace, obj.Name)
 	promStorageQuery := fmt.Sprintf(`avg(container_blkio_device_usage_total{namespace="%s", pod="%s"})`, obj.Namespace, obj.Name)
 
-	res, err := getPromQueryResult(promAddr, promCPUQuery)
+	res, err := getPromQueryResult(pc, promCPUQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +53,7 @@ func GetPodResourceUsage(obj metav1.ObjectMeta) (core.ResourceList, error) {
 	resUsage[core.ResourceCPU] = cpuQuantity
 
 	memory := float64(0)
-	res, err = getPromQueryResult(promAddr, promMemoryQuery)
+	res, err = getPromQueryResult(pc, promMemoryQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +67,7 @@ func GetPodResourceUsage(obj metav1.ObjectMeta) (core.ResourceList, error) {
 	resUsage[core.ResourceMemory] = memQuantity
 
 	storage := float64(0)
-	res, err = getPromQueryResult(promAddr, promStorageQuery)
+	res, err = getPromQueryResult(pc, promStorageQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -86,16 +83,8 @@ func GetPodResourceUsage(obj metav1.ObjectMeta) (core.ResourceList, error) {
 	return resUsage, nil
 }
 
-func getPromQueryResult(promAddr string, promQuery string) (map[string]float64, error) {
-	client, err := promapi.NewClient(promapi.Config{
-		Address: promAddr,
-	})
-	if err != nil {
-		return nil, err
-	}
-	promClient := promv1.NewAPI(client)
-
-	val, warn, err := promClient.Query(context.Background(), promQuery, time.Now())
+func getPromQueryResult(pc promv1.API, promQuery string) (map[string]float64, error) {
+	val, warn, err := pc.Query(context.Background(), promQuery, time.Now())
 	if err != nil {
 		return nil, err
 	}

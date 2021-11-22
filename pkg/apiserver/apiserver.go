@@ -24,12 +24,14 @@ import (
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	uiinstall "kubeops.dev/ui-server/apis/ui/install"
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
+	"kubeops.dev/ui-server/pkg/prometheus"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/ui/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/ui/podview"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/ui/resourcesummary"
 	"kubeops.dev/ui-server/pkg/shared"
 
+	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -82,6 +84,7 @@ func init() {
 // ExtraConfig holds custom apiserver config
 type ExtraConfig struct {
 	ClientConfig *restclient.Config
+	PromConfig   prometheus.Config
 }
 
 // Config defines the config for the apiserver
@@ -171,6 +174,11 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 
+	pc, err := c.ExtraConfig.PromConfig.NewPrometheusClient()
+	if err != nil {
+		return nil, err
+	}
+
 	s := &UIServer{
 		GenericAPIServer: genericServer,
 		Manager:          mgr,
@@ -191,7 +199,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(uiv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, nil)
+		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, promv1.NewAPI(pc))
 		v1alpha1storage[uiv1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[uiv1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, rbacAuthorizer, ki)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
