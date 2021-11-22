@@ -53,7 +53,7 @@ func NewCmdRun(ctx context.Context, out, errOut io.Writer) *cobra.Command {
 	}
 
 	flags := cmd.Flags()
-	o.RecommendedOptions.AddFlags(flags)
+	o.AddFlags(flags)
 	utilfeature.DefaultMutableFeatureGate.AddFlag(flags)
 
 	return cmd

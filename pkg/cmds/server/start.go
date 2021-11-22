@@ -25,7 +25,9 @@ import (
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
+	"kubeops.dev/ui-server/pkg/prometheus"
 
+	"github.com/spf13/pflag"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
@@ -43,6 +45,7 @@ const defaultEtcdPathPrefix = "/registry/k8s.appscode.com"
 // UIServerOptions contains state for master/api server
 type UIServerOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions
+	ExtraOptions       *prometheus.Config
 
 	StdOut io.Writer
 	StdErr io.Writer
@@ -56,19 +59,25 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 			defaultEtcdPathPrefix,
 			apiserver.Codecs.LegacyCodec(identityv1alpha1.GroupVersion, uiv1alpha1.GroupVersion),
 		),
-
-		StdOut: out,
-		StdErr: errOut,
+		ExtraOptions: prometheus.NewPrometheusConfig(),
+		StdOut:       out,
+		StdErr:       errOut,
 	}
 	o.RecommendedOptions.Etcd = nil
 	o.RecommendedOptions.Admission = nil
 	return o
 }
 
+func (o UIServerOptions) AddFlags(fs *pflag.FlagSet) {
+	o.RecommendedOptions.AddFlags(fs)
+	o.ExtraOptions.AddFlags(fs)
+}
+
 // Validate validates UIServerOptions
 func (o UIServerOptions) Validate(args []string) error {
 	var errors []error
 	errors = append(errors, o.RecommendedOptions.Validate()...)
+	errors = append(errors, o.ExtraOptions.Validate())
 	return utilerrors.NewAggregate(errors)
 }
 
@@ -108,7 +117,10 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 
 	config := &apiserver.Config{
 		GenericConfig: serverConfig,
-		ExtraConfig:   apiserver.ExtraConfig{ClientConfig: serverConfig.ClientConfig},
+		ExtraConfig: apiserver.ExtraConfig{
+			ClientConfig: serverConfig.ClientConfig,
+			PromConfig:   *o.ExtraOptions,
+		},
 	}
 	return config, nil
 }
