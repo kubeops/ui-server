@@ -33,6 +33,7 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"kmodules.xyz/client-go/tools/clusterid"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/cli-utils/pkg/kstatus/status"
@@ -41,6 +42,7 @@ import (
 
 type Storage struct {
 	kc        client.Client
+	clusterID string
 	a         authorizer.Authorizer
 	convertor rest.TableConvertor
 }
@@ -49,10 +51,11 @@ var _ rest.GroupVersionKindProvider = &Storage{}
 var _ rest.Scoper = &Storage{}
 var _ rest.Lister = &Storage{}
 
-func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
+func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
 	return &Storage{
-		kc: kc,
-		a:  a,
+		kc:        kc,
+		clusterID: clusterID,
+		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    uiv1alpha1.GroupName,
 			Resource: uiv1alpha1.ResourceGenericResources,
@@ -129,7 +132,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				continue
 			}
 
-			genres, err := toGenericResource(item, gvk)
+			genres, err := r.toGenericResource(item, gvk)
 			if err != nil {
 				return nil, err
 			}
@@ -151,7 +154,7 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
 
-func toGenericResource(item unstructured.Unstructured, gvk schema.GroupVersionKind) (*uiv1alpha1.GenericResource, error) {
+func (r *Storage) toGenericResource(item unstructured.Unstructured, gvk schema.GroupVersionKind) (*uiv1alpha1.GenericResource, error) {
 	content := item.UnstructuredContent()
 
 	s, err := status.Compute(&item)
@@ -194,6 +197,8 @@ func toGenericResource(item unstructured.Unstructured, gvk schema.GroupVersionKi
 			// ManagedFields:              nil,
 		},
 		Spec: uiv1alpha1.GenericResourceSpec{
+			ClusterName:          clusterid.ClusterName(),
+			ClusterID:            r.clusterID,
 			Group:                gvk.Group,
 			Version:              gvk.Version,
 			Kind:                 gvk.Kind,

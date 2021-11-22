@@ -40,6 +40,8 @@ type GenericResource struct {
 }
 
 type GenericResourceSpec struct {
+	ClusterName          string                            `json:"clusterName,omitempty"`
+	ClusterID            string                            `json:"clusterID,omitempty"`
 	Group                string                            `json:"group,omitempty"`
 	Version              string                            `json:"version,omitempty"`
 	Kind                 string                            `json:"kind,omitempty"`
