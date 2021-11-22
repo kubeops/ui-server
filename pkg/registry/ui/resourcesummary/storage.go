@@ -18,6 +18,7 @@ package ResourceSummary
 
 import (
 	"context"
+	"time"
 
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/shared"
@@ -93,6 +94,8 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewBadRequest("missing user info")
 	}
 
+	now := time.Now()
+
 	items := make([]uiv1alpha1.ResourceSummary, 0)
 	for _, gvk := range api.RegisteredTypes() {
 		if apiGroups.Len() > 0 && !apiGroups.Has(gvk.Group) {
@@ -118,8 +121,9 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		summary := uiv1alpha1.ResourceSummary{
 			TypeMeta: metav1.TypeMeta{},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      gvk.GroupKind().String(),
-				Namespace: "",
+				Name:              gvk.GroupKind().String(),
+				Namespace:         ns,
+				CreationTimestamp: metav1.NewTime(now),
 			},
 			Spec: uiv1alpha1.ResourceSummarySpec{
 				ClusterName: clusterid.ClusterName(),
