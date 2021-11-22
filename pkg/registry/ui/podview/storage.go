@@ -172,14 +172,16 @@ func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 		requests = rsapi.MaxResourceList(requests, c.Resources.Requests)
 	}
 
-	usage, err := prometheus.GetPodResourceUsage(r.pc, pod.ObjectMeta)
-	if err != nil {
-		return nil, err
-	}
-	podview.Spec.Resources = uiv1alpha1.ResourceView{
-		Limits:   limits,
-		Requests: requests,
-		Usage:    usage,
+	if r.pc != nil {
+		usage, err := prometheus.GetPodResourceUsage(r.pc, pod.ObjectMeta)
+		if err != nil {
+			return nil, err
+		}
+		podview.Spec.Resources = uiv1alpha1.ResourceView{
+			Limits:   limits,
+			Requests: requests,
+			Usage:    usage,
+		}
 	}
 
 	return &podview, nil
