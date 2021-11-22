@@ -24,7 +24,7 @@ BIN      := kube-ui-server
 COMPRESS ?= no
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
-CRD_OPTIONS          ?= "crd:trivialVersions=true,preserveUnknownFields=false,crdVersions={v1},allowDangerousTypes=true"
+CRD_OPTIONS          ?= "crd:crdVersions={v1},allowDangerousTypes=true"
 CODE_GENERATOR_IMAGE ?= appscode/gengo:release-1.21
 API_GROUPS           ?= identity:v1alpha1 ui:v1alpha1
 

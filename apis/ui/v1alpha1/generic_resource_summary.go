@@ -31,11 +31,11 @@ const (
 type ResourceSummarySpec struct {
 	ClusterName   string                    `json:"clusterName,omitempty"`
 	ClusterID     string                    `json:"clusterID,omitempty"`
-	APIGroup      string                    `json:"apiGroup,omitempty" json:"api_group,omitempty"`
-	Kind          string                    `json:"kind,omitempty" json:"kind,omitempty"`
-	TotalResource core.ResourceRequirements `json:"totalResource,omitempty" json:"total_resource"`
-	AppResource   core.ResourceRequirements `json:"appResource,omitempty" json:"app_resource"`
-	Count         int                       `json:"count,omitempty" json:"count,omitempty"`
+	APIGroup      string                    `json:"apiGroup,omitempty"`
+	Kind          string                    `json:"kind,omitempty"`
+	TotalResource core.ResourceRequirements `json:"totalResource,omitempty"`
+	AppResource   core.ResourceRequirements `json:"appResource,omitempty"`
+	Count         int                       `json:"count,omitempty"`
 }
 
 type KubernetesInfo struct {
