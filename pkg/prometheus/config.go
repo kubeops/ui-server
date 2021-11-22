@@ -17,7 +17,6 @@ limitations under the License.
 package prometheus
 
 import (
-	"errors"
 	"flag"
 	"net/url"
 
@@ -82,7 +81,7 @@ func (p *Config) AddFlags(fs *pflag.FlagSet) {
 
 func (p *Config) Validate() error {
 	if p.Addr == "" {
-		return errors.New("prometheus.url must non-empty")
+		return nil // if prometheus.address is not set, skip validation check
 	}
 	httpConf, err := p.ToHTTPClientConfig()
 	if err != nil {
@@ -125,6 +124,10 @@ func (p *Config) ToHTTPClientConfig() (*prom_config.HTTPClientConfig, error) {
 }
 
 func (p *Config) NewPrometheusClient() (promapi.Client, error) {
+	if p.Addr == "" {
+		return nil, nil
+	}
+
 	httpConf, err := p.ToHTTPClientConfig()
 	if err != nil {
 		return nil, err
