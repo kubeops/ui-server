@@ -213,8 +213,12 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 	opts := client.ListOptions{Namespace: ns}
 	if options != nil {
-		opts.LabelSelector = options.LabelSelector
-		opts.FieldSelector = options.FieldSelector
+		if options.LabelSelector != nil && !options.LabelSelector.Empty() {
+			opts.LabelSelector = options.LabelSelector
+		}
+		if options.FieldSelector != nil && !options.FieldSelector.Empty() {
+			opts.FieldSelector = options.FieldSelector
+		}
 		opts.Limit = options.Limit
 		opts.Continue = options.Continue
 	}
