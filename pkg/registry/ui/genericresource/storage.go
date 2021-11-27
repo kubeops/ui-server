@@ -85,10 +85,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
 
-	apiGroups := shared.GetAPIGroups(options.LabelSelector)
-	if apiGroups.Len() == 0 {
-		return &uiv1alpha1.GenericResourceList{}, nil
-	}
+	selector := shared.NewGroupKindSelector(options.LabelSelector)
 
 	user, ok := apirequest.UserFrom(ctx)
 	if !ok {
@@ -97,7 +94,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 	items := make([]uiv1alpha1.GenericResource, 0)
 	for _, gvk := range api.RegisteredTypes() {
-		if apiGroups.Len() > 0 && !apiGroups.Has(gvk.Group) {
+		if !selector.Matches(gvk.GroupKind()) {
 			continue
 		}
 

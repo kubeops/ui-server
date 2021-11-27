@@ -1023,7 +1023,7 @@ k8s.io/utils/trace
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.0.0-20211122091731-6c471b24a4ea
+# kmodules.xyz/client-go v0.0.0-20211127071251-7e4808453833
 ## explicit; go 1.17
 kmodules.xyz/client-go
 kmodules.xyz/client-go/client

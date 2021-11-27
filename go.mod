@@ -19,7 +19,7 @@ require (
 	k8s.io/klog/v2 v2.9.0
 	k8s.io/kube-openapi v0.0.0-20210421082810-95288971da7e
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
-	kmodules.xyz/client-go v0.0.0-20211122091731-6c471b24a4ea
+	kmodules.xyz/client-go v0.0.0-20211127071251-7e4808453833
 	kmodules.xyz/custom-resources v0.0.0-20211122122929-366edc60bcf7
 	kmodules.xyz/resource-metrics v0.0.6
 	sigs.k8s.io/cli-utils v0.26.1

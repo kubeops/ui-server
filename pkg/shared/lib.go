@@ -24,6 +24,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/kubernetes"
@@ -32,21 +33,63 @@ import (
 	"kmodules.xyz/client-go/tools/clusterid"
 )
 
-func GetAPIGroups(s labels.Selector) sets.String {
-	g, found := s.RequiresExactMatch("k8s.io/group")
-	if found {
-		return sets.NewString(g)
+type matcherType int
+
+const (
+	empty matcherType = iota
+	anyKind
+	specificKind
+)
+
+type GroupKindSelector struct {
+	everything bool
+	groups     map[string]matcherType
+	groupKinds map[schema.GroupKind]matcherType
+}
+
+func NewGroupKindSelector(s labels.Selector) GroupKindSelector {
+	if s == nil || s.Empty() {
+		return GroupKindSelector{everything: true}
 	}
 
-	requirements, selectable := s.Requirements()
-	if selectable {
+	gks := GroupKindSelector{
+		groups:     map[string]matcherType{},
+		groupKinds: map[schema.GroupKind]matcherType{},
+	}
+	if requirements, selectable := s.Requirements(); selectable {
 		for _, r := range requirements {
-			if r.Key() == "k8s.io/group" && r.Operator() == selection.In {
-				return r.Values()
+			if r.Key() == "k8s.io/group" && (r.Operator() == selection.In || r.Operator() == selection.Equals) {
+				for _, group := range r.Values().UnsortedList() {
+					gks.groups[group] = anyKind
+				}
+				break
+			}
+		}
+		for _, r := range requirements {
+			if r.Key() == "k8s.io/group-kind" && (r.Operator() == selection.In || r.Operator() == selection.Equals) {
+				for _, str := range r.Values().UnsortedList() {
+					gk := schema.ParseGroupKind(str)
+					gks.groups[gk.Group] = specificKind
+					gks.groupKinds[gk] = empty
+				}
+				break
 			}
 		}
 	}
-	return sets.NewString()
+	return gks
+}
+
+func (s GroupKindSelector) Matches(gk schema.GroupKind) bool {
+	if s.everything {
+		return true
+	}
+	if v, ok := s.groups[gk.Group]; !ok {
+		return false
+	} else if v == anyKind {
+		return true
+	}
+	_, ok := s.groupKinds[gk]
+	return ok
 }
 
 func GetKubernetesInfo(cfg *rest.Config, kc kubernetes.Interface) (*uiv1alpha1.KubernetesInfo, error) {
