@@ -1018,6 +1018,9 @@ k8s.io/utils/net
 k8s.io/utils/path
 k8s.io/utils/pointer
 k8s.io/utils/trace
+# kmodules.xyz/apiversion v0.2.0
+## explicit; go 1.14
+kmodules.xyz/apiversion
 # kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
 ## explicit; go 1.17
 kmodules.xyz/authorizer/rbac

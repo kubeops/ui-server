@@ -18,6 +18,7 @@ package ResourceSummary
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
@@ -182,6 +183,12 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		summary.Spec.Count = len(list.Items)
 		items = append(items, summary)
 	}
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Spec.APIGroup != items[j].Spec.APIGroup {
+			return items[i].Spec.APIGroup < items[j].Spec.APIGroup
+		}
+		return items[i].Spec.Kind < items[j].Spec.Kind
+	})
 
 	result := uiv1alpha1.ResourceSummaryList{
 		TypeMeta: metav1.TypeMeta{},
