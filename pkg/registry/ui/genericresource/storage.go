@@ -18,6 +18,7 @@ package GenericResource
 
 import (
 	"context"
+	"sort"
 
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/shared"
@@ -33,6 +34,7 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"kmodules.xyz/apiversion"
 	"kmodules.xyz/client-go/tools/clusterid"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
@@ -136,6 +138,24 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			items = append(items, *genres)
 		}
 	}
+	sort.Slice(items, func(i, j int) bool {
+		gvk_i := items[i].GetObjectKind().GroupVersionKind()
+		gvk_j := items[j].GetObjectKind().GroupVersionKind()
+		if gvk_i.Group != gvk_j.Group {
+			return gvk_i.Group < gvk_j.Group
+		}
+		if gvk_i.Version != gvk_j.Version {
+			diff, _ := apiversion.Compare(gvk_i.Version, gvk_j.Version)
+			return diff < 0
+		}
+		if gvk_i.Kind != gvk_j.Kind {
+			return gvk_i.Kind < gvk_j.Kind
+		}
+		if items[i].Namespace != items[j].Namespace {
+			return items[i].Namespace < items[j].Namespace
+		}
+		return items[i].Name < items[j].Name
+	})
 
 	result := uiv1alpha1.GenericResourceList{
 		TypeMeta: metav1.TypeMeta{},
@@ -210,6 +230,7 @@ func (r *Storage) toGenericResource(item unstructured.Unstructured, gvk schema.G
 		},
 		Status: resstatus,
 	}
+	delete(genres.ObjectMeta.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
 
 	{
 		rv, err := resourcemetrics.Replicas(content)
