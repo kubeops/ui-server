@@ -35,6 +35,7 @@ import (
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/apiversion"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/tools/clusterid"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
@@ -107,6 +108,18 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			return nil, err
 		}
 
+		scope := kmapi.ClusterScoped
+		if mapping.Scope == meta.RESTScopeNamespace {
+			scope = kmapi.NamespaceScoped
+		}
+		apiType := kmapi.ResourceID{
+			Group:   mapping.Resource.Group,
+			Version: mapping.Resource.Version,
+			Name:    mapping.Resource.Resource,
+			Kind:    mapping.GroupVersionKind.Kind,
+			Scope:   scope,
+		}
+
 		attrs := authorizer.AttributesRecord{
 			User:      user,
 			Verb:      "get",
@@ -131,7 +144,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				continue
 			}
 
-			genres, err := r.toGenericResource(item, gvk)
+			genres, err := r.toGenericResource(item, apiType)
 			if err != nil {
 				return nil, err
 			}
@@ -171,7 +184,7 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
 
-func (r *Storage) toGenericResource(item unstructured.Unstructured, gvk schema.GroupVersionKind) (*uiv1alpha1.GenericResource, error) {
+func (r *Storage) toGenericResource(item unstructured.Unstructured, apiType kmapi.ResourceID) (*uiv1alpha1.GenericResource, error) {
 	content := item.UnstructuredContent()
 
 	s, err := status.Compute(&item)
@@ -216,9 +229,7 @@ func (r *Storage) toGenericResource(item unstructured.Unstructured, gvk schema.G
 		Spec: uiv1alpha1.GenericResourceSpec{
 			ClusterName:          clusterid.ClusterName(),
 			ClusterID:            r.clusterID,
-			Group:                gvk.Group,
-			Version:              gvk.Version,
-			Kind:                 gvk.Kind,
+			APIType:              apiType,
 			Replicas:             0,
 			RoleReplicas:         nil,
 			Mode:                 "",

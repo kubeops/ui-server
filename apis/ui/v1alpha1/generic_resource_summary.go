@@ -20,6 +20,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/version"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
 const (
@@ -31,8 +32,7 @@ const (
 type ResourceSummarySpec struct {
 	ClusterName   string                    `json:"clusterName,omitempty"`
 	ClusterID     string                    `json:"clusterID,omitempty"`
-	APIGroup      string                    `json:"apiGroup,omitempty"`
-	Kind          string                    `json:"kind,omitempty"`
+	APIType       kmapi.ResourceID          `json:"apiType"`
 	TotalResource core.ResourceRequirements `json:"totalResource,omitempty"`
 	AppResource   core.ResourceRequirements `json:"appResource,omitempty"`
 	Count         int                       `json:"count,omitempty"`

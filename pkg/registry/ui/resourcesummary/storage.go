@@ -34,6 +34,7 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/tools/clusterid"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
@@ -107,6 +108,18 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			return nil, err
 		}
 
+		scope := kmapi.ClusterScoped
+		if mapping.Scope == meta.RESTScopeNamespace {
+			scope = kmapi.NamespaceScoped
+		}
+		apiType := kmapi.ResourceID{
+			Group:   mapping.Resource.Group,
+			Version: mapping.Resource.Version,
+			Name:    mapping.Resource.Resource,
+			Kind:    mapping.GroupVersionKind.Kind,
+			Scope:   scope,
+		}
+
 		attrs := authorizer.AttributesRecord{
 			User:      user,
 			Verb:      "get",
@@ -126,8 +139,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			Spec: uiv1alpha1.ResourceSummarySpec{
 				ClusterName: clusterid.ClusterName(),
 				ClusterID:   r.clusterID,
-				APIGroup:    gvk.Group,
-				Kind:        gvk.Kind,
+				APIType:     apiType,
 				// TotalResource: core.ResourceRequirements{},
 				// AppResource:   core.ResourceRequirements{},
 				Count: 0,
@@ -184,10 +196,10 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		items = append(items, summary)
 	}
 	sort.Slice(items, func(i, j int) bool {
-		if items[i].Spec.APIGroup != items[j].Spec.APIGroup {
-			return items[i].Spec.APIGroup < items[j].Spec.APIGroup
+		if items[i].Spec.APIType.Group != items[j].Spec.APIType.Group {
+			return items[i].Spec.APIType.Group < items[j].Spec.APIType.Group
 		}
-		return items[i].Spec.Kind < items[j].Spec.Kind
+		return items[i].Spec.APIType.Kind < items[j].Spec.APIType.Kind
 	})
 
 	result := uiv1alpha1.ResourceSummaryList{

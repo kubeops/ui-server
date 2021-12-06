@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metrics/api"
 )
 
@@ -42,9 +43,7 @@ type GenericResource struct {
 type GenericResourceSpec struct {
 	ClusterName          string                            `json:"clusterName,omitempty"`
 	ClusterID            string                            `json:"clusterID,omitempty"`
-	Group                string                            `json:"group,omitempty"`
-	Version              string                            `json:"version,omitempty"`
-	Kind                 string                            `json:"kind,omitempty"`
+	APIType              kmapi.ResourceID                  `json:"apiType"`
 	Replicas             int64                             `json:"replicas,omitempty"`
 	RoleReplicas         api.ReplicaList                   `json:"roleReplicas,omitempty"`
 	Mode                 string                            `json:"mode,omitempty"`
