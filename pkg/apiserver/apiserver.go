@@ -34,7 +34,6 @@ import (
 
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -50,11 +49,9 @@ import (
 	"kmodules.xyz/custom-resources/apis/auditor"
 	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
-	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 var (
@@ -157,27 +154,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	}
 	ctrlClient := mgr.GetClient()
 
-	r := reconcile.Func(func(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
-		return reconcile.Result{}, nil
-	})
-
-	if err := builder.ControllerManagedBy(mgr).For(&rbacv1.ClusterRole{}).Complete(r); err != nil {
-		return nil, err
-	}
-	if err := builder.ControllerManagedBy(mgr).For(&rbacv1.ClusterRoleBinding{}).Complete(r); err != nil {
-		return nil, err
-	}
-	if err := builder.ControllerManagedBy(mgr).For(&rbacv1.Role{}).Complete(r); err != nil {
-		return nil, err
-	}
-	if err := builder.ControllerManagedBy(mgr).For(&rbacv1.RoleBinding{}).Complete(r); err != nil {
-		return nil, err
-	}
-	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
-
-	if err := builder.ControllerManagedBy(mgr).For(&core.Node{}).Complete(r); err != nil {
-		return nil, err
-	}
 	cid, err := cu.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
 		return nil, err
@@ -187,6 +163,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
 
 	s := &UIServer{
 		GenericAPIServer: genericServer,
