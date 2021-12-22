@@ -52,7 +52,7 @@ func NewStorage() *Storage {
 	}
 }
 
-func (r *Storage) GroupVersionKind(containingGV schema.GroupVersion) schema.GroupVersionKind {
+func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
 	return v1alpha1.SchemeGroupVersion.WithKind(v1alpha1.ResourceKindResourceDescriptor)
 }
 
