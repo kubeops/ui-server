@@ -19,9 +19,14 @@ package graph
 import (
 	"sync"
 
+	"gomodules.xyz/sets"
+	ksets "gomodules.xyz/sets/kubernetes"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	apiv1 "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	"kmodules.xyz/resource-metadata/hub"
 	setx "kmodules.xyz/resource-metadata/pkg/utils/sets"
 )
 
@@ -115,6 +120,122 @@ func (g *ObjectGraph) connectedOIDs(idsToProcess []apiv1.OID, edgeLabel v1alpha1
 			edges = edgedPerLabel[edgeLabel]
 		}
 		for id := range edges {
+			if !links.Has(id) {
+				idsToProcess = append(idsToProcess, id)
+			}
+		}
+	}
+	return links
+}
+
+type objectEdge struct {
+	Source apiv1.OID
+	Target apiv1.OID
+}
+
+func ResourceGraph(mapper meta.RESTMapper, src apiv1.ObjectID) (*v1alpha1.ResourceGraphResponse, error) {
+	objGraph.m.RLock()
+	defer objGraph.m.RUnlock()
+
+	return objGraph.resourceGraph(mapper, src)
+}
+
+func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src apiv1.ObjectID) (*v1alpha1.ResourceGraphResponse, error) {
+	connections := map[objectEdge]sets.String{}
+
+	offshoots := g.connectedEdges([]apiv1.OID{src.OID()}, v1alpha1.EdgeOffshoot, connections).List()
+	for _, label := range hub.ListEdgeLabels() {
+		if label != v1alpha1.EdgeOffshoot {
+			g.connectedEdges(offshoots, label, connections)
+		}
+	}
+
+	objIDs := ksets.NewGroupKind()
+	var objID *apiv1.ObjectID
+	for e := range connections {
+		objID, _ = apiv1.ParseObjectID(e.Source)
+		objIDs.Insert(objID.GroupKind())
+		objID, _ = apiv1.ParseObjectID(e.Target)
+		objIDs.Insert(objID.GroupKind())
+	}
+	gks := objIDs.List()
+
+	resp := v1alpha1.ResourceGraphResponse{
+		Resources:   make([]apiv1.ResourceID, len(gks)),
+		Connections: make([]v1alpha1.ObjectConnection, 0, len(connections)),
+	}
+
+	gkMap := map[schema.GroupKind]int{}
+	for idx, gk := range gks {
+		gkMap[gk] = idx
+
+		mapping, err := mapper.RESTMapping(gk)
+		if err != nil {
+			return nil, err
+		}
+		scope := apiv1.ClusterScoped
+		if mapping.Scope == meta.RESTScopeNamespace {
+			scope = apiv1.NamespaceScoped
+		}
+		resp.Resources[idx] = apiv1.ResourceID{
+			Group:   mapping.GroupVersionKind.Group,
+			Version: mapping.GroupVersionKind.Version,
+			Name:    mapping.Resource.Resource,
+			Kind:    mapping.GroupVersionKind.Kind,
+			Scope:   scope,
+		}
+	}
+
+	for e, labels := range connections {
+		src, _ := apiv1.ParseObjectID(e.Source)
+		target, _ := apiv1.ParseObjectID(e.Target)
+
+		resp.Connections = append(resp.Connections, v1alpha1.ObjectConnection{
+			Source: v1alpha1.ObjectPointer{
+				ResourceID: gkMap[src.GroupKind()],
+				Namespace:  src.Namespace,
+				Name:       src.Name,
+			},
+			Target: v1alpha1.ObjectPointer{
+				ResourceID: gkMap[target.GroupKind()],
+				Namespace:  target.Namespace,
+				Name:       target.Name,
+			},
+			Labels: labels.List(),
+		})
+	}
+	return &resp, nil
+}
+
+func (g *ObjectGraph) connectedEdges(idsToProcess []apiv1.OID, edgeLabel v1alpha1.EdgeLabel, connections map[objectEdge]sets.String) setx.OID {
+	links := setx.NewOID()
+	var x apiv1.OID
+	for len(idsToProcess) > 0 {
+		x, idsToProcess = idsToProcess[0], idsToProcess[1:]
+		links.Insert(x)
+
+		var edges setx.OID
+		if edgedPerLabel, ok := g.edges[x]; ok {
+			edges = edgedPerLabel[edgeLabel]
+		}
+		for id := range edges {
+			var key objectEdge
+			if x < id {
+				key = objectEdge{
+					Source: x,
+					Target: id,
+				}
+			} else {
+				key = objectEdge{
+					Source: id,
+					Target: x,
+				}
+			}
+			if _, ok := connections[key]; !ok {
+				connections[key] = sets.NewString()
+			}
+			connections[key].Insert(string(edgeLabel))
+
 			if !links.Has(id) {
 				idsToProcess = append(idsToProcess, id)
 			}

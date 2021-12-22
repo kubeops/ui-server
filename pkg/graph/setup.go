@@ -24,6 +24,7 @@ import (
 	"github.com/graphql-go/graphql"
 	"github.com/pkg/errors"
 	"gomodules.xyz/sets"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -35,6 +36,8 @@ import (
 	"k8s.io/klog/v2"
 	apiv1 "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
+	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
 	setx "kmodules.xyz/resource-metadata/pkg/utils/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -179,4 +182,54 @@ func extractRefs(data map[string]interface{}, result setx.ObjectReference) error
 		}
 	}
 	return nil
+}
+
+func RenderSection(cfg *restclient.Config, kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator, convertToTable bool) (*v1alpha1.PageSection, error) {
+	q, vars := target.GraphQuery(src)
+	objs, err := ExecQuery(kc, q, vars)
+	if err != nil {
+		return nil, err
+	}
+
+	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
+		Group: target.Ref.Group,
+		Kind:  target.Ref.Kind,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var data unstructured.UnstructuredList
+	data.SetGroupVersionKind(mapping.GroupVersionKind)
+	data.Items = objs
+
+	scope := apiv1.ClusterScoped
+	if mapping.Scope == meta.RESTScopeNamespace {
+		scope = apiv1.NamespaceScoped
+	}
+	rid := apiv1.ResourceID{
+		Group:   mapping.GroupVersionKind.Group,
+		Version: mapping.GroupVersionKind.Version,
+		Name:    mapping.Resource.Resource,
+		Kind:    mapping.GroupVersionKind.Kind,
+		Scope:   scope,
+	}
+
+	section := &v1alpha1.PageSection{
+		Resource: rid,
+	}
+	if convertToTable {
+		if err := Registry.Register(mapping.Resource, cfg); err != nil {
+			return nil, err
+		}
+
+		table, err := tableconvertor.TableForList(Registry, kc, mapping.Resource, objs)
+		if err != nil {
+			return nil, err
+		}
+		section.Data = table
+	} else {
+		section.Data = &data
+	}
+	return section, nil
 }

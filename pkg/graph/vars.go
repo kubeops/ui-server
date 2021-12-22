@@ -27,7 +27,7 @@ import (
 	setx "kmodules.xyz/resource-metadata/pkg/utils/sets"
 )
 
-var reg = hub.NewRegistryOfKnownResources()
+var Registry = hub.NewRegistryOfKnownResources()
 
 var objGraph = &ObjectGraph{
 	m:     sync.RWMutex{},

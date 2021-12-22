@@ -19,28 +19,31 @@ package resourcegraph
 import (
 	"context"
 
+	"kubeops.dev/ui-server/pkg/graph"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Storage struct {
-	convertor rest.TableConvertor
+	kc client.Client
+	a  authorizer.Authorizer
 }
 
 var _ rest.GroupVersionKindProvider = &Storage{}
 var _ rest.Scoper = &Storage{}
 var _ rest.Creater = &Storage{}
 
-func NewStorage() *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
-		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    v1alpha1.SchemeGroupVersion.Group,
-			Resource: v1alpha1.ResourceResourceGraphs,
-		}),
+		kc: kc,
+		a:  a,
 	}
 }
 
@@ -62,5 +65,10 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, apierrors.NewBadRequest("missing apirequest")
 	}
 
+	resp, err := graph.ResourceGraph(r.kc.RESTMapper(), in.Request.Source)
+	if err != nil {
+		return nil, err
+	}
+	in.Response = resp
 	return in, nil
 }

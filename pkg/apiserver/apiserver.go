@@ -41,10 +41,12 @@ import (
 	"github.com/graphql-go/handler"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
+	crdinstall "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -78,7 +80,8 @@ func init() {
 	identityinstall.Install(Scheme)
 	metainstall.Install(Scheme)
 	uiinstall.Install(Scheme)
-	_ = clientgoscheme.AddToScheme(Scheme)
+	crdinstall.Install(Scheme)
+	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
@@ -209,10 +212,10 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(meta.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[metav1alpha1.ResourceRenderPages] = renderpage.NewStorage()
-		v1alpha1storage[metav1alpha1.ResourceRenderSections] = rendersection.NewStorage()
+		v1alpha1storage[metav1alpha1.ResourceRenderPages] = renderpage.NewStorage(cfg, ctrlClient, rbacAuthorizer)
+		v1alpha1storage[metav1alpha1.ResourceRenderSections] = rendersection.NewStorage(cfg, ctrlClient, rbacAuthorizer)
 		v1alpha1storage[metav1alpha1.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
-		v1alpha1storage[metav1alpha1.ResourceResourceGraphs] = resourcegraph.NewStorage()
+		v1alpha1storage[metav1alpha1.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

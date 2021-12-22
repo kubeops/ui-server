@@ -19,28 +19,34 @@ package renderpage
 import (
 	"context"
 
+	"kubeops.dev/ui-server/pkg/graph"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
+	restclient "k8s.io/client-go/rest"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Storage struct {
-	convertor rest.TableConvertor
+	cfg *restclient.Config
+	kc  client.Client
+	a   authorizer.Authorizer
 }
 
 var _ rest.GroupVersionKindProvider = &Storage{}
 var _ rest.Scoper = &Storage{}
 var _ rest.Creater = &Storage{}
 
-func NewStorage() *Storage {
+func NewStorage(cfg *restclient.Config, kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
-		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    v1alpha1.SchemeGroupVersion.Group,
-			Resource: v1alpha1.ResourceRenderPages,
-		}),
+		cfg: cfg,
+		kc:  kc,
+		a:   a,
 	}
 }
 
@@ -60,6 +66,33 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	in := obj.(*v1alpha1.RenderPage)
 	if in.Request == nil {
 		return nil, apierrors.NewBadRequest("missing apirequest")
+	}
+
+	src := in.Request.Source.OID()
+
+	srcMapping, err := r.kc.RESTMapper().RESTMapping(in.Request.Source.GroupKind())
+	if err != nil {
+		return nil, err
+	}
+	rd, err := graph.Registry.LoadByGVR(srcMapping.Resource)
+	if err != nil {
+		return nil, err
+	}
+
+	in.Response = new(v1alpha1.RenderPageResponse)
+	for _, p := range rd.Spec.Pages {
+		if p.Name == in.Request.PageName {
+			in.Response.Sections = make([]v1alpha1.PageSection, 0, len(p.Resources))
+
+			for _, rc := range p.Resources {
+				section, err := graph.RenderSection(r.cfg, r.kc, src, rc.ResourceLocator, in.Request.ConvertToTable)
+				if err != nil {
+					return nil, err
+				}
+				in.Response.Sections = append(in.Response.Sections, *section)
+			}
+			break
+		}
 	}
 
 	return in, nil

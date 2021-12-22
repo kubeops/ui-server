@@ -51,7 +51,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 		return reconcile.Result{}, client.IgnoreNotFound(err)
 	}
 
-	if rd, err := reg.LoadByGVK(gvk); err == nil {
+	if rd, err := Registry.LoadByGVK(gvk); err == nil {
 		finder := graph.ObjectFinder{
 			Client: r.Client,
 		}
