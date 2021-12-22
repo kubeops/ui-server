@@ -123,6 +123,15 @@ spec:
                     pairs.
                   type: object
                 type: object
+              status:
+                properties:
+                  message:
+                    description: Message
+                    type: string
+                  status:
+                    description: Status
+                    type: string
+                type: object
               totalResource:
                 description: ResourceRequirements describes the compute resource requirements.
                 properties:
@@ -152,38 +161,10 @@ spec:
             required:
             - apiType
             - appResource
+            - status
             - totalResource
             type: object
           status:
-            properties:
-              conditions:
-                description: Conditions list of extracted conditions from Resource
-                items:
-                  description: Condition defines the general format for conditions
-                    on Kubernetes resources. In practice, each kubernetes resource
-                    defines their own format for conditions, but most (maybe all)
-                    follows this structure.
-                  properties:
-                    message:
-                      description: Message Human readable reason string
-                      type: string
-                    reason:
-                      description: Reason one work CamelCase reason
-                      type: string
-                    status:
-                      description: Status String that describes the condition status
-                      type: string
-                    type:
-                      description: Type condition type
-                      type: string
-                  type: object
-                type: array
-              message:
-                description: Message
-                type: string
-              status:
-                description: Status
-                type: string
             type: object
         type: object
     served: true
