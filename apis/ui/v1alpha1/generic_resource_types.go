@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metrics/api"
 )
@@ -37,7 +38,7 @@ type GenericResource struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec   GenericResourceSpec   `json:"spec,omitempty"`
-	Status GenericResourceStatus `json:"status,omitempty"`
+	Status *runtime.RawExtension `json:"status,omitempty"`
 }
 
 type GenericResourceSpec struct {
@@ -51,6 +52,7 @@ type GenericResourceSpec struct {
 	AppResource          core.ResourceRequirements         `json:"appResource"`
 	RoleResourceLimits   map[api.PodRole]core.ResourceList `json:"roleResourceLimits,omitempty"`
 	RoleResourceRequests map[api.PodRole]core.ResourceList `json:"roleResourceRequests,omitempty"`
+	Status               GenericResourceStatus             `json:"status"`
 }
 
 type GenericResourceStatus struct {
@@ -58,8 +60,6 @@ type GenericResourceStatus struct {
 	Status string `json:"status,omitempty"`
 	// Message
 	Message string `json:"message,omitempty"`
-	// Conditions list of extracted conditions from Resource
-	Conditions []Condition `json:"conditions,omitempty"`
 }
 
 // Condition defines the general format for conditions on Kubernetes resources.

@@ -18,6 +18,8 @@ package GenericResource
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"sort"
 
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
@@ -192,19 +194,16 @@ func (r *Storage) toGenericResource(item unstructured.Unstructured, apiType kmap
 		return nil, err
 	}
 
-	resstatus := uiv1alpha1.GenericResourceStatus{
-		Status:     s.Status.String(),
-		Message:    s.Message,
-		Conditions: make([]uiv1alpha1.Condition, 0, len(s.Conditions)),
+	var resstatus *runtime.RawExtension
+	if v, ok, _ := unstructured.NestedFieldNoCopy(content, "status"); ok {
+		data, err := json.Marshal(v)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert status to json, reason: %v", err)
+		}
+		resstatus = &runtime.RawExtension{Raw: data}
 	}
-	for _, c := range s.Conditions {
-		resstatus.Conditions = append(resstatus.Conditions, uiv1alpha1.Condition{
-			Type:    c.Type.String(),
-			Status:  c.Status,
-			Reason:  c.Reason,
-			Message: c.Message,
-		})
-	}
+
+	// runtime.DefaultUnstructuredConverter.ToUnstructured()
 
 	genres := uiv1alpha1.GenericResource{
 		// TypeMeta:   metav1.TypeMeta{},
@@ -237,7 +236,10 @@ func (r *Storage) toGenericResource(item unstructured.Unstructured, apiType kmap
 			AppResource:          core.ResourceRequirements{},
 			RoleResourceLimits:   nil,
 			RoleResourceRequests: nil,
-			// Status:               "",
+			Status: uiv1alpha1.GenericResourceStatus{
+				Status:  s.Status.String(),
+				Message: s.Message,
+			},
 		},
 		Status: resstatus,
 	}

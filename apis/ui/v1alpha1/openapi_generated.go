@@ -17314,15 +17314,14 @@ func schema_ui_server_apis_ui_v1alpha1_GenericResource(ref common.ReferenceCallb
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceStatus"),
+							Ref: ref("k8s.io/apimachinery/pkg/runtime.RawExtension"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceSpec", "kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceStatus"},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "k8s.io/apimachinery/pkg/runtime.RawExtension", "kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceSpec"},
 	}
 }
 
@@ -17481,12 +17480,18 @@ func schema_ui_server_apis_ui_v1alpha1_GenericResourceSpec(ref common.ReferenceC
 							},
 						},
 					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceStatus"),
+						},
+					},
 				},
-				Required: []string{"apiType", "totalResource", "appResource"},
+				Required: []string{"apiType", "totalResource", "appResource", "status"},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.ResourceRequirements", "k8s.io/apimachinery/pkg/api/resource.Quantity", "kmodules.xyz/client-go/api/v1.ResourceID"},
+			"k8s.io/api/core/v1.ResourceRequirements", "k8s.io/apimachinery/pkg/api/resource.Quantity", "kmodules.xyz/client-go/api/v1.ResourceID", "kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceStatus"},
 	}
 }
 
@@ -17510,25 +17515,9 @@ func schema_ui_server_apis_ui_v1alpha1_GenericResourceStatus(ref common.Referenc
 							Format:      "",
 						},
 					},
-					"conditions": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Conditions list of extracted conditions from Resource",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: map[string]interface{}{},
-										Ref:     ref("kubeops.dev/ui-server/apis/ui/v1alpha1.Condition"),
-									},
-								},
-							},
-						},
-					},
 				},
 			},
 		},
-		Dependencies: []string{
-			"kubeops.dev/ui-server/apis/ui/v1alpha1.Condition"},
 	}
 }
 
