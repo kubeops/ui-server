@@ -67,7 +67,7 @@ github.com/fatih/structs
 # github.com/form3tech-oss/jwt-go v3.2.2+incompatible => github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 ## explicit
 github.com/form3tech-oss/jwt-go
-# github.com/fsnotify/fsnotify v1.4.9
+# github.com/fsnotify/fsnotify v1.5.1
 ## explicit; go 1.13
 github.com/fsnotify/fsnotify
 # github.com/go-errors/errors v1.0.1
@@ -88,6 +88,9 @@ github.com/go-openapi/spec
 # github.com/go-openapi/swag v0.19.5 => github.com/go-openapi/swag v0.19.5
 ## explicit
 github.com/go-openapi/swag
+# github.com/gobuffalo/flect v0.2.3
+## explicit; go 1.13
+github.com/gobuffalo/flect
 # github.com/gogo/protobuf v1.3.2 => github.com/gogo/protobuf v1.3.2
 ## explicit; go 1.15
 github.com/gogo/protobuf/gogoproto
@@ -121,7 +124,7 @@ github.com/google/gofuzz
 # github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 ## explicit; go 1.13
 github.com/google/shlex
-# github.com/google/uuid v1.2.0
+# github.com/google/uuid v1.3.0
 ## explicit
 github.com/google/uuid
 # github.com/googleapis/gnostic v0.5.5 => github.com/googleapis/gnostic v0.4.1
@@ -163,8 +166,8 @@ github.com/mailru/easyjson/jwriter
 # github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369
 ## explicit; go 1.9
 github.com/matttproud/golang_protobuf_extensions/pbutil
-# github.com/mitchellh/mapstructure v1.1.2
-## explicit
+# github.com/mitchellh/mapstructure v1.4.1
+## explicit; go 1.14
 github.com/mitchellh/mapstructure
 # github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
 ## explicit
@@ -216,8 +219,8 @@ github.com/prometheus/procfs/internal/util
 # github.com/sergi/go-diff v1.1.0
 ## explicit; go 1.12
 github.com/sergi/go-diff/diffmatchpatch
-# github.com/spf13/cobra v1.1.3
-## explicit; go 1.12
+# github.com/spf13/cobra v1.2.1
+## explicit; go 1.14
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 ## explicit; go 1.12
@@ -235,7 +238,7 @@ github.com/yudai/gojsondiff/formatter
 # github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82
 ## explicit
 github.com/yudai/golcs
-# go.bytebuilders.dev/license-verifier v0.9.5
+# go.bytebuilders.dev/license-verifier v0.9.7
 ## explicit; go 1.15
 go.bytebuilders.dev/license-verifier/info
 # go.etcd.io/etcd v0.5.0-alpha.5.0.20200910180754-dd1b699fc489 => go.etcd.io/etcd v0.5.0-alpha.5.0.20200910180754-dd1b699fc489
@@ -303,6 +306,7 @@ golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
+golang.org/x/net/publicsuffix
 golang.org/x/net/trace
 golang.org/x/net/websocket
 # golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
@@ -354,20 +358,25 @@ gomodules.xyz/flags
 # gomodules.xyz/jsonpatch/v2 v2.2.0
 ## explicit; go 1.12
 gomodules.xyz/jsonpatch/v2
-# gomodules.xyz/logs v0.0.6
+# gomodules.xyz/jsonpath v0.0.1
+## explicit; go 1.16
+gomodules.xyz/jsonpath
+gomodules.xyz/jsonpath/third_party/forked/golang/template
+# gomodules.xyz/logs v0.0.4
 ## explicit; go 1.16
 gomodules.xyz/logs
 # gomodules.xyz/pointer v0.1.0
 ## explicit; go 1.15
 gomodules.xyz/pointer
-# gomodules.xyz/sets v0.2.0
+# gomodules.xyz/sets v0.2.1
 ## explicit; go 1.14
 gomodules.xyz/sets
 # gomodules.xyz/wait v0.2.0
 ## explicit; go 1.14
 gomodules.xyz/wait
-# gomodules.xyz/x v0.0.8
-## explicit; go 1.12
+# gomodules.xyz/x v0.0.10
+## explicit; go 1.17
+gomodules.xyz/x/strings
 gomodules.xyz/x/version
 # google.golang.org/appengine v1.6.7
 ## explicit; go 1.11
@@ -381,10 +390,10 @@ google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a => google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a
+# google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c => google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a
 ## explicit; go 1.11
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.27.1 => google.golang.org/grpc v1.27.1
+# google.golang.org/grpc v1.38.0 => google.golang.org/grpc v1.27.1
 ## explicit; go 1.11
 google.golang.org/grpc
 google.golang.org/grpc/attributes
@@ -515,6 +524,15 @@ k8s.io/api/scheduling/v1beta1
 k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
+# k8s.io/apiextensions-apiserver v0.21.1
+## explicit; go 1.16
+k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
+k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
+k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1
+k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset
+k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme
+k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1
+k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1
 # k8s.io/apimachinery v0.21.1 => github.com/kmodules/apimachinery v0.21.2-rc.0.0.20210617231004-332981b97d2d
 ## explicit; go 1.16
 k8s.io/apimachinery/pkg/api/apitesting
@@ -1022,16 +1040,22 @@ kmodules.xyz/apiversion
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.0.0-20211127071251-7e4808453833
+# kmodules.xyz/client-go v0.0.0-20211220232704-811fa4f26329
 ## explicit; go 1.17
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
+kmodules.xyz/client-go/apiextensions
+kmodules.xyz/client-go/apiextensions/v1
+kmodules.xyz/client-go/apiextensions/v1beta1
 kmodules.xyz/client-go/client
+kmodules.xyz/client-go/discovery
 kmodules.xyz/client-go/meta
 kmodules.xyz/client-go/openapi
+kmodules.xyz/client-go/pointer
+kmodules.xyz/client-go/tools/clientcache
 kmodules.xyz/client-go/tools/clientcmd
 kmodules.xyz/client-go/tools/clusterid
-# kmodules.xyz/custom-resources v0.0.0-20211122122929-366edc60bcf7
+# kmodules.xyz/custom-resources v0.0.0-20211221073415-ab9b13cfc659
 ## explicit; go 1.16
 kmodules.xyz/custom-resources/apis/auditor
 kmodules.xyz/custom-resources/apis/auditor/install
@@ -1040,6 +1064,20 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
+# kmodules.xyz/resource-metadata v0.7.1-0.20211221114307-5d2d6708b2ef
+## explicit; go 1.17
+kmodules.xyz/resource-metadata/apis/meta
+kmodules.xyz/resource-metadata/apis/meta/install
+kmodules.xyz/resource-metadata/apis/meta/v1alpha1
+kmodules.xyz/resource-metadata/crds
+kmodules.xyz/resource-metadata/hub
+kmodules.xyz/resource-metadata/hub/resourceclasses
+kmodules.xyz/resource-metadata/hub/resourcedescriptors
+kmodules.xyz/resource-metadata/pkg/graph
+kmodules.xyz/resource-metadata/pkg/registry/meta/graphfinder
+kmodules.xyz/resource-metadata/pkg/registry/meta/pathfinder
+kmodules.xyz/resource-metadata/pkg/registry/meta/resourcedescriptor
+kmodules.xyz/resource-metadata/pkg/utils/sets
 # kmodules.xyz/resource-metrics v0.0.6
 ## explicit; go 1.17
 kmodules.xyz/resource-metrics

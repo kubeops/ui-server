@@ -20,6 +20,8 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+	"strings"
+	"unicode"
 )
 
 var (
@@ -36,6 +38,16 @@ var (
 	qaAddress           = "https://appscode.ninja"
 	registrationAPIPath = "api/v1/register"
 )
+
+func Features() []string {
+	return ParseFeatures(ProductName)
+}
+
+func ParseFeatures(features string) []string {
+	return strings.FieldsFunc(features, func(r rune) bool {
+		return unicode.IsSpace(r) || r == ',' || r == ';'
+	})
+}
 
 func SkipLicenseVerification() bool {
 	v, _ := strconv.ParseBool(EnforceLicense)

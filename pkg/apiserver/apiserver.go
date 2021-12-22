@@ -46,9 +46,16 @@ import (
 	"k8s.io/klog/v2/klogr"
 	"kmodules.xyz/authorizer/rbac"
 	cu "kmodules.xyz/client-go/client"
+	"kmodules.xyz/client-go/discovery"
 	"kmodules.xyz/custom-resources/apis/auditor"
 	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
+	"kmodules.xyz/resource-metadata/apis/meta"
+	metainstall "kmodules.xyz/resource-metadata/apis/meta/install"
+	metav1alpha1 "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	"kmodules.xyz/resource-metadata/pkg/registry/meta/graphfinder"
+	"kmodules.xyz/resource-metadata/pkg/registry/meta/pathfinder"
+	"kmodules.xyz/resource-metadata/pkg/registry/meta/resourcedescriptor"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -65,6 +72,7 @@ var (
 func init() {
 	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
+	metainstall.Install(Scheme)
 	uiinstall.Install(Scheme)
 	_ = clientgoscheme.AddToScheme(Scheme)
 
@@ -159,6 +167,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 
+	mapper := discovery.NewResourceMapper(mgr.GetRESTMapper())
+
 	pc, err := c.ExtraConfig.PromConfig.NewPrometheusClient()
 	if err != nil {
 		return nil, err
@@ -171,6 +181,19 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		Manager:          mgr,
 	}
 
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(meta.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[metav1alpha1.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
+		v1alpha1storage[metav1alpha1.ResourcePathFinders] = pathfinder.NewStorage(mapper)
+		v1alpha1storage[metav1alpha1.ResourceGraphFinders] = graphfinder.NewStorage(mapper)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
 	{
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(auditor.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 

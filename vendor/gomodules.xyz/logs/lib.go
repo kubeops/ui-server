@@ -75,9 +75,9 @@ func Init(rootCmd *cobra.Command, printFlags bool) {
 		return
 	}
 
+	fs := rootCmd.Flags()
 	if fn := rootCmd.PersistentPreRunE; fn != nil {
 		rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-			fs := cmd.Flags()
 			if printFlags {
 				flags.PrintFlags(fs)
 			}
@@ -86,7 +86,6 @@ func Init(rootCmd *cobra.Command, printFlags bool) {
 		}
 	} else if fn := rootCmd.PersistentPreRun; fn != nil {
 		rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
-			fs := cmd.Flags()
 			if printFlags {
 				flags.PrintFlags(fs)
 			}
@@ -95,7 +94,6 @@ func Init(rootCmd *cobra.Command, printFlags bool) {
 		}
 	} else {
 		rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
-			fs := cmd.Flags()
 			if printFlags {
 				flags.PrintFlags(fs)
 			}
