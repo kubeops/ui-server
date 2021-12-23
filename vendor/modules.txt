@@ -1110,7 +1110,7 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.7.1-0.20211223002207-d8d07da740c9
+# kmodules.xyz/resource-metadata v0.7.1-0.20211223045652-ceb242529ea3
 ## explicit; go 1.17
 kmodules.xyz/resource-metadata/apis/meta
 kmodules.xyz/resource-metadata/apis/meta/install
@@ -1130,7 +1130,7 @@ kmodules.xyz/resource-metrics/batch/v1
 kmodules.xyz/resource-metrics/batch/v1beta1
 kmodules.xyz/resource-metrics/core/v1
 kmodules.xyz/resource-metrics/kubedb.com/v1alpha2
-# kmodules.xyz/sets v0.0.0-20211223001613-87a2e2d0003a
+# kmodules.xyz/sets v0.0.0-20211223043606-9d9b263bcc95
 ## explicit; go 1.17
 kmodules.xyz/sets
 # sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.15

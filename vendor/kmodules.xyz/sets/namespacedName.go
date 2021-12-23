@@ -201,17 +201,8 @@ func (s NamespacedName) Len() int {
 }
 
 func lessNamespacedName(lhs, rhs types.NamespacedName) bool {
-	if lhs.Namespace < rhs.Namespace {
-		return true
+	if lhs.Namespace != rhs.Namespace {
+		return lhs.Namespace < rhs.Namespace
 	}
-	if lhs.Namespace > rhs.Namespace {
-		return false
-	}
-	if lhs.Name < rhs.Name {
-		return true
-	}
-	if lhs.Name > rhs.Name {
-		return false
-	}
-	return false
+	return lhs.Name < rhs.Name
 }
