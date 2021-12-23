@@ -201,17 +201,8 @@ func (s MetaGroupKind) Len() int {
 }
 
 func lessMetaGroupKind(lhs, rhs metav1.GroupKind) bool {
-	if lhs.Group < rhs.Group {
-		return true
+	if lhs.Group != rhs.Group {
+		return lhs.Group < rhs.Group
 	}
-	if lhs.Group > rhs.Group {
-		return false
-	}
-	if lhs.Kind < rhs.Kind {
-		return true
-	}
-	if lhs.Kind > rhs.Kind {
-		return false
-	}
-	return false
+	return lhs.Kind < rhs.Kind
 }

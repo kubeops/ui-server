@@ -28,6 +28,7 @@ import (
 	"kubeops.dev/ui-server/pkg/prometheus"
 
 	"github.com/spf13/pflag"
+	v "gomodules.xyz/x/version"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
@@ -37,6 +38,7 @@ import (
 	ou "kmodules.xyz/client-go/openapi"
 	"kmodules.xyz/client-go/tools/clientcmd"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
+	metav1alpha1 "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -46,7 +48,8 @@ const defaultEtcdPathPrefix = "/registry/k8s.appscode.com"
 // UIServerOptions contains state for master/api server
 type UIServerOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions
-	ExtraOptions       *prometheus.Config
+	PrometheusOptions  *prometheus.Config
+	ExtraOptions       *ExtraOptions
 
 	StdOut io.Writer
 	StdErr io.Writer
@@ -64,9 +67,10 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 				uiv1alpha1.GroupVersion,
 			),
 		),
-		ExtraOptions: prometheus.NewPrometheusConfig(),
-		StdOut:       out,
-		StdErr:       errOut,
+		PrometheusOptions: prometheus.NewPrometheusConfig(),
+		ExtraOptions:      NewExtraOptions(),
+		StdOut:            out,
+		StdErr:            errOut,
 	}
 	o.RecommendedOptions.Etcd = nil
 	o.RecommendedOptions.Admission = nil
@@ -75,14 +79,14 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 
 func (o UIServerOptions) AddFlags(fs *pflag.FlagSet) {
 	o.RecommendedOptions.AddFlags(fs)
-	o.ExtraOptions.AddFlags(fs)
+	o.PrometheusOptions.AddFlags(fs)
 }
 
 // Validate validates UIServerOptions
 func (o UIServerOptions) Validate(args []string) error {
 	var errors []error
 	errors = append(errors, o.RecommendedOptions.Validate()...)
-	errors = append(errors, o.ExtraOptions.Validate())
+	errors = append(errors, o.PrometheusOptions.Validate())
 	return utilerrors.NewAggregate(errors)
 }
 
@@ -113,13 +117,24 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		),
 		openapi.NewDefinitionNamer(apiserver.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"
-	serverConfig.OpenAPIConfig.Info.Version = "v0.0.1"
+	serverConfig.OpenAPIConfig.Info.Version = v.Version.Version
+	serverConfig.OpenAPIConfig.IgnorePrefixes = []string{
+		"/swaggerapi",
+		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenderPages),
+		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenderSections),
+		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceDescriptors),
+		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceGraphs),
+	}
+
+	if err := o.ExtraOptions.ApplyTo(serverConfig.ClientConfig); err != nil {
+		return nil, err
+	}
 
 	config := &apiserver.Config{
 		GenericConfig: serverConfig,
 		ExtraConfig: apiserver.ExtraConfig{
 			ClientConfig: serverConfig.ClientConfig,
-			PromConfig:   *o.ExtraOptions,
+			PromConfig:   *o.PrometheusOptions,
 		},
 	}
 	return config, nil
