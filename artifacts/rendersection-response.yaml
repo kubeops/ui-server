@@ -23,28 +23,16 @@ response:
   table:
     columnDefinitions:
     - name: Name
-      pathTemplate: '{{ .metadata.name }}'
-      priority: 3
       type: string
     - name: Namespace
-      pathTemplate: '{{ .metadata.namespace }}'
-      priority: 3
       type: string
     - name: Labels
-      pathTemplate: '{{ .metadata.labels | toRawJson }}'
-      priority: 3
       type: object
     - name: Pods
-      pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
-      priority: 2
       type: string
     - name: Images
-      pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images }}'
-      priority: 2
       type: string
     - name: Age
-      pathTemplate: '{{ .metadata.creationTimestamp }}'
-      priority: 3
       type: date
     metadata: {}
     rows:
@@ -55,4 +43,4 @@ response:
         pod-template-hash: 64897985d
       - 2/2
       - ""
-      - 59m
+      - 4h9m
