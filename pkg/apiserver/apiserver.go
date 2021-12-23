@@ -19,36 +19,49 @@ package apiserver
 import (
 	"context"
 	"fmt"
+	"os"
 
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	uiinstall "kubeops.dev/ui-server/apis/ui/install"
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
+	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/prometheus"
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
+	"kubeops.dev/ui-server/pkg/registry/meta/renderpage"
+	"kubeops.dev/ui-server/pkg/registry/meta/rendersection"
+	"kubeops.dev/ui-server/pkg/registry/meta/resourcedescriptor"
+	"kubeops.dev/ui-server/pkg/registry/meta/resourcegraph"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/ui/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/ui/podview"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/ui/resourcesummary"
 
+	"github.com/graphql-go/handler"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
+	crdinstall "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
+	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 	"kmodules.xyz/authorizer/rbac"
 	cu "kmodules.xyz/client-go/client"
 	"kmodules.xyz/custom-resources/apis/auditor"
 	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
+	"kmodules.xyz/resource-metadata/apis/meta"
+	metainstall "kmodules.xyz/resource-metadata/apis/meta/install"
+	metav1alpha1 "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -65,8 +78,10 @@ var (
 func init() {
 	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
+	metainstall.Install(Scheme)
 	uiinstall.Install(Scheme)
-	_ = clientgoscheme.AddToScheme(Scheme)
+	crdinstall.Install(Scheme)
+	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
@@ -135,8 +150,10 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 	// ctrl.SetLogger(...)
 	log.SetLogger(klogr.New())
+	setupLog := log.Log.WithName("setup")
 
-	mgr, err := manager.New(c.ExtraConfig.ClientConfig, manager.Options{
+	cfg := c.ExtraConfig.ClientConfig
+	mgr, err := manager.New(cfg, manager.Options{
 		Scheme:                 Scheme,
 		MetricsBindAddress:     "",
 		Port:                   0,
@@ -166,11 +183,45 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
 
+	if err := mgr.Add(manager.RunnableFunc(graph.PollNewResourceTypes(cfg))); err != nil {
+		setupLog.Error(err, "unable to set up resource poller")
+		os.Exit(1)
+	}
+
+	if err := mgr.Add(manager.RunnableFunc(graph.SetupGraphReconciler(mgr))); err != nil {
+		setupLog.Error(err, "unable to set up resource reconciler configurator")
+		os.Exit(1)
+	}
+
 	s := &UIServer{
 		GenericAPIServer: genericServer,
 		Manager:          mgr,
 	}
 
+	{
+		h := handler.New(&handler.Config{
+			Schema:     &graph.Schema,
+			Pretty:     true,
+			GraphiQL:   false,
+			Playground: true,
+		})
+		genericServer.Handler.NonGoRestfulMux.Handle("/graphql", h)
+		klog.InfoS("GraphQL handler registered!")
+	}
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(meta.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[metav1alpha1.ResourceRenderPages] = renderpage.NewStorage(cfg, ctrlClient, rbacAuthorizer)
+		v1alpha1storage[metav1alpha1.ResourceRenderSections] = rendersection.NewStorage(cfg, ctrlClient, rbacAuthorizer)
+		v1alpha1storage[metav1alpha1.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
+		v1alpha1storage[metav1alpha1.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
 	{
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(auditor.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
