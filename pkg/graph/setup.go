@@ -38,7 +38,7 @@ import (
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
-	setx "kmodules.xyz/resource-metadata/pkg/utils/sets"
+	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -147,12 +147,12 @@ func ExecQuery(c client.Client, query string, vars map[string]interface{}) ([]un
 }
 
 func listRefs(data map[string]interface{}) ([]apiv1.ObjectReference, error) {
-	result := setx.NewObjectReference()
+	result := ksets.NewObjectReference()
 	err := extractRefs(data, result)
 	return result.List(), err
 }
 
-func extractRefs(data map[string]interface{}, result setx.ObjectReference) error {
+func extractRefs(data map[string]interface{}, result ksets.ObjectReference) error {
 	for k, v := range data {
 		switch u := v.(type) {
 		case map[string]interface{}:

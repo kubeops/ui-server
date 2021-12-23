@@ -20,23 +20,22 @@ import (
 	"sync"
 
 	"gomodules.xyz/sets"
-	ksets "gomodules.xyz/sets/kubernetes"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	apiv1 "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub"
-	setx "kmodules.xyz/resource-metadata/pkg/utils/sets"
+	ksets "kmodules.xyz/sets"
 )
 
 type ObjectGraph struct {
 	m     sync.RWMutex
-	edges map[apiv1.OID]map[v1alpha1.EdgeLabel]setx.OID // oid -> label -> edges
-	ids   map[apiv1.OID]map[v1alpha1.EdgeLabel]setx.OID // oid -> label -> edges
+	edges map[apiv1.OID]map[v1alpha1.EdgeLabel]ksets.OID // oid -> label -> edges
+	ids   map[apiv1.OID]map[v1alpha1.EdgeLabel]ksets.OID // oid -> label -> edges
 }
 
-func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[v1alpha1.EdgeLabel]setx.OID) {
+func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[v1alpha1.EdgeLabel]ksets.OID) {
 	g.m.Lock()
 	defer g.m.Unlock()
 
@@ -56,19 +55,19 @@ func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[v1alpha1.EdgeLabel
 		}
 
 		if _, ok := g.edges[src]; !ok {
-			g.edges[src] = map[v1alpha1.EdgeLabel]setx.OID{}
+			g.edges[src] = map[v1alpha1.EdgeLabel]ksets.OID{}
 		}
 		if _, ok := g.edges[src][lbl]; !ok {
-			g.edges[src][lbl] = setx.NewOID()
+			g.edges[src][lbl] = ksets.NewOID()
 		}
 		g.edges[src][lbl].Insert(conns.UnsortedList()...)
 
 		for dst := range conns {
 			if _, ok := g.edges[dst]; !ok {
-				g.edges[dst] = map[v1alpha1.EdgeLabel]setx.OID{}
+				g.edges[dst] = map[v1alpha1.EdgeLabel]ksets.OID{}
 			}
 			if _, ok := g.edges[dst][lbl]; !ok {
-				g.edges[dst][lbl] = setx.NewOID()
+				g.edges[dst][lbl] = ksets.NewOID()
 			}
 			g.edges[dst][lbl].Insert(src)
 		}
@@ -108,14 +107,14 @@ func (g *ObjectGraph) links(oid *apiv1.ObjectID, seeds []apiv1.OID, edgeLabel v1
 	return result, nil
 }
 
-func (g *ObjectGraph) connectedOIDs(idsToProcess []apiv1.OID, edgeLabel v1alpha1.EdgeLabel) setx.OID {
-	links := setx.NewOID()
+func (g *ObjectGraph) connectedOIDs(idsToProcess []apiv1.OID, edgeLabel v1alpha1.EdgeLabel) ksets.OID {
+	links := ksets.NewOID()
 	var x apiv1.OID
 	for len(idsToProcess) > 0 {
 		x, idsToProcess = idsToProcess[0], idsToProcess[1:]
 		links.Insert(x)
 
-		var edges setx.OID
+		var edges ksets.OID
 		if edgedPerLabel, ok := g.edges[x]; ok {
 			edges = edgedPerLabel[edgeLabel]
 		}
@@ -207,14 +206,14 @@ func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src apiv1.ObjectID) 
 	return &resp, nil
 }
 
-func (g *ObjectGraph) connectedEdges(idsToProcess []apiv1.OID, edgeLabel v1alpha1.EdgeLabel, connections map[objectEdge]sets.String) setx.OID {
-	links := setx.NewOID()
+func (g *ObjectGraph) connectedEdges(idsToProcess []apiv1.OID, edgeLabel v1alpha1.EdgeLabel, connections map[objectEdge]sets.String) ksets.OID {
+	links := ksets.NewOID()
 	var x apiv1.OID
 	for len(idsToProcess) > 0 {
 		x, idsToProcess = idsToProcess[0], idsToProcess[1:]
 		links.Insert(x)
 
-		var edges setx.OID
+		var edges ksets.OID
 		if edgedPerLabel, ok := g.edges[x]; ok {
 			edges = edgedPerLabel[edgeLabel]
 		}

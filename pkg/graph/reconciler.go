@@ -22,7 +22,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	apiv1 "kmodules.xyz/client-go/api/v1"
-	"kmodules.xyz/resource-metadata/pkg/graph"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logger "sigs.k8s.io/controller-runtime/pkg/log"
@@ -52,7 +51,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 	}
 
 	if rd, err := Registry.LoadByGVK(gvk); err == nil {
-		finder := graph.ObjectFinder{
+		finder := ObjectFinder{
 			Client: r.Client,
 		}
 		if result, err := finder.ListConnectedObjectIDs(&obj, rd.Spec.Connections); err != nil {

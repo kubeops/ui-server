@@ -19,20 +19,19 @@ package graph
 import (
 	"sync"
 
-	ksets "gomodules.xyz/sets/kubernetes"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	apiv1 "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub"
-	setx "kmodules.xyz/resource-metadata/pkg/utils/sets"
+	ksets "kmodules.xyz/sets"
 )
 
 var Registry = hub.NewRegistryOfKnownResources()
 
 var objGraph = &ObjectGraph{
 	m:     sync.RWMutex{},
-	edges: map[apiv1.OID]map[v1alpha1.EdgeLabel]setx.OID{},
-	ids:   map[apiv1.OID]map[v1alpha1.EdgeLabel]setx.OID{},
+	edges: map[apiv1.OID]map[v1alpha1.EdgeLabel]ksets.OID{},
+	ids:   map[apiv1.OID]map[v1alpha1.EdgeLabel]ksets.OID{},
 }
 
 var Schema = getGraphQLSchema()

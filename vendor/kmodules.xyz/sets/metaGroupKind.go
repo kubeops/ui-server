@@ -1,15 +1,30 @@
-package kubernetes
+/*
+Copyright AppsCode Inc. and Contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package sets
 
 import (
 	"reflect"
 	"sort"
 
-	"gomodules.xyz/sets"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // sets.MetaGroupKind is a set of metav1.GroupKinds, implemented via map[metav1.GroupKind]struct{} for minimal memory consumption.
-type MetaGroupKind map[metav1.GroupKind]sets.Empty
+type MetaGroupKind map[metav1.GroupKind]Empty
 
 // NewMetaGroupKind creates a MetaGroupKind from a list of values.
 func NewMetaGroupKind(items ...metav1.GroupKind) MetaGroupKind {
@@ -33,7 +48,7 @@ func MetaGroupKindKeySet(theMap interface{}) MetaGroupKind {
 // Insert adds items to the set.
 func (s MetaGroupKind) Insert(items ...metav1.GroupKind) MetaGroupKind {
 	for _, item := range items {
-		s[item] = sets.Empty{}
+		s[item] = Empty{}
 	}
 	return s
 }

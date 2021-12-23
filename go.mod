@@ -13,9 +13,9 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	go.bytebuilders.dev/license-verifier v0.9.7
+	gomodules.xyz/jsonpath v0.0.1
 	gomodules.xyz/logs v0.0.4
 	gomodules.xyz/sets v0.2.1
-	gomodules.xyz/sets/kubernetes v0.2.1
 	gomodules.xyz/x v0.0.10
 	k8s.io/api v0.21.1
 	k8s.io/apiextensions-apiserver v0.21.1
@@ -26,10 +26,11 @@ require (
 	k8s.io/kube-openapi v0.0.0-20210421082810-95288971da7e
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
-	kmodules.xyz/client-go v0.0.0-20211220232704-811fa4f26329
+	kmodules.xyz/client-go v0.0.0-20211223001502-9d4767bf97ce
 	kmodules.xyz/custom-resources v0.0.0-20211221073415-ab9b13cfc659
-	kmodules.xyz/resource-metadata v0.7.1-0.20211222220538-46cc68c2dc61
+	kmodules.xyz/resource-metadata v0.7.1-0.20211223002207-d8d07da740c9
 	kmodules.xyz/resource-metrics v0.0.6
+	kmodules.xyz/sets v0.0.0-20211223001613-87a2e2d0003a
 	sigs.k8s.io/cli-utils v0.26.1
 	sigs.k8s.io/controller-runtime v0.9.0
 )
@@ -122,7 +123,6 @@ require (
 	gomodules.xyz/encoding v0.0.2 // indirect
 	gomodules.xyz/flags v0.1.3 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
-	gomodules.xyz/jsonpath v0.0.1 // indirect
 	gomodules.xyz/pointer v0.1.0 // indirect
 	gomodules.xyz/wait v0.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
