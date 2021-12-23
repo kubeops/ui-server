@@ -63,6 +63,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 			defaultEtcdPathPrefix,
 			apiserver.Codecs.LegacyCodec(
 				auditorv1alpha1.SchemeGroupVersion,
+				metav1alpha1.SchemeGroupVersion,
 				identityv1alpha1.GroupVersion,
 				uiv1alpha1.GroupVersion,
 			),
