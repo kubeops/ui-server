@@ -1,0 +1,186 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: ResourceGraph
+request:
+  source:
+    group: apps
+    kind: Deployment
+    name: coredns
+    namespace: kube-system
+response:
+  connections:
+  - labels:
+    - offshoot
+    source:
+      name: coredns
+      namespace: kube-system
+      resourceID: 5
+    target:
+      name: coredns-64897985d
+      namespace: kube-system
+      resourceID: 6
+  - labels:
+    - offshoot
+    source:
+      name: coredns-64897985d-8hsxf
+      namespace: kube-system
+      resourceID: 2
+    target:
+      name: coredns-64897985d
+      namespace: kube-system
+      resourceID: 6
+  - labels:
+    - offshoot
+    source:
+      name: coredns-64897985d-cs7zq
+      namespace: kube-system
+      resourceID: 2
+    target:
+      name: coredns-64897985d
+      namespace: kube-system
+      resourceID: 6
+  - labels:
+    - offshoot
+    source:
+      name: coredns
+      namespace: kube-system
+      resourceID: 0
+    target:
+      name: coredns-64897985d-8hsxf
+      namespace: kube-system
+      resourceID: 2
+  - labels:
+    - offshoot
+    source:
+      name: coredns-64897985d-8hsxf
+      namespace: kube-system
+      resourceID: 2
+    target:
+      name: coredns
+      namespace: kube-system
+      resourceID: 4
+  - labels:
+    - offshoot
+    source:
+      name: coredns
+      namespace: kube-system
+      resourceID: 0
+    target:
+      name: coredns-64897985d-cs7zq
+      namespace: kube-system
+      resourceID: 2
+  - labels:
+    - located_on
+    source:
+      name: kind-control-plane
+      namespace: ""
+      resourceID: 1
+    target:
+      name: coredns-64897985d-cs7zq
+      namespace: kube-system
+      resourceID: 2
+  - labels:
+    - located_on
+    source:
+      name: kind-control-plane
+      namespace: ""
+      resourceID: 1
+    target:
+      name: coredns-64897985d-8hsxf
+      namespace: kube-system
+      resourceID: 2
+  - labels:
+    - offshoot
+    source:
+      name: coredns-64897985d-8hsxf
+      namespace: kube-system
+      resourceID: 2
+    target:
+      name: kube-dns
+      namespace: kube-system
+      resourceID: 3
+  - labels:
+    - offshoot
+    source:
+      name: coredns-64897985d-cs7zq
+      namespace: kube-system
+      resourceID: 2
+    target:
+      name: coredns
+      namespace: kube-system
+      resourceID: 4
+  - labels:
+    - offshoot
+    source:
+      name: coredns-64897985d-cs7zq
+      namespace: kube-system
+      resourceID: 2
+    target:
+      name: kube-dns
+      namespace: kube-system
+      resourceID: 3
+  - labels:
+    - offshoot
+    source:
+      name: coredns
+      namespace: kube-system
+      resourceID: 4
+    target:
+      name: system:coredns
+      namespace: ""
+      resourceID: 8
+  - labels:
+    - offshoot
+    source:
+      name: system:coredns
+      namespace: ""
+      resourceID: 7
+    target:
+      name: system:coredns
+      namespace: ""
+      resourceID: 8
+  resources:
+  - group: ""
+    kind: ConfigMap
+    name: configmaps
+    scope: Namespaced
+    version: v1
+  - group: ""
+    kind: Node
+    name: nodes
+    scope: Cluster
+    version: v1
+  - group: ""
+    kind: Pod
+    name: pods
+    scope: Namespaced
+    version: v1
+  - group: ""
+    kind: Service
+    name: services
+    scope: Namespaced
+    version: v1
+  - group: ""
+    kind: ServiceAccount
+    name: serviceaccounts
+    scope: Namespaced
+    version: v1
+  - group: apps
+    kind: Deployment
+    name: deployments
+    scope: Namespaced
+    version: v1
+  - group: apps
+    kind: ReplicaSet
+    name: replicasets
+    scope: Namespaced
+    version: v1
+  - group: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: clusterroles
+    scope: Cluster
+    version: v1
+  - group: rbac.authorization.k8s.io
+    kind: ClusterRoleBinding
+    name: clusterrolebindings
+    scope: Cluster
+    version: v1

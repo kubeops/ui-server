@@ -1,0 +1,212 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderPage
+request:
+  convertToTable: true
+  pageName: Basic
+  source:
+    group: apps
+    kind: Deployment
+    name: coredns
+    namespace: kube-system
+response:
+  sections:
+  - resource:
+      group: apps
+      kind: ReplicaSet
+      name: replicasets
+      scope: Namespaced
+      version: v1
+    table:
+      columnDefinitions:
+      - name: Name
+        pathTemplate: '{{ .metadata.name }}'
+        priority: 3
+        type: string
+      - name: Namespace
+        pathTemplate: '{{ .metadata.namespace }}'
+        priority: 3
+        type: string
+      - name: Labels
+        pathTemplate: '{{ .metadata.labels | toRawJson }}'
+        priority: 3
+        type: object
+      - name: Pods
+        pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        priority: 2
+        type: string
+      - name: Images
+        pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images }}'
+        priority: 2
+        type: string
+      - name: Age
+        pathTemplate: '{{ .metadata.creationTimestamp }}'
+        priority: 3
+        type: date
+      metadata: {}
+      rows:
+      - cells:
+        - coredns-64897985d
+        - kube-system
+        - k8s-app: kube-dns
+          pod-template-hash: 64897985d
+        - 2/2
+        - ""
+        - 60m
+  - resource:
+      group: ""
+      kind: Pod
+      name: pods
+      scope: Namespaced
+      version: v1
+    table:
+      columnDefinitions:
+      - format: name
+        name: Name
+        pathTemplate: '{{ .metadata.name }}'
+        priority: 3
+        type: string
+      - name: Namespace
+        pathTemplate: '{{ .metadata.namespace }}'
+        priority: 3
+        type: string
+      - name: Labels
+        pathTemplate: '{{ .metadata.labels | toRawJson }}'
+        priority: 3
+        type: object
+      - name: Ready
+        priority: 3
+        type: string
+      - name: Status
+        priority: 3
+        type: string
+      - name: Restarts
+        priority: 3
+        type: integer
+      - name: IP
+        pathTemplate: '{{ .status.podIP }}'
+        priority: 3
+        type: string
+      - name: Node
+        pathTemplate: '{{ .spec.nodeName }}'
+        priority: 3
+        type: string
+      - name: Images
+        pathTemplate: '{{ .spec.containers | k8s_container_images }}'
+        priority: 2
+        type: string
+      - name: Age
+        pathTemplate: '{{ .metadata.creationTimestamp }}'
+        priority: 3
+        type: date
+      metadata: {}
+      rows:
+      - cells:
+        - coredns-64897985d-8hsxf
+        - kube-system
+        - k8s-app: kube-dns
+          pod-template-hash: 64897985d
+        - 1/1
+        - Running
+        - 0
+        - 10.244.0.2
+        - kind-control-plane
+        - ""
+        - 60m
+      - cells:
+        - coredns-64897985d-cs7zq
+        - kube-system
+        - k8s-app: kube-dns
+          pod-template-hash: 64897985d
+        - 1/1
+        - Running
+        - 0
+        - 10.244.0.4
+        - kind-control-plane
+        - ""
+        - 60m
+  - resource:
+      group: ""
+      kind: Service
+      name: services
+      scope: Namespaced
+      version: v1
+    table:
+      columnDefinitions:
+      - name: Name
+        pathTemplate: '{{ .metadata.name }}'
+        priority: 3
+        type: string
+      - name: Namespace
+        pathTemplate: '{{ .metadata.namespace }}'
+        priority: 3
+        type: string
+      - name: Labels
+        pathTemplate: '{{ .metadata.labels | toRawJson }}'
+        priority: 3
+        type: object
+      - name: Type
+        pathTemplate: '{{ .spec.type }}'
+        priority: 3
+        type: string
+      - name: Cluster-IP
+        pathTemplate: '{{ .spec.clusterIP }}'
+        priority: 3
+        type: string
+      - name: External-IP
+        priority: 3
+        type: string
+      - name: Port(s)
+        pathTemplate: '{{ .spec.ports | k8s_svc_ports }}'
+        priority: 2
+        type: string
+      - name: Selector
+        priority: 3
+        type: string
+      - name: Age
+        pathTemplate: '{{ .metadata.creationTimestamp | k8s_age }}'
+        priority: 3
+        type: string
+      metadata: {}
+      rows:
+      - cells:
+        - kube-dns
+        - kube-system
+        - k8s-app: kube-dns
+          kubernetes.io/cluster-service: "true"
+          kubernetes.io/name: CoreDNS
+        - ClusterIP
+        - 10.96.0.10
+        - <none>
+        - 53/UDP,53/TCP,9153/TCP
+        - k8s-app=kube-dns
+        - 61m
+  - resource:
+      group: autoscaling
+      kind: HorizontalPodAutoscaler
+      name: horizontalpodautoscalers
+      scope: Namespaced
+      version: v2
+    table:
+      columnDefinitions:
+      - name: Name
+        pathTemplate: '{{ jp "{.metadata.name}" . }}'
+        priority: 2
+        type: string
+      - name: Namespace
+        pathTemplate: '{{ jp "{.metadata.namespace}" . }}'
+        priority: 2
+        type: string
+      - name: Labels
+        pathTemplate: '{{ jp "{.metadata.labels}" . }}'
+        priority: 2
+        type: object
+      - name: Annotations
+        pathTemplate: '{{ jp "{.metadata.annotations}" . }}'
+        priority: 2
+        type: object
+      - name: Age
+        pathTemplate: '{{ jp "{.metadata.creationTimestamp}" . }}'
+        priority: 2
+        type: date
+      metadata: {}
+      rows: []

@@ -1,0 +1,58 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderSection
+request:
+  convertToTable: true
+  source:
+    group: apps
+    kind: Deployment
+    name: coredns
+    namespace: kube-system
+  target:
+    query:
+      byLabel: offshoot
+    ref:
+      group: apps
+      kind: ReplicaSet
+response:
+  resource:
+    group: apps
+    kind: ReplicaSet
+    name: replicasets
+    scope: Namespaced
+    version: v1
+  table:
+    columnDefinitions:
+    - name: Name
+      pathTemplate: '{{ .metadata.name }}'
+      priority: 3
+      type: string
+    - name: Namespace
+      pathTemplate: '{{ .metadata.namespace }}'
+      priority: 3
+      type: string
+    - name: Labels
+      pathTemplate: '{{ .metadata.labels | toRawJson }}'
+      priority: 3
+      type: object
+    - name: Pods
+      pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+      priority: 2
+      type: string
+    - name: Images
+      pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images }}'
+      priority: 2
+      type: string
+    - name: Age
+      pathTemplate: '{{ .metadata.creationTimestamp }}'
+      priority: 3
+      type: date
+    metadata: {}
+    rows:
+    - cells:
+      - coredns-64897985d
+      - kube-system
+      - k8s-app: kube-dns
+        pod-template-hash: 64897985d
+      - 2/2
+      - ""
+      - 59m
