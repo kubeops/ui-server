@@ -1,0 +1,10 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderPage
+request:
+  source:
+    group: apps
+    kind: Deployment
+    namespace: kube-system
+    name: coredns
+  pageName: Basic
+  convertToTable: true

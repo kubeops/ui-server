@@ -18,6 +18,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -132,11 +133,27 @@ func ExecQuery(c client.Client, query string, vars map[string]interface{}) ([]un
 		return nil, errors.Wrap(err, "failed to extract refs")
 	}
 
+	var gk schema.GroupKind
+	if v, ok := vars[v1alpha1.GraphQueryVarTargetGroup]; ok {
+		gk.Group = v.(string)
+	} else {
+		return nil, fmt.Errorf("vars is missing %s", v1alpha1.GraphQueryVarTargetGroup)
+	}
+	if v, ok := vars[v1alpha1.GraphQueryVarTargetKind]; ok {
+		gk.Kind = v.(string)
+	} else {
+		return nil, fmt.Errorf("vars is missing %s", v1alpha1.GraphQueryVarTargetKind)
+	}
+
+	mapping, err := c.RESTMapper().RESTMapping(gk)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to detect mappings for %+v", gk)
+	}
+
 	objs := make([]unstructured.Unstructured, 0, len(refs))
 	for _, ref := range refs {
 		var obj unstructured.Unstructured
-		obj.SetAPIVersion("v1")
-		obj.SetKind("Pod")
+		obj.SetGroupVersionKind(mapping.GroupVersionKind)
 		err = c.Get(context.TODO(), client.ObjectKey{Namespace: ref.Namespace, Name: ref.Name}, &obj)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to extract refs")
@@ -199,10 +216,6 @@ func RenderSection(cfg *restclient.Config, kc client.Client, src apiv1.OID, targ
 		return nil, err
 	}
 
-	var data unstructured.UnstructuredList
-	data.SetGroupVersionKind(mapping.GroupVersionKind)
-	data.Items = objs
-
 	scope := apiv1.ClusterScoped
 	if mapping.Scope == meta.RESTScopeNamespace {
 		scope = apiv1.NamespaceScoped
@@ -227,9 +240,9 @@ func RenderSection(cfg *restclient.Config, kc client.Client, src apiv1.OID, targ
 		if err != nil {
 			return nil, err
 		}
-		section.Data = table
+		section.Table = table
 	} else {
-		section.Data = &data
+		section.Items = objs
 	}
 	return section, nil
 }
