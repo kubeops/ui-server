@@ -80,7 +80,7 @@ func (g *ObjectGraph) Links(oid *apiv1.ObjectID, edgeLabel v1alpha1.EdgeLabel) (
 	g.m.RLock()
 	defer g.m.RUnlock()
 
-	if edgeLabel == v1alpha1.EdgeOffshoot {
+	if edgeLabel == v1alpha1.EdgeOffshoot || edgeLabel == v1alpha1.EdgeView {
 		return g.links(oid, nil, edgeLabel)
 	}
 
@@ -149,10 +149,8 @@ func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src apiv1.ObjectID) 
 		objID, _ = apiv1.ParseObjectID(oid)
 		skipGKs.Insert(objID.GroupKind())
 	}
-	for _, label := range hub.ListEdgeLabels() {
-		if label != v1alpha1.EdgeOffshoot {
-			g.connectedEdges(offshoots, label, skipGKs, connections)
-		}
+	for _, label := range hub.ListEdgeLabels(v1alpha1.EdgeOffshoot, v1alpha1.EdgeView) {
+		g.connectedEdges(offshoots, label, skipGKs, connections)
 	}
 
 	gkSet := ksets.NewGroupKind()
