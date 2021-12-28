@@ -8,6 +8,7 @@ request:
     name: calico-kube-controllers
   target:
     query:
+      type: GraphQL
       byLabel: offshoot
     # ref:
     #   group: ""
