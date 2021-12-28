@@ -125,6 +125,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenderSections),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceDescriptors),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceGraphs),
+		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
 	}
 
 	if err := o.ExtraOptions.ApplyTo(serverConfig.ClientConfig); err != nil {

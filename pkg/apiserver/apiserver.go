@@ -62,6 +62,7 @@ import (
 	"kmodules.xyz/resource-metadata/apis/meta"
 	metainstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	metav1alpha1 "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -164,6 +165,19 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 			&core.Namespace{},
 			&core.Secret{},
 			&core.Pod{},
+		},
+		NewClient: func(cache cache.Cache, config *restclient.Config, options client.Options, uncachedObjects ...client.Object) (client.Client, error) {
+			c, err := client.New(config, options)
+			if err != nil {
+				return nil, err
+			}
+
+			return client.NewDelegatingClient(client.NewDelegatingClientInput{
+				CacheReader:       cache,
+				Client:            c,
+				UncachedObjects:   uncachedObjects,
+				CacheUnstructured: true, // cache unstructured objects
+			})
 		},
 	})
 	if err != nil {
