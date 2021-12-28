@@ -72,15 +72,16 @@ func PollNewResourceTypes(cfg *restclient.Config) func(ctx context.Context) erro
 						continue
 					}
 
+					scope := apiv1.ClusterScoped
+					if rs.Namespaced {
+						scope = apiv1.NamespaceScoped
+					}
 					rid := apiv1.ResourceID{
 						Group:   gvk.Group,
 						Version: gvk.Version,
 						Name:    rs.Name,
 						Kind:    rs.Kind,
-						Scope:   apiv1.ClusterScoped,
-					}
-					if rs.Namespaced {
-						rid.Scope = apiv1.NamespaceScoped
+						Scope:   scope,
 					}
 					if _, found := resourceTracker[gvk]; !found {
 						resourceTracker[gvk] = rid
