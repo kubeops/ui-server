@@ -18,11 +18,14 @@ package SiteInfo
 
 import (
 	"context"
+	"time"
 
+	"github.com/google/uuid"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
@@ -51,6 +54,11 @@ func NewStorage(cfg *restclient.Config, c client.Client) (*Storage, error) {
 		return nil, err
 	}
 	si.Product = nil
+	si.ObjectMeta = metav1.ObjectMeta{
+		Name:              "default",
+		UID:               types.UID(uuid.Must(uuid.NewUUID()).String()),
+		CreationTimestamp: metav1.Time{Time: time.Now()},
+	}
 
 	return &Storage{
 		c:  c,
