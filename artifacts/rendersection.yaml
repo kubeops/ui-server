@@ -5,7 +5,7 @@ request:
     group: apps
     kind: Deployment
     namespace: kube-system
-    name: coredns
+    name: calico-kube-controllers
   target:
     query:
       byLabel: offshoot
