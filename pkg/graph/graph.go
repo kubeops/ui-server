@@ -44,7 +44,7 @@ func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[v1alpha1.EdgeLabel
 		if oldConnsPerLabel, ok := g.ids[src]; ok {
 			if oldConns, ok := oldConnsPerLabel[lbl]; ok {
 				if oldConns.Difference(conns).Len() == 0 {
-					return
+					continue
 				}
 
 				g.edges[src][lbl].Delete(oldConns.UnsortedList()...)
@@ -73,7 +73,24 @@ func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[v1alpha1.EdgeLabel
 		}
 	}
 
-	g.ids[src] = connsPerLabel
+	// remove edged that don't exist anymore
+	oldConnsPerLabel := g.ids[src]
+	for lbl, conns := range oldConnsPerLabel {
+		if _, ok := connsPerLabel[lbl]; ok {
+			continue
+		}
+
+		g.edges[src][lbl].Delete(conns.UnsortedList()...)
+		for dst := range conns {
+			g.edges[dst][lbl].Delete(src)
+		}
+	}
+
+	if len(connsPerLabel) == 0 {
+		delete(g.ids, src)
+	} else {
+		g.ids[src] = connsPerLabel
+	}
 }
 
 func (g *ObjectGraph) Links(oid *apiv1.ObjectID, edgeLabel v1alpha1.EdgeLabel) (map[metav1.GroupKind][]apiv1.ObjectID, error) {

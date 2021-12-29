@@ -162,8 +162,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		LeaderElection:         false,
 		LeaderElectionID:       "5b87adeb.ui.kubedb.com",
 		ClientDisableCacheFor: []client.Object{
-			&core.Namespace{},
-			&core.Secret{},
 			&core.Pod{},
 		},
 		NewClient: func(cache cache.Cache, config *restclient.Config, options client.Options, uncachedObjects ...client.Object) (client.Client, error) {

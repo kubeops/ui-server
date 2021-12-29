@@ -29,7 +29,7 @@ require (
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
 	kmodules.xyz/client-go v0.0.0-20211223200000-0c37b46c4f50
 	kmodules.xyz/custom-resources v0.0.0-20211221073415-ab9b13cfc659
-	kmodules.xyz/resource-metadata v0.7.1-0.20211228112129-b37555e931bd
+	kmodules.xyz/resource-metadata v0.7.1-0.20211229020403-f8778a87b568
 	kmodules.xyz/resource-metrics v0.0.6
 	kmodules.xyz/sets v0.0.0-20211223043606-9d9b263bcc95
 	sigs.k8s.io/cli-utils v0.26.1

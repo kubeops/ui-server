@@ -2,18 +2,27 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: RenderSection
 request:
   source:
+    # group: ""
+    # kind: Pod
+    # namespace: kube-system
+    # name: coredns-65648f44c6-b55n8
+    name: calico-kube-controllers
     group: apps
     kind: Deployment
     namespace: kube-system
-    name: calico-kube-controllers
+    name: coredns
+    # name: calico-kube-controllers
   target:
     query:
       type: GraphQL
-      byLabel: offshoot
+      byLabel: exposed_by
+    ref:
+      group: ""
+      kind: Service
     # ref:
     #   group: ""
     #   kind: Pod
-    ref:
-      group: apps
-      kind: ReplicaSet
+    # ref:
+    #   group: apps
+    #   kind: ReplicaSet
   convertToTable: true
