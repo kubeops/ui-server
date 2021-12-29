@@ -158,7 +158,7 @@ func ExecQuery(c client.Client, query string, vars map[string]interface{}) ([]un
 		obj.SetGroupVersionKind(mapping.GroupVersionKind)
 		err = c.Get(context.TODO(), client.ObjectKey{Namespace: ref.Namespace, Name: ref.Name}, &obj)
 		if client.IgnoreNotFound(err) != nil {
-			return nil, errors.Wrap(err, "failed to extract refs")
+			return nil, errors.Wrap(err, "failed to expand refs")
 		} else if err == nil {
 			objs = append(objs, obj)
 		}

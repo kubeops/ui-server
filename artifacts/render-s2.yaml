@@ -1,0 +1,16 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderSection
+request:
+  source:
+    group: apps
+    kind: Deployment
+    namespace: kube-system
+    name: coredns
+  target:
+    query:
+      byLabel: offshoot
+      type: GraphQL
+    ref:
+      group: apps
+      kind: ReplicaSet
+  convertToTable: true
