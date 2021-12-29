@@ -200,7 +200,7 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 			var err error
 
 			if e.Connection.SelectorPath != "" {
-				_, selector, err = ExtractSelector(src, e.Connection.SelectorPath)
+				selector, err = ExtractSelector(src, e.Connection.SelectorPath)
 				if err != nil {
 					return nil, err
 				}
@@ -227,41 +227,44 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 			}
 
 			var out []*unstructured.Unstructured
-			for _, ns := range namespaces {
-				opts := client.ListOptions{LabelSelector: labels.Everything()}
-				if namespaced, err := finder.isNamespaced(e.Dst); err != nil {
-					return nil, err
-				} else if namespaced {
-					opts.Namespace = ns
-				}
 
-				selInApp := e.Connection.TargetLabelPath != "" &&
-					strings.Trim(e.Connection.TargetLabelPath, ".") != MetadataLabels
-				if !selInApp {
-					// TODO(tamal): check for correctness
-					opts.LabelSelector = selector
-				}
-				var result unstructured.UnstructuredList
-				result.SetGroupVersionKind(e.Dst) // KB: ok?
-				err := finder.Client.List(context.TODO(), &result, &opts)
-				if err != nil {
-					return nil, err
-				}
-				for i := range result.Items {
-					rs := result.Items[i]
-
-					if selInApp {
-						lbl, ok, err := unstructured.NestedStringMap(rs.Object, fields(e.Connection.TargetLabelPath)...)
-						if err != nil {
-							return nil, err
-						}
-						if !ok || !selector.Matches(labels.Set(lbl)) {
-							continue
-						}
+			if _, selectable := selector.Requirements(); selectable {
+				for _, ns := range namespaces {
+					opts := client.ListOptions{LabelSelector: labels.Everything()}
+					if namespaced, err := finder.isNamespaced(e.Dst); err != nil {
+						return nil, err
+					} else if namespaced {
+						opts.Namespace = ns
 					}
 
-					if isConnected(e.Connection.Level, &rs, src) {
-						out = append(out, &rs)
+					selInApp := e.Connection.TargetLabelPath != "" &&
+						strings.Trim(e.Connection.TargetLabelPath, ".") != MetadataLabels
+					if !selInApp {
+						// TODO(tamal): check for correctness
+						opts.LabelSelector = selector
+					}
+					var result unstructured.UnstructuredList
+					result.SetGroupVersionKind(e.Dst) // KB: ok?
+					err := finder.Client.List(context.TODO(), &result, &opts)
+					if err != nil {
+						return nil, err
+					}
+					for i := range result.Items {
+						rs := result.Items[i]
+
+						if selInApp {
+							lbl, ok, err := unstructured.NestedStringMap(rs.Object, fields(e.Connection.TargetLabelPath)...)
+							if err != nil {
+								return nil, err
+							}
+							if !ok || !selector.Matches(labels.Set(lbl)) {
+								continue
+							}
+						}
+
+						if isConnected(e.Connection.Level, &rs, src) {
+							out = append(out, &rs)
+						}
 					}
 				}
 			}
@@ -422,10 +425,9 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 					}
 				}
 
-				var ls string
 				var selector labels.Selector
 				if e.Connection.SelectorPath != "" {
-					ls, selector, err = ExtractSelector(&rs, e.Connection.SelectorPath)
+					selector, err = ExtractSelector(&rs, e.Connection.SelectorPath)
 					if err != nil {
 						return nil, err
 					}
@@ -438,12 +440,12 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 					if err != nil {
 						return nil, err
 					}
-					ls = selector.String()
+					_ = selector.String()
 				} else {
 					return nil, fmt.Errorf("edge %v is missing selectorPath and selector", e)
 				}
 
-				if ls == labels.Nothing().String() {
+				if _, selectable := selector.Requirements(); !selectable {
 					continue
 				}
 
@@ -782,33 +784,31 @@ func keyExists(m map[string]interface{}, key string) bool {
 	return ok
 }
 
-func ExtractSelector(u *unstructured.Unstructured, fieldPath string) (string, labels.Selector, error) {
-	nothing := labels.Nothing().String()
-
+func ExtractSelector(u *unstructured.Unstructured, fieldPath string) (labels.Selector, error) {
 	if fieldPath == "" {
-		return nothing, labels.Nothing(), errors.New("fieldPath can't be empty")
+		return labels.Nothing(), errors.New("fieldPath can't be empty")
 	}
 	val, found, err := unstructured.NestedFieldNoCopy(u.Object, fields(fieldPath)...)
 	if !found || err != nil {
-		return nothing, labels.Nothing(), err
+		return labels.Nothing(), err
 	}
 	m, ok := val.(map[string]interface{})
 	if !ok {
-		return nothing, labels.Nothing(), fmt.Errorf("%v accessor error: %v is of the type %T, expected map[string]interface{}", fieldPath, val, val)
+		return labels.Nothing(), fmt.Errorf("%v accessor error: %v is of the type %T, expected map[string]interface{}", fieldPath, val, val)
 	}
 
 	if len(m) <= 2 && (keyExists(m, "matchLabels") || keyExists(m, "matchExpressions")) {
 		var ls metav1.LabelSelector
 		err = meta_util.DecodeObject(m, &ls)
 		if err != nil {
-			return nothing, labels.Nothing(), err
+			return labels.Nothing(), err
 		}
 
 		sel, err := metav1.LabelSelectorAsSelector(&ls)
 		if err != nil {
-			return nothing, labels.Nothing(), err
+			return labels.Nothing(), err
 		}
-		return sel.String(), sel, nil
+		return sel, nil
 	}
 
 	strMap := make(map[string]string, len(m))
@@ -816,11 +816,11 @@ func ExtractSelector(u *unstructured.Unstructured, fieldPath string) (string, la
 		if str, ok := v.(string); ok {
 			strMap[k] = str
 		} else {
-			return nothing, labels.Nothing(), fmt.Errorf("%v accessor error: contains non-string key in the map: %v is of the type %T, expected string", fieldPath, v, v)
+			return labels.Nothing(), fmt.Errorf("%v accessor error: contains non-string key in the map: %v is of the type %T, expected string", fieldPath, v, v)
 		}
 	}
 	sel := labels.SelectorFromSet(strMap)
-	return sel.String(), sel, nil
+	return sel, nil
 }
 
 func ExtractName(name, selector string) (string, bool) {
