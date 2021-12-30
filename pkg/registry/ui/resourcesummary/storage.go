@@ -24,6 +24,7 @@ import (
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/shared"
 
+	"github.com/google/uuid"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
@@ -31,6 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
@@ -135,6 +137,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				Name:              gvk.GroupKind().String(),
 				Namespace:         ns,
 				CreationTimestamp: metav1.NewTime(now),
+				UID:               types.UID(uuid.Must(uuid.NewUUID()).String()),
 			},
 			Spec: uiv1alpha1.ResourceSummarySpec{
 				ClusterName: clusterid.ClusterName(),
