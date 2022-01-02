@@ -31,11 +31,11 @@ import (
 
 type ObjectGraph struct {
 	m     sync.RWMutex
-	edges map[apiv1.OID]map[v1alpha1.EdgeLabel]ksets.OID // oid -> label -> edges
-	ids   map[apiv1.OID]map[v1alpha1.EdgeLabel]ksets.OID // oid -> label -> edges
+	edges map[apiv1.OID]map[apiv1.EdgeLabel]ksets.OID // oid -> label -> edges
+	ids   map[apiv1.OID]map[apiv1.EdgeLabel]ksets.OID // oid -> label -> edges
 }
 
-func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[v1alpha1.EdgeLabel]ksets.OID) {
+func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[apiv1.EdgeLabel]ksets.OID) {
 	g.m.Lock()
 	defer g.m.Unlock()
 
@@ -55,7 +55,7 @@ func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[v1alpha1.EdgeLabel
 		}
 
 		if _, ok := g.edges[src]; !ok {
-			g.edges[src] = map[v1alpha1.EdgeLabel]ksets.OID{}
+			g.edges[src] = map[apiv1.EdgeLabel]ksets.OID{}
 		}
 		if _, ok := g.edges[src][lbl]; !ok {
 			g.edges[src][lbl] = ksets.NewOID()
@@ -64,7 +64,7 @@ func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[v1alpha1.EdgeLabel
 
 		for dst := range conns {
 			if _, ok := g.edges[dst]; !ok {
-				g.edges[dst] = map[v1alpha1.EdgeLabel]ksets.OID{}
+				g.edges[dst] = map[apiv1.EdgeLabel]ksets.OID{}
 			}
 			if _, ok := g.edges[dst][lbl]; !ok {
 				g.edges[dst][lbl] = ksets.NewOID()
@@ -93,21 +93,21 @@ func (g *ObjectGraph) Update(src apiv1.OID, connsPerLabel map[v1alpha1.EdgeLabel
 	}
 }
 
-func (g *ObjectGraph) Links(oid *apiv1.ObjectID, edgeLabel v1alpha1.EdgeLabel) (map[metav1.GroupKind][]apiv1.ObjectID, error) {
+func (g *ObjectGraph) Links(oid *apiv1.ObjectID, edgeLabel apiv1.EdgeLabel) (map[metav1.GroupKind][]apiv1.ObjectID, error) {
 	g.m.RLock()
 	defer g.m.RUnlock()
 
-	if edgeLabel == v1alpha1.EdgeOffshoot || edgeLabel == v1alpha1.EdgeView {
+	if edgeLabel == apiv1.EdgeOffshoot || edgeLabel == apiv1.EdgeView {
 		return g.links(oid, nil, edgeLabel)
 	}
 
 	src := oid.OID()
-	offshoots := g.connectedOIDs([]apiv1.OID{src}, v1alpha1.EdgeOffshoot)
+	offshoots := g.connectedOIDs([]apiv1.OID{src}, apiv1.EdgeOffshoot)
 	offshoots.Delete(src)
 	return g.links(oid, offshoots.UnsortedList(), edgeLabel)
 }
 
-func (g *ObjectGraph) links(oid *apiv1.ObjectID, seeds []apiv1.OID, edgeLabel v1alpha1.EdgeLabel) (map[metav1.GroupKind][]apiv1.ObjectID, error) {
+func (g *ObjectGraph) links(oid *apiv1.ObjectID, seeds []apiv1.OID, edgeLabel apiv1.EdgeLabel) (map[metav1.GroupKind][]apiv1.ObjectID, error) {
 	src := oid.OID()
 	links := g.connectedOIDs(append([]apiv1.OID{src}, seeds...), edgeLabel)
 	links.Delete(src)
@@ -124,7 +124,7 @@ func (g *ObjectGraph) links(oid *apiv1.ObjectID, seeds []apiv1.OID, edgeLabel v1
 	return result, nil
 }
 
-func (g *ObjectGraph) connectedOIDs(idsToProcess []apiv1.OID, edgeLabel v1alpha1.EdgeLabel) ksets.OID {
+func (g *ObjectGraph) connectedOIDs(idsToProcess []apiv1.OID, edgeLabel apiv1.EdgeLabel) ksets.OID {
 	processed := ksets.NewOID()
 	var x apiv1.OID
 	for len(idsToProcess) > 0 {
@@ -159,14 +159,14 @@ func ResourceGraph(mapper meta.RESTMapper, src apiv1.ObjectID) (*v1alpha1.Resour
 func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src apiv1.ObjectID) (*v1alpha1.ResourceGraphResponse, error) {
 	connections := map[objectEdge]sets.String{}
 
-	offshoots := g.connectedEdges([]apiv1.OID{src.OID()}, v1alpha1.EdgeOffshoot, ksets.NewGroupKind(), connections).UnsortedList()
+	offshoots := g.connectedEdges([]apiv1.OID{src.OID()}, apiv1.EdgeOffshoot, ksets.NewGroupKind(), connections).UnsortedList()
 	skipGKs := ksets.NewGroupKind()
 	var objID *apiv1.ObjectID
 	for _, oid := range offshoots {
 		objID, _ = apiv1.ParseObjectID(oid)
 		skipGKs.Insert(objID.GroupKind())
 	}
-	for _, label := range hub.ListEdgeLabels(v1alpha1.EdgeOffshoot, v1alpha1.EdgeView) {
+	for _, label := range hub.ListEdgeLabels(apiv1.EdgeOffshoot, apiv1.EdgeView) {
 		g.connectedEdges(offshoots, label, skipGKs, connections)
 	}
 
@@ -226,7 +226,7 @@ func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src apiv1.ObjectID) 
 	return &resp, nil
 }
 
-func (g *ObjectGraph) connectedEdges(idsToProcess []apiv1.OID, edgeLabel v1alpha1.EdgeLabel, skipGKs ksets.GroupKind, connections map[objectEdge]sets.String) ksets.OID {
+func (g *ObjectGraph) connectedEdges(idsToProcess []apiv1.OID, edgeLabel apiv1.EdgeLabel, skipGKs ksets.GroupKind, connections map[objectEdge]sets.String) ksets.OID {
 	processed := ksets.NewOID()
 	var x apiv1.OID
 	var objID *apiv1.ObjectID

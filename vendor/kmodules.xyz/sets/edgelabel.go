@@ -20,33 +20,33 @@ import (
 	"reflect"
 	"sort"
 
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
-// sets.EdgeLabel is a set of v1alpha1.EdgeLabels, implemented via map[v1alpha1.EdgeLabel]struct{} for minimal memory consumption.
-type EdgeLabel map[v1alpha1.EdgeLabel]Empty
+// sets.EdgeLabel is a set of kmapi.EdgeLabels, implemented via map[kmapi.EdgeLabel]struct{} for minimal memory consumption.
+type EdgeLabel map[kmapi.EdgeLabel]Empty
 
 // NewEdgeLabel creates a EdgeLabel from a list of values.
-func NewEdgeLabel(items ...v1alpha1.EdgeLabel) EdgeLabel {
+func NewEdgeLabel(items ...kmapi.EdgeLabel) EdgeLabel {
 	ss := make(EdgeLabel, len(items))
 	ss.Insert(items...)
 	return ss
 }
 
-// EdgeLabelKeySet creates a EdgeLabel from a keys of a map[v1alpha1.EdgeLabel](? extends interface{}).
+// EdgeLabelKeySet creates a EdgeLabel from a keys of a map[kmapi.EdgeLabel](? extends interface{}).
 // If the value passed in is not actually a map, this will panic.
 func EdgeLabelKeySet(theMap interface{}) EdgeLabel {
 	v := reflect.ValueOf(theMap)
 	ret := EdgeLabel{}
 
 	for _, keyValue := range v.MapKeys() {
-		ret.Insert(keyValue.Interface().(v1alpha1.EdgeLabel))
+		ret.Insert(keyValue.Interface().(kmapi.EdgeLabel))
 	}
 	return ret
 }
 
 // Insert adds items to the set.
-func (s EdgeLabel) Insert(items ...v1alpha1.EdgeLabel) EdgeLabel {
+func (s EdgeLabel) Insert(items ...kmapi.EdgeLabel) EdgeLabel {
 	for _, item := range items {
 		s[item] = Empty{}
 	}
@@ -54,7 +54,7 @@ func (s EdgeLabel) Insert(items ...v1alpha1.EdgeLabel) EdgeLabel {
 }
 
 // Delete removes all items from the set.
-func (s EdgeLabel) Delete(items ...v1alpha1.EdgeLabel) EdgeLabel {
+func (s EdgeLabel) Delete(items ...kmapi.EdgeLabel) EdgeLabel {
 	for _, item := range items {
 		delete(s, item)
 	}
@@ -62,13 +62,13 @@ func (s EdgeLabel) Delete(items ...v1alpha1.EdgeLabel) EdgeLabel {
 }
 
 // Has returns true if and only if item is contained in the set.
-func (s EdgeLabel) Has(item v1alpha1.EdgeLabel) bool {
+func (s EdgeLabel) Has(item kmapi.EdgeLabel) bool {
 	_, contained := s[item]
 	return contained
 }
 
 // HasAll returns true if and only if all items are contained in the set.
-func (s EdgeLabel) HasAll(items ...v1alpha1.EdgeLabel) bool {
+func (s EdgeLabel) HasAll(items ...kmapi.EdgeLabel) bool {
 	for _, item := range items {
 		if !s.Has(item) {
 			return false
@@ -78,7 +78,7 @@ func (s EdgeLabel) HasAll(items ...v1alpha1.EdgeLabel) bool {
 }
 
 // HasAny returns true if any items are contained in the set.
-func (s EdgeLabel) HasAny(items ...v1alpha1.EdgeLabel) bool {
+func (s EdgeLabel) HasAny(items ...kmapi.EdgeLabel) bool {
 	for _, item := range items {
 		if s.Has(item) {
 			return true
@@ -160,25 +160,25 @@ func (s1 EdgeLabel) Equal(s2 EdgeLabel) bool {
 	return len(s1) == len(s2) && s1.IsSuperset(s2)
 }
 
-type sortableSliceOfEdgeLabel []v1alpha1.EdgeLabel
+type sortableSliceOfEdgeLabel []kmapi.EdgeLabel
 
 func (s sortableSliceOfEdgeLabel) Len() int           { return len(s) }
 func (s sortableSliceOfEdgeLabel) Less(i, j int) bool { return lessEdgeLabel(s[i], s[j]) }
 func (s sortableSliceOfEdgeLabel) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
-// List returns the contents as a sorted v1alpha1.EdgeLabel slice.
-func (s EdgeLabel) List() []v1alpha1.EdgeLabel {
+// List returns the contents as a sorted kmapi.EdgeLabel slice.
+func (s EdgeLabel) List() []kmapi.EdgeLabel {
 	res := make(sortableSliceOfEdgeLabel, 0, len(s))
 	for key := range s {
 		res = append(res, key)
 	}
 	sort.Sort(res)
-	return []v1alpha1.EdgeLabel(res)
+	return []kmapi.EdgeLabel(res)
 }
 
 // UnsortedList returns the slice with contents in random order.
-func (s EdgeLabel) UnsortedList() []v1alpha1.EdgeLabel {
-	res := make([]v1alpha1.EdgeLabel, 0, len(s))
+func (s EdgeLabel) UnsortedList() []kmapi.EdgeLabel {
+	res := make([]kmapi.EdgeLabel, 0, len(s))
 	for key := range s {
 		res = append(res, key)
 	}
@@ -186,12 +186,12 @@ func (s EdgeLabel) UnsortedList() []v1alpha1.EdgeLabel {
 }
 
 // Returns a single element from the set.
-func (s EdgeLabel) PopAny() (v1alpha1.EdgeLabel, bool) {
+func (s EdgeLabel) PopAny() (kmapi.EdgeLabel, bool) {
 	for key := range s {
 		s.Delete(key)
 		return key, true
 	}
-	var zeroValue v1alpha1.EdgeLabel
+	var zeroValue kmapi.EdgeLabel
 	return zeroValue, false
 }
 
@@ -200,6 +200,6 @@ func (s EdgeLabel) Len() int {
 	return len(s)
 }
 
-func lessEdgeLabel(lhs, rhs v1alpha1.EdgeLabel) bool {
+func lessEdgeLabel(lhs, rhs kmapi.EdgeLabel) bool {
 	return lhs < rhs
 }

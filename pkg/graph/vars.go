@@ -21,7 +21,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	apiv1 "kmodules.xyz/client-go/api/v1"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub"
 	ksets "kmodules.xyz/sets"
 )
@@ -30,8 +29,8 @@ var Registry = hub.NewRegistryOfKnownResources()
 
 var objGraph = &ObjectGraph{
 	m:     sync.RWMutex{},
-	edges: map[apiv1.OID]map[v1alpha1.EdgeLabel]ksets.OID{},
-	ids:   map[apiv1.OID]map[v1alpha1.EdgeLabel]ksets.OID{},
+	edges: map[apiv1.OID]map[apiv1.EdgeLabel]ksets.OID{},
+	ids:   map[apiv1.OID]map[apiv1.EdgeLabel]ksets.OID{},
 }
 
 var Schema = getGraphQLSchema()

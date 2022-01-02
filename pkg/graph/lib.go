@@ -130,7 +130,7 @@ func (finder ObjectFinder) ListConnectedPartials(src *unstructured.Unstructured,
 	return result, nil
 }
 
-func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured, connections []v1alpha1.ResourceConnection) (map[v1alpha1.EdgeLabel]ksets.OID, error) {
+func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured, connections []v1alpha1.ResourceConnection) (map[apiv1.EdgeLabel]ksets.OID, error) {
 	type GKL struct {
 		Group  string
 		Kind   string
@@ -153,7 +153,7 @@ func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured
 		connsPerGKL[gkl] = append(connsPerGKL[gkl], c)
 	}
 
-	edges := map[v1alpha1.EdgeLabel]ksets.OID{}
+	edges := map[apiv1.EdgeLabel]ksets.OID{}
 	for _, conns := range connsPerGKL {
 		if len(conns) > 1 {
 			sort.Slice(conns, func(i, j int) bool {
