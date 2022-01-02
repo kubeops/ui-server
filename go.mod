@@ -27,11 +27,11 @@ require (
 	k8s.io/kube-openapi v0.0.0-20210421082810-95288971da7e
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
-	kmodules.xyz/client-go v0.0.0-20211223200000-0c37b46c4f50
+	kmodules.xyz/client-go v0.0.0-20220102205226-4b5fbc57578f
 	kmodules.xyz/custom-resources v0.0.0-20211221073415-ab9b13cfc659
-	kmodules.xyz/resource-metadata v0.7.1-0.20211229020403-f8778a87b568
+	kmodules.xyz/resource-metadata v0.8.1-0.20220102210450-c8b751443f0c
 	kmodules.xyz/resource-metrics v0.0.6
-	kmodules.xyz/sets v0.0.0-20211223043606-9d9b263bcc95
+	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	sigs.k8s.io/cli-utils v0.26.1
 	sigs.k8s.io/controller-runtime v0.9.0
 	sigs.k8s.io/yaml v1.2.0

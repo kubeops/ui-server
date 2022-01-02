@@ -22,7 +22,6 @@ import (
 	"github.com/graphql-go/graphql"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1 "kmodules.xyz/client-go/api/v1"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub"
 )
 
@@ -50,7 +49,7 @@ func getGraphQLSchema() graphql.Schema {
 		},
 	})
 	for _, label := range hub.ListEdgeLabels() {
-		func(edgeLabel v1alpha1.EdgeLabel) {
+		func(edgeLabel apiv1.EdgeLabel) {
 			oidType.AddFieldConfig(string(edgeLabel), &graphql.Field{
 				Type:        graphql.NewList(oidType),
 				Description: fmt.Sprintf("%s from this object", edgeLabel),

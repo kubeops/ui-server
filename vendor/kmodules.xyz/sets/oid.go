@@ -20,33 +20,33 @@ import (
 	"reflect"
 	"sort"
 
-	apiv1 "kmodules.xyz/client-go/api/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
-// sets.OID is a set of apiv1.OIDs, implemented via map[apiv1.OID]struct{} for minimal memory consumption.
-type OID map[apiv1.OID]Empty
+// sets.OID is a set of kmapi.OIDs, implemented via map[kmapi.OID]struct{} for minimal memory consumption.
+type OID map[kmapi.OID]Empty
 
 // NewOID creates a OID from a list of values.
-func NewOID(items ...apiv1.OID) OID {
+func NewOID(items ...kmapi.OID) OID {
 	ss := make(OID, len(items))
 	ss.Insert(items...)
 	return ss
 }
 
-// OIDKeySet creates a OID from a keys of a map[apiv1.OID](? extends interface{}).
+// OIDKeySet creates a OID from a keys of a map[kmapi.OID](? extends interface{}).
 // If the value passed in is not actually a map, this will panic.
 func OIDKeySet(theMap interface{}) OID {
 	v := reflect.ValueOf(theMap)
 	ret := OID{}
 
 	for _, keyValue := range v.MapKeys() {
-		ret.Insert(keyValue.Interface().(apiv1.OID))
+		ret.Insert(keyValue.Interface().(kmapi.OID))
 	}
 	return ret
 }
 
 // Insert adds items to the set.
-func (s OID) Insert(items ...apiv1.OID) OID {
+func (s OID) Insert(items ...kmapi.OID) OID {
 	for _, item := range items {
 		s[item] = Empty{}
 	}
@@ -54,7 +54,7 @@ func (s OID) Insert(items ...apiv1.OID) OID {
 }
 
 // Delete removes all items from the set.
-func (s OID) Delete(items ...apiv1.OID) OID {
+func (s OID) Delete(items ...kmapi.OID) OID {
 	for _, item := range items {
 		delete(s, item)
 	}
@@ -62,13 +62,13 @@ func (s OID) Delete(items ...apiv1.OID) OID {
 }
 
 // Has returns true if and only if item is contained in the set.
-func (s OID) Has(item apiv1.OID) bool {
+func (s OID) Has(item kmapi.OID) bool {
 	_, contained := s[item]
 	return contained
 }
 
 // HasAll returns true if and only if all items are contained in the set.
-func (s OID) HasAll(items ...apiv1.OID) bool {
+func (s OID) HasAll(items ...kmapi.OID) bool {
 	for _, item := range items {
 		if !s.Has(item) {
 			return false
@@ -78,7 +78,7 @@ func (s OID) HasAll(items ...apiv1.OID) bool {
 }
 
 // HasAny returns true if any items are contained in the set.
-func (s OID) HasAny(items ...apiv1.OID) bool {
+func (s OID) HasAny(items ...kmapi.OID) bool {
 	for _, item := range items {
 		if s.Has(item) {
 			return true
@@ -160,25 +160,25 @@ func (s1 OID) Equal(s2 OID) bool {
 	return len(s1) == len(s2) && s1.IsSuperset(s2)
 }
 
-type sortableSliceOfOID []apiv1.OID
+type sortableSliceOfOID []kmapi.OID
 
 func (s sortableSliceOfOID) Len() int           { return len(s) }
 func (s sortableSliceOfOID) Less(i, j int) bool { return lessOID(s[i], s[j]) }
 func (s sortableSliceOfOID) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
-// List returns the contents as a sorted apiv1.OID slice.
-func (s OID) List() []apiv1.OID {
+// List returns the contents as a sorted kmapi.OID slice.
+func (s OID) List() []kmapi.OID {
 	res := make(sortableSliceOfOID, 0, len(s))
 	for key := range s {
 		res = append(res, key)
 	}
 	sort.Sort(res)
-	return []apiv1.OID(res)
+	return []kmapi.OID(res)
 }
 
 // UnsortedList returns the slice with contents in random order.
-func (s OID) UnsortedList() []apiv1.OID {
-	res := make([]apiv1.OID, 0, len(s))
+func (s OID) UnsortedList() []kmapi.OID {
+	res := make([]kmapi.OID, 0, len(s))
 	for key := range s {
 		res = append(res, key)
 	}
@@ -186,12 +186,12 @@ func (s OID) UnsortedList() []apiv1.OID {
 }
 
 // Returns a single element from the set.
-func (s OID) PopAny() (apiv1.OID, bool) {
+func (s OID) PopAny() (kmapi.OID, bool) {
 	for key := range s {
 		s.Delete(key)
 		return key, true
 	}
-	var zeroValue apiv1.OID
+	var zeroValue kmapi.OID
 	return zeroValue, false
 }
 
@@ -200,6 +200,6 @@ func (s OID) Len() int {
 	return len(s)
 }
 
-func lessOID(lhs, rhs apiv1.OID) bool {
+func lessOID(lhs, rhs kmapi.OID) bool {
 	return lhs < rhs
 }

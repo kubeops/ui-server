@@ -20,33 +20,33 @@ import (
 	"reflect"
 	"sort"
 
-	apiv1 "kmodules.xyz/client-go/api/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
-// sets.ObjectReference is a set of apiv1.ObjectReferences, implemented via map[apiv1.ObjectReference]struct{} for minimal memory consumption.
-type ObjectReference map[apiv1.ObjectReference]Empty
+// sets.ObjectReference is a set of kmapi.ObjectReferences, implemented via map[kmapi.ObjectReference]struct{} for minimal memory consumption.
+type ObjectReference map[kmapi.ObjectReference]Empty
 
 // NewObjectReference creates a ObjectReference from a list of values.
-func NewObjectReference(items ...apiv1.ObjectReference) ObjectReference {
+func NewObjectReference(items ...kmapi.ObjectReference) ObjectReference {
 	ss := make(ObjectReference, len(items))
 	ss.Insert(items...)
 	return ss
 }
 
-// ObjectReferenceKeySet creates a ObjectReference from a keys of a map[apiv1.ObjectReference](? extends interface{}).
+// ObjectReferenceKeySet creates a ObjectReference from a keys of a map[kmapi.ObjectReference](? extends interface{}).
 // If the value passed in is not actually a map, this will panic.
 func ObjectReferenceKeySet(theMap interface{}) ObjectReference {
 	v := reflect.ValueOf(theMap)
 	ret := ObjectReference{}
 
 	for _, keyValue := range v.MapKeys() {
-		ret.Insert(keyValue.Interface().(apiv1.ObjectReference))
+		ret.Insert(keyValue.Interface().(kmapi.ObjectReference))
 	}
 	return ret
 }
 
 // Insert adds items to the set.
-func (s ObjectReference) Insert(items ...apiv1.ObjectReference) ObjectReference {
+func (s ObjectReference) Insert(items ...kmapi.ObjectReference) ObjectReference {
 	for _, item := range items {
 		s[item] = Empty{}
 	}
@@ -54,7 +54,7 @@ func (s ObjectReference) Insert(items ...apiv1.ObjectReference) ObjectReference 
 }
 
 // Delete removes all items from the set.
-func (s ObjectReference) Delete(items ...apiv1.ObjectReference) ObjectReference {
+func (s ObjectReference) Delete(items ...kmapi.ObjectReference) ObjectReference {
 	for _, item := range items {
 		delete(s, item)
 	}
@@ -62,13 +62,13 @@ func (s ObjectReference) Delete(items ...apiv1.ObjectReference) ObjectReference 
 }
 
 // Has returns true if and only if item is contained in the set.
-func (s ObjectReference) Has(item apiv1.ObjectReference) bool {
+func (s ObjectReference) Has(item kmapi.ObjectReference) bool {
 	_, contained := s[item]
 	return contained
 }
 
 // HasAll returns true if and only if all items are contained in the set.
-func (s ObjectReference) HasAll(items ...apiv1.ObjectReference) bool {
+func (s ObjectReference) HasAll(items ...kmapi.ObjectReference) bool {
 	for _, item := range items {
 		if !s.Has(item) {
 			return false
@@ -78,7 +78,7 @@ func (s ObjectReference) HasAll(items ...apiv1.ObjectReference) bool {
 }
 
 // HasAny returns true if any items are contained in the set.
-func (s ObjectReference) HasAny(items ...apiv1.ObjectReference) bool {
+func (s ObjectReference) HasAny(items ...kmapi.ObjectReference) bool {
 	for _, item := range items {
 		if s.Has(item) {
 			return true
@@ -160,25 +160,25 @@ func (s1 ObjectReference) Equal(s2 ObjectReference) bool {
 	return len(s1) == len(s2) && s1.IsSuperset(s2)
 }
 
-type sortableSliceOfObjectReference []apiv1.ObjectReference
+type sortableSliceOfObjectReference []kmapi.ObjectReference
 
 func (s sortableSliceOfObjectReference) Len() int           { return len(s) }
 func (s sortableSliceOfObjectReference) Less(i, j int) bool { return lessObjectReference(s[i], s[j]) }
 func (s sortableSliceOfObjectReference) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
-// List returns the contents as a sorted apiv1.ObjectReference slice.
-func (s ObjectReference) List() []apiv1.ObjectReference {
+// List returns the contents as a sorted kmapi.ObjectReference slice.
+func (s ObjectReference) List() []kmapi.ObjectReference {
 	res := make(sortableSliceOfObjectReference, 0, len(s))
 	for key := range s {
 		res = append(res, key)
 	}
 	sort.Sort(res)
-	return []apiv1.ObjectReference(res)
+	return []kmapi.ObjectReference(res)
 }
 
 // UnsortedList returns the slice with contents in random order.
-func (s ObjectReference) UnsortedList() []apiv1.ObjectReference {
-	res := make([]apiv1.ObjectReference, 0, len(s))
+func (s ObjectReference) UnsortedList() []kmapi.ObjectReference {
+	res := make([]kmapi.ObjectReference, 0, len(s))
 	for key := range s {
 		res = append(res, key)
 	}
@@ -186,12 +186,12 @@ func (s ObjectReference) UnsortedList() []apiv1.ObjectReference {
 }
 
 // Returns a single element from the set.
-func (s ObjectReference) PopAny() (apiv1.ObjectReference, bool) {
+func (s ObjectReference) PopAny() (kmapi.ObjectReference, bool) {
 	for key := range s {
 		s.Delete(key)
 		return key, true
 	}
-	var zeroValue apiv1.ObjectReference
+	var zeroValue kmapi.ObjectReference
 	return zeroValue, false
 }
 
@@ -200,7 +200,7 @@ func (s ObjectReference) Len() int {
 	return len(s)
 }
 
-func lessObjectReference(lhs, rhs apiv1.ObjectReference) bool {
+func lessObjectReference(lhs, rhs kmapi.ObjectReference) bool {
 	if lhs.Namespace != rhs.Namespace {
 		return lhs.Namespace < rhs.Namespace
 	}
