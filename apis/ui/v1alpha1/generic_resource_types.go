@@ -42,8 +42,7 @@ type GenericResource struct {
 }
 
 type GenericResourceSpec struct {
-	ClusterName          string                            `json:"clusterName,omitempty"`
-	ClusterID            string                            `json:"clusterID,omitempty"`
+	Cluster              kmapi.ClusterMetadata             `json:"cluster,omitempty"`
 	APIType              kmapi.ResourceID                  `json:"apiType"`
 	Version              string                            `json:"version,omitempty"`
 	Replicas             int64                             `json:"replicas,omitempty"`
@@ -53,51 +52,13 @@ type GenericResourceSpec struct {
 	AppResource          core.ResourceRequirements         `json:"appResource"`
 	RoleResourceLimits   map[api.PodRole]core.ResourceList `json:"roleResourceLimits,omitempty"`
 	RoleResourceRequests map[api.PodRole]core.ResourceList `json:"roleResourceRequests,omitempty"`
-	Facilities           *GenericResourceFacilities        `json:"facilities,omitempty"`
 	Status               GenericResourceStatus             `json:"status"`
 }
-
-type GenericResourceFacilities struct {
-	Exposed    *GenericResourceFacilitator `json:"exposed,omitempty"`
-	TLS        *GenericResourceFacilitator `json:"tls,omitempty"`
-	Backup     *GenericResourceFacilitator `json:"backup,omitempty"`
-	Monitoring *GenericResourceFacilitator `json:"monitoring,omitempty"`
-}
-
-type GenericResourceFacilitator struct {
-	Usage FacilityUsage `json:"usage"`
-	// +optional
-	APIType *kmapi.ResourceID `json:"APIType,omitempty"`
-	// +optional
-	Ref *kmapi.ObjectReference `json:"ref,omitempty"`
-}
-
-type FacilityUsage string
-
-const (
-	FacilityUsed    FacilityUsage = "Used"
-	FacilityUnused  FacilityUsage = "Unused"
-	FacilityUnknown FacilityUsage = "Unknown"
-)
 
 type GenericResourceStatus struct {
 	// Status
 	Status string `json:"status,omitempty"`
 	// Message
-	Message string `json:"message,omitempty"`
-}
-
-// Condition defines the general format for conditions on Kubernetes resources.
-// In practice, each kubernetes resource defines their own format for conditions, but
-// most (maybe all) follows this structure.
-type Condition struct {
-	// Type condition type
-	Type string `json:"type,omitempty"`
-	// Status String that describes the condition status
-	Status core.ConditionStatus `json:"status,omitempty"`
-	// Reason one work CamelCase reason
-	Reason string `json:"reason,omitempty"`
-	// Message Human readable reason string
 	Message string `json:"message,omitempty"`
 }
 

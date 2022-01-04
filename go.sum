@@ -952,8 +952,9 @@ kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671 h1:Qw9ieMLu00H/ll8ho3
 kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671/go.mod h1:Niv46qWTo/eaE7ovvL4K2JWgq/5ke35dycCmCc8BgVA=
 kmodules.xyz/client-go v0.0.0-20210617233340-13d22e91512b/go.mod h1:A6GAK6xP5zBuWK6A/vUkkjKzcuywkms7fIxRf5wblO4=
 kmodules.xyz/client-go v0.0.0-20220102205226-4b5fbc57578f/go.mod h1:ENUu8pPK19xzBkVpAJHoGCI2QRvb1SqffWRt0K2sV5I=
-kmodules.xyz/client-go v0.0.0-20220104014304-fa435de9aa1b h1:kiihsLacp+F0BKSXZR4RsWoAAOcNMmV89GpsLc0J7Z0=
 kmodules.xyz/client-go v0.0.0-20220104014304-fa435de9aa1b/go.mod h1:xxl1ve1Obe4xaW+XjXsNHyLTni4QPIvHn9TfnYEoQRo=
+kmodules.xyz/client-go v0.0.0-20220104233141-da9aa34df30c h1:Fr+bRxRRgjTlxJ1hjSvRqRUY4T50REkjDD2MQFM/Pr8=
+kmodules.xyz/client-go v0.0.0-20220104233141-da9aa34df30c/go.mod h1:xxl1ve1Obe4xaW+XjXsNHyLTni4QPIvHn9TfnYEoQRo=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20210618002152-fae23aef5fb4 h1:vg6VZCnkHu3kJKdUe/oswi7MhjUVcZpyP/aXYhKFZ7M=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20210618002152-fae23aef5fb4/go.mod h1:IIkUctlfoptoci0BOrsUf8ya+MOG5uaeh1PE4uzaIbA=
 kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf h1:f0c2Irsxf+Pxw9V3ygrMFKwnfe52EvxQ/lUBzD8cQbM=

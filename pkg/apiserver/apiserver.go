@@ -36,6 +36,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcegraph"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/ui/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/ui/podview"
+	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/ui/resourceservice"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/ui/resourcesummary"
 
 	"github.com/graphql-go/handler"
@@ -262,6 +263,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, promv1.NewAPI(pc))
 		v1alpha1storage[uiv1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[uiv1alpha1.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[uiv1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 

@@ -192,17 +192,7 @@ func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src apiv1.ObjectID) 
 		if err != nil {
 			return nil, err
 		}
-		scope := apiv1.ClusterScoped
-		if mapping.Scope == meta.RESTScopeNamespace {
-			scope = apiv1.NamespaceScoped
-		}
-		resp.Resources[idx] = apiv1.ResourceID{
-			Group:   mapping.GroupVersionKind.Group,
-			Version: mapping.GroupVersionKind.Version,
-			Name:    mapping.Resource.Resource,
-			Kind:    mapping.GroupVersionKind.Kind,
-			Scope:   scope,
-		}
+		resp.Resources[idx] = *apiv1.NewResourceID(mapping)
 	}
 
 	for e, labels := range connections {
