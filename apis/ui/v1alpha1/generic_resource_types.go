@@ -45,6 +45,7 @@ type GenericResourceSpec struct {
 	ClusterName          string                            `json:"clusterName,omitempty"`
 	ClusterID            string                            `json:"clusterID,omitempty"`
 	APIType              kmapi.ResourceID                  `json:"apiType"`
+	Version              string                            `json:"version,omitempty"`
 	Replicas             int64                             `json:"replicas,omitempty"`
 	RoleReplicas         api.ReplicaList                   `json:"roleReplicas,omitempty"`
 	Mode                 string                            `json:"mode,omitempty"`
@@ -52,8 +53,32 @@ type GenericResourceSpec struct {
 	AppResource          core.ResourceRequirements         `json:"appResource"`
 	RoleResourceLimits   map[api.PodRole]core.ResourceList `json:"roleResourceLimits,omitempty"`
 	RoleResourceRequests map[api.PodRole]core.ResourceList `json:"roleResourceRequests,omitempty"`
+	Facilities           *GenericResourceFacilities        `json:"facilities,omitempty"`
 	Status               GenericResourceStatus             `json:"status"`
 }
+
+type GenericResourceFacilities struct {
+	Exposed    *GenericResourceFacilitator `json:"exposed,omitempty"`
+	TLS        *GenericResourceFacilitator `json:"tls,omitempty"`
+	Backup     *GenericResourceFacilitator `json:"backup,omitempty"`
+	Monitoring *GenericResourceFacilitator `json:"monitoring,omitempty"`
+}
+
+type GenericResourceFacilitator struct {
+	Usage FacilityUsage `json:"usage"`
+	// +optional
+	APIType *kmapi.ResourceID `json:"APIType,omitempty"`
+	// +optional
+	Ref *kmapi.ObjectReference `json:"ref,omitempty"`
+}
+
+type FacilityUsage string
+
+const (
+	FacilityUsed    FacilityUsage = "Used"
+	FacilityUnused  FacilityUsage = "Unused"
+	FacilityUnknown FacilityUsage = "Unknown"
+)
 
 type GenericResourceStatus struct {
 	// Status
