@@ -39,7 +39,6 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	cu "kmodules.xyz/client-go/client"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/cli-utils/pkg/kstatus/status"
@@ -98,11 +97,6 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewBadRequest("missing user info")
 	}
 
-	cmeta, err := cu.ClusterMetadata(r.kc)
-	if err != nil {
-		return nil, apierrors.NewInternalError(err)
-	}
-
 	items := make([]uiv1alpha1.GenericResourceService, 0)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
@@ -141,7 +135,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				continue
 			}
 
-			genres, err := r.toGenericResourceService(item, apiType, cmeta)
+			genres, err := r.toGenericResourceService(item, apiType)
 			if err != nil {
 				return nil, err
 			}
@@ -181,7 +175,7 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
 
-func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiType *kmapi.ResourceID, cmeta *kmapi.ClusterMetadata) (*uiv1alpha1.GenericResourceService, error) {
+func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiType *kmapi.ResourceID) (*uiv1alpha1.GenericResourceService, error) {
 	content := item.UnstructuredContent()
 
 	s, err := status.Compute(&item)
