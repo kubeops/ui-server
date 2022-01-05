@@ -161,6 +161,7 @@ API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,Con
 API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ControlPlaneInfo,EmailAddresses
 API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ControlPlaneInfo,IPAddresses
 API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,ControlPlaneInfo,URIs
+API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,GenericResourceServiceFacilitator,Refs
 API rule violation: list_type_missing,kubeops.dev/ui-server/apis/ui/v1alpha1,PodViewSpec,Containers
 API rule violation: names_match,k8s.io/api/core/v1,AzureDiskVolumeSource,DataDiskURI
 API rule violation: names_match,k8s.io/api/core/v1,ContainerStatus,LastTerminationState

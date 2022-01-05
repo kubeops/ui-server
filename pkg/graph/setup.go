@@ -25,7 +25,6 @@ import (
 	"github.com/graphql-go/graphql"
 	"github.com/pkg/errors"
 	"gomodules.xyz/sets"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -115,24 +114,10 @@ func SetupGraphReconciler(mgr manager.Manager) func(ctx context.Context) error {
 	}
 }
 
-func ExecQuery(c client.Client, query string, vars map[string]interface{}) ([]unstructured.Unstructured, error) {
-	params := graphql.Params{
-		Schema:         Schema,
-		RequestString:  query,
-		VariableValues: vars,
-	}
-	result := graphql.Do(params)
-	if result.HasErrors() {
-		var errs []error
-		for _, e := range result.Errors {
-			errs = append(errs, e)
-		}
-		return nil, errors.Wrap(utilerrors.NewAggregate(errs), "failed to execute graphql operation")
-	}
-
-	refs, err := listRefs(result.Data.(map[string]interface{}))
+func ExecGraphQLQuery(c client.Client, query string, vars map[string]interface{}) ([]unstructured.Unstructured, error) {
+	refs, err := execRawGraphQLQuery(query, vars)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to extract refs")
+		return nil, err
 	}
 
 	var gk schema.GroupKind
@@ -164,6 +149,28 @@ func ExecQuery(c client.Client, query string, vars map[string]interface{}) ([]un
 		}
 	}
 	return objs, nil
+}
+
+func execRawGraphQLQuery(query string, vars map[string]interface{}) ([]apiv1.ObjectReference, error) {
+	params := graphql.Params{
+		Schema:         Schema,
+		RequestString:  query,
+		VariableValues: vars,
+	}
+	result := graphql.Do(params)
+	if result.HasErrors() {
+		var errs []error
+		for _, e := range result.Errors {
+			errs = append(errs, e)
+		}
+		return nil, errors.Wrap(utilerrors.NewAggregate(errs), "failed to execute graphql operation")
+	}
+
+	refs, err := listRefs(result.Data.(map[string]interface{}))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to extract refs")
+	}
+	return refs, nil
 }
 
 func listRefs(data map[string]interface{}) ([]apiv1.ObjectReference, error) {
@@ -213,20 +220,8 @@ func RenderSection(cfg *restclient.Config, kc client.Client, src apiv1.OID, targ
 		return nil, err
 	}
 
-	scope := apiv1.ClusterScoped
-	if mapping.Scope == meta.RESTScopeNamespace {
-		scope = apiv1.NamespaceScoped
-	}
-	rid := apiv1.ResourceID{
-		Group:   mapping.GroupVersionKind.Group,
-		Version: mapping.GroupVersionKind.Version,
-		Name:    mapping.Resource.Resource,
-		Kind:    mapping.GroupVersionKind.Kind,
-		Scope:   scope,
-	}
-
 	section := &v1alpha1.PageSection{
-		Resource: rid,
+		Resource: *apiv1.NewResourceID(mapping),
 	}
 
 	q, vars, err := target.GraphQuery(src)
@@ -235,7 +230,7 @@ func RenderSection(cfg *restclient.Config, kc client.Client, src apiv1.OID, targ
 	}
 
 	if target.Query.Type == v1alpha1.GraphQLQuery {
-		objs, err := ExecQuery(kc, q, vars)
+		objs, err := ExecGraphQLQuery(kc, q, vars)
 		if err != nil {
 			return nil, err
 		}
@@ -282,4 +277,78 @@ func RenderSection(cfg *restclient.Config, kc client.Client, src apiv1.OID, targ
 		}
 	}
 	return section, nil
+}
+
+func ExecRawQuery(kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator) (*apiv1.ResourceID, []apiv1.ObjectReference, error) {
+	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
+		Group: target.Ref.Group,
+		Kind:  target.Ref.Kind,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	rid := apiv1.NewResourceID(mapping)
+
+	q, vars, err := target.GraphQuery(src)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if target.Query.Type == v1alpha1.GraphQLQuery {
+		result, err := execRawGraphQLQuery(q, vars)
+		return rid, result, err
+	}
+
+	var obj unstructured.Unstructured
+	if q != "" {
+		err = yaml.Unmarshal([]byte(q), &obj)
+		if err != nil {
+			return nil, nil, errors.Wrapf(err, "failed to unmarshal query %s", q)
+		}
+	}
+	obj.SetGroupVersionKind(mapping.GroupVersionKind)
+	err = kc.Create(context.TODO(), &obj)
+	if err != nil {
+		return nil, nil, err
+	}
+	ref := apiv1.ObjectReference{
+		Namespace: obj.GetNamespace(),
+		Name:      obj.GetName(),
+	}
+	return rid, []apiv1.ObjectReference{ref}, nil
+}
+
+func ExecQuery(kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator) (*apiv1.ResourceID, []unstructured.Unstructured, error) {
+	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
+		Group: target.Ref.Group,
+		Kind:  target.Ref.Kind,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	rid := apiv1.NewResourceID(mapping)
+
+	q, vars, err := target.GraphQuery(src)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if target.Query.Type == v1alpha1.GraphQLQuery {
+		result, err := ExecGraphQLQuery(kc, q, vars)
+		return rid, result, err
+	}
+
+	var obj unstructured.Unstructured
+	if q != "" {
+		err = yaml.Unmarshal([]byte(q), &obj)
+		if err != nil {
+			return nil, nil, errors.Wrapf(err, "failed to unmarshal query %s", q)
+		}
+	}
+	obj.SetGroupVersionKind(mapping.GroupVersionKind)
+	err = kc.Create(context.TODO(), &obj)
+	if err != nil {
+		return nil, nil, err
+	}
+	return rid, []unstructured.Unstructured{obj}, nil
 }

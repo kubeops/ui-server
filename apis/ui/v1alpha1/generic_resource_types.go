@@ -42,9 +42,9 @@ type GenericResource struct {
 }
 
 type GenericResourceSpec struct {
-	ClusterName          string                            `json:"clusterName,omitempty"`
-	ClusterID            string                            `json:"clusterID,omitempty"`
+	Cluster              kmapi.ClusterMetadata             `json:"cluster,omitempty"`
 	APIType              kmapi.ResourceID                  `json:"apiType"`
+	Version              string                            `json:"version,omitempty"`
 	Replicas             int64                             `json:"replicas,omitempty"`
 	RoleReplicas         api.ReplicaList                   `json:"roleReplicas,omitempty"`
 	Mode                 string                            `json:"mode,omitempty"`
@@ -59,20 +59,6 @@ type GenericResourceStatus struct {
 	// Status
 	Status string `json:"status,omitempty"`
 	// Message
-	Message string `json:"message,omitempty"`
-}
-
-// Condition defines the general format for conditions on Kubernetes resources.
-// In practice, each kubernetes resource defines their own format for conditions, but
-// most (maybe all) follows this structure.
-type Condition struct {
-	// Type condition type
-	Type string `json:"type,omitempty"`
-	// Status String that describes the condition status
-	Status core.ConditionStatus `json:"status,omitempty"`
-	// Reason one work CamelCase reason
-	Reason string `json:"reason,omitempty"`
-	// Message Human readable reason string
 	Message string `json:"message,omitempty"`
 }
 

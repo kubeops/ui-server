@@ -109,18 +109,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		} else if err != nil {
 			return nil, err
 		}
-
-		scope := kmapi.ClusterScoped
-		if mapping.Scope == meta.RESTScopeNamespace {
-			scope = kmapi.NamespaceScoped
-		}
-		apiType := kmapi.ResourceID{
-			Group:   mapping.Resource.Group,
-			Version: mapping.Resource.Version,
-			Name:    mapping.Resource.Resource,
-			Kind:    mapping.GroupVersionKind.Kind,
-			Scope:   scope,
-		}
+		apiType := kmapi.NewResourceID(mapping)
 
 		attrs := authorizer.AttributesRecord{
 			User:      user,
@@ -142,7 +131,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			Spec: uiv1alpha1.ResourceSummarySpec{
 				ClusterName: clusterid.ClusterName(),
 				ClusterID:   r.clusterID,
-				APIType:     apiType,
+				APIType:     *apiType,
 				// TotalResource: core.ResourceRequirements{},
 				// AppResource:   core.ResourceRequirements{},
 				Count: 0,
