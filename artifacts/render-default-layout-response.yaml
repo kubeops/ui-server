@@ -1,0 +1,611 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: Render
+request:
+  convertToTable: true
+  source:
+    ref:
+      name: coredns
+      namespace: kube-system
+    resource:
+      group: apps
+      kind: Deployment
+      name: ""
+      scope: ""
+      version: ""
+response:
+  view:
+    layoutName: apps-v1-deployments
+    pages:
+    - blocks:
+      - actions:
+          create: ""
+        kind: SubTable
+        name: Containers
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Image
+            priority: 0
+            type: string
+          - name: Arguments
+            priority: 0
+            type: object
+          - name: Environment Variables
+            priority: 0
+            type: object
+          - name: Ports
+            priority: 0
+            type: string
+          - name: Volume Mounts
+            priority: 0
+            type: string
+          metadata:
+            resourceVersion: "582"
+          rows:
+          - cells:
+            - data: coredns
+            - data: k8s.gcr.io/coredns/coredns:v1.8.6
+            - data:
+              - -conf
+              - /etc/coredns/Corefile
+            - data: []
+            - data: 53/UDP,53/TCP,9153/TCP
+            - data: config-volume:/etc/coredns
+      - actions:
+          create: ""
+        kind: SubTable
+        name: Init-Containers
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Image
+            priority: 0
+            type: string
+          - name: Arguments
+            priority: 0
+            type: object
+          - name: Environment Variables
+            priority: 0
+            type: object
+          - name: Ports
+            priority: 0
+            type: string
+          - name: Volume Mounts
+            priority: 0
+            type: string
+          metadata:
+            resourceVersion: "582"
+          rows: null
+      - actions:
+          create: ""
+        kind: SubTable
+        name: Conditions
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+        table:
+          columnDefinitions:
+          - name: Type
+            priority: 0
+            type: string
+          - name: Status
+            priority: 0
+            type: string
+          - name: Reason
+            priority: 0
+            type: string
+          - name: Last Transition Time
+            priority: 0
+            type: date
+          - name: Last Update Time
+            priority: 0
+            type: date
+          - name: Message
+            priority: 0
+            type: string
+          metadata:
+            resourceVersion: "582"
+          rows:
+          - cells:
+            - data: Available
+            - data: "True"
+            - data: MinimumReplicasAvailable
+            - data: 124m
+            - data: 124m
+            - data: Deployment has minimum availability.
+          - cells:
+            - data: Progressing
+            - data: "True"
+            - data: NewReplicaSetAvailable
+            - data: 125m
+            - data: 124m
+            - data: ReplicaSet "coredns-64897985d" has successfully progressed.
+      - actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: apps
+          kind: ReplicaSet
+          name: replicasets
+          scope: Namespaced
+          version: v1
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows:
+          - cells:
+            - data: coredns-64897985d
+            - data: kube-system
+            - data:
+                k8s-app: kube-dns
+                pod-template-hash: 64897985d
+            - data: 2/2
+            - data: ""
+            - data: 125m
+      - actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows:
+          - cells:
+            - data: coredns-64897985d-5z5rt
+            - data: kube-system
+            - data:
+                k8s-app: kube-dns
+                pod-template-hash: 64897985d
+            - data: /
+            - data: ""
+            - data: 125m
+          - cells:
+            - data: coredns-64897985d-ckh7w
+            - data: kube-system
+            - data:
+                k8s-app: kube-dns
+                pod-template-hash: 64897985d
+            - data: /
+            - data: ""
+            - data: 125m
+      - actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ""
+          kind: Service
+          name: services
+          scope: Namespaced
+          version: v1
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows:
+          - cells:
+            - data: kube-dns
+            - data: kube-system
+            - data:
+                k8s-app: kube-dns
+                kubernetes.io/cluster-service: "true"
+                kubernetes.io/name: CoreDNS
+            - data: /
+            - data: ""
+            - data: 125m
+      - actions:
+          create: IfEmpty
+        kind: Connection
+        resource:
+          group: autoscaling
+          kind: HorizontalPodAutoscaler
+          name: horizontalpodautoscalers
+          scope: Namespaced
+          version: v2
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows: []
+      info:
+        actions:
+          create: ""
+        kind: Self
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Annotations
+            priority: 0
+            type: object
+          - name: Age
+            priority: 0
+            type: date
+          metadata:
+            resourceVersion: "582"
+          rows:
+          - cells:
+            - data: coredns
+            - data: kube-system
+            - data:
+                k8s-app: kube-dns
+            - data:
+                deployment.kubernetes.io/revision: "1"
+            - data: 125m
+      name: Basic
+    - blocks:
+      - actions:
+          create: IfEmpty
+        kind: Connection
+        missing: true
+        resource:
+          group: stash.appscode.com
+          kind: Repository
+          name: ""
+          scope: ""
+          version: ""
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows: []
+      - actions:
+          create: IfEmpty
+        kind: Connection
+        missing: true
+        resource:
+          group: stash.appscode.com
+          kind: BackupConfiguration
+          name: ""
+          scope: ""
+          version: ""
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows: []
+      - actions:
+          create: Always
+        kind: Connection
+        missing: true
+        resource:
+          group: stash.appscode.com
+          kind: BackupSession
+          name: ""
+          scope: ""
+          version: ""
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows: []
+      - actions:
+          create: Always
+        kind: Connection
+        missing: true
+        resource:
+          group: stash.appscode.com
+          kind: RestoreSession
+          name: ""
+          scope: ""
+          version: ""
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows: []
+      - actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: batch
+          kind: CronJob
+          name: cronjobs
+          scope: Namespaced
+          version: v1
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows: []
+      name: Backups
+    - blocks:
+      - actions:
+          create: IfEmpty
+        kind: Connection
+        missing: true
+        resource:
+          group: monitoring.coreos.com
+          kind: ServiceMonitor
+          name: ""
+          scope: ""
+          version: ""
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows: []
+      - actions:
+          create: IfEmpty
+        kind: Connection
+        missing: true
+        resource:
+          group: monitoring.coreos.com
+          kind: PodMonitor
+          name: ""
+          scope: ""
+          version: ""
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows: []
+      - actions:
+          create: Never
+        kind: Connection
+        missing: true
+        resource:
+          group: monitoring.coreos.com
+          kind: Prometheus
+          name: ""
+          scope: ""
+          version: ""
+        table:
+          columnDefinitions:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Namespace
+            priority: 0
+            type: string
+          - name: Labels
+            priority: 0
+            type: object
+          - name: Pods
+            priority: 0
+            type: string
+          - name: Images
+            priority: 0
+            type: string
+          - name: Age
+            priority: 0
+            type: date
+          metadata: {}
+          rows: []
+      name: Monitoring
+    resource:
+      group: apps
+      kind: Deployment
+      name: deployments
+      scope: Namespaced
+      version: v1
+    ui:
+      editor:
+        name: apps-deployment-editor
+        url: https://bundles.byte.builders/ui/
+        version: v0.3.0

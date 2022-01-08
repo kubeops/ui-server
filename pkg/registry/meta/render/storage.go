@@ -66,26 +66,28 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 	req := in.Request
 
+	var resp v1alpha1.RenderResponse
 	if req.Block != nil {
 		bv, err := graph.RenderPageBlock(r.kc, req.Source, req.Block, req.ConvertToTable)
 		if err != nil {
 			return nil, err
 		}
-		in.Response.Block = bv
-		return in, nil
+		resp.Block = bv
+	} else {
+		rv, err := graph.RenderLayout(
+			r.kc,
+			req.Source,
+			req.LayoutName, // optional
+			req.PageName,   // optional
+			req.ConvertToTable,
+			req.RenderSelfOnly,
+		)
+		if err != nil {
+			return nil, err
+		}
+		resp.View = rv
 	}
+	in.Response = &resp
 
-	rv, err := graph.RenderLayout(
-		r.kc,
-		req.Source,
-		req.LayoutName, // optional
-		req.PageName,   // optional
-		req.ConvertToTable,
-		req.RenderSelfOnly,
-	)
-	if err != nil {
-		return nil, err
-	}
-	in.Response.View = rv
 	return in, nil
 }
