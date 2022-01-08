@@ -163,7 +163,7 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 	if block.Kind == v1alpha1.TableKindSelf || block.Kind == v1alpha1.TableKindSubTable {
 		out.Resource = srcRID
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
+			converter, err := tableconvertor.New(block.FieldPath, block.View.ColumnDefinitions)
 			if err != nil {
 				return nil, err
 			}
@@ -195,16 +195,13 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 		out.Missing = true
 		if convertToTable {
 			table := &v1alpha1.Table{
-				ColumnDefinitions: make([]v1alpha1.ResourceColumnDefinition, 0, len(block.View.Columns)),
+				Columns: make([]v1alpha1.ResourceColumn, 0, len(block.View.ColumnDefinitions)),
 			}
-			for _, def := range block.View.Columns {
-				table.ColumnDefinitions = append(table.ColumnDefinitions, v1alpha1.ResourceColumnDefinition{
-					Name:         def.Name,
-					Type:         def.Type,
-					Format:       def.Format,
-					Description:  "", //skip
-					Priority:     0,  // skip
-					PathTemplate: "", // skip
+			for _, def := range block.View.ColumnDefinitions {
+				table.Columns = append(table.Columns, v1alpha1.ResourceColumn{
+					Name:   def.Name,
+					Type:   def.Type,
+					Format: def.Format,
 				})
 			}
 			table.Rows = make([]v1alpha1.TableRow, 0)
@@ -230,7 +227,7 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
+			converter, err := tableconvertor.New(block.FieldPath, block.View.ColumnDefinitions)
 			if err != nil {
 				return nil, err
 			}
@@ -258,7 +255,7 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
+			converter, err := tableconvertor.New(block.FieldPath, block.View.ColumnDefinitions)
 			if err != nil {
 				return nil, err
 			}
