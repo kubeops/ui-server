@@ -19,7 +19,6 @@ package apiserver
 import (
 	"context"
 	"fmt"
-	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"os"
 
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
@@ -31,6 +30,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
+	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderpage"
 	"kubeops.dev/ui-server/pkg/registry/meta/rendersection"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceblockdefinition"

@@ -1,3 +1,19 @@
+/*
+Copyright AppsCode Inc. and Contributors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package graph
 
 import (
@@ -5,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	apiv1 "kmodules.xyz/client-go/api/v1"
@@ -137,16 +154,14 @@ func RenderPageBlock(kc client.Client, src apiv1.ObjectInfo, block *v1alpha1.Pag
 }
 
 func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstructured.Unstructured, block *v1alpha1.PageBlockLayout, convertToTable bool) (*v1alpha1.PageBlockView, error) {
-	srcID := apiv1.NewObjectID(srcObj)
+	out := v1alpha1.PageBlockView{
+		Kind:    block.Kind,
+		Name:    block.Name,
+		Actions: block.Actions,
+	}
 
-	var out v1alpha1.PageBlockView
 	if block.Kind == v1alpha1.TableKindSelf || block.Kind == v1alpha1.TableKindSubTable {
-		out = v1alpha1.PageBlockView{
-			Kind:     block.Kind,
-			Name:     block.Name,
-			Resource: srcRID,
-			Actions:  block.Actions,
-		}
+		out.Resource = srcRID
 		if convertToTable {
 			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
 			if err != nil {
@@ -160,6 +175,7 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 		} else {
 			out.Items = []unstructured.Unstructured{*srcObj}
 		}
+		return &out, nil
 	} else if block.Kind != v1alpha1.TableKindConnection {
 		return nil, fmt.Errorf("unsupported table kind found in block %+v", block)
 	}
@@ -168,11 +184,40 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 		Group: block.Ref.Group,
 		Kind:  block.Ref.Kind,
 	})
-	if err != nil {
+	if meta.IsNoMatchError(err) {
+		out.Resource = &apiv1.ResourceID{
+			Group: block.Ref.Group,
+			// Version: "",
+			// Name:    "",
+			Kind: block.Ref.Kind,
+			// Scope:   "",
+		}
+		out.Missing = true
+		if convertToTable {
+			table := &v1alpha1.Table{
+				ColumnDefinitions: make([]v1alpha1.ResourceColumnDefinition, 0, len(block.View.Columns)),
+			}
+			for _, def := range block.View.Columns {
+				table.ColumnDefinitions = append(table.ColumnDefinitions, v1alpha1.ResourceColumnDefinition{
+					Name:         def.Name,
+					Type:         def.Type,
+					Format:       def.Format,
+					Description:  "", //skip
+					Priority:     0,  // skip
+					PathTemplate: "", // skip
+				})
+			}
+			table.Rows = make([]v1alpha1.TableRow, 0)
+			out.Table = table
+		}
+		return &out, nil
+	} else if err != nil {
 		return nil, err
 	}
+
 	out.Resource = apiv1.NewResourceID(mapping)
 
+	srcID := apiv1.NewObjectID(srcObj)
 	q, vars, err := block.GraphQuery(srcID.OID())
 	if err != nil {
 		return nil, err
