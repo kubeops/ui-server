@@ -28,24 +28,18 @@ response:
           scope: Namespaced
           version: v1
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Image
-            priority: 0
             type: string
           - name: Arguments
-            priority: 0
             type: object
           - name: Environment Variables
-            priority: 0
             type: object
           - name: Ports
-            priority: 0
             type: string
           - name: Volume Mounts
-            priority: 0
             type: string
           metadata:
             resourceVersion: "582"
@@ -70,24 +64,18 @@ response:
           scope: Namespaced
           version: v1
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Image
-            priority: 0
             type: string
           - name: Arguments
-            priority: 0
             type: object
           - name: Environment Variables
-            priority: 0
             type: object
           - name: Ports
-            priority: 0
             type: string
           - name: Volume Mounts
-            priority: 0
             type: string
           metadata:
             resourceVersion: "582"
@@ -103,24 +91,18 @@ response:
           scope: Namespaced
           version: v1
         table:
-          columnDefinitions:
+          columns:
           - name: Type
-            priority: 0
             type: string
           - name: Status
-            priority: 0
             type: string
           - name: Reason
-            priority: 0
             type: string
           - name: Last Transition Time
-            priority: 0
             type: date
           - name: Last Update Time
-            priority: 0
             type: date
           - name: Message
-            priority: 0
             type: string
           metadata:
             resourceVersion: "582"
@@ -129,15 +111,15 @@ response:
             - data: Available
             - data: "True"
             - data: MinimumReplicasAvailable
-            - data: 124m
-            - data: 124m
+            - data: 8h
+            - data: 8h
             - data: Deployment has minimum availability.
           - cells:
             - data: Progressing
             - data: "True"
             - data: NewReplicaSetAvailable
-            - data: 125m
-            - data: 124m
+            - data: 8h
+            - data: 8h
             - data: ReplicaSet "coredns-64897985d" has successfully progressed.
       - actions:
           create: Never
@@ -149,24 +131,18 @@ response:
           scope: Namespaced
           version: v1
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows:
@@ -178,7 +154,7 @@ response:
                 pod-template-hash: 64897985d
             - data: 2/2
             - data: ""
-            - data: 125m
+            - data: 8h
       - actions:
           create: Never
         kind: Connection
@@ -189,24 +165,18 @@ response:
           scope: Namespaced
           version: v1
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows:
@@ -218,7 +188,7 @@ response:
                 pod-template-hash: 64897985d
             - data: /
             - data: ""
-            - data: 125m
+            - data: 8h
           - cells:
             - data: coredns-64897985d-ckh7w
             - data: kube-system
@@ -227,7 +197,7 @@ response:
                 pod-template-hash: 64897985d
             - data: /
             - data: ""
-            - data: 125m
+            - data: 8h
       - actions:
           create: Never
         kind: Connection
@@ -238,24 +208,18 @@ response:
           scope: Namespaced
           version: v1
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows:
@@ -268,7 +232,7 @@ response:
                 kubernetes.io/name: CoreDNS
             - data: /
             - data: ""
-            - data: 125m
+            - data: 8h
       - actions:
           create: IfEmpty
         kind: Connection
@@ -279,24 +243,18 @@ response:
           scope: Namespaced
           version: v2
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows: []
@@ -311,21 +269,16 @@ response:
           scope: Namespaced
           version: v1
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Annotations
-            priority: 0
             type: object
           - name: Age
-            priority: 0
             type: date
           metadata:
             resourceVersion: "582"
@@ -337,7 +290,7 @@ response:
                 k8s-app: kube-dns
             - data:
                 deployment.kubernetes.io/revision: "1"
-            - data: 125m
+            - data: 8h
       name: Basic
     - blocks:
       - actions:
@@ -351,24 +304,18 @@ response:
           scope: ""
           version: ""
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows: []
@@ -383,24 +330,18 @@ response:
           scope: ""
           version: ""
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows: []
@@ -415,24 +356,18 @@ response:
           scope: ""
           version: ""
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows: []
@@ -447,24 +382,18 @@ response:
           scope: ""
           version: ""
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows: []
@@ -478,24 +407,18 @@ response:
           scope: Namespaced
           version: v1
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows: []
@@ -512,24 +435,18 @@ response:
           scope: ""
           version: ""
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows: []
@@ -544,24 +461,18 @@ response:
           scope: ""
           version: ""
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows: []
@@ -576,24 +487,18 @@ response:
           scope: ""
           version: ""
         table:
-          columnDefinitions:
+          columns:
           - name: Name
-            priority: 0
             type: string
           - name: Namespace
-            priority: 0
             type: string
           - name: Labels
-            priority: 0
             type: object
           - name: Pods
-            priority: 0
             type: string
           - name: Images
-            priority: 0
             type: string
           - name: Age
-            priority: 0
             type: date
           metadata: {}
           rows: []
