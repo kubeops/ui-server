@@ -19,7 +19,6 @@ package resourcedescriptor
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"strconv"
 
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -83,42 +82,28 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		return nil, kerr.NewBadRequest("fieldSelector is not a supported")
 	}
 
-	var names []string
-	err := fs.WalkDir(resourcedescriptors.FS(), ".", func(filename string, e fs.DirEntry, err error) error {
-		if !e.IsDir() {
-			names = append(names, filename)
-		}
-		return err
-	})
-	if err != nil {
-		return nil, err
-	}
+	objs := resourcedescriptors.List()
 
 	if options.Continue != "" {
 		start, err := strconv.Atoi(options.Continue)
 		if err != nil {
 			return nil, kerr.NewBadRequest(fmt.Sprintf("invalid continue option, err:%v", err))
 		}
-		if start > len(names) {
+		if start > len(objs) {
 			return r.NewList(), nil
 		}
-		names = names[start:]
+		objs = objs[start:]
 	}
-	if options.Limit > 0 && int64(len(names)) > options.Limit {
-		names = names[:options.Limit]
+	if options.Limit > 0 && int64(len(objs)) > options.Limit {
+		objs = objs[:options.Limit]
 	}
 
-	items := make([]v1alpha1.ResourceDescriptor, 0, len(names))
-	for _, filename := range names {
-		obj, err := resourcedescriptors.LoadByFile(filename)
-		if err != nil {
-			return nil, err
-		}
-
+	items := make([]v1alpha1.ResourceDescriptor, 0, len(objs))
+	for _, obj := range objs {
 		if options.LabelSelector != nil && !options.LabelSelector.Matches(labels.Set(obj.GetLabels())) {
 			continue
 		}
-		items = append(items, *obj)
+		items = append(items, obj)
 	}
 
 	return &v1alpha1.ResourceDescriptorList{Items: items}, nil
