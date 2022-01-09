@@ -111,15 +111,15 @@ response:
             - data: Available
             - data: "True"
             - data: MinimumReplicasAvailable
-            - data: 56m
-            - data: 56m
+            - data: 86m
+            - data: 86m
             - data: Deployment has minimum availability.
           - cells:
             - data: Progressing
             - data: "True"
             - data: NewReplicaSetAvailable
-            - data: 56m
-            - data: 56m
+            - data: 86m
+            - data: 86m
             - data: ReplicaSet "coredns-64897985d" has successfully progressed.
       - actions:
           create: Never
@@ -143,7 +143,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows:
@@ -155,7 +157,7 @@ response:
                 pod-template-hash: 64897985d
             - data: 2/2
             - data: ""
-            - data: 56m
+            - data: 86m
               sort: 1641690427
       - actions:
           create: Never
@@ -179,7 +181,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows:
@@ -191,7 +195,7 @@ response:
                 pod-template-hash: 64897985d
             - data: /
             - data: ""
-            - data: 56m
+            - data: 86m
               sort: 1641690428
           - cells:
             - data: coredns-64897985d-xhlch
@@ -201,7 +205,7 @@ response:
                 pod-template-hash: 64897985d
             - data: /
             - data: ""
-            - data: 56m
+            - data: 86m
               sort: 1641690428
       - actions:
           create: Never
@@ -225,7 +229,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows:
@@ -238,7 +244,7 @@ response:
                 kubernetes.io/name: CoreDNS
             - data: /
             - data: ""
-            - data: 56m
+            - data: 86m
               sort: 1641690415
       - actions:
           create: IfEmpty
@@ -262,7 +268,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
@@ -298,7 +306,7 @@ response:
                 k8s-app: kube-dns
             - data:
                 deployment.kubernetes.io/revision: "1"
-            - data: 56m
+            - data: 86m
       name: Basic
     - blocks:
       - actions:
@@ -324,7 +332,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
@@ -351,7 +361,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
@@ -378,7 +390,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
@@ -405,7 +419,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
@@ -431,7 +447,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
@@ -460,7 +478,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
@@ -487,7 +507,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
@@ -514,7 +536,9 @@ response:
           - name: Images
             type: string
           - name: Age
-            sort: true
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
