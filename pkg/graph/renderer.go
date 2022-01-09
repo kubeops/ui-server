@@ -198,11 +198,7 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 				Columns: make([]v1alpha1.ResourceColumn, 0, len(block.View.ColumnDefinitions)),
 			}
 			for _, def := range block.View.ColumnDefinitions {
-				table.Columns = append(table.Columns, v1alpha1.ResourceColumn{
-					Name:   def.Name,
-					Type:   def.Type,
-					Format: def.Format,
-				})
+				table.Columns = append(table.Columns, v1alpha1.Convert_ResourceColumnDefinition_To_ResourceColumn(def))
 			}
 			table.Rows = make([]v1alpha1.TableRow, 0)
 			out.Table = table

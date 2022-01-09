@@ -42,7 +42,7 @@ response:
           - name: Volume Mounts
             type: string
           metadata:
-            resourceVersion: "582"
+            resourceVersion: "563"
           rows:
           - cells:
             - data: coredns
@@ -78,7 +78,7 @@ response:
           - name: Volume Mounts
             type: string
           metadata:
-            resourceVersion: "582"
+            resourceVersion: "563"
           rows: null
       - actions:
           create: ""
@@ -105,21 +105,21 @@ response:
           - name: Message
             type: string
           metadata:
-            resourceVersion: "582"
+            resourceVersion: "563"
           rows:
           - cells:
             - data: Available
             - data: "True"
             - data: MinimumReplicasAvailable
-            - data: 8h
-            - data: 8h
+            - data: 56m
+            - data: 56m
             - data: Deployment has minimum availability.
           - cells:
             - data: Progressing
             - data: "True"
             - data: NewReplicaSetAvailable
-            - data: 8h
-            - data: 8h
+            - data: 56m
+            - data: 56m
             - data: ReplicaSet "coredns-64897985d" has successfully progressed.
       - actions:
           create: Never
@@ -143,6 +143,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows:
@@ -154,7 +155,8 @@ response:
                 pod-template-hash: 64897985d
             - data: 2/2
             - data: ""
-            - data: 8h
+            - data: 56m
+              sort: 1641690427
       - actions:
           create: Never
         kind: Connection
@@ -177,27 +179,30 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows:
           - cells:
-            - data: coredns-64897985d-5z5rt
+            - data: coredns-64897985d-mkm4z
             - data: kube-system
             - data:
                 k8s-app: kube-dns
                 pod-template-hash: 64897985d
             - data: /
             - data: ""
-            - data: 8h
+            - data: 56m
+              sort: 1641690428
           - cells:
-            - data: coredns-64897985d-ckh7w
+            - data: coredns-64897985d-xhlch
             - data: kube-system
             - data:
                 k8s-app: kube-dns
                 pod-template-hash: 64897985d
             - data: /
             - data: ""
-            - data: 8h
+            - data: 56m
+              sort: 1641690428
       - actions:
           create: Never
         kind: Connection
@@ -220,6 +225,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows:
@@ -232,7 +238,8 @@ response:
                 kubernetes.io/name: CoreDNS
             - data: /
             - data: ""
-            - data: 8h
+            - data: 56m
+              sort: 1641690415
       - actions:
           create: IfEmpty
         kind: Connection
@@ -255,6 +262,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows: []
@@ -281,7 +289,7 @@ response:
           - name: Age
             type: date
           metadata:
-            resourceVersion: "582"
+            resourceVersion: "563"
           rows:
           - cells:
             - data: coredns
@@ -290,7 +298,7 @@ response:
                 k8s-app: kube-dns
             - data:
                 deployment.kubernetes.io/revision: "1"
-            - data: 8h
+            - data: 56m
       name: Basic
     - blocks:
       - actions:
@@ -316,6 +324,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows: []
@@ -342,6 +351,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows: []
@@ -368,6 +378,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows: []
@@ -394,6 +405,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows: []
@@ -419,6 +431,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows: []
@@ -447,6 +460,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows: []
@@ -473,6 +487,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows: []
@@ -499,6 +514,7 @@ response:
           - name: Images
             type: string
           - name: Age
+            sort: true
             type: date
           metadata: {}
           rows: []
