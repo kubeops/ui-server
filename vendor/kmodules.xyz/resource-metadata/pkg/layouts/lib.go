@@ -18,6 +18,7 @@ package layouts
 
 import (
 	"fmt"
+	"strings"
 
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -27,6 +28,7 @@ import (
 	tabledefs "kmodules.xyz/resource-metadata/hub/resourcetabledefinitions"
 	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -41,9 +43,21 @@ func LoadResourceLayoutForGVR(kc client.Client, gvr schema.GroupVersionResource)
 		return GetResourceLayout(kc, outline)
 	}
 
-	rid, err := reg.ResourceIDForGVR(gvr)
+	rid, err := kmapi.ExtractResourceID(kc.RESTMapper(), kmapi.ResourceID{
+		Group:   gvr.Group,
+		Version: gvr.Version,
+		Name:    gvr.Resource,
+		Kind:    "",
+		Scope:   "",
+	})
 	if err != nil {
-		return nil, err
+		rid, err = reg.ResourceIDForGVR(gvr)
+		if err != nil {
+			return nil, err
+		}
+		if rid == nil {
+			return nil, apierrors.NewNotFound(v1alpha1.Resource(v1alpha1.ResourceKindResourceOutline), gvr.String())
+		}
 	}
 	return generateDefaultLayout(kc, *rid)
 }
@@ -54,9 +68,21 @@ func LoadResourceLayoutForGVK(kc client.Client, gvk schema.GroupVersionKind) (*v
 		return GetResourceLayout(kc, outline)
 	}
 
-	rid, err := reg.ResourceIDForGVK(gvk)
+	rid, err := kmapi.ExtractResourceID(kc.RESTMapper(), kmapi.ResourceID{
+		Group:   gvk.Group,
+		Version: gvk.Version,
+		Name:    "",
+		Kind:    gvk.Kind,
+		Scope:   "",
+	})
 	if err != nil {
-		return nil, err
+		rid, err = reg.ResourceIDForGVK(gvk)
+		if err != nil {
+			return nil, err
+		}
+		if rid == nil {
+			return nil, apierrors.NewNotFound(v1alpha1.Resource(v1alpha1.ResourceKindResourceOutline), gvk.String())
+		}
 	}
 	return generateDefaultLayout(kc, *rid)
 }
@@ -100,7 +126,21 @@ func generateDefaultLayout(kc client.Client, rid kmapi.ResourceID) (*v1alpha1.Re
 
 func LoadResourceLayout(kc client.Client, name string) (*v1alpha1.ResourceLayout, error) {
 	outline, err := resourceoutlines.LoadByName(name)
-	if err != nil {
+	if apierrors.IsNotFound(err) {
+		parts := strings.SplitN(name, "-", 3)
+		if len(parts) != 3 {
+			return nil, err
+		}
+		var group string
+		if parts[0] != "core" {
+			group = parts[0]
+		}
+		return LoadResourceLayoutForGVR(kc, schema.GroupVersionResource{
+			Group:    group,
+			Version:  parts[1],
+			Resource: parts[2],
+		})
+	} else if err != nil {
 		return nil, err
 	}
 

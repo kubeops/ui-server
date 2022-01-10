@@ -1,0 +1,753 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: ResourceLayout
+metadata:
+  creationTimestamp: null
+  labels:
+    k8s.io/group: apps
+    k8s.io/kind: Deployment
+    k8s.io/resource: deployments
+    k8s.io/version: v1
+  name: apps-v1-deployments
+spec:
+  defaultLayout: true
+  pages:
+  - blocks:
+    - actions:
+        create: ""
+      displayMode: ""
+      fieldPath: .spec.template.spec.containers
+      kind: SubTable
+      name: Containers
+      query:
+        type: ""
+      ref:
+        group: ""
+        kind: ""
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .name }}'
+          priority: 0
+          type: string
+        - name: Image
+          pathTemplate: '{{ .image }}'
+          priority: 0
+          type: string
+        - name: Arguments
+          pathTemplate: '{{ .args | fmt_list }}'
+          priority: 0
+          type: object
+        - name: Environment Variables
+          pathTemplate: '{{ .env | fmt_list }}'
+          priority: 0
+          type: object
+        - name: Ports
+          pathTemplate: '{{ .ports | k8s_container_ports }}'
+          priority: 0
+          type: string
+        - name: Volume Mounts
+          pathTemplate: '{{ .volumeMounts | k8s_volumeMounts }}'
+          priority: 0
+          type: string
+    - actions:
+        create: ""
+      displayMode: ""
+      fieldPath: .spec.template.spec.initContainers
+      kind: SubTable
+      name: Init-Containers
+      query:
+        type: ""
+      ref:
+        group: ""
+        kind: ""
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .name }}'
+          priority: 0
+          type: string
+        - name: Image
+          pathTemplate: '{{ .image }}'
+          priority: 0
+          type: string
+        - name: Arguments
+          pathTemplate: '{{ .args | fmt_list }}'
+          priority: 0
+          type: object
+        - name: Environment Variables
+          pathTemplate: '{{ .env | fmt_list }}'
+          priority: 0
+          type: object
+        - name: Ports
+          pathTemplate: '{{ .ports | k8s_container_ports }}'
+          priority: 0
+          type: string
+        - name: Volume Mounts
+          pathTemplate: '{{ .volumeMounts | k8s_volumeMounts }}'
+          priority: 0
+          type: string
+    - actions:
+        create: ""
+      displayMode: ""
+      fieldPath: .status.conditions
+      kind: SubTable
+      name: Conditions
+      query:
+        type: ""
+      ref:
+        group: ""
+        kind: ""
+      view:
+        columnDefinitions:
+        - name: Type
+          pathTemplate: '{{ .type }}'
+          priority: 0
+          type: string
+        - name: Status
+          pathTemplate: '{{ .status }}'
+          priority: 0
+          type: string
+        - name: Reason
+          pathTemplate: '{{ .reason }}'
+          priority: 0
+          type: string
+        - name: Last Transition Time
+          pathTemplate: '{{ .lastTransitionTime }}'
+          priority: 0
+          type: date
+        - name: Last Update Time
+          pathTemplate: '{{ .lastUpdateTime }}'
+          priority: 0
+          type: date
+        - name: Message
+          pathTemplate: '{{ .message }}'
+          priority: 0
+          type: string
+    - actions:
+        create: Never
+      displayMode: List
+      kind: Connection
+      query:
+        byLabel: offshoot
+        type: GraphQL
+      ref:
+        group: apps
+        kind: ReplicaSet
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    - actions:
+        create: Never
+      displayMode: List
+      kind: Connection
+      query:
+        byLabel: offshoot
+        type: GraphQL
+      ref:
+        group: ""
+        kind: Pod
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    - actions:
+        create: Never
+      displayMode: List
+      kind: Connection
+      query:
+        byLabel: exposed_by
+        type: GraphQL
+      ref:
+        group: ""
+        kind: Service
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    - actions:
+        create: IfEmpty
+      displayMode: List
+      kind: Connection
+      query:
+        byLabel: offshoot
+        type: GraphQL
+      ref:
+        group: autoscaling
+        kind: HorizontalPodAutoscaler
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    info:
+      actions:
+        create: ""
+      displayMode: Field
+      kind: Self
+      query:
+        type: ""
+      ref:
+        group: ""
+        kind: ""
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 1
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 1
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 1
+          type: object
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
+          priority: 1
+          type: object
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 1
+          type: date
+    name: Basic
+  - blocks:
+    - actions:
+        create: IfEmpty
+      displayMode: List
+      kind: Connection
+      query:
+        raw: |-
+          query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+            find(oid: $src) {
+              backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
+                refs: offshoot(group: $targetGroup, kind: $targetKind) {
+                  namespace
+                  name
+                }
+              }
+            }
+          }
+        type: GraphQL
+      ref:
+        group: stash.appscode.com
+        kind: Repository
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    - actions:
+        create: IfEmpty
+      displayMode: List
+      kind: Connection
+      query:
+        byLabel: backup_via
+        type: GraphQL
+      ref:
+        group: stash.appscode.com
+        kind: BackupConfiguration
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    - actions:
+        create: Always
+      displayMode: List
+      kind: Connection
+      query:
+        raw: |-
+          query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+            find(oid: $src) {
+              backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
+                refs: offshoot(group: $targetGroup, kind: $targetKind) {
+                  namespace
+                  name
+                }
+              }
+            }
+          }
+        type: GraphQL
+      ref:
+        group: stash.appscode.com
+        kind: BackupSession
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    - actions:
+        create: Always
+      displayMode: List
+      kind: Connection
+      query:
+        raw: |-
+          query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+            find(oid: $src) {
+              backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
+                refs: offshoot(group: $targetGroup, kind: $targetKind) {
+                  namespace
+                  name
+                }
+              }
+            }
+          }
+        type: GraphQL
+      ref:
+        group: stash.appscode.com
+        kind: RestoreSession
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    - actions:
+        create: Never
+      displayMode: List
+      kind: Connection
+      query:
+        raw: |-
+          query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+            find(oid: $src) {
+              backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
+                refs: offshoot(group: $targetGroup, kind: $targetKind) {
+                  namespace
+                  name
+                }
+              }
+            }
+          }
+        type: GraphQL
+      ref:
+        group: batch
+        kind: CronJob
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    name: Backups
+  - blocks:
+    - actions:
+        create: IfEmpty
+      displayMode: List
+      kind: Connection
+      query:
+        raw: |-
+          query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+            find(oid: $src) {
+              exposed_by(group: "", kind: "Service") {
+                refs: monitored_by(group: $targetGroup, kind: $targetKind) {
+                  namespace
+                  name
+                }
+              }
+            }
+          }
+        type: GraphQL
+      ref:
+        group: monitoring.coreos.com
+        kind: ServiceMonitor
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    - actions:
+        create: IfEmpty
+      displayMode: List
+      kind: Connection
+      query:
+        raw: |-
+          query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+            find(oid: $src) {
+              exposed_by(group: "", kind: "Service") {
+                refs: monitored_by(group: $targetGroup, kind: $targetKind) {
+                  namespace
+                  name
+                }
+              }
+            }
+          }
+        type: GraphQL
+      ref:
+        group: monitoring.coreos.com
+        kind: PodMonitor
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    - actions:
+        create: Never
+      displayMode: List
+      kind: Connection
+      query:
+        raw: |-
+          query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+            find(oid: $src) {
+              services: exposed_by(group: "", kind: "Service") {
+                refs: monitored_by(group: $targetGroup, kind: $targetKind) {
+                  namespace
+                  name
+                }
+              }
+              pods: offshoot(group: "", kind: "Pod") {
+                refs: monitored_by(group: $targetGroup, kind: $targetKind) {
+                  namespace
+                  name
+                }
+              }
+            }
+          }
+        type: GraphQL
+      ref:
+        group: monitoring.coreos.com
+        kind: Prometheus
+      view:
+        columnDefinitions:
+        - name: Name
+          pathTemplate: '{{ .metadata.name }}'
+          priority: 3
+          type: string
+        - name: Namespace
+          pathTemplate: '{{ .metadata.namespace }}'
+          priority: 3
+          type: string
+        - name: Labels
+          pathTemplate: '{{ .metadata.labels | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Pods
+          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+          priority: 2
+          type: string
+        - name: Images
+          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+            }}'
+          priority: 2
+          type: string
+        - name: Age
+          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
+          type: date
+    name: Monitoring
+  resource:
+    group: apps
+    kind: Deployment
+    name: deployments
+    scope: Namespaced
+    version: v1
+  ui:
+    editor:
+      name: apps-deployment-editor
+      url: https://bundles.byte.builders/ui/
+      version: v0.3.0
