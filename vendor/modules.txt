@@ -516,8 +516,8 @@ gopkg.in/inf.v0
 # gopkg.in/natefinch/lumberjack.v2 v2.0.0
 ## explicit
 gopkg.in/natefinch/lumberjack.v2
-# gopkg.in/yaml.v2 v2.4.0
-## explicit; go 1.15
+# gopkg.in/yaml.v2 v2.4.0 => gopkg.in/yaml.v2 v2.3.0
+## explicit
 gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 ## explicit
@@ -1109,7 +1109,7 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.8.2-0.20220110144923-4394f702daa9
+# kmodules.xyz/resource-metadata v0.8.2-0.20220110225637-7798f6d9cdba
 ## explicit; go 1.17
 kmodules.xyz/resource-metadata/apis/meta
 kmodules.xyz/resource-metadata/apis/meta/install
@@ -1322,3 +1322,4 @@ sigs.k8s.io/yaml
 # github.com/dgrijalva/jwt-go => github.com/gomodules/jwt v3.2.2+incompatible
 # github.com/golang-jwt/jwt => github.com/golang-jwt/jwt v3.2.2+incompatible
 # github.com/form3tech-oss/jwt-go => github.com/form3tech-oss/jwt-go v3.2.5+incompatible
+# gopkg.in/yaml.v2 => gopkg.in/yaml.v2 v2.3.0

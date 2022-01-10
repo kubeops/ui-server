@@ -29,7 +29,7 @@ require (
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
 	kmodules.xyz/client-go v0.0.0-20220108081101-27afc2ac4ebe
 	kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf
-	kmodules.xyz/resource-metadata v0.8.2-0.20220110144923-4394f702daa9
+	kmodules.xyz/resource-metadata v0.8.2-0.20220110225637-7798f6d9cdba
 	kmodules.xyz/resource-metrics v0.0.6
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	sigs.k8s.io/cli-utils v0.26.1
@@ -259,3 +259,5 @@ replace github.com/dgrijalva/jwt-go => github.com/gomodules/jwt v3.2.2+incompati
 replace github.com/golang-jwt/jwt => github.com/golang-jwt/jwt v3.2.2+incompatible
 
 replace github.com/form3tech-oss/jwt-go => github.com/form3tech-oss/jwt-go v3.2.5+incompatible
+
+replace gopkg.in/yaml.v2 => gopkg.in/yaml.v2 v2.3.0
