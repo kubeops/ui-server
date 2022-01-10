@@ -161,7 +161,7 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 	if block.Kind == v1alpha1.TableKindSelf || block.Kind == v1alpha1.TableKindSubTable {
 		out.Resource = srcRID
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.ColumnDefinitions)
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
 			if err != nil {
 				return nil, err
 			}
@@ -193,9 +193,9 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 		out.Missing = true
 		if convertToTable {
 			table := &v1alpha1.Table{
-				Columns: make([]v1alpha1.ResourceColumn, 0, len(block.View.ColumnDefinitions)),
+				Columns: make([]v1alpha1.ResourceColumn, 0, len(block.View.Columns)),
 			}
-			for _, def := range block.View.ColumnDefinitions {
+			for _, def := range block.View.Columns {
 				table.Columns = append(table.Columns, v1alpha1.Convert_ResourceColumnDefinition_To_ResourceColumn(def))
 			}
 			table.Rows = make([]v1alpha1.TableRow, 0)
@@ -221,7 +221,7 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.ColumnDefinitions)
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
 			if err != nil {
 				return nil, err
 			}
@@ -249,7 +249,7 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.ColumnDefinitions)
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
 			if err != nil {
 				return nil, err
 			}
