@@ -24,7 +24,7 @@ spec:
         group: ""
         kind: ""
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .name }}'
           priority: 0
@@ -61,7 +61,7 @@ spec:
         group: ""
         kind: ""
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .name }}'
           priority: 0
@@ -98,7 +98,7 @@ spec:
         group: ""
         kind: ""
       view:
-        columnDefinitions:
+        columns:
         - name: Type
           pathTemplate: '{{ .type }}'
           priority: 0
@@ -134,7 +134,7 @@ spec:
         group: apps
         kind: ReplicaSet
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -176,7 +176,7 @@ spec:
         group: ""
         kind: Pod
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -218,7 +218,7 @@ spec:
         group: ""
         kind: Service
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -260,7 +260,7 @@ spec:
         group: autoscaling
         kind: HorizontalPodAutoscaler
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -302,7 +302,7 @@ spec:
         group: ""
         kind: ""
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 1
@@ -346,7 +346,7 @@ spec:
         group: stash.appscode.com
         kind: Repository
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -388,7 +388,7 @@ spec:
         group: stash.appscode.com
         kind: BackupConfiguration
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -440,7 +440,7 @@ spec:
         group: stash.appscode.com
         kind: BackupSession
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -492,7 +492,7 @@ spec:
         group: stash.appscode.com
         kind: RestoreSession
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -544,7 +544,7 @@ spec:
         group: batch
         kind: CronJob
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -598,7 +598,7 @@ spec:
         group: monitoring.coreos.com
         kind: ServiceMonitor
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -650,7 +650,7 @@ spec:
         group: monitoring.coreos.com
         kind: PodMonitor
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
@@ -708,7 +708,7 @@ spec:
         group: monitoring.coreos.com
         kind: Prometheus
       view:
-        columnDefinitions:
+        columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3

@@ -407,7 +407,7 @@ gomodules.xyz/jsonpatch/v2
 ## explicit; go 1.16
 gomodules.xyz/jsonpath
 gomodules.xyz/jsonpath/third_party/forked/golang/template
-# gomodules.xyz/logs v0.0.4
+# gomodules.xyz/logs v0.0.6
 ## explicit; go 1.16
 gomodules.xyz/logs
 # gomodules.xyz/pointer v0.1.0
