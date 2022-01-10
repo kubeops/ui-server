@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/sets"
 	apiv1 "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/pkg/layouts"
@@ -38,7 +39,7 @@ func RenderLayout(
 	layoutName string, // optional
 	pageName string, // optional
 	convertToTable bool,
-	renderSelfOnly bool,
+	renderBlocks sets.String,
 ) (*v1alpha1.ResourceView, error) {
 
 	srcRID, err := apiv1.ExtractResourceID(kc.RESTMapper(), src.Resource)
@@ -70,14 +71,14 @@ func RenderLayout(
 	out.LayoutName = layout.Name
 	out.UI = layout.Spec.UI
 
-	if layout.Spec.Header != nil && okToRender(layout.Spec.Header.Kind, renderSelfOnly) {
+	if layout.Spec.Header != nil && okToRender(layout.Spec.Header.Kind, renderBlocks) {
 		if bv, err := renderPageBlock(kc, srcRID, &srcObj, layout.Spec.Header, convertToTable); err != nil {
 			return nil, err
 		} else {
 			out.Header = bv
 		}
 	}
-	if layout.Spec.TabBar != nil && okToRender(layout.Spec.TabBar.Kind, renderSelfOnly) {
+	if layout.Spec.TabBar != nil && okToRender(layout.Spec.TabBar.Kind, renderBlocks) {
 		if bv, err := renderPageBlock(kc, srcRID, &srcObj, layout.Spec.TabBar, convertToTable); err != nil {
 			return nil, err
 		} else {
@@ -98,14 +99,14 @@ func RenderLayout(
 			Insight: nil,
 			Blocks:  nil,
 		}
-		if pageLayout.Info != nil && okToRender(pageLayout.Info.Kind, renderSelfOnly) {
+		if pageLayout.Info != nil && okToRender(pageLayout.Info.Kind, renderBlocks) {
 			if bv, err := renderPageBlock(kc, srcRID, &srcObj, pageLayout.Info, convertToTable); err != nil {
 				return nil, err
 			} else {
 				page.Info = bv
 			}
 		}
-		if pageLayout.Insight != nil && okToRender(pageLayout.Insight.Kind, renderSelfOnly) {
+		if pageLayout.Insight != nil && okToRender(pageLayout.Insight.Kind, renderBlocks) {
 			if bv, err := renderPageBlock(kc, srcRID, &srcObj, pageLayout.Insight, convertToTable); err != nil {
 				return nil, err
 			} else {
@@ -115,7 +116,7 @@ func RenderLayout(
 
 		blocks := make([]v1alpha1.PageBlockView, 0, len(pageLayout.Blocks))
 		for _, block := range pageLayout.Blocks {
-			if okToRender(block.Kind, renderSelfOnly) {
+			if okToRender(block.Kind, renderBlocks) {
 				if bv, err := renderPageBlock(kc, srcRID, &srcObj, &block, convertToTable); err != nil {
 					return nil, err
 				} else {
@@ -131,11 +132,8 @@ func RenderLayout(
 	return &out, nil
 }
 
-func okToRender(kind v1alpha1.TableKind, renderSelfOnly bool) bool {
-	if renderSelfOnly {
-		return kind == v1alpha1.TableKindSelf || kind == v1alpha1.TableKindSubTable
-	}
-	return true
+func okToRender(kind v1alpha1.TableKind, renderBlocks sets.String) bool {
+	return renderBlocks.Len() == 0 || renderBlocks.Has(string(kind))
 }
 
 func RenderPageBlock(kc client.Client, src apiv1.ObjectInfo, block *v1alpha1.PageBlockLayout, convertToTable bool) (*v1alpha1.PageBlockView, error) {

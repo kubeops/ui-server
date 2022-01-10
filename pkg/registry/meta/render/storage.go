@@ -25,6 +25,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -74,13 +75,17 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		}
 		resp.Block = bv
 	} else {
+		renderBlocks := sets.NewString()
+		for _, k := range req.RenderBlocks {
+			renderBlocks.Insert(string(k))
+		}
 		rv, err := graph.RenderLayout(
 			r.kc,
 			req.Source,
 			req.LayoutName, // optional
 			req.PageName,   // optional
 			req.ConvertToTable,
-			req.RenderSelfOnly,
+			renderBlocks,
 		)
 		if err != nil {
 			return nil, err
