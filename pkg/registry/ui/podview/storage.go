@@ -116,7 +116,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 	podview := uiv1alpha1.PodView{
 		// TypeMeta:   metav1.TypeMeta{},
-		ObjectMeta: pod.ObjectMeta,
+		ObjectMeta: *pod.ObjectMeta.DeepCopy(),
 		Spec: uiv1alpha1.PodViewSpec{
 			Resources: uiv1alpha1.ResourceView{
 				Limits:   nil,

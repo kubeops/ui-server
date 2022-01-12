@@ -206,7 +206,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			DeletionTimestamp:          item.GetDeletionTimestamp(),
 			DeletionGracePeriodSeconds: item.GetDeletionGracePeriodSeconds(),
 			Labels:                     item.GetLabels(),
-			Annotations:                item.GetAnnotations(),
+			Annotations:                map[string]string{},
 			OwnerReferences:            item.GetOwnerReferences(),
 			Finalizers:                 item.GetFinalizers(),
 			ClusterName:                item.GetClusterName(),
@@ -221,7 +221,11 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		},
 		Status: resstatus,
 	}
-	delete(genres.ObjectMeta.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
+	for k, v := range item.GetAnnotations() {
+		if k != "kubectl.kubernetes.io/last-applied-configuration" {
+			genres.Annotations[k] = v
+		}
+	}
 
 	{
 		objID := kmapi.NewObjectID(&item)
