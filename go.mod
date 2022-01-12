@@ -29,16 +29,13 @@ require (
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
 	kmodules.xyz/client-go v0.0.0-20220108081101-27afc2ac4ebe
 	kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf
-	kmodules.xyz/resource-metadata v0.8.2-0.20220110225637-7798f6d9cdba
+	kmodules.xyz/resource-metadata v0.8.2-0.20220112044044-7e74bed99f54
 	kmodules.xyz/resource-metrics v0.0.6
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	sigs.k8s.io/cli-utils v0.26.1
 	sigs.k8s.io/controller-runtime v0.9.0
 	sigs.k8s.io/yaml v1.2.0
 )
-
-// replace kmodules.xyz/client-go => ../../kmodules.xyz/client-go
-// replace kmodules.xyz/resource-metadata => ../../kmodules.xyz/resource-metadata
 
 require (
 	cloud.google.com/go v0.54.0 // indirect
