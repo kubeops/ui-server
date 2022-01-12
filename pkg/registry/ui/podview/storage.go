@@ -129,6 +129,8 @@ func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 	}
 	podview.SelfLink = ""
 	podview.ManagedFields = nil
+	podview.OwnerReferences = nil
+	podview.Finalizers = nil
 	delete(podview.ObjectMeta.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
 
 	var limits, requests core.ResourceList

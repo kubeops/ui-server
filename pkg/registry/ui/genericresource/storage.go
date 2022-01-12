@@ -212,9 +212,9 @@ func (r *Storage) toGenericResource(item unstructured.Unstructured, apiType *kma
 			DeletionGracePeriodSeconds: item.GetDeletionGracePeriodSeconds(),
 			Labels:                     item.GetLabels(),
 			Annotations:                map[string]string{},
-			OwnerReferences:            item.GetOwnerReferences(),
-			Finalizers:                 item.GetFinalizers(),
-			ClusterName:                item.GetClusterName(),
+			// OwnerReferences:            item.GetOwnerReferences(),
+			// Finalizers:                 item.GetFinalizers(),
+			ClusterName: item.GetClusterName(),
 			// ManagedFields:              nil,
 		},
 		Spec: uiv1alpha1.GenericResourceSpec{
