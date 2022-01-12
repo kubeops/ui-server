@@ -122,7 +122,7 @@ func (d *delegatingReader) shouldBypassCache(obj runtime.Object) (bool, error) {
 	if d.cachable != nil {
 		canCache, err := d.cachable.GVK(gvk)
 		if err != nil || !canCache {
-			return canCache, err
+			return true, err
 		}
 	}
 	if _, isUncached := d.uncachedGVKs[gvk]; isUncached {

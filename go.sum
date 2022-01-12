@@ -942,8 +942,8 @@ kmodules.xyz/client-go v0.0.0-20210617233340-13d22e91512b/go.mod h1:A6GAK6xP5zBu
 kmodules.xyz/client-go v0.0.0-20220102205226-4b5fbc57578f/go.mod h1:ENUu8pPK19xzBkVpAJHoGCI2QRvb1SqffWRt0K2sV5I=
 kmodules.xyz/client-go v0.0.0-20220104014304-fa435de9aa1b/go.mod h1:xxl1ve1Obe4xaW+XjXsNHyLTni4QPIvHn9TfnYEoQRo=
 kmodules.xyz/client-go v0.0.0-20220108081101-27afc2ac4ebe/go.mod h1:xxl1ve1Obe4xaW+XjXsNHyLTni4QPIvHn9TfnYEoQRo=
-kmodules.xyz/client-go v0.0.0-20220112203618-2da95d8aeafd h1:+OmZvy5mnVGvcmp23wY6n4bYIymJwFNULECCNrcQo9s=
-kmodules.xyz/client-go v0.0.0-20220112203618-2da95d8aeafd/go.mod h1:Lr0QB1gymE1jWNEkeVjs+Wej6xhGh2bODlWAmJTo+7g=
+kmodules.xyz/client-go v0.0.0-20220112225403-2a109f231e9b h1:gzpupcrXhec2PGWBI9Vmo9QYBYyf8Ns7IImtDR1n9WA=
+kmodules.xyz/client-go v0.0.0-20220112225403-2a109f231e9b/go.mod h1:Lr0QB1gymE1jWNEkeVjs+Wej6xhGh2bODlWAmJTo+7g=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20210618002152-fae23aef5fb4 h1:vg6VZCnkHu3kJKdUe/oswi7MhjUVcZpyP/aXYhKFZ7M=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20210618002152-fae23aef5fb4/go.mod h1:IIkUctlfoptoci0BOrsUf8ya+MOG5uaeh1PE4uzaIbA=
 kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf h1:f0c2Irsxf+Pxw9V3ygrMFKwnfe52EvxQ/lUBzD8cQbM=

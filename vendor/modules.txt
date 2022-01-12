@@ -1087,7 +1087,7 @@ kmodules.xyz/apiversion
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.0.0-20220112203618-2da95d8aeafd
+# kmodules.xyz/client-go v0.0.0-20220112225403-2a109f231e9b
 ## explicit; go 1.17
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
