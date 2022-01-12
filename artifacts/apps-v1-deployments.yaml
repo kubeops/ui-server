@@ -177,7 +177,8 @@ spec:
         kind: Pod
       view:
         columns:
-        - name: Name
+        - format: name
+          name: Name
           pathTemplate: '{{ .metadata.name }}'
           priority: 3
           type: string
@@ -189,13 +190,25 @@ spec:
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
           priority: 3
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
-          priority: 2
+        - name: Ready
+          priority: 3
+          type: string
+        - name: Status
+          priority: 3
+          type: string
+        - name: Restarts
+          priority: 3
+          type: integer
+        - name: IP
+          pathTemplate: '{{ .status.podIP }}'
+          priority: 3
+          type: string
+        - name: Node
+          pathTemplate: '{{ .spec.nodeName }}'
+          priority: 3
           type: string
         - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
+          pathTemplate: '{{ .spec.containers | k8s_container_images }}'
           priority: 2
           type: string
         - name: Age
@@ -231,24 +244,33 @@ spec:
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
           priority: 3
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        - name: Type
+          pathTemplate: '{{ .spec.type }}'
+          priority: 3
+          type: string
+        - name: Cluster-IP
+          pathTemplate: '{{ .spec.clusterIP }}'
+          priority: 3
+          type: string
+        - name: External-IP
+          priority: 3
+          type: string
+        - name: Port(s)
+          pathTemplate: '{{ .spec.ports | k8s_svc_ports }}'
           priority: 2
           type: string
-        - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
-          priority: 2
+        - name: Selector
+          priority: 3
           type: string
         - name: Age
-          pathTemplate: '{{ .metadata.creationTimestamp }}'
+          pathTemplate: '{{ .metadata.creationTimestamp | k8s_age }}'
           priority: 3
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
               | unixEpoch }}'
             type: integer
-          type: date
+          type: string
     - actions:
         create: IfEmpty
       displayMode: List
@@ -261,30 +283,30 @@ spec:
         kind: HorizontalPodAutoscaler
       view:
         columns:
-        - name: Name
+        - link:
+            enable: true
+          name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 3
+          priority: 2
+          sort:
+            enable: true
+            type: ""
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 3
+          priority: 2
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 3
+          priority: 2
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
           priority: 2
-          type: string
-        - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
-          priority: 2
-          type: string
+          type: object
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 3
+          priority: 2
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
@@ -347,30 +369,30 @@ spec:
         kind: Repository
       view:
         columns:
-        - name: Name
+        - link:
+            enable: true
+          name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 3
+          priority: 2
+          sort:
+            enable: true
+            type: ""
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 3
+          priority: 2
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 3
+          priority: 2
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
           priority: 2
-          type: string
-        - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
-          priority: 2
-          type: string
+          type: object
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 3
+          priority: 2
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
@@ -389,30 +411,30 @@ spec:
         kind: BackupConfiguration
       view:
         columns:
-        - name: Name
+        - link:
+            enable: true
+          name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 3
+          priority: 2
+          sort:
+            enable: true
+            type: ""
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 3
+          priority: 2
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 3
+          priority: 2
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
           priority: 2
-          type: string
-        - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
-          priority: 2
-          type: string
+          type: object
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 3
+          priority: 2
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
@@ -441,30 +463,30 @@ spec:
         kind: BackupSession
       view:
         columns:
-        - name: Name
+        - link:
+            enable: true
+          name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 3
+          priority: 2
+          sort:
+            enable: true
+            type: ""
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 3
+          priority: 2
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 3
+          priority: 2
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
           priority: 2
-          type: string
-        - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
-          priority: 2
-          type: string
+          type: object
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 3
+          priority: 2
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
@@ -493,30 +515,30 @@ spec:
         kind: RestoreSession
       view:
         columns:
-        - name: Name
+        - link:
+            enable: true
+          name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 3
+          priority: 2
+          sort:
+            enable: true
+            type: ""
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 3
+          priority: 2
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 3
+          priority: 2
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
           priority: 2
-          type: string
-        - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
-          priority: 2
-          type: string
+          type: object
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 3
+          priority: 2
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
@@ -557,12 +579,28 @@ spec:
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
           priority: 3
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
-          priority: 2
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
+          priority: 3
+          type: object
+        - name: Schedule
+          pathTemplate: '{{ .spec.schedule }}'
+          priority: 3
           type: string
+        - name: Suspend
+          pathTemplate: '{{ .spec.suspend }}'
+          priority: 3
+          type: string
+        - name: Active
+          pathTemplate: '{{ jp "{.status.Active}" . | len }}'
+          priority: 3
+          type: string
+        - name: Last Schedule
+          pathTemplate: '{{ .status.lastScheduleTime }}'
+          priority: 3
+          type: date
         - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
+          pathTemplate: '{{ .spec.jobTemplate.spec.template.spec.containers | k8s_container_images
             }}'
           priority: 2
           type: string
@@ -599,30 +637,30 @@ spec:
         kind: ServiceMonitor
       view:
         columns:
-        - name: Name
+        - link:
+            enable: true
+          name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 3
+          priority: 2
+          sort:
+            enable: true
+            type: ""
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 3
+          priority: 2
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 3
+          priority: 2
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
           priority: 2
-          type: string
-        - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
-          priority: 2
-          type: string
+          type: object
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 3
+          priority: 2
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
@@ -651,30 +689,30 @@ spec:
         kind: PodMonitor
       view:
         columns:
-        - name: Name
+        - link:
+            enable: true
+          name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 3
+          priority: 2
+          sort:
+            enable: true
+            type: ""
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 3
+          priority: 2
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 3
+          priority: 2
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
           priority: 2
-          type: string
-        - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
-          priority: 2
-          type: string
+          type: object
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 3
+          priority: 2
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
@@ -709,30 +747,30 @@ spec:
         kind: Prometheus
       view:
         columns:
-        - name: Name
+        - link:
+            enable: true
+          name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 3
+          priority: 2
+          sort:
+            enable: true
+            type: ""
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 3
+          priority: 2
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 3
+          priority: 2
           type: object
-        - name: Pods
-          pathTemplate: '{{ .status.readyReplicas }}/{{ .spec.replicas }}'
+        - name: Annotations
+          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
           priority: 2
-          type: string
-        - name: Images
-          pathTemplate: '{{ .spec.template.spec.containers | k8s_container_images
-            }}'
-          priority: 2
-          type: string
+          type: object
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 3
+          priority: 2
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
