@@ -959,8 +959,9 @@ kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61 h1:J56UGmRFddu6tERR
 kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61/go.mod h1:3LECbAL3FgbyK80NP3V3Pmiuo/a3hFWg/PR6SPFhTns=
 kmodules.xyz/resource-metadata v0.8.2-0.20220113223534-8102ab78b4f2 h1:UE3OW0XSJvMicGa5QccZOrGRNSNzytJQpn6iTMykzbc=
 kmodules.xyz/resource-metadata v0.8.2-0.20220113223534-8102ab78b4f2/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
-kmodules.xyz/resource-metrics v0.0.6 h1:dMI2oIWu+3GIcjI/ZxpBFi8GpHg56P81WNbA0EdZbIY=
 kmodules.xyz/resource-metrics v0.0.6/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
+kmodules.xyz/resource-metrics v0.0.7-0.20220113235224-64b74ecbc4f8 h1:2d1DaCOswP7e6D0gokB5ByeIkuve4AA8e8FOc/Yt8GE=
+kmodules.xyz/resource-metrics v0.0.7-0.20220113235224-64b74ecbc4f8/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
 kmodules.xyz/schema-checker v0.2.0/go.mod h1:J1QUIFsqW0h/WNrIGzzy3UopTzg+RmMJXxvAZfmYDb4=
 kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2 h1:w+n+ZOjcHapYxi1sAp1aHKZaxrlThVfk0YRl+Pe/twk=
 kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2/go.mod h1:shZDmq8S1GFtTq/Cxj+50egTx90XV2uaL6oqlhDsAC8=

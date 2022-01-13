@@ -31,7 +31,7 @@ require (
 	kmodules.xyz/client-go v0.0.0-20220112225403-2a109f231e9b
 	kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf
 	kmodules.xyz/resource-metadata v0.8.2-0.20220113223534-8102ab78b4f2
-	kmodules.xyz/resource-metrics v0.0.6
+	kmodules.xyz/resource-metrics v0.0.7-0.20220113235224-64b74ecbc4f8
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	sigs.k8s.io/cli-utils v0.26.1
 	sigs.k8s.io/controller-runtime v0.9.0
