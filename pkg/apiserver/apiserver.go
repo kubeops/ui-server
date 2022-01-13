@@ -45,7 +45,6 @@ import (
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/ui/resourcesummary"
 
 	"github.com/graphql-go/handler"
-	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
 	crdinstall "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -261,7 +260,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(uiv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, promv1.NewAPI(pc))
+		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, pc)
 		v1alpha1storage[uiv1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[uiv1alpha1.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[uiv1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
