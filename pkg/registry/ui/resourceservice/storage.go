@@ -26,6 +26,7 @@ import (
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/shared"
 
+	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -54,6 +55,7 @@ type Storage struct {
 
 var _ rest.GroupVersionKindProvider = &Storage{}
 var _ rest.Scoper = &Storage{}
+var _ rest.Getter = &Storage{}
 var _ rest.Lister = &Storage{}
 
 func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
@@ -82,6 +84,52 @@ func (r *Storage) New() runtime.Object {
 
 func (r *Storage) NewList() runtime.Object {
 	return &uiv1alpha1.GenericResourceServiceList{}
+}
+
+func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+	ns, ok := apirequest.NamespaceFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing namespace")
+	}
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+
+	objName, gk, err := uiv1alpha1.ParseGenericResourceName(name)
+	if err != nil {
+		return nil, apierrors.NewBadRequest(err.Error())
+	}
+	mapping, err := r.kc.RESTMapper().RESTMapping(gk)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
+	rid := kmapi.NewResourceID(mapping)
+
+	attrs := authorizer.AttributesRecord{
+		User:      user,
+		Verb:      "get",
+		Namespace: ns,
+		APIGroup:  mapping.Resource.Group,
+		Resource:  mapping.Resource.Resource,
+		Name:      objName,
+	}
+	decision, why, err := r.a.Authorize(ctx, attrs)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
+	if decision != authorizer.DecisionAllow {
+		return nil, apierrors.NewForbidden(mapping.Resource.GroupResource(), objName, errors.New(why))
+	}
+
+	var obj unstructured.Unstructured
+	obj.SetGroupVersionKind(mapping.GroupVersionKind)
+	err = r.kc.Get(ctx, client.ObjectKey{Namespace: ns, Name: objName}, &obj)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.toGenericResourceService(obj, rid)
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -195,7 +243,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 	genres := uiv1alpha1.GenericResourceService{
 		// TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:                       item.GetName(),
+			Name:                       uiv1alpha1.GetGenericResourceName(&item),
 			GenerateName:               item.GetGenerateName(),
 			Namespace:                  item.GetNamespace(),
 			SelfLink:                   "",

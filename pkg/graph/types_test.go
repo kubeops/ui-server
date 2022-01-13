@@ -36,6 +36,11 @@ func TestExtractName(t *testing.T) {
 			selector: "{.metadata.name}-kubedb",
 			result:   "sample",
 		},
+		{
+			name:     "my.db~Elasticsearch.kubedb.com",
+			selector: "{.metadata.name}~Elasticsearch.kubedb.com",
+			result:   "my.db",
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
