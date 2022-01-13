@@ -44,6 +44,7 @@ if [ "$ENFORCE_LICENSE" != "true" ]; then
 fi
 
 go install \
+    -gcflags="all=-N -l" \
     -installsuffix "static" \
     -ldflags "                                          \
       -X main.Version=${VERSION}                        \
