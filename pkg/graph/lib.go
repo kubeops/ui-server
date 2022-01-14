@@ -728,7 +728,11 @@ func (finder ObjectFinder) findChildren(e *Edge, src *unstructured.Unstructured)
 }
 
 func (finder ObjectFinder) isNamespaced(gvk schema.GroupVersionKind) (bool, error) {
-	mapping, err := finder.Client.RESTMapper().RESTMapping(gvk.GroupKind(), gvk.Version)
+	var versions []string
+	if gvk.Version != "" {
+		versions = append(versions, gvk.Version)
+	}
+	mapping, err := finder.Client.RESTMapper().RESTMapping(gvk.GroupKind(), versions...)
 	if err != nil {
 		return false, err
 	}

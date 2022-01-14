@@ -361,51 +361,49 @@ response:
               type: integer
             type: date
           metadata: {}
-          rows: []
+          rows:
+          - cells:
+            - data: mg-sh
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+            - data:
+                kubectl.kubernetes.io/last-applied-configuration: |
+                  {"apiVersion":"kubedb.com/v1alpha2","kind":"MongoDB","metadata":{"annotations":{},"name":"mg-sh","namespace":"demo"},"spec":{"monitor":{"agent":"prometheus.io/operator","prometheus":{"exporter":{"args":["--compatible-mode"]},"serviceMonitor":{"interval":"10s","labels":{"release":"kube-prometheus-stack"}}}},"shardTopology":{"configServer":{"podTemplate":{"spec":{"resources":{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"10m","memory":"10Mi"}}}},"replicas":3,"storage":{"resources":{"requests":{"storage":"1Gi"}},"storageClassName":"linode-block-storage"}},"mongos":{"podTemplate":{"spec":{"resources":{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"10m","memory":"10Mi"}}}},"replicas":1},"shard":{"podTemplate":{"spec":{"resources":{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"10m","memory":"10Mi"}}}},"replicas":3,"shards":2,"storage":{"resources":{"requests":{"storage":"1Gi"}},"storageClassName":"linode-block-storage"}}},"storageType":"Durable","terminationPolicy":"WipeOut","version":"4.2.3"}}
+            - data: kubedb.com/mongodb
+            - data: 4.2.3
+            - data: mg-sh
+            - data: mg-sh-auth
+            - data: mongodb-backup-4.2.3
+            - data: mongodb-restore-4.2.3
+            - data: 6d17h
+              sort: 1641549832
       insight:
         actions:
           create: Never
         kind: Connection
+        missing: true
         resource:
           group: ui.kubedb.com
           kind: MongoDBInsight
-          name: mongodbinsights
-          scope: Namespaced
-          version: v1alpha1
+          name: ""
+          scope: ""
+          version: ""
         table:
           columns:
-          - name: Version
+          - name: Name
             type: string
-          - name: Type
+          - name: Namespace
             type: string
-          - name: Status
-            type: string
-          - name: Current Connections
-            type: integer
-          - name: Available Connections
-            type: integer
-          - name: Active Connections
-            type: integer
-          - name: Total Collections
-            type: integer
-          - name: Data Size
-            type: integer
-          - name: Total Indexes
-            type: integer
-          - name: Index Size
-            type: integer
-          - name: Number Of Shards
-            type: integer
-          - name: Replicas Per Shards
-            type: integer
-          - name: Number Of Chunks
-            type: integer
-          - name: Balancer Enabled
-            type: bool
-          - name: Chunks Balanced
-            type: bool
-          - name: Replicas
-            type: integer
+          - name: Labels
+            type: object
+          - name: Annotations
+            type: object
+          - name: Age
+            type: date
           metadata: {}
           rows: []
       name: Overview
@@ -413,12 +411,13 @@ response:
       - actions:
           create: Never
         kind: Connection
+        missing: true
         resource:
           group: ui.kubedb.com
           kind: MongoDBQueries
-          name: mongodbqueries
-          scope: Namespaced
-          version: v1alpha1
+          name: ""
+          scope: ""
+          version: ""
         table:
           columns:
           - name: Operation
@@ -438,16 +437,17 @@ response:
           - name: Max Execution Time(millisecond)
             type: integer
           metadata: {}
-          rows: null
+          rows: []
       - actions:
           create: Never
         kind: Connection
+        missing: true
         resource:
           group: ui.kubedb.com
           kind: MongoDBSchemaOverview
-          name: mongodbschemaoverviews
-          scope: Namespaced
-          version: v1alpha1
+          name: ""
+          scope: ""
+          version: ""
         table:
           columns:
           - name: Name
@@ -455,51 +455,30 @@ response:
           - name: Total Size
             type: integer
           metadata: {}
-          rows: null
+          rows: []
       info:
         actions:
           create: Never
         kind: Connection
+        missing: true
         resource:
           group: ui.kubedb.com
           kind: MongoDBInsight
-          name: mongodbinsights
-          scope: Namespaced
-          version: v1alpha1
+          name: ""
+          scope: ""
+          version: ""
         table:
           columns:
-          - name: Version
+          - name: Name
             type: string
-          - name: Type
+          - name: Namespace
             type: string
-          - name: Status
-            type: string
-          - name: Current Connections
-            type: integer
-          - name: Available Connections
-            type: integer
-          - name: Active Connections
-            type: integer
-          - name: Total Collections
-            type: integer
-          - name: Data Size
-            type: integer
-          - name: Total Indexes
-            type: integer
-          - name: Index Size
-            type: integer
-          - name: Number Of Shards
-            type: integer
-          - name: Replicas Per Shards
-            type: integer
-          - name: Number Of Chunks
-            type: integer
-          - name: Balancer Enabled
-            type: bool
-          - name: Chunks Balanced
-            type: bool
-          - name: Replicas
-            type: integer
+          - name: Labels
+            type: object
+          - name: Annotations
+            type: object
+          - name: Age
+            type: date
           metadata: {}
           rows: []
       name: Database Insights
@@ -540,36 +519,25 @@ response:
         actions:
           create: IfEmpty
         kind: Connection
+        missing: true
         resource:
           group: ui.stash.appscode.com
           kind: BackupOverview
-          name: backupoverviews
-          scope: Namespaced
-          version: v1alpha1
+          name: ""
+          scope: ""
+          version: ""
         table:
           columns:
-          - name: Schedule
+          - name: Name
             type: string
-          - name: Status
+          - name: Namespace
             type: string
-          - name: Last Backup Time
-            sort:
-              enable: true
-              type: integer
+          - name: Labels
+            type: object
+          - name: Annotations
+            type: object
+          - name: Age
             type: date
-          - name: Upcoming Backup Time
-            sort:
-              enable: true
-              type: integer
-            type: date
-          - name: Repository
-            type: string
-          - name: Data Size
-            type: string
-          - name: Number Of Snapshots
-            type: integer
-          - name: Data Integrity
-            type: bool
           metadata: {}
           rows: []
       name: Backups
