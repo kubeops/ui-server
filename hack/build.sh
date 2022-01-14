@@ -47,6 +47,7 @@ fi
 # ref: https://dave.cheney.net/2020/05/02/mid-stack-inlining-in-go
 # -gcflags="all=-N -l" \
 go install \
+    -gcflags="all=-N -l" \
     -installsuffix "static" \
     -ldflags "                                          \
       -X main.Version=${VERSION}                        \
