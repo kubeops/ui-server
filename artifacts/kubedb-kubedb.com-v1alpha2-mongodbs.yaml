@@ -641,23 +641,52 @@ spec:
         columns:
         - name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 1
+          priority: 3
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 1
+          priority: 3
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 1
+          priority: 3
           type: object
         - name: Annotations
           pathTemplate: '{{ .metadata.annotations | toRawJson }}'
           priority: 1
           type: object
+        - name: Type
+          pathTemplate: '{{ .spec.type }}'
+          priority: 3
+          type: string
+        - name: Version
+          pathTemplate: '{{ .spec.version }}'
+          priority: 3
+          type: string
+        - name: Service
+          pathTemplate: '{{ .spec.clientConfig.service.name }}'
+          priority: 3
+          type: string
+        - name: Secret
+          pathTemplate: '{{ .spec.secret.name }}'
+          priority: 3
+          type: string
+        - name: Backup Task
+          pathTemplate: '{{ .spec.parameters.stash.addon.backupTask.name }}'
+          priority: 1
+          type: string
+        - name: Restore Task
+          pathTemplate: '{{ .spec.parameters.stash.addon.restoreTask.name }}'
+          priority: 1
+          type: string
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 1
+          priority: 3
+          sort:
+            enable: true
+            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
+              | unixEpoch }}'
+            type: integer
           type: date
     insight:
       actions:
@@ -727,15 +756,15 @@ spec:
           pathTemplate: '{{ .count }}'
           priority: 3
           type: integer
-        - name: Avg Execution Time Milli Seconds
+        - name: Avg Execution Time(millisecond)
           pathTemplate: '{{ .avgExecutionTimeMilliSeconds }}'
           priority: 3
           type: integer
-        - name: Min Execution Time Milli Seconds
+        - name: Min Execution Time(millisecond)
           pathTemplate: '{{ .minExecutionTimeMilliSeconds }}'
           priority: 3
           type: integer
-        - name: Max Execution Time Milli Seconds
+        - name: Max Execution Time(millisecond)
           pathTemplate: '{{ .maxExecutionTimeMilliSeconds }}'
           priority: 3
           type: integer
@@ -817,30 +846,37 @@ spec:
         kind: BackupSession
       view:
         columns:
-        - link:
-            enable: true
-          name: Name
+        - name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 2
-          sort:
-            enable: true
-            type: ""
+          priority: 3
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 2
+          priority: 3
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 2
+          priority: 3
           type: object
-        - name: Annotations
-          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
-          priority: 2
-          type: object
+        - name: Invoker Kind
+          pathTemplate: '{{ .spec.invoker.kind }}'
+          priority: 3
+          type: string
+        - name: Invoker Name
+          pathTemplate: '{{ .spec.invoker.name }}'
+          priority: 3
+          type: string
+        - name: Phase
+          pathTemplate: '{{ .status.phase }}'
+          priority: 3
+          type: string
+        - name: Duration
+          pathTemplate: '{{ .status.sessionDuration }}'
+          priority: 3
+          type: string
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 2
+          priority: 3
           sort:
             enable: true
             template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
@@ -904,35 +940,33 @@ spec:
         kind: MongoDBOpsRequest
       view:
         columns:
-        - link:
-            enable: true
-          name: Name
+        - name: Name
           pathTemplate: '{{ .metadata.name }}'
-          priority: 2
-          sort:
-            enable: true
-            type: ""
+          priority: 3
           type: string
         - name: Namespace
           pathTemplate: '{{ .metadata.namespace }}'
-          priority: 2
+          priority: 3
           type: string
         - name: Labels
           pathTemplate: '{{ .metadata.labels | toRawJson }}'
-          priority: 2
+          priority: 3
           type: object
-        - name: Annotations
-          pathTemplate: '{{ .metadata.annotations | toRawJson }}'
-          priority: 2
-          type: object
+        - name: Type
+          pathTemplate: '{{ .spec.type }}'
+          priority: 3
+          type: string
+        - name: Target Database
+          pathTemplate: '{{ .spec.databaseRef.name }}'
+          priority: 3
+          type: string
+        - name: Status
+          pathTemplate: '{{ .status.phase }}'
+          priority: 3
+          type: string
         - name: Age
           pathTemplate: '{{ .metadata.creationTimestamp }}'
-          priority: 2
-          sort:
-            enable: true
-            template: '{{ .metadata.creationTimestamp | toDate "2006-01-02T15:04:05Z07:00"
-              | unixEpoch }}'
-            type: integer
+          priority: 3
           type: date
     name: Operations
   resource:

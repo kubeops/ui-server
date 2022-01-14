@@ -9,7 +9,8 @@ request:
       namespace: demo
       name: mg-sh
   layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
-
+  pageName: Operations
+  convertToTable: true
 
     # group: ""
     # kind: Pod
@@ -23,7 +24,7 @@ request:
     # name: calico-kube-controllers
 
   # block:
-  #   kind: 
+  #   kind:
   #   query:
   #     type: GraphQL
   #     byLabel: exposed_by
@@ -36,4 +37,3 @@ request:
   #   # ref:
   #   #   group: apps
   #   #   kind: ReplicaSet
-  convertToTable: true
