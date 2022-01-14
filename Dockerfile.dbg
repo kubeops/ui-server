@@ -12,10 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+FROM appscode/golang-dev:1.17
+
 FROM {ARG_FROM}
 
 LABEL org.opencontainers.image.source https://github.com/kubeops/ui-server
 
 ADD bin/{ARG_OS}_{ARG_ARCH}/{ARG_BIN} /{ARG_BIN}
+COPY --from=0 /usr/local/bin/dlv /bin/dlv
 
-ENTRYPOINT ["/{ARG_BIN}"]
+EXPOSE 40000
+
+ENTRYPOINT ["/bin/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "exec", "/{ARG_BIN}", "--"]

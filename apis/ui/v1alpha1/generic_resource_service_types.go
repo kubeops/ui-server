@@ -55,9 +55,9 @@ type GenericResourceServiceFacilities struct {
 type GenericResourceServiceFacilitator struct {
 	Usage FacilityUsage `json:"usage"`
 	// +optional
-	Resource kmapi.ResourceID `json:"resource"`
+	Resource *kmapi.ResourceID `json:"resource,omitempty"`
 	// +optional
-	Refs []kmapi.ObjectReference `json:"refs"`
+	Refs []kmapi.ObjectReference `json:"refs,omitempty"`
 }
 
 type FacilityUsage string

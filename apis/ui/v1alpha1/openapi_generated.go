@@ -17501,8 +17501,7 @@ func schema_ui_server_apis_ui_v1alpha1_GenericResourceServiceFacilitator(ref com
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("kmodules.xyz/client-go/api/v1.ResourceID"),
+							Ref: ref("kmodules.xyz/client-go/api/v1.ResourceID"),
 						},
 					},
 					"refs": {

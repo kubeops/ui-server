@@ -2,288 +2,337 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: Render
 request:
   convertToTable: true
+  layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
   source:
     ref:
-      name: coredns
-      namespace: kube-system
+      name: mg-sh
+      namespace: demo
     resource:
-      group: apps
-      kind: Deployment
+      group: kubedb.com
+      kind: MongoDB
       name: ""
       scope: ""
       version: ""
 response:
   view:
-    layoutName: apps-v1-deployments
+    header:
+      actions:
+        create: Never
+      kind: Connection
+      resource:
+        group: ui.k8s.appscode.com
+        kind: GenericResource
+        name: genericresources
+        scope: Namespaced
+        version: v1alpha1
+      table:
+        columns:
+        - name: UID
+          type: string
+        - name: Name
+          type: string
+        - name: Display Name
+          type: string
+        - name: Provider
+          type: string
+        - name: Group
+          type: string
+        - name: Version
+          type: string
+        - name: Name
+          type: string
+        - name: Kind
+          type: string
+        - name: Scope
+          type: string
+        - name: Version
+          type: string
+        - name: Replicas
+          type: integer
+        - name: Role Replicas
+          type: object
+        - name: Mode
+          type: string
+        - name: Limits
+          type: object
+        - name: Requests
+          type: object
+        - name: Limits
+          type: object
+        - name: Requests
+          type: object
+        - name: Role Resource Limits
+          type: object
+        - name: Role Resource Requests
+          type: object
+        - name: Status
+          type: string
+        - name: Message
+          type: string
+        metadata: {}
+        rows: []
+    layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
     pages:
     - blocks:
       - actions:
-          create: ""
-        kind: SubTable
-        name: Containers
+          create: Never
+        kind: Connection
         resource:
-          group: apps
-          kind: Deployment
-          name: deployments
+          group: ui.k8s.appscode.com
+          kind: PodView
+          name: podviews
           scope: Namespaced
-          version: v1
+          version: v1alpha1
         table:
           columns:
+          - name: Limits
+            type: object
+          - name: Requests
+            type: object
+          - name: Usage
+            type: object
           - name: Name
             type: string
           - name: Image
             type: string
-          - name: Arguments
-            type: object
-          - name: Environment Variables
-            type: object
-          - name: Ports
+          - name: Command
             type: string
-          - name: Volume Mounts
+          - name: Args
             type: string
-          metadata:
-            resourceVersion: "559"
-          rows:
-          - cells:
-            - data: coredns
-            - data: k8s.gcr.io/coredns/coredns:v1.8.6
-            - data:
-              - -conf
-              - /etc/coredns/Corefile
-            - data: []
-            - data: 53/UDP,53/TCP,9153/TCP
-            - data: config-volume:/etc/coredns
-      - actions:
-          create: ""
-        kind: SubTable
-        name: Init-Containers
-        resource:
-          group: apps
-          kind: Deployment
-          name: deployments
-          scope: Namespaced
-          version: v1
-        table:
-          columns:
+          - name: Working Dir
+            type: string
           - name: Name
             type: string
-          - name: Image
+          - name: Host Port
+            type: integer
+          - name: Container Port
+            type: integer
+          - name: Protocol
             type: string
-          - name: Arguments
+          - name: Host IP
+            type: string
+          - name: Prefix
+            type: string
+          - name: Name
+            type: string
+          - name: Optional
+            type: bool
+          - name: Name
+            type: string
+          - name: Optional
+            type: bool
+          - name: Name
+            type: string
+          - name: Value
+            type: string
+          - name: API Version
+            type: string
+          - name: Field Path
+            type: string
+          - name: Container Name
+            type: string
+          - name: Resource
+            type: string
+          - name: Name
+            type: string
+          - name: Key
+            type: string
+          - name: Optional
+            type: bool
+          - name: Name
+            type: string
+          - name: Key
+            type: string
+          - name: Optional
+            type: bool
+          - name: Limits
             type: object
-          - name: Environment Variables
+          - name: Requests
             type: object
-          - name: Ports
+          - name: Usage
+            type: object
+          - name: Name
             type: string
-          - name: Volume Mounts
+          - name: Read Only
+            type: bool
+          - name: Mount Path
             type: string
-          metadata:
-            resourceVersion: "559"
-          rows: null
-      - actions:
-          create: ""
-        kind: SubTable
-        name: Conditions
-        resource:
-          group: apps
-          kind: Deployment
-          name: deployments
-          scope: Namespaced
-          version: v1
-        table:
-          columns:
+          - name: Sub Path
+            type: string
+          - name: Mount Propagation
+            type: string
+          - name: Sub Path Expr
+            type: string
+          - name: Name
+            type: string
+          - name: Device Path
+            type: string
+          - name: Command
+            type: string
+          - name: Path
+            type: string
+          - name: Host
+            type: string
+          - name: Scheme
+            type: string
+          - name: Name
+            type: string
+          - name: Value
+            type: string
+          - name: Host
+            type: string
+          - name: Initial Delay Seconds
+            type: integer
+          - name: Timeout Seconds
+            type: integer
+          - name: Period Seconds
+            type: integer
+          - name: Success Threshold
+            type: integer
+          - name: Failure Threshold
+            type: integer
+          - name: Termination Grace Period Seconds
+            type: integer
+          - name: Command
+            type: string
+          - name: Path
+            type: string
+          - name: Host
+            type: string
+          - name: Scheme
+            type: string
+          - name: Name
+            type: string
+          - name: Value
+            type: string
+          - name: Host
+            type: string
+          - name: Initial Delay Seconds
+            type: integer
+          - name: Timeout Seconds
+            type: integer
+          - name: Period Seconds
+            type: integer
+          - name: Success Threshold
+            type: integer
+          - name: Failure Threshold
+            type: integer
+          - name: Termination Grace Period Seconds
+            type: integer
+          - name: Command
+            type: string
+          - name: Path
+            type: string
+          - name: Host
+            type: string
+          - name: Scheme
+            type: string
+          - name: Name
+            type: string
+          - name: Value
+            type: string
+          - name: Host
+            type: string
+          - name: Initial Delay Seconds
+            type: integer
+          - name: Timeout Seconds
+            type: integer
+          - name: Period Seconds
+            type: integer
+          - name: Success Threshold
+            type: integer
+          - name: Failure Threshold
+            type: integer
+          - name: Termination Grace Period Seconds
+            type: integer
+          - name: Command
+            type: string
+          - name: Path
+            type: string
+          - name: Host
+            type: string
+          - name: Scheme
+            type: string
+          - name: Name
+            type: string
+          - name: Value
+            type: string
+          - name: Host
+            type: string
+          - name: Command
+            type: string
+          - name: Path
+            type: string
+          - name: Host
+            type: string
+          - name: Scheme
+            type: string
+          - name: Name
+            type: string
+          - name: Value
+            type: string
+          - name: Host
+            type: string
+          - name: Termination Message Path
+            type: string
+          - name: Termination Message Policy
+            type: string
+          - name: Image Pull Policy
+            type: string
+          - name: Add
+            type: string
+          - name: Drop
+            type: string
+          - name: Privileged
+            type: bool
+          - name: User
+            type: string
+          - name: Role
+            type: string
           - name: Type
             type: string
-          - name: Status
+          - name: Level
             type: string
-          - name: Reason
+          - name: GMSACredential Spec Name
             type: string
-          - name: Last Transition Time
-            type: date
-          - name: Last Update Time
-            type: date
-          - name: Message
+          - name: GMSACredential Spec
             type: string
-          metadata:
-            resourceVersion: "559"
-          rows:
-          - cells:
-            - data: Available
-            - data: "True"
-            - data: MinimumReplicasAvailable
-            - data: 17h
-            - data: 17h
-            - data: Deployment has minimum availability.
-          - cells:
-            - data: Progressing
-            - data: "True"
-            - data: NewReplicaSetAvailable
-            - data: 17h
-            - data: 17h
-            - data: ReplicaSet "coredns-64897985d" has successfully progressed.
-      - actions:
-          create: Never
-        kind: Connection
-        resource:
-          group: apps
-          kind: ReplicaSet
-          name: replicasets
-          scope: Namespaced
-          version: v1
-        table:
-          columns:
-          - name: Name
+          - name: Run As User Name
             type: string
-          - name: Namespace
+          - name: Run As User
+            type: integer
+          - name: Run As Group
+            type: integer
+          - name: Run As Non Root
+            type: bool
+          - name: Read Only Root Filesystem
+            type: bool
+          - name: Allow Privilege Escalation
+            type: bool
+          - name: Proc Mount
             type: string
-          - name: Labels
-            type: object
-          - name: Pods
+          - name: Type
             type: string
-          - name: Images
+          - name: Localhost Profile
             type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows:
-          - cells:
-            - data: coredns-64897985d
-            - data: kube-system
-            - data:
-                k8s-app: kube-dns
-                pod-template-hash: 64897985d
-            - data: 2/2
-            - data: ""
-            - data: 17h
-              sort: 1641791376
-      - actions:
-          create: Never
-        kind: Connection
-        resource:
-          group: ""
-          kind: Pod
-          name: pods
-          scope: Namespaced
-          version: v1
-        table:
-          columns:
-          - name: Name
-            type: string
-          - name: Namespace
-            type: string
-          - name: Labels
-            type: object
-          - name: Pods
-            type: string
-          - name: Images
-            type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows:
-          - cells:
-            - data: coredns-64897985d-fvrp6
-            - data: kube-system
-            - data:
-                k8s-app: kube-dns
-                pod-template-hash: 64897985d
-            - data: /
-            - data: ""
-            - data: 17h
-              sort: 1641791377
-          - cells:
-            - data: coredns-64897985d-sr9cf
-            - data: kube-system
-            - data:
-                k8s-app: kube-dns
-                pod-template-hash: 64897985d
-            - data: /
-            - data: ""
-            - data: 17h
-              sort: 1641791377
-      - actions:
-          create: Never
-        kind: Connection
-        resource:
-          group: ""
-          kind: Service
-          name: services
-          scope: Namespaced
-          version: v1
-        table:
-          columns:
-          - name: Name
-            type: string
-          - name: Namespace
-            type: string
-          - name: Labels
-            type: object
-          - name: Pods
-            type: string
-          - name: Images
-            type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows:
-          - cells:
-            - data: kube-dns
-            - data: kube-system
-            - data:
-                k8s-app: kube-dns
-                kubernetes.io/cluster-service: "true"
-                kubernetes.io/name: CoreDNS
-            - data: /
-            - data: ""
-            - data: 17h
-              sort: 1641791363
-      - actions:
-          create: IfEmpty
-        kind: Connection
-        resource:
-          group: autoscaling
-          kind: HorizontalPodAutoscaler
-          name: horizontalpodautoscalers
-          scope: Namespaced
-          version: v2
-        table:
-          columns:
-          - name: Name
-            type: string
-          - name: Namespace
-            type: string
-          - name: Labels
-            type: object
-          - name: Pods
-            type: string
-          - name: Images
-            type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
+          - name: Stdin
+            type: bool
+          - name: Stdin Once
+            type: bool
+          - name: TTY
+            type: bool
           metadata: {}
           rows: []
       info:
         actions:
-          create: ""
-        kind: Self
+          create: Never
+        kind: Connection
         resource:
-          group: apps
-          kind: Deployment
-          name: deployments
+          group: appcatalog.appscode.com
+          kind: AppBinding
+          name: appbindings
           scope: Namespaced
-          version: v1
+          version: v1alpha1
         table:
           columns:
           - name: Name
@@ -294,146 +343,176 @@ response:
             type: object
           - name: Annotations
             type: object
+          - name: Type
+            type: string
+          - name: Version
+            type: string
+          - name: Service
+            type: string
+          - name: Secret
+            type: string
+          - name: Backup Task
+            type: string
+          - name: Restore Task
+            type: string
           - name: Age
+            sort:
+              enable: true
+              type: integer
             type: date
-          metadata:
-            resourceVersion: "559"
-          rows:
-          - cells:
-            - data: coredns
-            - data: kube-system
-            - data:
-                k8s-app: kube-dns
-            - data:
-                deployment.kubernetes.io/revision: "1"
-            - data: 17h
-      name: Basic
+          metadata: {}
+          rows: []
+      insight:
+        actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.kubedb.com
+          kind: MongoDBInsight
+          name: mongodbinsights
+          scope: Namespaced
+          version: v1alpha1
+        table:
+          columns:
+          - name: Version
+            type: string
+          - name: Type
+            type: string
+          - name: Status
+            type: string
+          - name: Current Connections
+            type: integer
+          - name: Available Connections
+            type: integer
+          - name: Active Connections
+            type: integer
+          - name: Total Collections
+            type: integer
+          - name: Data Size
+            type: integer
+          - name: Total Indexes
+            type: integer
+          - name: Index Size
+            type: integer
+          - name: Number Of Shards
+            type: integer
+          - name: Replicas Per Shards
+            type: integer
+          - name: Number Of Chunks
+            type: integer
+          - name: Balancer Enabled
+            type: bool
+          - name: Chunks Balanced
+            type: bool
+          - name: Replicas
+            type: integer
+          metadata: {}
+          rows: []
+      name: Overview
     - blocks:
-      - actions:
-          create: IfEmpty
-        kind: Connection
-        missing: true
-        resource:
-          group: stash.appscode.com
-          kind: Repository
-          name: ""
-          scope: ""
-          version: ""
-        table:
-          columns:
-          - name: Name
-            type: string
-          - name: Namespace
-            type: string
-          - name: Labels
-            type: object
-          - name: Pods
-            type: string
-          - name: Images
-            type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows: []
-      - actions:
-          create: IfEmpty
-        kind: Connection
-        missing: true
-        resource:
-          group: stash.appscode.com
-          kind: BackupConfiguration
-          name: ""
-          scope: ""
-          version: ""
-        table:
-          columns:
-          - name: Name
-            type: string
-          - name: Namespace
-            type: string
-          - name: Labels
-            type: object
-          - name: Pods
-            type: string
-          - name: Images
-            type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows: []
-      - actions:
-          create: Always
-        kind: Connection
-        missing: true
-        resource:
-          group: stash.appscode.com
-          kind: BackupSession
-          name: ""
-          scope: ""
-          version: ""
-        table:
-          columns:
-          - name: Name
-            type: string
-          - name: Namespace
-            type: string
-          - name: Labels
-            type: object
-          - name: Pods
-            type: string
-          - name: Images
-            type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows: []
-      - actions:
-          create: Always
-        kind: Connection
-        missing: true
-        resource:
-          group: stash.appscode.com
-          kind: RestoreSession
-          name: ""
-          scope: ""
-          version: ""
-        table:
-          columns:
-          - name: Name
-            type: string
-          - name: Namespace
-            type: string
-          - name: Labels
-            type: object
-          - name: Pods
-            type: string
-          - name: Images
-            type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows: []
       - actions:
           create: Never
         kind: Connection
         resource:
-          group: batch
-          kind: CronJob
-          name: cronjobs
+          group: ui.kubedb.com
+          kind: MongoDBQueries
+          name: mongodbqueries
           scope: Namespaced
-          version: v1
+          version: v1alpha1
+        table:
+          columns:
+          - name: Operation
+            type: string
+          - name: Database Name
+            type: string
+          - name: Collection Name
+            type: string
+          - name: Command
+            type: string
+          - name: Count
+            type: integer
+          - name: Avg Execution Time(millisecond)
+            type: integer
+          - name: Min Execution Time(millisecond)
+            type: integer
+          - name: Max Execution Time(millisecond)
+            type: integer
+          metadata: {}
+          rows: null
+      - actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.kubedb.com
+          kind: MongoDBSchemaOverview
+          name: mongodbschemaoverviews
+          scope: Namespaced
+          version: v1alpha1
+        table:
+          columns:
+          - name: Name
+            type: string
+          - name: Total Size
+            type: integer
+          metadata: {}
+          rows: null
+      info:
+        actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.kubedb.com
+          kind: MongoDBInsight
+          name: mongodbinsights
+          scope: Namespaced
+          version: v1alpha1
+        table:
+          columns:
+          - name: Version
+            type: string
+          - name: Type
+            type: string
+          - name: Status
+            type: string
+          - name: Current Connections
+            type: integer
+          - name: Available Connections
+            type: integer
+          - name: Active Connections
+            type: integer
+          - name: Total Collections
+            type: integer
+          - name: Data Size
+            type: integer
+          - name: Total Indexes
+            type: integer
+          - name: Index Size
+            type: integer
+          - name: Number Of Shards
+            type: integer
+          - name: Replicas Per Shards
+            type: integer
+          - name: Number Of Chunks
+            type: integer
+          - name: Balancer Enabled
+            type: bool
+          - name: Chunks Balanced
+            type: bool
+          - name: Replicas
+            type: integer
+          metadata: {}
+          rows: []
+      name: Database Insights
+    - blocks:
+      - actions:
+          create: Always
+        kind: Connection
+        resource:
+          group: stash.appscode.com
+          kind: BackupSession
+          name: backupsessions
+          scope: Namespaced
+          version: v1beta1
         table:
           columns:
           - name: Name
@@ -442,29 +521,68 @@ response:
             type: string
           - name: Labels
             type: object
-          - name: Pods
+          - name: Invoker Kind
             type: string
-          - name: Images
+          - name: Invoker Name
+            type: string
+          - name: Phase
+            type: string
+          - name: Duration
             type: string
           - name: Age
             sort:
               enable: true
               type: integer
             type: date
+          metadata: {}
+          rows: []
+      info:
+        actions:
+          create: IfEmpty
+        kind: Connection
+        resource:
+          group: ui.stash.appscode.com
+          kind: BackupOverview
+          name: backupoverviews
+          scope: Namespaced
+          version: v1alpha1
+        table:
+          columns:
+          - name: Schedule
+            type: string
+          - name: Status
+            type: string
+          - name: Last Backup Time
+            sort:
+              enable: true
+              type: integer
+            type: date
+          - name: Upcoming Backup Time
+            sort:
+              enable: true
+              type: integer
+            type: date
+          - name: Repository
+            type: string
+          - name: Data Size
+            type: string
+          - name: Number Of Snapshots
+            type: integer
+          - name: Data Integrity
+            type: bool
           metadata: {}
           rows: []
       name: Backups
     - blocks:
       - actions:
-          create: IfEmpty
+          create: Always
         kind: Connection
-        missing: true
         resource:
-          group: monitoring.coreos.com
-          kind: ServiceMonitor
-          name: ""
-          scope: ""
-          version: ""
+          group: ops.kubedb.com
+          kind: MongoDBOpsRequest
+          name: mongodbopsrequests
+          scope: Namespaced
+          version: v1alpha1
         table:
           columns:
           - name: Name
@@ -473,84 +591,121 @@ response:
             type: string
           - name: Labels
             type: object
-          - name: Pods
+          - name: Type
             type: string
-          - name: Images
+          - name: Target Database
+            type: string
+          - name: Status
             type: string
           - name: Age
-            sort:
-              enable: true
-              type: integer
             type: date
           metadata: {}
           rows: []
-      - actions:
-          create: IfEmpty
-        kind: Connection
-        missing: true
-        resource:
-          group: monitoring.coreos.com
-          kind: PodMonitor
-          name: ""
-          scope: ""
-          version: ""
-        table:
-          columns:
-          - name: Name
-            type: string
-          - name: Namespace
-            type: string
-          - name: Labels
-            type: object
-          - name: Pods
-            type: string
-          - name: Images
-            type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows: []
-      - actions:
-          create: Never
-        kind: Connection
-        missing: true
-        resource:
-          group: monitoring.coreos.com
-          kind: Prometheus
-          name: ""
-          scope: ""
-          version: ""
-        table:
-          columns:
-          - name: Name
-            type: string
-          - name: Namespace
-            type: string
-          - name: Labels
-            type: object
-          - name: Pods
-            type: string
-          - name: Images
-            type: string
-          - name: Age
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows: []
-      name: Monitoring
+      name: Operations
     resource:
-      group: apps
-      kind: Deployment
-      name: deployments
+      group: kubedb.com
+      kind: MongoDB
+      name: mongodbs
       scope: Namespaced
-      version: v1
+      version: v1alpha2
+    tabBar:
+      actions:
+        create: Never
+      kind: Connection
+      resource:
+        group: ui.k8s.appscode.com
+        kind: GenericResourceService
+        name: genericresourceservices
+        scope: Namespaced
+        version: v1alpha1
+      table:
+        columns:
+        - name: Group
+          type: string
+        - name: Version
+          type: string
+        - name: Name
+          type: string
+        - name: Kind
+          type: string
+        - name: Scope
+          type: string
+        - name: Usage
+          type: string
+        - name: Group
+          type: string
+        - name: Version
+          type: string
+        - name: Name
+          type: string
+        - name: Kind
+          type: string
+        - name: Scope
+          type: string
+        - name: Namespace
+          type: string
+        - name: Name
+          type: string
+        - name: Usage
+          type: string
+        - name: Group
+          type: string
+        - name: Version
+          type: string
+        - name: Name
+          type: string
+        - name: Kind
+          type: string
+        - name: Scope
+          type: string
+        - name: Namespace
+          type: string
+        - name: Name
+          type: string
+        - name: Usage
+          type: string
+        - name: Group
+          type: string
+        - name: Version
+          type: string
+        - name: Name
+          type: string
+        - name: Kind
+          type: string
+        - name: Scope
+          type: string
+        - name: Namespace
+          type: string
+        - name: Name
+          type: string
+        - name: Usage
+          type: string
+        - name: Group
+          type: string
+        - name: Version
+          type: string
+        - name: Name
+          type: string
+        - name: Kind
+          type: string
+        - name: Scope
+          type: string
+        - name: Namespace
+          type: string
+        - name: Name
+          type: string
+        - name: Status
+          type: string
+        - name: Message
+          type: string
+        metadata: {}
+        rows: []
     ui:
       editor:
-        name: apps-deployment-editor
+        name: kubedbcom-mongodb-editor
+        url: https://bundles.byte.builders/ui/
+        version: v0.3.0
+      options:
+        name: kubedbcom-mongodb-editor-options
         url: https://bundles.byte.builders/ui/
         version: v0.3.0

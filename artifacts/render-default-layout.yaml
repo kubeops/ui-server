@@ -3,11 +3,14 @@ kind: Render
 request:
   source:
     resource:
-      group: apps
-      kind: Deployment
+      group: kubedb.com
+      kind: MongoDB
     ref:
-      namespace: kube-system
-      name: coredns
+      namespace: demo
+      name: mg-sh
+  layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+
+
     # group: ""
     # kind: Pod
     # namespace: kube-system

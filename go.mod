@@ -28,15 +28,17 @@ require (
 	k8s.io/kube-openapi v0.0.0-20210421082810-95288971da7e
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
-	kmodules.xyz/client-go v0.0.0-20220108081101-27afc2ac4ebe
+	kmodules.xyz/client-go v0.0.0-20220112225403-2a109f231e9b
 	kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf
-	kmodules.xyz/resource-metadata v0.8.2-0.20220112104440-d65021eb76b5
-	kmodules.xyz/resource-metrics v0.0.6
+	kmodules.xyz/resource-metadata v0.8.2-0.20220113223534-8102ab78b4f2
+	kmodules.xyz/resource-metrics v0.0.7-0.20220113235224-64b74ecbc4f8
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	sigs.k8s.io/cli-utils v0.26.1
 	sigs.k8s.io/controller-runtime v0.9.0
 	sigs.k8s.io/yaml v1.2.0
 )
+
+replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.9.1-0.20220112213948-0e7a1aa77c8e
 
 require (
 	cloud.google.com/go v0.54.0 // indirect
@@ -108,18 +110,19 @@ require (
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200910180754-dd1b699fc489 // indirect
-	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
+	go.starlark.net v0.0.0-20200821142938-949cc6f4b097 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.0 // indirect
 	golang.org/x/crypto v0.0.0-20210314154223-e6e6c4f2bb5b // indirect
-	golang.org/x/net v0.0.0-20210428140749-89ef3d95e781 // indirect
+	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
-	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a // indirect
-	golang.org/x/sys v0.0.0-20210817190340-bfb29a6856f2 // indirect
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
+	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654 // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
+	golang.org/x/tools v0.1.8 // indirect
 	gomodules.xyz/clock v0.0.0-20200817085942-06523dba733f // indirect
 	gomodules.xyz/encoding v0.0.2 // indirect
 	gomodules.xyz/flags v0.1.3 // indirect

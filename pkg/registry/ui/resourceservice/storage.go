@@ -26,6 +26,7 @@ import (
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/shared"
 
+	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -40,6 +41,7 @@ import (
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/cli-utils/pkg/kstatus/status"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -54,6 +56,7 @@ type Storage struct {
 
 var _ rest.GroupVersionKindProvider = &Storage{}
 var _ rest.Scoper = &Storage{}
+var _ rest.Getter = &Storage{}
 var _ rest.Lister = &Storage{}
 
 func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
@@ -82,6 +85,52 @@ func (r *Storage) New() runtime.Object {
 
 func (r *Storage) NewList() runtime.Object {
 	return &uiv1alpha1.GenericResourceServiceList{}
+}
+
+func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+	ns, ok := apirequest.NamespaceFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing namespace")
+	}
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+
+	objName, gk, err := uiv1alpha1.ParseGenericResourceName(name)
+	if err != nil {
+		return nil, apierrors.NewBadRequest(err.Error())
+	}
+	mapping, err := r.kc.RESTMapper().RESTMapping(gk)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
+	rid := kmapi.NewResourceID(mapping)
+
+	attrs := authorizer.AttributesRecord{
+		User:      user,
+		Verb:      "get",
+		Namespace: ns,
+		APIGroup:  mapping.Resource.Group,
+		Resource:  mapping.Resource.Resource,
+		Name:      objName,
+	}
+	decision, why, err := r.a.Authorize(ctx, attrs)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
+	if decision != authorizer.DecisionAllow {
+		return nil, apierrors.NewForbidden(mapping.Resource.GroupResource(), objName, errors.New(why))
+	}
+
+	var obj unstructured.Unstructured
+	obj.SetGroupVersionKind(mapping.GroupVersionKind)
+	err = r.kc.Get(ctx, client.ObjectKey{Namespace: ns, Name: objName}, &obj)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.toGenericResourceService(obj, rid)
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -195,7 +244,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 	genres := uiv1alpha1.GenericResourceService{
 		// TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:                       item.GetName(),
+			Name:                       uiv1alpha1.GetGenericResourceName(&item),
 			GenerateName:               item.GetGenerateName(),
 			Namespace:                  item.GetNamespace(),
 			SelfLink:                   "",
@@ -206,10 +255,10 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			DeletionTimestamp:          item.GetDeletionTimestamp(),
 			DeletionGracePeriodSeconds: item.GetDeletionGracePeriodSeconds(),
 			Labels:                     item.GetLabels(),
-			Annotations:                item.GetAnnotations(),
-			OwnerReferences:            item.GetOwnerReferences(),
-			Finalizers:                 item.GetFinalizers(),
-			ClusterName:                item.GetClusterName(),
+			Annotations:                map[string]string{},
+			// OwnerReferences:            item.GetOwnerReferences(),
+			// Finalizers:                 item.GetFinalizers(),
+			ClusterName: item.GetClusterName(),
 			// ManagedFields:              nil,
 		},
 		Spec: uiv1alpha1.GenericResourceServiceSpec{
@@ -218,10 +267,28 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 				Status:  s.Status.String(),
 				Message: s.Message,
 			},
+			Facilities: uiv1alpha1.GenericResourceServiceFacilities{
+				Exposed: uiv1alpha1.GenericResourceServiceFacilitator{
+					Usage: uiv1alpha1.FacilityUnknown,
+				},
+				TLS: uiv1alpha1.GenericResourceServiceFacilitator{
+					Usage: uiv1alpha1.FacilityUnknown,
+				},
+				Backup: uiv1alpha1.GenericResourceServiceFacilitator{
+					Usage: uiv1alpha1.FacilityUnknown,
+				},
+				Monitoring: uiv1alpha1.GenericResourceServiceFacilitator{
+					Usage: uiv1alpha1.FacilityUnknown,
+				},
+			},
 		},
 		Status: resstatus,
 	}
-	delete(genres.ObjectMeta.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
+	for k, v := range item.GetAnnotations() {
+		if k != "kubectl.kubernetes.io/last-applied-configuration" {
+			genres.Annotations[k] = v
+		}
+	}
 
 	{
 		objID := kmapi.NewObjectID(&item)
@@ -241,7 +308,6 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			return nil, err
 		}
 
-		genres.Spec.Facilities.Exposed.Usage = uiv1alpha1.FacilityUnknown
 		var isExposed bool
 		var refs []kmapi.ObjectReference
 		for _, obj := range objs {
@@ -262,47 +328,19 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		}
 		if isExposed {
 			genres.Spec.Facilities.Exposed.Usage = uiv1alpha1.FacilityUsed
-			genres.Spec.Facilities.Exposed.Resource = *rid
+			genres.Spec.Facilities.Exposed.Resource = rid
 			genres.Spec.Facilities.Exposed.Refs = refs
 		} else {
 			genres.Spec.Facilities.Exposed.Usage = uiv1alpha1.FacilityUnused
 		}
 	}
 	{
-		objID := kmapi.NewObjectID(&item)
-		oid := objID.OID()
-
-		rid, objs, err := graph.ExecQuery(r.kc, oid, v1alpha1.ResourceLocator{
-			Ref: metav1.GroupKind{
-				Group: "",
-				Kind:  "Secret",
-			},
-			Query: v1alpha1.ResourceQuery{
-				Type:    v1alpha1.GraphQLQuery,
-				ByLabel: kmapi.EdgeOffshoot,
-			},
-		})
+		yes, err := resourcemetrics.UsesTLS(content)
 		if err != nil {
 			return nil, err
 		}
-
-		genres.Spec.Facilities.TLS.Usage = uiv1alpha1.FacilityUnknown
-		var usesTLS bool
-		var refs []kmapi.ObjectReference
-		for _, obj := range objs {
-			if v, ok, _ := unstructured.NestedString(obj.UnstructuredContent(), "type"); ok && v == string(core.SecretTypeTLS) {
-				usesTLS = true
-				refs = append(refs, kmapi.ObjectReference{
-					Namespace: obj.GetNamespace(),
-					Name:      obj.GetName(),
-				})
-				break
-			}
-		}
-		if usesTLS {
+		if yes {
 			genres.Spec.Facilities.TLS.Usage = uiv1alpha1.FacilityUsed
-			genres.Spec.Facilities.TLS.Resource = *rid
-			genres.Spec.Facilities.TLS.Refs = refs
 		} else {
 			genres.Spec.Facilities.TLS.Usage = uiv1alpha1.FacilityUnused
 		}
@@ -329,17 +367,16 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		       }`,
 			},
 		})
-		if err != nil {
+		if err == nil {
+			if len(refs) > 0 {
+				genres.Spec.Facilities.Backup.Usage = uiv1alpha1.FacilityUsed
+				genres.Spec.Facilities.Backup.Resource = rid
+				genres.Spec.Facilities.Backup.Refs = refs
+			} else {
+				genres.Spec.Facilities.Backup.Usage = uiv1alpha1.FacilityUnused
+			}
+		} else if !meta.IsNoMatchError(err) {
 			return nil, err
-		}
-
-		genres.Spec.Facilities.Backup.Usage = uiv1alpha1.FacilityUnknown
-		if len(refs) > 0 {
-			genres.Spec.Facilities.Backup.Usage = uiv1alpha1.FacilityUsed
-			genres.Spec.Facilities.Backup.Resource = *rid
-			genres.Spec.Facilities.Backup.Refs = refs
-		} else {
-			genres.Spec.Facilities.Backup.Usage = uiv1alpha1.FacilityUnused
 		}
 	}
 	{
@@ -365,17 +402,18 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		         }`,
 			},
 		})
-		if err != nil {
+		if err == nil {
+			if len(refs) > 0 {
+				genres.Spec.Facilities.Monitoring.Usage = uiv1alpha1.FacilityUsed
+				genres.Spec.Facilities.Monitoring.Resource = rid
+				genres.Spec.Facilities.Monitoring.Refs = refs
+			}
+		} else if !meta.IsNoMatchError(err) {
 			return nil, err
 		}
 
-		genres.Spec.Facilities.Monitoring.Usage = uiv1alpha1.FacilityUnknown
-		if len(refs) > 0 {
-			genres.Spec.Facilities.Monitoring.Usage = uiv1alpha1.FacilityUsed
-			genres.Spec.Facilities.Monitoring.Resource = *rid
-			genres.Spec.Facilities.Monitoring.Refs = refs
-		} else {
-			rid, refs, err := graph.ExecRawQuery(r.kc, oid, v1alpha1.ResourceLocator{
+		if genres.Spec.Facilities.Monitoring.Usage == uiv1alpha1.FacilityUnknown {
+			rid, refs, err = graph.ExecRawQuery(r.kc, oid, v1alpha1.ResourceLocator{
 				Ref: metav1.GroupKind{
 					Group: "monitoring.coreos.com",
 					Kind:  "PodMonitor",
@@ -394,17 +432,16 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		         }`,
 				},
 			})
-			if err != nil {
+			if err == nil {
+				if len(refs) > 0 {
+					genres.Spec.Facilities.Monitoring.Usage = uiv1alpha1.FacilityUsed
+					genres.Spec.Facilities.Monitoring.Resource = rid
+					genres.Spec.Facilities.Monitoring.Refs = refs
+				} else {
+					genres.Spec.Facilities.Monitoring.Usage = uiv1alpha1.FacilityUnused
+				}
+			} else if !meta.IsNoMatchError(err) {
 				return nil, err
-			}
-
-			genres.Spec.Facilities.Monitoring.Usage = uiv1alpha1.FacilityUnknown
-			if len(refs) > 0 {
-				genres.Spec.Facilities.Monitoring.Usage = uiv1alpha1.FacilityUsed
-				genres.Spec.Facilities.Monitoring.Resource = *rid
-				genres.Spec.Facilities.Monitoring.Refs = refs
-			} else {
-				genres.Spec.Facilities.Monitoring.Usage = uiv1alpha1.FacilityUnused
 			}
 		}
 	}

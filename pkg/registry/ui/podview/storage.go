@@ -23,6 +23,7 @@ import (
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/prometheus"
 
+	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -50,11 +51,10 @@ var _ rest.Scoper = &Storage{}
 var _ rest.Lister = &Storage{}
 var _ rest.Getter = &Storage{}
 
-func NewStorage(kc client.Client, a authorizer.Authorizer, pc promv1.API) *Storage {
-	return &Storage{
+func NewStorage(kc client.Client, a authorizer.Authorizer, pc api.Client) *Storage {
+	s := &Storage{
 		kc: kc,
 		a:  a,
-		pc: pc,
 		gr: schema.GroupResource{
 			Group:    "",
 			Resource: "pods",
@@ -64,6 +64,10 @@ func NewStorage(kc client.Client, a authorizer.Authorizer, pc promv1.API) *Stora
 			Resource: uiv1alpha1.ResourcePodViews,
 		}),
 	}
+	if pc != nil {
+		s.pc = promv1.NewAPI(pc)
+	}
+	return s
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
@@ -116,7 +120,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 	podview := uiv1alpha1.PodView{
 		// TypeMeta:   metav1.TypeMeta{},
-		ObjectMeta: pod.ObjectMeta,
+		ObjectMeta: *pod.ObjectMeta.DeepCopy(),
 		Spec: uiv1alpha1.PodViewSpec{
 			Resources: uiv1alpha1.ResourceView{
 				Limits:   nil,
@@ -129,6 +133,8 @@ func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 	}
 	podview.SelfLink = ""
 	podview.ManagedFields = nil
+	podview.OwnerReferences = nil
+	podview.Finalizers = nil
 	delete(podview.ObjectMeta.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
 
 	var limits, requests core.ResourceList
@@ -224,7 +230,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	}
 
 	var podList core.PodList
-	err := r.kc.List(ctx, &podList, &opts)
+	err := r.kc.List(context.TODO(), &podList, &opts)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +238,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	podviews := make([]uiv1alpha1.PodView, 0, len(podList.Items))
 	for _, pod := range podList.Items {
 		attrs.Name = pod.Name
-		decision, _, err := r.a.Authorize(ctx, attrs)
+		decision, _, err := r.a.Authorize(context.TODO(), attrs)
 		if err != nil {
 			return nil, apierrors.NewInternalError(err)
 		}

@@ -43,6 +43,9 @@ if [ "$ENFORCE_LICENSE" != "true" ]; then
     ENFORCE_LICENSE=false
 fi
 
+# ref: https://medium.com/golangspec/blocks-in-go-2f68768868f6
+# ref: https://dave.cheney.net/2020/05/02/mid-stack-inlining-in-go
+# -gcflags="all=-N -l" \
 go install \
     -installsuffix "static" \
     -ldflags "                                          \

@@ -45,7 +45,6 @@ import (
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/ui/resourcesummary"
 
 	"github.com/graphql-go/handler"
-	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
 	crdinstall "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -68,7 +67,6 @@ import (
 	"kmodules.xyz/resource-metadata/apis/meta"
 	metainstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	metav1alpha1 "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -170,19 +168,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		ClientDisableCacheFor: []client.Object{
 			&core.Pod{},
 		},
-		NewClient: func(cache cache.Cache, config *restclient.Config, options client.Options, uncachedObjects ...client.Object) (client.Client, error) {
-			c, err := client.New(config, options)
-			if err != nil {
-				return nil, err
-			}
-
-			return client.NewDelegatingClient(client.NewDelegatingClientInput{
-				CacheReader:       cache,
-				Client:            c,
-				UncachedObjects:   uncachedObjects,
-				CacheUnstructured: true, // cache unstructured objects
-			})
-		},
+		NewClient: cu.NewClient,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("unable to start manager, reason: %v", err)
@@ -274,7 +260,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(uiv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, promv1.NewAPI(pc))
+		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, pc)
 		v1alpha1storage[uiv1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[uiv1alpha1.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[uiv1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)

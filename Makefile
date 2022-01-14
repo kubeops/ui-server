@@ -414,7 +414,6 @@ lint: $(BUILD_DIRS)
 	    -v $$(pwd)/.go/cache:/.cache                            \
 	    --env HTTP_PROXY=$(HTTP_PROXY)                          \
 	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
-	    --env GO111MODULE=on                                    \
 	    --env GOFLAGS="-mod=vendor"                             \
 	    $(BUILD_IMAGE)                                          \
 	    golangci-lint run --enable $(ADDTL_LINTERS) --timeout=10m --skip-files="generated.*\.go$\" --skip-dirs-use-default --skip-dirs=client,vendor
@@ -438,7 +437,7 @@ install:
 	helm install kube-ui-server charts/kube-ui-server --wait \
 		--namespace=$(KUBE_NAMESPACE) --create-namespace \
 		--set image.registry=$(REGISTRY) \
-		--set image.tag=$(TAG) \
+		--set image.tag=$(TAG_DBG) \
 		--set imagePullPolicy=$(IMAGE_PULL_POLICY) \
 		$(IMAGE_PULL_SECRETS); \
 
@@ -459,8 +458,8 @@ verify: verify-gen verify-modules
 
 .PHONY: verify-modules
 verify-modules:
-	GO111MODULE=on go mod tidy
-	GO111MODULE=on go mod vendor
+	go mod tidy
+	go mod vendor
 	@if !(git diff --exit-code HEAD); then \
 		echo "go module files are out of date"; exit 1; \
 	fi
@@ -530,7 +529,7 @@ clean:
 
 .PHONY: run
 run:
-	GO111MODULE=on go run -mod=vendor ./cmd/grafana-operator run \
+	go run -mod=vendor ./cmd/ui-server run \
 		--v=3 \
 		--secure-port=8443 \
 		--kubeconfig=$(KUBECONFIG) \
@@ -541,7 +540,7 @@ run:
 .PHONY: push-to-kind
 push-to-kind: container
 	@echo "Loading docker image into kind cluster...."
-	@kind load docker-image $(IMAGE):$(TAG)
+	@kind load docker-image $(IMAGE):$(TAG_DBG)
 	@echo "Image has been pushed successfully into kind cluster."
 
 .PHONY: deploy-to-kind
