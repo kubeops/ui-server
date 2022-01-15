@@ -101,11 +101,11 @@ func getPromQueryResult(pc promv1.API, promQuery string) (map[string]float64, er
 	for _, m := range metrics {
 		val := strings.Split(m, "=>")
 		if len(val) != 2 {
-			return nil, fmt.Errorf("metrics %s is invalid", m)
+			return nil, fmt.Errorf("metrics %q is invalid for query %s", m, promQuery)
 		}
 		valStr := strings.Split(val[1], "@")
 		if len(valStr) != 2 {
-			return nil, fmt.Errorf("metrics %s is invalid", m)
+			return nil, fmt.Errorf("metrics %q is invalid for query %s", m, promQuery)
 		}
 		valStr[0] = strings.Replace(valStr[0], " ", "", -1)
 		metricVal, err := strconv.ParseFloat(valStr[0], 64)

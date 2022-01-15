@@ -28,48 +28,62 @@ response:
         version: v1alpha1
       table:
         columns:
-        - name: UID
+        - link: true
+          name: Name
+          sort:
+            enable: true
+            type: ""
           type: string
-        - name: Name
+        - name: Namespace
           type: string
-        - name: Display Name
+        - name: Labels
+          type: object
+        - name: Annotations
+          type: object
+        - name: Age
+          sort:
+            enable: true
+            type: integer
+          type: date
+        - name: ClusterUID
           type: string
-        - name: Provider
+        - name: ClusterName
           type: string
-        - name: Group
+        - name: Cluster Name
           type: string
-        - name: Version
+        - name: Cluster Provider
           type: string
-        - name: Name
+        - name: APIGroup
           type: string
-        - name: Kind
+        - name: APIVersion
           type: string
-        - name: Scope
+        - name: APIResource
+          type: string
+        - name: APIKind
+          type: string
+        - name: APIScope
           type: string
         - name: Version
           type: string
         - name: Replicas
           type: integer
-        - name: Role Replicas
-          type: object
         - name: Mode
           type: string
-        - name: Limits
+        - name: Total Resource Limits
           type: object
-        - name: Requests
+        - name: Total Resource Requests
           type: object
-        - name: Limits
+        - name: App Resource Limits
           type: object
-        - name: Requests
-          type: object
-        - name: Role Resource Limits
-          type: object
-        - name: Role Resource Requests
+        - name: App Resource Requests
           type: object
         - name: Status
           type: string
-        - name: Message
-          type: string
+        - name: Age
+          sort:
+            enable: true
+            type: integer
+          type: date
         metadata: {}
         rows: []
     layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
@@ -99,6 +113,9 @@ response:
           - name: Status
             type: string
           - name: Age
+            sort:
+              enable: true
+              type: integer
             type: date
           metadata: {}
           rows: []
@@ -121,84 +138,56 @@ response:
         version: v1alpha1
       table:
         columns:
-        - name: Group
-          type: string
-        - name: Version
-          type: string
-        - name: Name
-          type: string
-        - name: Kind
-          type: string
-        - name: Scope
-          type: string
-        - name: Usage
-          type: string
-        - name: Group
-          type: string
-        - name: Version
-          type: string
-        - name: Name
-          type: string
-        - name: Kind
-          type: string
-        - name: Scope
+        - link: true
+          name: Name
+          sort:
+            enable: true
+            type: ""
           type: string
         - name: Namespace
           type: string
-        - name: Name
+        - name: Labels
+          type: object
+        - name: Annotations
+          type: object
+        - name: Age
+          sort:
+            enable: true
+            type: integer
+          type: date
+        - name: ClusterUID
           type: string
-        - name: Usage
+        - name: ClusterName
           type: string
-        - name: Group
+        - name: Cluster Name
           type: string
-        - name: Version
+        - name: Cluster Provider
           type: string
-        - name: Name
+        - name: APIGroup
           type: string
-        - name: Kind
+        - name: APIVersion
           type: string
-        - name: Scope
+        - name: APIResource
           type: string
-        - name: Namespace
+        - name: APIKind
           type: string
-        - name: Name
+        - name: APIScope
           type: string
-        - name: Usage
+        - name: Exposed
           type: string
-        - name: Group
+        - name: TLS
           type: string
-        - name: Version
+        - name: Backup
           type: string
-        - name: Name
-          type: string
-        - name: Kind
-          type: string
-        - name: Scope
-          type: string
-        - name: Namespace
-          type: string
-        - name: Name
-          type: string
-        - name: Usage
-          type: string
-        - name: Group
-          type: string
-        - name: Version
-          type: string
-        - name: Name
-          type: string
-        - name: Kind
-          type: string
-        - name: Scope
-          type: string
-        - name: Namespace
-          type: string
-        - name: Name
+        - name: Monitoring
           type: string
         - name: Status
           type: string
-        - name: Message
-          type: string
+        - name: Age
+          sort:
+            enable: true
+            type: integer
+          type: date
         metadata: {}
         rows: []
     ui:
