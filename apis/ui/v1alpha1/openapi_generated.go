@@ -17630,6 +17630,12 @@ func schema_ui_server_apis_ui_v1alpha1_GenericResourceServiceSpec(ref common.Ref
 							Ref:     ref("kmodules.xyz/client-go/api/v1.ResourceID"),
 						},
 					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
 					"facilities": {
 						SchemaProps: spec.SchemaProps{
 							Default: map[string]interface{}{},
@@ -17693,6 +17699,12 @@ func schema_ui_server_apis_ui_v1alpha1_GenericResourceSpec(ref common.ReferenceC
 						SchemaProps: spec.SchemaProps{
 							Default: map[string]interface{}{},
 							Ref:     ref("kmodules.xyz/client-go/api/v1.ResourceID"),
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
 						},
 					},
 					"version": {

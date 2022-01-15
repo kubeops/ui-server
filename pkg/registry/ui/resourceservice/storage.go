@@ -275,6 +275,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		Spec: uiv1alpha1.GenericResourceServiceSpec{
 			Cluster: *cmeta,
 			APIType: *apiType,
+			Name:    item.GetName(),
 			Status: uiv1alpha1.GenericResourceServiceStatus{
 				Status:  s.Status.String(),
 				Message: s.Message,

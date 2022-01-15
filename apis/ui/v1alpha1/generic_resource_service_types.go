@@ -42,6 +42,7 @@ type GenericResourceService struct {
 type GenericResourceServiceSpec struct {
 	Cluster    kmapi.ClusterMetadata            `json:"cluster,omitempty"`
 	APIType    kmapi.ResourceID                 `json:"apiType"`
+	Name       string                           `json:"name,omitempty"`
 	Facilities GenericResourceServiceFacilities `json:"facilities,omitempty"`
 	Status     GenericResourceServiceStatus     `json:"status"`
 }
