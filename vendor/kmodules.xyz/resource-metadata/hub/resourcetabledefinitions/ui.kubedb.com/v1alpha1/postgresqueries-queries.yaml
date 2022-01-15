@@ -93,12 +93,12 @@ spec:
     priority: 3
     type: number
   - format: double
-    name: Buffer Hit Percentage
+    name: Buffer Hit (%)
     pathTemplate: '{{ .bufferHitPercentage }}'
     priority: 3
     type: number
   - format: double
-    name: Local Buffer Hit Percentage
+    name: Local Buffer Hit (%)
     pathTemplate: '{{ .localBufferHitPercentage }}'
     priority: 3
     type: number
