@@ -273,6 +273,7 @@ func (r *Storage) toGenericResource(item unstructured.Unstructured, apiType *kma
 		Spec: uiv1alpha1.GenericResourceSpec{
 			Cluster:              *cmeta,
 			APIType:              *apiType,
+			Name:                 item.GetName(),
 			Replicas:             0,
 			RoleReplicas:         nil,
 			Mode:                 "",

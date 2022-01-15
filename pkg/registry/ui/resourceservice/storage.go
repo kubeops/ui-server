@@ -40,6 +40,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	cu "kmodules.xyz/client-go/client"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
@@ -97,6 +98,11 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, apierrors.NewBadRequest("missing user info")
 	}
 
+	cmeta, err := cu.ClusterMetadata(r.kc)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
+
 	objName, gk, err := uiv1alpha1.ParseGenericResourceName(name)
 	if err != nil {
 		return nil, apierrors.NewBadRequest(err.Error())
@@ -130,7 +136,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, err
 	}
 
-	return r.toGenericResourceService(obj, rid)
+	return r.toGenericResourceService(obj, rid, cmeta)
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -144,6 +150,11 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	user, ok := apirequest.UserFrom(ctx)
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing user info")
+	}
+
+	cmeta, err := cu.ClusterMetadata(r.kc)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
 	}
 
 	items := make([]uiv1alpha1.GenericResourceService, 0)
@@ -184,7 +195,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				continue
 			}
 
-			genres, err := r.toGenericResourceService(item, apiType)
+			genres, err := r.toGenericResourceService(item, apiType, cmeta)
 			if err != nil {
 				return nil, err
 			}
@@ -224,7 +235,7 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
 
-func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiType *kmapi.ResourceID) (*uiv1alpha1.GenericResourceService, error) {
+func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiType *kmapi.ResourceID, cmeta *kmapi.ClusterMetadata) (*uiv1alpha1.GenericResourceService, error) {
 	content := item.UnstructuredContent()
 
 	s, err := status.Compute(&item)
@@ -262,7 +273,9 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			// ManagedFields:              nil,
 		},
 		Spec: uiv1alpha1.GenericResourceServiceSpec{
+			Cluster: *cmeta,
 			APIType: *apiType,
+			Name:    item.GetName(),
 			Status: uiv1alpha1.GenericResourceServiceStatus{
 				Status:  s.Status.String(),
 				Message: s.Message,

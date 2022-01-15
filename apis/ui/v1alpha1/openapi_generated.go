@@ -17618,10 +17618,22 @@ func schema_ui_server_apis_ui_v1alpha1_GenericResourceServiceSpec(ref common.Ref
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
+					"cluster": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kmodules.xyz/client-go/api/v1.ClusterMetadata"),
+						},
+					},
 					"apiType": {
 						SchemaProps: spec.SchemaProps{
 							Default: map[string]interface{}{},
 							Ref:     ref("kmodules.xyz/client-go/api/v1.ResourceID"),
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
 						},
 					},
 					"facilities": {
@@ -17641,7 +17653,7 @@ func schema_ui_server_apis_ui_v1alpha1_GenericResourceServiceSpec(ref common.Ref
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/client-go/api/v1.ResourceID", "kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceServiceFacilities", "kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceServiceStatus"},
+			"kmodules.xyz/client-go/api/v1.ClusterMetadata", "kmodules.xyz/client-go/api/v1.ResourceID", "kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceServiceFacilities", "kubeops.dev/ui-server/apis/ui/v1alpha1.GenericResourceServiceStatus"},
 	}
 }
 
@@ -17687,6 +17699,12 @@ func schema_ui_server_apis_ui_v1alpha1_GenericResourceSpec(ref common.ReferenceC
 						SchemaProps: spec.SchemaProps{
 							Default: map[string]interface{}{},
 							Ref:     ref("kmodules.xyz/client-go/api/v1.ResourceID"),
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
 						},
 					},
 					"version": {
@@ -18079,16 +18097,10 @@ func schema_ui_server_apis_ui_v1alpha1_ResourceSummarySpec(ref common.ReferenceC
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"clusterName": {
+					"cluster": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"clusterID": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: map[string]interface{}{},
+							Ref:     ref("kmodules.xyz/client-go/api/v1.ClusterMetadata"),
 						},
 					},
 					"apiType": {
@@ -18120,7 +18132,7 @@ func schema_ui_server_apis_ui_v1alpha1_ResourceSummarySpec(ref common.ReferenceC
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.ResourceRequirements", "kmodules.xyz/client-go/api/v1.ResourceID"},
+			"k8s.io/api/core/v1.ResourceRequirements", "kmodules.xyz/client-go/api/v1.ClusterMetadata", "kmodules.xyz/client-go/api/v1.ResourceID"},
 	}
 }
 
