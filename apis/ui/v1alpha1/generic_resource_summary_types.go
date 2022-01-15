@@ -30,8 +30,7 @@ const (
 )
 
 type ResourceSummarySpec struct {
-	ClusterName   string                    `json:"clusterName,omitempty"`
-	ClusterID     string                    `json:"clusterID,omitempty"`
+	Cluster       kmapi.ClusterMetadata     `json:"cluster,omitempty"`
 	APIType       kmapi.ResourceID          `json:"apiType"`
 	TotalResource core.ResourceRequirements `json:"totalResource,omitempty"`
 	AppResource   core.ResourceRequirements `json:"appResource,omitempty"`

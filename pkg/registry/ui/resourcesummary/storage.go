@@ -37,7 +37,7 @@ import (
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	"kmodules.xyz/client-go/tools/clusterid"
+	cu "kmodules.xyz/client-go/client"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -87,14 +87,17 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
-
-	selector := shared.NewGroupKindSelector(options.LabelSelector)
-
 	user, ok := apirequest.UserFrom(ctx)
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing user info")
 	}
 
+	cmeta, err := cu.ClusterMetadata(r.kc)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
+
+	selector := shared.NewGroupKindSelector(options.LabelSelector)
 	now := time.Now()
 
 	items := make([]uiv1alpha1.ResourceSummary, 0)
@@ -129,9 +132,8 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				UID:               types.UID(uuid.Must(uuid.NewUUID()).String()),
 			},
 			Spec: uiv1alpha1.ResourceSummarySpec{
-				ClusterName: clusterid.ClusterName(),
-				ClusterID:   r.clusterID,
-				APIType:     *apiType,
+				Cluster: *cmeta,
+				APIType: *apiType,
 				// TotalResource: core.ResourceRequirements{},
 				// AppResource:   core.ResourceRequirements{},
 				Count: 0,
