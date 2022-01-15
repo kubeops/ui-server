@@ -30,7 +30,7 @@ spec:
     pathTemplate: '{{ .spec.activeShards }}'
     priority: 3
     type: integer
-  - name: Active Shards(%)
+  - name: Active Shards (%)
     pathTemplate: '{{ .spec.activeShardsPercentAsNumber }}'
     priority: 3
     type: integer
@@ -46,19 +46,19 @@ spec:
     pathTemplate: '{{ .spec.initializingShards }}'
     priority: 3
     type: integer
-  - name: Data Nodes
+  - name: Number Of Data Nodes
     pathTemplate: '{{ .spec.numberOfDataNodes }}'
     priority: 3
     type: integer
-  - name: In Flight Fetches
+  - name: Number Of In Flight Fetch
     pathTemplate: '{{ .spec.numberOfInFlightFetch }}'
     priority: 3
     type: integer
-  - name: Total Nodes
+  - name: Number Of Nodes
     pathTemplate: '{{ .spec.numberOfNodes }}'
     priority: 3
     type: integer
-  - name: Pending Tasks
+  - name: Number Of Pending Tasks
     pathTemplate: '{{ .spec.numberOfPendingTasks }}'
     priority: 3
     type: integer
@@ -74,7 +74,7 @@ spec:
     pathTemplate: '{{ .spec.unassignedShards }}'
     priority: 3
     type: integer
-  - name: Task Max Waiting In Queue(millisecond)
+  - name: Task Max Waiting In Queue (msec)
     pathTemplate: '{{ .spec.taskMaxWaitingInQueueMilliSeconds }}'
     priority: 3
     type: integer

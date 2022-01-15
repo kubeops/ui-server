@@ -957,8 +957,8 @@ kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf h1:f0c2Irsxf+Px
 kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf/go.mod h1:noID+Lv6uVm7qZOu0rH4t5Ost2OxS7oFhovlXJOT3lc=
 kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61 h1:J56UGmRFddu6tERRd8BELmP5QbXxievzb+6vAjFptiM=
 kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61/go.mod h1:3LECbAL3FgbyK80NP3V3Pmiuo/a3hFWg/PR6SPFhTns=
-kmodules.xyz/resource-metadata v0.8.2-0.20220113223534-8102ab78b4f2 h1:UE3OW0XSJvMicGa5QccZOrGRNSNzytJQpn6iTMykzbc=
-kmodules.xyz/resource-metadata v0.8.2-0.20220113223534-8102ab78b4f2/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
+kmodules.xyz/resource-metadata v0.8.2-0.20220115033531-e772f1e0ea4e h1:BBDh6d4PvyOoXpt6LRfLRnCf9oTVFoKYFVag41DPjQk=
+kmodules.xyz/resource-metadata v0.8.2-0.20220115033531-e772f1e0ea4e/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
 kmodules.xyz/resource-metrics v0.0.6/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
 kmodules.xyz/resource-metrics v0.0.7-0.20220113235224-64b74ecbc4f8 h1:2d1DaCOswP7e6D0gokB5ByeIkuve4AA8e8FOc/Yt8GE=
 kmodules.xyz/resource-metrics v0.0.7-0.20220113235224-64b74ecbc4f8/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
