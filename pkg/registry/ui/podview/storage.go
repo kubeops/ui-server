@@ -23,6 +23,7 @@ import (
 	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/prometheus"
 
+	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
@@ -31,9 +32,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	mu "kmodules.xyz/client-go/meta"
 	rsapi "kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -118,7 +121,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 }
 
 func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
-	podview := uiv1alpha1.PodView{
+	result := uiv1alpha1.PodView{
 		// TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: *pod.ObjectMeta.DeepCopy(),
 		Spec: uiv1alpha1.PodViewSpec{
@@ -131,20 +134,21 @@ func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 		},
 		Status: pod.Status,
 	}
-	podview.SelfLink = ""
-	podview.ManagedFields = nil
-	podview.OwnerReferences = nil
-	podview.Finalizers = nil
-	delete(podview.ObjectMeta.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
+	result.UID = types.UID(uuid.Must(uuid.NewUUID()).String())
+	result.SelfLink = ""
+	result.ManagedFields = nil
+	result.OwnerReferences = nil
+	result.Finalizers = nil
+	delete(result.ObjectMeta.Annotations, mu.LastAppliedConfigAnnotation)
 
 	var limits, requests core.ResourceList
 
-	podview.Spec.Containers = make([]uiv1alpha1.ContainerView, 0, len(pod.Spec.Containers))
+	result.Spec.Containers = make([]uiv1alpha1.ContainerView, 0, len(pod.Spec.Containers))
 	for _, c := range pod.Spec.Containers {
 		limits = rsapi.AddResourceList(limits, c.Resources.Limits)
 		requests = rsapi.AddResourceList(requests, c.Resources.Requests)
 
-		podview.Spec.Containers = append(podview.Spec.Containers, uiv1alpha1.ContainerView{
+		result.Spec.Containers = append(result.Spec.Containers, uiv1alpha1.ContainerView{
 			Name:       c.Name,
 			Image:      c.Image,
 			Command:    c.Command,
@@ -183,14 +187,14 @@ func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 		if err != nil {
 			return nil, err
 		}
-		podview.Spec.Resources = uiv1alpha1.ResourceView{
+		result.Spec.Resources = uiv1alpha1.ResourceView{
 			Limits:   limits,
 			Requests: requests,
 			Usage:    usage,
 		}
 	}
 
-	return &podview, nil
+	return &result, nil
 }
 
 func (r *Storage) NewList() runtime.Object {

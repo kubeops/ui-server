@@ -26,6 +26,7 @@ import (
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/shared"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -35,12 +36,14 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	cu "kmodules.xyz/client-go/client"
+	mu "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
@@ -259,7 +262,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			GenerateName:               item.GetGenerateName(),
 			Namespace:                  item.GetNamespace(),
 			SelfLink:                   "",
-			UID:                        item.GetUID(),
+			UID:                        types.UID(uuid.Must(uuid.NewUUID()).String()),
 			ResourceVersion:            item.GetResourceVersion(),
 			Generation:                 item.GetGeneration(),
 			CreationTimestamp:          item.GetCreationTimestamp(),
@@ -298,7 +301,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		Status: resstatus,
 	}
 	for k, v := range item.GetAnnotations() {
-		if k != "kubectl.kubernetes.io/last-applied-configuration" {
+		if k != mu.LastAppliedConfigAnnotation {
 			genres.Annotations[k] = v
 		}
 	}
