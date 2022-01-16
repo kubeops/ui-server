@@ -9,7 +9,7 @@ request:
       namespace: demo
       name: mg-sh
   layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
-  pageName: Operations
+  # pageName: Operations
   convertToTable: true
 
     # group: ""
