@@ -126,6 +126,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceDescriptors),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceGraphs),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenders),
+		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenderAPIs),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceBlockDefinitions),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceBlockDefinitions),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceLayouts),
