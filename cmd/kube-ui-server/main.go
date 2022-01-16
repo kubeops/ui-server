@@ -17,6 +17,9 @@ limitations under the License.
 package main
 
 import (
+	"os"
+	"runtime"
+
 	"kubeops.dev/ui-server/pkg/cmds"
 
 	_ "go.bytebuilders.dev/license-verifier/info"
@@ -30,6 +33,10 @@ func main() {
 	rootCmd := cmds.NewRootCmd()
 	logs.Init(rootCmd, true)
 	defer logs.FlushLogs()
+
+	if len(os.Getenv("GOMAXPROCS")) == 0 {
+		runtime.GOMAXPROCS(runtime.NumCPU())
+	}
 
 	if err := rootCmd.Execute(); err != nil {
 		klog.Fatalln("Error in kube-ui-server Main:", err)

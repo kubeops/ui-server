@@ -31,6 +31,7 @@ import (
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
+	"kubeops.dev/ui-server/pkg/registry/meta/renderapi"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderpage"
 	"kubeops.dev/ui-server/pkg/registry/meta/rendersection"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceblockdefinition"
@@ -223,6 +224,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[metav1alpha1.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
 		v1alpha1storage[metav1alpha1.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[metav1alpha1.ResourceRenders] = render.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[metav1alpha1.ResourceRenderAPIs] = renderapi.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[metav1alpha1.ResourceResourceBlockDefinitions] = resourceblockdefinition.NewStorage()
 		v1alpha1storage[metav1alpha1.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)
 		v1alpha1storage[metav1alpha1.ResourceResourceOutlines] = resourceoutline.NewStorage()

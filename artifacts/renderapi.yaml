@@ -1,0 +1,20 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderAPI
+request:
+  resource:
+    group: ui.kubedb.com
+    # kind: MongoDBInsight
+    # kind: MongoDBQueries
+    kind: MongoDBSchemaOverview
+    version: v1alpha1
+  ref:
+    namespace: demo
+    name: 'mg-sh'
+
+  # resource:
+  #   group: ui.k8s.appscode.com
+  #   kind: GenericResource
+  #   version: v1alpha1
+  # ref:
+  #   namespace: demo
+  #   name: 'mg-sh~MongoDB.kubedb.com'
