@@ -25,60 +25,85 @@ response:
         name: genericresources
         scope: Namespaced
         version: v1alpha1
+      result:
+        status: Success
       table:
         columns:
         - link: true
           name: Name
+          priority: 3
           sort:
             enable: true
             type: ""
           type: string
         - name: Namespace
+          priority: 3
           type: string
         - name: Labels
+          priority: 3
           type: object
         - name: Annotations
+          priority: 3
           type: object
         - name: Age
+          priority: 3
           sort:
             enable: true
             type: integer
           type: date
         - name: ClusterUID
+          priority: 4
           type: string
         - name: ClusterName
+          priority: 4
           type: string
         - name: Cluster Name
+          priority: 3
           type: string
         - name: Cluster Provider
+          priority: 3
           type: string
         - name: APIGroup
+          priority: 4
           type: string
         - name: APIVersion
+          priority: 4
           type: string
         - name: APIResource
+          priority: 4
           type: string
         - name: APIKind
+          priority: 3
           type: string
         - name: APIScope
+          priority: 4
           type: string
         - name: Version
+          priority: 3
           type: string
         - name: Replicas
+          priority: 3
           type: integer
         - name: Mode
+          priority: 3
           type: string
         - name: Total Resource Limits
+          priority: 3
           type: object
         - name: Total Resource Requests
+          priority: 3
           type: object
         - name: App Resource Limits
+          priority: 3
           type: object
         - name: App Resource Requests
+          priority: 3
           type: object
         - name: Status
+          priority: 3
           type: string
         - name: Age
+          priority: 3
           sort:
             enable: true
             type: integer
@@ -90,7 +115,7 @@ response:
           - data: demo
           - data: {}
           - data: {}
-          - data: 8d
+          - data: 9d
             sort: 1641549673
           - data: d2b4d6d5-1a7c-43b3-89c2-359bcfa8ebac
           - data: ""
@@ -121,7 +146,7 @@ response:
               memory: 100Mi
               storage: 9Gi
           - data: Ready
-          - data: 8d
+          - data: 9d
             sort: 1641549673
     layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
     pages:
@@ -135,22 +160,31 @@ response:
           name: podviews
           scope: Namespaced
           version: v1alpha1
+        result:
+          status: Success
         table:
           columns:
           - format: name
             name: Name
+            priority: 3
             type: string
           - name: Namespace
+            priority: 3
             type: string
           - name: Labels
+            priority: 3
             type: object
           - name: Limits
+            priority: 3
             type: object
           - name: Requests
+            priority: 3
             type: object
           - name: Usage
+            priority: 3
             type: object
           - name: Age
+            priority: 3
             sort:
               enable: true
               type: integer
@@ -168,10 +202,17 @@ response:
                 controller-revision-hash: mg-sh-configsvr-79758cd777
                 mongodb.kubedb.com/node.config: mg-sh-configsvr
                 statefulset.kubernetes.io/pod-name: mg-sh-configsvr-0
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 191m
+                memory: 576Mi
+                storage: 1Gi
+            - data: 9d
               sort: 1641549675
           - cells:
             - data: mg-sh-configsvr-1
@@ -184,10 +225,17 @@ response:
                 controller-revision-hash: mg-sh-configsvr-79758cd777
                 mongodb.kubedb.com/node.config: mg-sh-configsvr
                 statefulset.kubernetes.io/pod-name: mg-sh-configsvr-1
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 179m
+                memory: 832Mi
+                storage: 2Gi
+            - data: 9d
               sort: 1641549722
           - cells:
             - data: mg-sh-configsvr-2
@@ -200,10 +248,17 @@ response:
                 controller-revision-hash: mg-sh-configsvr-79758cd777
                 mongodb.kubedb.com/node.config: mg-sh-configsvr
                 statefulset.kubernetes.io/pod-name: mg-sh-configsvr-2
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 151m
+                memory: 753Mi
+                storage: 2Gi
+            - data: 9d
               sort: 1641549773
           - cells:
             - data: mg-sh-mongos-0
@@ -216,10 +271,17 @@ response:
                 controller-revision-hash: mg-sh-mongos-764cc785fd
                 mongodb.kubedb.com/node.mongos: mg-sh-mongos
                 statefulset.kubernetes.io/pod-name: mg-sh-mongos-0
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 82m
+                memory: 95Mi
+                storage: 1Mi
+            - data: 9d
               sort: 1641549833
           - cells:
             - data: mg-sh-shard0-0
@@ -232,10 +294,17 @@ response:
                 controller-revision-hash: mg-sh-shard0-54c6b484dc
                 mongodb.kubedb.com/node.shard: mg-sh-shard0
                 statefulset.kubernetes.io/pod-name: mg-sh-shard0-0
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 158m
+                memory: 866Mi
+                storage: 2Gi
+            - data: 9d
               sort: 1641549675
           - cells:
             - data: mg-sh-shard0-1
@@ -248,10 +317,17 @@ response:
                 controller-revision-hash: mg-sh-shard0-54c6b484dc
                 mongodb.kubedb.com/node.shard: mg-sh-shard0
                 statefulset.kubernetes.io/pod-name: mg-sh-shard0-1
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 152m
+                memory: 897Mi
+                storage: 2Gi
+            - data: 9d
               sort: 1641549736
           - cells:
             - data: mg-sh-shard0-2
@@ -264,10 +340,17 @@ response:
                 controller-revision-hash: mg-sh-shard0-54c6b484dc
                 mongodb.kubedb.com/node.shard: mg-sh-shard0
                 statefulset.kubernetes.io/pod-name: mg-sh-shard0-2
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 200m
+                memory: 904Mi
+                storage: 2Gi
+            - data: 9d
               sort: 1641549776
           - cells:
             - data: mg-sh-shard1-0
@@ -280,10 +363,17 @@ response:
                 controller-revision-hash: mg-sh-shard1-68fd577d45
                 mongodb.kubedb.com/node.shard: mg-sh-shard1
                 statefulset.kubernetes.io/pod-name: mg-sh-shard1-0
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 146m
+                memory: 447Mi
+                storage: 1Gi
+            - data: 9d
               sort: 1641549676
           - cells:
             - data: mg-sh-shard1-1
@@ -296,10 +386,17 @@ response:
                 controller-revision-hash: mg-sh-shard1-68fd577d45
                 mongodb.kubedb.com/node.shard: mg-sh-shard1
                 statefulset.kubernetes.io/pod-name: mg-sh-shard1-1
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 145m
+                memory: 352Mi
+                storage: 1Gi
+            - data: 9d
               sort: 1641549727
           - cells:
             - data: mg-sh-shard1-2
@@ -312,10 +409,17 @@ response:
                 controller-revision-hash: mg-sh-shard1-68fd577d45
                 mongodb.kubedb.com/node.shard: mg-sh-shard1
                 statefulset.kubernetes.io/pod-name: mg-sh-shard1-2
-            - data: {}
-            - data: {}
-            - data: {}
-            - data: 8d
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 170m
+                memory: 357Mi
+                storage: 1Gi
+            - data: 9d
               sort: 1641549769
       info:
         actions:
@@ -327,29 +431,42 @@ response:
           name: appbindings
           scope: Namespaced
           version: v1alpha1
+        result:
+          status: Success
         table:
           columns:
           - name: Name
+            priority: 3
             type: string
           - name: Namespace
+            priority: 3
             type: string
           - name: Labels
+            priority: 3
             type: object
           - name: Annotations
+            priority: 1
             type: object
           - name: Type
+            priority: 3
             type: string
           - name: Version
+            priority: 3
             type: string
           - name: Service
+            priority: 3
             type: string
           - name: Secret
+            priority: 3
             type: string
           - name: Backup Task
+            priority: 1
             type: string
           - name: Restore Task
+            priority: 1
             type: string
           - name: Age
+            priority: 3
             sort:
               enable: true
               type: integer
@@ -373,7 +490,7 @@ response:
             - data: mg-sh-auth
             - data: mongodb-backup-4.2.3
             - data: mongodb-restore-4.2.3
-            - data: 8d
+            - data: 9d
               sort: 1641549832
       insight:
         actions:
@@ -385,58 +502,82 @@ response:
           name: mongodbinsights
           scope: Namespaced
           version: v1alpha1
+        result:
+          status: Success
         table:
           columns:
           - link: true
             name: Name
+            priority: 3
             sort:
               enable: true
               type: ""
             type: string
           - name: Namespace
+            priority: 3
             type: string
           - name: Labels
+            priority: 3
             type: object
           - name: Annotations
+            priority: 3
             type: object
           - name: Age
+            priority: 3
             sort:
               enable: true
               type: integer
             type: date
           - name: Version
+            priority: 3
             type: string
           - name: Type
+            priority: 3
             type: string
           - name: Status
+            priority: 3
             type: string
           - name: Current Connections
+            priority: 3
             type: integer
           - name: Total Connections
+            priority: 3
             type: integer
           - name: Available Connections
+            priority: 3
             type: integer
           - name: Active Connections
+            priority: 3
             type: integer
           - name: Total Collections
+            priority: 3
             type: integer
           - name: Data Size
+            priority: 3
             type: integer
           - name: Total Indexes
+            priority: 3
             type: integer
           - name: Index Size
+            priority: 3
             type: integer
           - name: Number Of Shards
+            priority: 3
             type: integer
           - name: Replicas Per Shards
+            priority: 3
             type: integer
           - name: Number Of Chunks
+            priority: 3
             type: integer
           - name: Balancer Enabled
+            priority: 3
             type: boolean
           - name: Chunks Balanced
+            priority: 3
             type: boolean
           - name: Replicas
+            priority: 3
             type: integer
           metadata: {}
           rows:
@@ -445,19 +586,19 @@ response:
             - data: demo
             - data: {}
             - data: {}
-            - data: 8d
+            - data: 9d
               sort: 1641549673
             - data: 4.2.3
             - data: Sharded
             - data: Ready
             - data: 9
-            - data: 675837
+            - data: 751550
             - data: 838851
             - data: 1
             - data: 15
-            - data: 2114406
+            - data: 2113756
             - data: 18
-            - data: 503808
+            - data: 487424
             - data: 2
             - data: 3
             - data: 0
@@ -475,26 +616,108 @@ response:
           name: mongodbqueries
           scope: Namespaced
           version: v1alpha1
+        result:
+          status: Success
         table:
           columns:
           - name: Operation
+            priority: 3
             type: string
           - name: Database Name
+            priority: 3
             type: string
           - name: Collection Name
+            priority: 3
             type: string
           - name: Command
+            priority: 3
             type: string
           - name: Count
+            priority: 3
             type: integer
           - name: Avg Execution Time (msec)
+            priority: 3
             type: integer
           - name: Min Execution Time (msec)
+            priority: 3
             type: integer
           - name: Max Execution Time (msec)
+            priority: 3
             type: integer
           metadata: {}
           rows:
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.version
+            - data: ""
+            - data: 1545
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: command
+            - data: admin
+            - data: ""
+            - data: ""
+            - data: 1044
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 12
+            - data: <unknown>
+            - data: <unknown>
+            - data: 6
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 9
+            - data: <unknown>
+            - data: <unknown>
+            - data: 1
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 285
+            - data: <unknown>
+            - data: <unknown>
+            - data: 1
+          - cells:
+            - data: command
+            - data: admin
+            - data: system.users
+            - data: ""
+            - data: 6
+            - data: 1
+            - data: 1
+            - data: 1
+          - cells:
+            - data: command
+            - data: admin
+            - data: system.users
+            - data: ""
+            - data: 3
+            - data: 1
+            - data: 1
+            - data: 1
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 285
+            - data: <unknown>
+            - data: <unknown>
+            - data: 54
           - cells:
             - data: query
             - data: admin
@@ -509,7 +732,7 @@ response:
             - data: admin
             - data: ""
             - data: ""
-            - data: 1047
+            - data: 1044
             - data: <unknown>
             - data: <unknown>
             - data: <unknown>
@@ -521,22 +744,13 @@ response:
             - data: 12
             - data: <unknown>
             - data: <unknown>
-            - data: <unknown>
+            - data: 5
           - cells:
             - data: getmore
             - data: admin
             - data: system.profile
             - data: ""
             - data: 9
-            - data: 1
-            - data: 1
-            - data: 1
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 261
             - data: <unknown>
             - data: <unknown>
             - data: 1
@@ -545,70 +759,16 @@ response:
             - data: admin
             - data: system.users
             - data: ""
-            - data: 6
-            - data: 1
-            - data: 1
-            - data: 1
+            - data: 3
+            - data: 3
+            - data: 3
+            - data: 3
           - cells:
             - data: query
             - data: admin
             - data: system.profile
             - data: ""
-            - data: 261
-            - data: <unknown>
-            - data: <unknown>
-            - data: 54
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.version
-            - data: ""
-            - data: 1548
-            - data: <unknown>
-            - data: <unknown>
-            - data: <unknown>
-          - cells:
-            - data: command
-            - data: admin
-            - data: ""
-            - data: ""
-            - data: 1041
-            - data: <unknown>
-            - data: <unknown>
-            - data: <unknown>
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 12
-            - data: <unknown>
-            - data: <unknown>
-            - data: <unknown>
-          - cells:
-            - data: getmore
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 9
-            - data: <unknown>
-            - data: <unknown>
-            - data: 1
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 261
-            - data: <unknown>
-            - data: <unknown>
-            - data: <unknown>
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 261
+            - data: 285
             - data: <unknown>
             - data: <unknown>
             - data: <unknown>
@@ -621,6 +781,15 @@ response:
             - data: 1
             - data: 1
             - data: 1
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 285
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
       - actions:
           create: Never
         kind: Connection
@@ -630,11 +799,15 @@ response:
           name: mongodbschemaoverviews
           scope: Namespaced
           version: v1alpha1
+        result:
+          status: Success
         table:
           columns:
           - name: Name
+            priority: 3
             type: string
           - name: Total Size
+            priority: 3
             type: string
           metadata: {}
           rows:
@@ -652,7 +825,7 @@ response:
             - data: "104"
           - cells:
             - data: locks
-            - data: "310"
+            - data: "312"
           - cells:
             - data: mongos
             - data: "182"
@@ -696,58 +869,82 @@ response:
           name: mongodbinsights
           scope: Namespaced
           version: v1alpha1
+        result:
+          status: Success
         table:
           columns:
           - link: true
             name: Name
+            priority: 3
             sort:
               enable: true
               type: ""
             type: string
           - name: Namespace
+            priority: 3
             type: string
           - name: Labels
+            priority: 3
             type: object
           - name: Annotations
+            priority: 3
             type: object
           - name: Age
+            priority: 3
             sort:
               enable: true
               type: integer
             type: date
           - name: Version
+            priority: 3
             type: string
           - name: Type
+            priority: 3
             type: string
           - name: Status
+            priority: 3
             type: string
           - name: Current Connections
+            priority: 3
             type: integer
           - name: Total Connections
+            priority: 3
             type: integer
           - name: Available Connections
+            priority: 3
             type: integer
           - name: Active Connections
+            priority: 3
             type: integer
           - name: Total Collections
+            priority: 3
             type: integer
           - name: Data Size
+            priority: 3
             type: integer
           - name: Total Indexes
+            priority: 3
             type: integer
           - name: Index Size
+            priority: 3
             type: integer
           - name: Number Of Shards
+            priority: 3
             type: integer
           - name: Replicas Per Shards
+            priority: 3
             type: integer
           - name: Number Of Chunks
+            priority: 3
             type: integer
           - name: Balancer Enabled
+            priority: 3
             type: boolean
           - name: Chunks Balanced
+            priority: 3
             type: boolean
           - name: Replicas
+            priority: 3
             type: integer
           metadata: {}
           rows:
@@ -756,19 +953,19 @@ response:
             - data: demo
             - data: {}
             - data: {}
-            - data: 8d
+            - data: 9d
               sort: 1641549673
             - data: 4.2.3
             - data: Sharded
             - data: Ready
             - data: 9
-            - data: 675839
+            - data: 751552
             - data: 838851
             - data: 1
             - data: 15
-            - data: 2114624
+            - data: 2113779
             - data: 18
-            - data: 503808
+            - data: 487424
             - data: 2
             - data: 3
             - data: 0
@@ -786,23 +983,33 @@ response:
           name: backupsessions
           scope: Namespaced
           version: v1beta1
+        result:
+          status: Success
         table:
           columns:
           - name: Name
+            priority: 3
             type: string
           - name: Namespace
+            priority: 3
             type: string
           - name: Labels
+            priority: 3
             type: object
           - name: Invoker Kind
+            priority: 3
             type: string
           - name: Invoker Name
+            priority: 3
             type: string
           - name: Phase
+            priority: 3
             type: string
           - name: Duration
+            priority: 3
             type: string
           - name: Age
+            priority: 3
             sort:
               enable: true
               type: integer
@@ -819,46 +1026,61 @@ response:
           name: backupoverviews
           scope: Namespaced
           version: v1alpha1
+        result:
+          status: Success
         table:
           columns:
           - link: true
             name: Name
+            priority: 3
             sort:
               enable: true
               type: ""
             type: string
           - name: Namespace
+            priority: 3
             type: string
           - name: Labels
+            priority: 3
             type: object
           - name: Annotations
+            priority: 3
             type: object
           - name: Age
+            priority: 3
             sort:
               enable: true
               type: integer
             type: date
           - name: Schedule
+            priority: 3
             type: string
           - name: Status
+            priority: 3
             type: string
           - name: Last Backup Time
+            priority: 3
             sort:
               enable: true
               type: integer
             type: date
           - name: Upcoming Backup Time
+            priority: 3
             sort:
               enable: true
               type: integer
             type: date
           - name: Repository
+            priority: 3
             type: string
           - name: Data Size
+            priority: 3
             type: string
           - name: Number Of Snapshots
+            priority: 3
             type: integer
           - name: Data Integrity
+            priority: 3
             type: boolean
           metadata: {}
           rows: []
@@ -873,21 +1095,30 @@ response:
           name: mongodbopsrequests
           scope: Namespaced
           version: v1alpha1
+        result:
+          status: Success
         table:
           columns:
           - name: Name
+            priority: 3
             type: string
           - name: Namespace
+            priority: 3
             type: string
           - name: Labels
+            priority: 3
             type: object
           - name: Type
+            priority: 3
             type: string
           - name: Target Database
+            priority: 3
             type: string
           - name: Status
+            priority: 3
             type: string
           - name: Age
+            priority: 3
             sort:
               enable: true
               type: integer
@@ -911,54 +1142,76 @@ response:
         name: genericresourceservices
         scope: Namespaced
         version: v1alpha1
+      result:
+        status: Success
       table:
         columns:
         - link: true
           name: Name
+          priority: 3
           sort:
             enable: true
             type: ""
           type: string
         - name: Namespace
+          priority: 3
           type: string
         - name: Labels
+          priority: 3
           type: object
         - name: Annotations
+          priority: 3
           type: object
         - name: Age
+          priority: 3
           sort:
             enable: true
             type: integer
           type: date
         - name: ClusterUID
+          priority: 4
           type: string
         - name: ClusterName
+          priority: 4
           type: string
         - name: Cluster Name
+          priority: 3
           type: string
         - name: Cluster Provider
+          priority: 3
           type: string
         - name: APIGroup
+          priority: 4
           type: string
         - name: APIVersion
+          priority: 4
           type: string
         - name: APIResource
+          priority: 4
           type: string
         - name: APIKind
+          priority: 3
           type: string
         - name: APIScope
+          priority: 4
           type: string
         - name: Exposed
+          priority: 3
           type: string
         - name: TLS
+          priority: 3
           type: string
         - name: Backup
+          priority: 3
           type: string
         - name: Monitoring
+          priority: 3
           type: string
         - name: Status
+          priority: 3
           type: string
         - name: Age
+          priority: 3
           sort:
             enable: true
             type: integer
@@ -970,7 +1223,7 @@ response:
           - data: demo
           - data: {}
           - data: {}
-          - data: 8d
+          - data: 9d
             sort: 1641549673
           - data: d2b4d6d5-1a7c-43b3-89c2-359bcfa8ebac
           - data: ""
@@ -986,7 +1239,7 @@ response:
           - data: Unused
           - data: Used
           - data: Ready
-          - data: 8d
+          - data: 9d
             sort: 1641549673
     ui:
       editor:
