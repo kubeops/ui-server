@@ -152,6 +152,21 @@ func RenderPageBlock(kc client.Client, src apiv1.ObjectInfo, block *v1alpha1.Pag
 }
 
 func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstructured.Unstructured, block *v1alpha1.PageBlockLayout, convertToTable bool) (*v1alpha1.PageBlockView, error) {
+	bv, err := _renderPageBlock(kc, srcRID, srcObj, block, convertToTable)
+	if err != nil {
+		bv.Result = v1alpha1.RenderResult{
+			Status:  v1alpha1.RenderError,
+			Message: err.Error(),
+		}
+	} else {
+		bv.Result = v1alpha1.RenderResult{
+			Status: v1alpha1.RenderSuccess,
+		}
+	}
+	return bv, nil
+}
+
+func _renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstructured.Unstructured, block *v1alpha1.PageBlockLayout, convertToTable bool) (*v1alpha1.PageBlockView, error) {
 	out := v1alpha1.PageBlockView{
 		Kind:    block.Kind,
 		Name:    block.Name,
@@ -190,7 +205,9 @@ func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstruc
 			Kind: block.Ref.Kind,
 			// Scope:   "",
 		}
-		out.Missing = true
+		out.Result = v1alpha1.RenderResult{
+			Status: v1alpha1.RenderMissing,
+		}
 		if convertToTable {
 			table := &v1alpha1.Table{
 				Columns: make([]v1alpha1.ResourceColumn, 0, len(block.View.Columns)),
