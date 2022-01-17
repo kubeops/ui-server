@@ -117,10 +117,10 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, err
 	}
 
-	return r.toPodView(&pod)
+	return r.toPodView(&pod), nil
 }
 
-func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
+func (r *Storage) toPodView(pod *core.Pod) *uiv1alpha1.PodView {
 	result := uiv1alpha1.PodView{
 		// TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: *pod.ObjectMeta.DeepCopy(),
@@ -183,18 +183,14 @@ func (r *Storage) toPodView(pod *core.Pod) (*uiv1alpha1.PodView, error) {
 	}
 
 	if r.pc != nil {
-		usage, err := prometheus.GetPodResourceUsage(r.pc, pod.ObjectMeta)
-		if err != nil {
-			return nil, err
-		}
 		result.Spec.Resources = uiv1alpha1.ResourceView{
 			Limits:   limits,
 			Requests: requests,
-			Usage:    usage,
+			Usage:    prometheus.GetPodResourceUsage(r.pc, pod.ObjectMeta),
 		}
 	}
 
-	return &result, nil
+	return &result
 }
 
 func (r *Storage) NewList() runtime.Object {
@@ -250,10 +246,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			continue
 		}
 
-		podView, err := r.toPodView(&pod)
-		if err != nil {
-			return nil, err
-		}
+		podView := r.toPodView(&pod)
 		podviews = append(podviews, *podView)
 	}
 

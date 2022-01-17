@@ -29,9 +29,10 @@ import (
 	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/klog/v2"
 )
 
-func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) (core.ResourceList, error) {
+func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList {
 	resUsage := core.ResourceList{}
 
 	promCPUQuery := fmt.Sprintf(`sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="%s", pod="%s", container!=""})`, obj.Namespace, obj.Name)
@@ -40,7 +41,8 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) (core.ResourceLis
 
 	res, err := getPromQueryResult(pc, promCPUQuery)
 	if err != nil {
-		return nil, err
+		klog.Errorf("failed to get prometheus cpu query result, reason:", err)
+		return resUsage
 	}
 	cpu := float64(0)
 	for _, v := range res {
@@ -48,39 +50,44 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) (core.ResourceLis
 	}
 	cpuQuantity, err := resource.ParseQuantity(fmt.Sprintf("%.3f", cpu))
 	if err != nil {
-		return nil, err
+		klog.Errorf("failed to parse CPU quantity, reason: %v", err)
+		return resUsage
 	}
 	resUsage[core.ResourceCPU] = cpuQuantity
 
 	memory := float64(0)
 	res, err = getPromQueryResult(pc, promMemoryQuery)
 	if err != nil {
-		return nil, err
+		klog.Errorf("failed to get prometheus memory query result, reason: %v", err)
+		return resUsage
 	}
 	for _, v := range res {
 		memory += v
 	}
 	memQuantity, err := resource.ParseQuantity(convertBytesToSize(memory))
 	if err != nil {
-		return nil, err
+		klog.Errorf("failed to parse memory quantity, reason: %v", err)
+		return resUsage
 	}
 	resUsage[core.ResourceMemory] = memQuantity
 
 	storage := float64(0)
 	res, err = getPromQueryResult(pc, promStorageQuery)
 	if err != nil {
-		return nil, err
+		klog.Errorf("failed to get prometheus storage query result, reason: %v", err)
+		return resUsage
 	}
 	for _, v := range res {
 		storage += v
 	}
 	storageQuantity, err := resource.ParseQuantity(convertBytesToSize(storage))
 	if err != nil {
-		return nil, err
+		klog.Errorf("failed to parse memory quantity, reason: %v", err)
+		return resUsage
 	}
 	resUsage[core.ResourceStorage] = storageQuantity
 
-	return resUsage, nil
+	return resUsage
 }
 
 func getPromQueryResult(pc promv1.API, promQuery string) (map[string]float64, error) {
