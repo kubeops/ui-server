@@ -46,8 +46,7 @@ response:
           name: App Resource Requests
           priority: 3
           type: object
-        - color: Foreground
-          name: Status
+        - name: Status
           priority: 3
           type: string
         metadata: {}
@@ -126,10 +125,10 @@ response:
                 cpu: 500m
                 memory: 1Gi
             - data:
-                cpu: 78m
+                cpu: 63m
                 memory: 330Mi
-                storage: 99Mi
-            - data: 22h
+                storage: 104Mi
+            - data: 23h
               sort: 1642587673
           - cells:
             - data: mg-rs-1
@@ -148,10 +147,10 @@ response:
                 cpu: 500m
                 memory: 1Gi
             - data:
-                cpu: 66m
-                memory: 308Mi
-                storage: 134Mi
-            - data: 22h
+                cpu: 88m
+                memory: 304Mi
+                storage: 141Mi
+            - data: 23h
               sort: 1642587719
           - cells:
             - data: mg-rs-2
@@ -171,9 +170,9 @@ response:
                 memory: 1Gi
             - data:
                 cpu: 72m
-                memory: 306Mi
-                storage: 132Mi
-            - data: 22h
+                memory: 309Mi
+                storage: 139Mi
+            - data: 23h
               sort: 1642587765
           - cells:
             - data: mg-sh-configsvr-0
@@ -193,8 +192,8 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 141m
-                memory: 665Mi
+                cpu: 143m
+                memory: 672Mi
                 storage: 2Gi
             - data: 12d
               sort: 1641549675
@@ -216,7 +215,7 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 174m
+                cpu: 165m
                 memory: 1Gi
                 storage: 3Gi
             - data: 12d
@@ -239,8 +238,8 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 140m
-                memory: 878Mi
+                cpu: 147m
+                memory: 879Mi
                 storage: 3Gi
             - data: 12d
               sort: 1641549773
@@ -262,8 +261,8 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 63m
-                memory: 100Mi
+                cpu: 68m
+                memory: 93Mi
                 storage: 1Mi
             - data: 12d
               sort: 1641549833
@@ -285,7 +284,7 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 155m
+                cpu: 159m
                 memory: 985Mi
                 storage: 2Gi
             - data: 12d
@@ -308,7 +307,7 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 161m
+                cpu: 162m
                 memory: 1Gi
                 storage: 2Gi
             - data: 12d
@@ -331,7 +330,7 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 136m
+                cpu: 144m
                 memory: 1Gi
                 storage: 2Gi
             - data: 12d
@@ -354,8 +353,8 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 163m
-                memory: 471Mi
+                cpu: 155m
+                memory: 470Mi
                 storage: 2Gi
             - data: 12d
               sort: 1641549676
@@ -377,8 +376,8 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 149m
-                memory: 372Mi
+                cpu: 180m
+                memory: 376Mi
                 storage: 2Gi
             - data: 12d
               sort: 1641549727
@@ -400,7 +399,7 @@ response:
                 cpu: 10m
                 memory: 10Mi
             - data:
-                cpu: 137m
+                cpu: 151m
                 memory: 365Mi
                 storage: 2Gi
             - data: 12d
@@ -474,7 +473,7 @@ response:
             - data: mg-rs-auth
             - data: mongodb-backup-4.2.3
             - data: mongodb-restore-4.2.3
-            - data: 22h
+            - data: 23h
               sort: 1642587673
           - cells:
             - data: mg-sh
@@ -509,8 +508,7 @@ response:
           status: Success
         table:
           columns:
-          - link: true
-            name: Name
+          - name: Name
             priority: 3
             sort:
               enable: true
@@ -595,13 +593,13 @@ response:
             - data: Sharded
             - data: Ready
             - data: 2
-            - data: 982382
+            - data: 986088
             - data: 838858
             - data: 1
             - data: 15
-            - data: 2118013
+            - data: 2113098
             - data: 18
-            - data: 503808
+            - data: 491520
             - data: 2
             - data: 3
             - data: 0
@@ -677,6 +675,15 @@ response:
             - data: 1
             - data: 1
           - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 3
+            - data: 1
+            - data: 1
+            - data: 1
+          - cells:
             - data: command
             - data: admin
             - data: system.users
@@ -686,11 +693,47 @@ response:
             - data: 1
             - data: 1
           - cells:
-            - data: command
+            - data: query
             - data: admin
+            - data: system.profile
             - data: ""
+            - data: 6
+            - data: <unknown>
+            - data: <unknown>
+            - data: 3
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
             - data: ""
-            - data: 1044
+            - data: 90
+            - data: <unknown>
+            - data: <unknown>
+            - data: 1
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 390
+            - data: <unknown>
+            - data: <unknown>
+            - data: 54
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 390
+            - data: <unknown>
+            - data: <unknown>
+            - data: 1
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 87
             - data: <unknown>
             - data: <unknown>
             - data: <unknown>
@@ -699,10 +742,46 @@ response:
             - data: admin
             - data: system.profile
             - data: ""
-            - data: 384
+            - data: 6
             - data: <unknown>
             - data: <unknown>
-            - data: 1
+            - data: 4
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 3
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.version
+            - data: ""
+            - data: 1554
+            - data: <unknown>
+            - data: <unknown>
+            - data: 2
+          - cells:
+            - data: command
+            - data: admin
+            - data: ""
+            - data: ""
+            - data: 1047
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 390
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
           - cells:
             - data: getmore
             - data: admin
@@ -711,40 +790,22 @@ response:
             - data: 84
             - data: <unknown>
             - data: <unknown>
-            - data: 1
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 384
-            - data: <unknown>
-            - data: <unknown>
-            - data: 54
-          - cells:
-            - data: getmore
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 18
-            - data: <unknown>
-            - data: <unknown>
-            - data: 1
-          - cells:
-            - data: getmore
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 81
-            - data: <unknown>
-            - data: <unknown>
             - data: <unknown>
           - cells:
             - data: command
             - data: admin
             - data: ""
             - data: ""
-            - data: 1041
+            - data: 1047
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 390
             - data: <unknown>
             - data: <unknown>
             - data: <unknown>
@@ -753,79 +814,16 @@ response:
             - data: admin
             - data: system.version
             - data: ""
-            - data: 1530
+            - data: 1554
             - data: <unknown>
             - data: <unknown>
             - data: 1
           - cells:
-            - data: query
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 21
-            - data: <unknown>
-            - data: <unknown>
-            - data: 2
-          - cells:
             - data: getmore
             - data: admin
             - data: system.profile
             - data: ""
-            - data: 18
-            - data: <unknown>
-            - data: <unknown>
-            - data: <unknown>
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 384
-            - data: <unknown>
-            - data: <unknown>
-            - data: <unknown>
-          - cells:
-            - data: getmore
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 78
-            - data: <unknown>
-            - data: <unknown>
-            - data: <unknown>
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 21
-            - data: <unknown>
-            - data: <unknown>
-            - data: 3
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 384
-            - data: <unknown>
-            - data: <unknown>
-            - data: <unknown>
-          - cells:
-            - data: query
-            - data: admin
-            - data: system.version
-            - data: ""
-            - data: 1527
-            - data: <unknown>
-            - data: <unknown>
-            - data: <unknown>
-          - cells:
-            - data: getmore
-            - data: admin
-            - data: system.profile
-            - data: ""
-            - data: 81
+            - data: 87
             - data: <unknown>
             - data: <unknown>
             - data: <unknown>
@@ -882,7 +880,7 @@ response:
             - data: "170"
           - cells:
             - data: system.sessions
-            - data: "18943"
+            - data: "14058"
           - cells:
             - data: system.users
             - data: "522"
@@ -912,8 +910,7 @@ response:
           status: Success
         table:
           columns:
-          - link: true
-            name: Name
+          - name: Name
             priority: 3
             sort:
               enable: true
@@ -998,13 +995,13 @@ response:
             - data: Sharded
             - data: Ready
             - data: 2
-            - data: 982386
+            - data: 986090
             - data: 838858
             - data: 1
             - data: 15
-            - data: 2118231
+            - data: 2112926
             - data: 18
-            - data: 503808
+            - data: 491520
             - data: 2
             - data: 3
             - data: 0
@@ -1069,8 +1066,7 @@ response:
           status: Success
         table:
           columns:
-          - link: true
-            name: Name
+          - name: Name
             priority: 3
             sort:
               enable: true
@@ -1171,7 +1167,7 @@ response:
             - data: Upgrade
             - data: mg-rs
             - data: ""
-            - data: 21h
+            - data: 22h
               sort: 1642589273
           - cells:
             - data: supervisor-sabmkd
@@ -1180,7 +1176,7 @@ response:
             - data: Upgrade
             - data: mg-sh
             - data: ""
-            - data: 22h
+            - data: 23h
               sort: 1642588259
       name: Operations
     resource:
@@ -1203,19 +1199,19 @@ response:
         status: Success
       table:
         columns:
-        - color: Foreground
+        - icon: true
           name: Exposed
           priority: 3
           type: string
-        - color: Foreground
+        - icon: true
           name: TLS
           priority: 3
           type: string
-        - color: Foreground
+        - icon: true
           name: Backup
           priority: 3
           type: string
-        - color: Foreground
+        - icon: true
           name: Monitoring
           priority: 3
           type: string
@@ -1224,12 +1220,16 @@ response:
         - cells:
           - color: danger
             data: Unused
+            icon: https://cdn.appscode.com/***.png
           - color: danger
             data: Unused
+            icon: https://cdn.appscode.com/***.png
           - color: danger
             data: Unused
+            icon: https://cdn.appscode.com/***.png
           - color: success
             data: Used
+            icon: https://cdn.appscode.com/***.png
     ui:
       editor:
         name: kubedbcom-mongodb-editor
