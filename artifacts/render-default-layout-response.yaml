@@ -1,0 +1,1241 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: Render
+request:
+  convertToTable: true
+  layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+  source:
+    ref:
+      name: mg-sh
+      namespace: demo
+    resource:
+      group: kubedb.com
+      kind: MongoDB
+      name: ""
+      scope: ""
+      version: ""
+response:
+  view:
+    header:
+      actions:
+        create: Never
+      kind: Connection
+      resource:
+        group: ui.k8s.appscode.com
+        kind: GenericResource
+        name: genericresources
+        scope: Namespaced
+        version: v1alpha1
+      result:
+        status: Success
+      table:
+        columns:
+        - name: Cluster Name
+          priority: 3
+          type: string
+        - name: Version
+          priority: 3
+          type: string
+        - name: Mode
+          priority: 3
+          type: string
+        - format: resource-map
+          name: App Resource Limits
+          priority: 3
+          type: object
+        - format: resource-map
+          name: App Resource Requests
+          priority: 3
+          type: object
+        - color: Foreground
+          name: Status
+          priority: 3
+          type: string
+        metadata: {}
+        rows:
+        - cells:
+          - data: ""
+          - data: 4.2.3
+          - data: Sharded
+          - data:
+              cpu: "10"
+              memory: 10Gi
+              storage: 9Gi
+          - data:
+              cpu: 100m
+              memory: 100Mi
+              storage: 9Gi
+          - color: success
+            data: Ready
+    layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+    pages:
+    - blocks:
+      - actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.k8s.appscode.com
+          kind: PodView
+          name: podviews
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - format: name
+            name: Name
+            priority: 3
+            type: string
+          - name: Namespace
+            priority: 3
+            type: string
+          - name: Labels
+            priority: 3
+            type: object
+          - name: Limits
+            priority: 3
+            type: object
+          - name: Requests
+            priority: 3
+            type: object
+          - name: Usage
+            priority: 3
+            type: object
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          metadata: {}
+          rows:
+          - cells:
+            - data: mg-rs-0
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-rs
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-rs-fc6b449cc
+                kubedb.com/role: primary
+                statefulset.kubernetes.io/pod-name: mg-rs-0
+            - data:
+                memory: 1Gi
+            - data:
+                cpu: 500m
+                memory: 1Gi
+            - data:
+                cpu: 78m
+                memory: 330Mi
+                storage: 99Mi
+            - data: 22h
+              sort: 1642587673
+          - cells:
+            - data: mg-rs-1
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-rs
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-rs-fc6b449cc
+                kubedb.com/role: standby
+                statefulset.kubernetes.io/pod-name: mg-rs-1
+            - data:
+                memory: 1Gi
+            - data:
+                cpu: 500m
+                memory: 1Gi
+            - data:
+                cpu: 66m
+                memory: 308Mi
+                storage: 134Mi
+            - data: 22h
+              sort: 1642587719
+          - cells:
+            - data: mg-rs-2
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-rs
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-rs-fc6b449cc
+                kubedb.com/role: standby
+                statefulset.kubernetes.io/pod-name: mg-rs-2
+            - data:
+                memory: 1Gi
+            - data:
+                cpu: 500m
+                memory: 1Gi
+            - data:
+                cpu: 72m
+                memory: 306Mi
+                storage: 132Mi
+            - data: 22h
+              sort: 1642587765
+          - cells:
+            - data: mg-sh-configsvr-0
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-configsvr-79758cd777
+                mongodb.kubedb.com/node.config: mg-sh-configsvr
+                statefulset.kubernetes.io/pod-name: mg-sh-configsvr-0
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 141m
+                memory: 665Mi
+                storage: 2Gi
+            - data: 12d
+              sort: 1641549675
+          - cells:
+            - data: mg-sh-configsvr-1
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-configsvr-79758cd777
+                mongodb.kubedb.com/node.config: mg-sh-configsvr
+                statefulset.kubernetes.io/pod-name: mg-sh-configsvr-1
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 174m
+                memory: 1Gi
+                storage: 3Gi
+            - data: 12d
+              sort: 1641549722
+          - cells:
+            - data: mg-sh-configsvr-2
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-configsvr-79758cd777
+                mongodb.kubedb.com/node.config: mg-sh-configsvr
+                statefulset.kubernetes.io/pod-name: mg-sh-configsvr-2
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 140m
+                memory: 878Mi
+                storage: 3Gi
+            - data: 12d
+              sort: 1641549773
+          - cells:
+            - data: mg-sh-mongos-0
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-mongos-764cc785fd
+                mongodb.kubedb.com/node.mongos: mg-sh-mongos
+                statefulset.kubernetes.io/pod-name: mg-sh-mongos-0
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 63m
+                memory: 100Mi
+                storage: 1Mi
+            - data: 12d
+              sort: 1641549833
+          - cells:
+            - data: mg-sh-shard0-0
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-shard0-54c6b484dc
+                mongodb.kubedb.com/node.shard: mg-sh-shard0
+                statefulset.kubernetes.io/pod-name: mg-sh-shard0-0
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 155m
+                memory: 985Mi
+                storage: 2Gi
+            - data: 12d
+              sort: 1641549675
+          - cells:
+            - data: mg-sh-shard0-1
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-shard0-54c6b484dc
+                mongodb.kubedb.com/node.shard: mg-sh-shard0
+                statefulset.kubernetes.io/pod-name: mg-sh-shard0-1
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 161m
+                memory: 1Gi
+                storage: 2Gi
+            - data: 12d
+              sort: 1641549736
+          - cells:
+            - data: mg-sh-shard0-2
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-shard0-54c6b484dc
+                mongodb.kubedb.com/node.shard: mg-sh-shard0
+                statefulset.kubernetes.io/pod-name: mg-sh-shard0-2
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 136m
+                memory: 1Gi
+                storage: 2Gi
+            - data: 12d
+              sort: 1641549776
+          - cells:
+            - data: mg-sh-shard1-0
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-shard1-68fd577d45
+                mongodb.kubedb.com/node.shard: mg-sh-shard1
+                statefulset.kubernetes.io/pod-name: mg-sh-shard1-0
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 163m
+                memory: 471Mi
+                storage: 2Gi
+            - data: 12d
+              sort: 1641549676
+          - cells:
+            - data: mg-sh-shard1-1
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-shard1-68fd577d45
+                mongodb.kubedb.com/node.shard: mg-sh-shard1
+                statefulset.kubernetes.io/pod-name: mg-sh-shard1-1
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 149m
+                memory: 372Mi
+                storage: 2Gi
+            - data: 12d
+              sort: 1641549727
+          - cells:
+            - data: mg-sh-shard1-2
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-sh-shard1-68fd577d45
+                mongodb.kubedb.com/node.shard: mg-sh-shard1
+                statefulset.kubernetes.io/pod-name: mg-sh-shard1-2
+            - data:
+                cpu: "1"
+                memory: 1Gi
+            - data:
+                cpu: 10m
+                memory: 10Mi
+            - data:
+                cpu: 137m
+                memory: 365Mi
+                storage: 2Gi
+            - data: 12d
+              sort: 1641549769
+      info:
+        actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: appcatalog.appscode.com
+          kind: AppBinding
+          name: appbindings
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Name
+            priority: 3
+            type: string
+          - name: Namespace
+            priority: 3
+            type: string
+          - name: Labels
+            priority: 3
+            type: object
+          - name: Annotations
+            priority: 1
+            type: object
+          - name: Type
+            priority: 3
+            type: string
+          - name: Version
+            priority: 3
+            type: string
+          - name: Service
+            priority: 3
+            type: string
+          - name: Secret
+            priority: 3
+            type: string
+          - name: Backup Task
+            priority: 1
+            type: string
+          - name: Restore Task
+            priority: 1
+            type: string
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          metadata: {}
+          rows:
+          - cells:
+            - data: mg-rs
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-rs
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+            - data:
+                kubectl.kubernetes.io/last-applied-configuration: |
+                  {"apiVersion":"kubedb.com/v1alpha2","kind":"MongoDB","metadata":{"annotations":{},"name":"mg-rs","namespace":"demo"},"spec":{"replicaSet":{"name":"rs0"},"replicas":3,"storage":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"1Gi"}},"storageClassName":"linode-block-storage"},"version":"4.2.3"}}
+            - data: kubedb.com/mongodb
+            - data: 4.2.3
+            - data: mg-rs
+            - data: mg-rs-auth
+            - data: mongodb-backup-4.2.3
+            - data: mongodb-restore-4.2.3
+            - data: 22h
+              sort: 1642587673
+          - cells:
+            - data: mg-sh
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-sh
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+            - data:
+                kubectl.kubernetes.io/last-applied-configuration: |
+                  {"apiVersion":"kubedb.com/v1alpha2","kind":"MongoDB","metadata":{"annotations":{},"name":"mg-sh","namespace":"demo"},"spec":{"monitor":{"agent":"prometheus.io/operator","prometheus":{"exporter":{"args":["--compatible-mode"]},"serviceMonitor":{"interval":"10s","labels":{"release":"kube-prometheus-stack"}}}},"shardTopology":{"configServer":{"podTemplate":{"spec":{"resources":{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"10m","memory":"10Mi"}}}},"replicas":3,"storage":{"resources":{"requests":{"storage":"1Gi"}},"storageClassName":"linode-block-storage"}},"mongos":{"podTemplate":{"spec":{"resources":{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"10m","memory":"10Mi"}}}},"replicas":1},"shard":{"podTemplate":{"spec":{"resources":{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"10m","memory":"10Mi"}}}},"replicas":3,"shards":2,"storage":{"resources":{"requests":{"storage":"1Gi"}},"storageClassName":"linode-block-storage"}}},"storageType":"Durable","terminationPolicy":"WipeOut","version":"4.2.3"}}
+            - data: kubedb.com/mongodb
+            - data: 4.2.3
+            - data: mg-sh
+            - data: mg-sh-auth
+            - data: mongodb-backup-4.2.3
+            - data: mongodb-restore-4.2.3
+            - data: 12d
+              sort: 1641549832
+      insight:
+        actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.kubedb.com
+          kind: MongoDBInsight
+          name: mongodbinsights
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - link: true
+            name: Name
+            priority: 3
+            sort:
+              enable: true
+              type: ""
+            type: string
+          - name: Namespace
+            priority: 3
+            type: string
+          - name: Labels
+            priority: 3
+            type: object
+          - name: Annotations
+            priority: 3
+            type: object
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          - name: Version
+            priority: 3
+            type: string
+          - name: Type
+            priority: 3
+            type: string
+          - name: Status
+            priority: 3
+            type: string
+          - name: Current Connections
+            priority: 3
+            type: integer
+          - name: Total Connections
+            priority: 3
+            type: integer
+          - name: Available Connections
+            priority: 3
+            type: integer
+          - name: Active Connections
+            priority: 3
+            type: integer
+          - name: Total Collections
+            priority: 3
+            type: integer
+          - name: Data Size
+            priority: 3
+            type: integer
+          - name: Total Indexes
+            priority: 3
+            type: integer
+          - name: Index Size
+            priority: 3
+            type: integer
+          - name: Number Of Shards
+            priority: 3
+            type: integer
+          - name: Replicas Per Shards
+            priority: 3
+            type: integer
+          - name: Number Of Chunks
+            priority: 3
+            type: integer
+          - name: Balancer Enabled
+            priority: 3
+            type: boolean
+          - name: Chunks Balanced
+            priority: 3
+            type: boolean
+          - name: Replicas
+            priority: 3
+            type: integer
+          metadata: {}
+          rows:
+          - cells:
+            - data: mg-sh
+            - data: demo
+            - data: {}
+            - data: {}
+            - data: 12d
+              sort: 1641549673
+            - data: 4.2.3
+            - data: Sharded
+            - data: Ready
+            - data: 2
+            - data: 982382
+            - data: 838858
+            - data: 1
+            - data: 15
+            - data: 2118013
+            - data: 18
+            - data: 503808
+            - data: 2
+            - data: 3
+            - data: 0
+            - data: true
+            - data: <unknown>
+            - data: <unknown>
+      name: Overview
+    - blocks:
+      - actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.kubedb.com
+          kind: MongoDBQueries
+          name: mongodbqueries
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Operation
+            priority: 3
+            type: string
+          - name: Database Name
+            priority: 3
+            type: string
+          - name: Collection Name
+            priority: 3
+            type: string
+          - name: Command
+            priority: 3
+            type: string
+          - name: Count
+            priority: 3
+            type: integer
+          - name: Avg Execution Time (msec)
+            priority: 3
+            type: integer
+          - name: Min Execution Time (msec)
+            priority: 3
+            type: integer
+          - name: Max Execution Time (msec)
+            priority: 3
+            type: integer
+          metadata: {}
+          rows:
+          - cells:
+            - data: command
+            - data: admin
+            - data: system.users
+            - data: ""
+            - data: 6
+            - data: 1
+            - data: 1
+            - data: 1
+          - cells:
+            - data: command
+            - data: admin
+            - data: system.users
+            - data: ""
+            - data: 9
+            - data: 1
+            - data: 1
+            - data: 2
+          - cells:
+            - data: command
+            - data: admin
+            - data: system.users
+            - data: ""
+            - data: 3
+            - data: 1
+            - data: 1
+            - data: 1
+          - cells:
+            - data: command
+            - data: admin
+            - data: system.users
+            - data: ""
+            - data: 3
+            - data: 1
+            - data: 1
+            - data: 1
+          - cells:
+            - data: command
+            - data: admin
+            - data: ""
+            - data: ""
+            - data: 1044
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 384
+            - data: <unknown>
+            - data: <unknown>
+            - data: 1
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 84
+            - data: <unknown>
+            - data: <unknown>
+            - data: 1
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 384
+            - data: <unknown>
+            - data: <unknown>
+            - data: 54
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 18
+            - data: <unknown>
+            - data: <unknown>
+            - data: 1
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 81
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: command
+            - data: admin
+            - data: ""
+            - data: ""
+            - data: 1041
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.version
+            - data: ""
+            - data: 1530
+            - data: <unknown>
+            - data: <unknown>
+            - data: 1
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 21
+            - data: <unknown>
+            - data: <unknown>
+            - data: 2
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 18
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 384
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 78
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 21
+            - data: <unknown>
+            - data: <unknown>
+            - data: 3
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 384
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: query
+            - data: admin
+            - data: system.version
+            - data: ""
+            - data: 1527
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+          - cells:
+            - data: getmore
+            - data: admin
+            - data: system.profile
+            - data: ""
+            - data: 81
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+      - actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.kubedb.com
+          kind: MongoDBSchemaOverview
+          name: mongodbschemaoverviews
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Name
+            priority: 3
+            type: string
+          - name: Total Size
+            priority: 3
+            type: string
+          metadata: {}
+          rows:
+          - cells:
+            - data: changelog
+            - data: "1817"
+          - cells:
+            - data: chunks
+            - data: "230"
+          - cells:
+            - data: collections
+            - data: "145"
+          - cells:
+            - data: kubedb
+            - data: "45"
+          - cells:
+            - data: lockpings
+            - data: "686"
+          - cells:
+            - data: locks
+            - data: "312"
+          - cells:
+            - data: migrations
+            - data: "0"
+          - cells:
+            - data: mongos
+            - data: "182"
+          - cells:
+            - data: shards
+            - data: "470"
+          - cells:
+            - data: system.keys
+            - data: "170"
+          - cells:
+            - data: system.sessions
+            - data: "18943"
+          - cells:
+            - data: system.users
+            - data: "522"
+          - cells:
+            - data: system.version
+            - data: "104"
+          - cells:
+            - data: tags
+            - data: "0"
+          - cells:
+            - data: transactions
+            - data: "0"
+          - cells:
+            - data: version
+            - data: "83"
+      info:
+        actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.kubedb.com
+          kind: MongoDBInsight
+          name: mongodbinsights
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - link: true
+            name: Name
+            priority: 3
+            sort:
+              enable: true
+              type: ""
+            type: string
+          - name: Namespace
+            priority: 3
+            type: string
+          - name: Labels
+            priority: 3
+            type: object
+          - name: Annotations
+            priority: 3
+            type: object
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          - name: Version
+            priority: 3
+            type: string
+          - name: Type
+            priority: 3
+            type: string
+          - name: Status
+            priority: 3
+            type: string
+          - name: Current Connections
+            priority: 3
+            type: integer
+          - name: Total Connections
+            priority: 3
+            type: integer
+          - name: Available Connections
+            priority: 3
+            type: integer
+          - name: Active Connections
+            priority: 3
+            type: integer
+          - name: Total Collections
+            priority: 3
+            type: integer
+          - name: Data Size
+            priority: 3
+            type: integer
+          - name: Total Indexes
+            priority: 3
+            type: integer
+          - name: Index Size
+            priority: 3
+            type: integer
+          - name: Number Of Shards
+            priority: 3
+            type: integer
+          - name: Replicas Per Shards
+            priority: 3
+            type: integer
+          - name: Number Of Chunks
+            priority: 3
+            type: integer
+          - name: Balancer Enabled
+            priority: 3
+            type: boolean
+          - name: Chunks Balanced
+            priority: 3
+            type: boolean
+          - name: Replicas
+            priority: 3
+            type: integer
+          metadata: {}
+          rows:
+          - cells:
+            - data: mg-sh
+            - data: demo
+            - data: {}
+            - data: {}
+            - data: 12d
+              sort: 1641549673
+            - data: 4.2.3
+            - data: Sharded
+            - data: Ready
+            - data: 2
+            - data: 982386
+            - data: 838858
+            - data: 1
+            - data: 15
+            - data: 2118231
+            - data: 18
+            - data: 503808
+            - data: 2
+            - data: 3
+            - data: 0
+            - data: true
+            - data: <unknown>
+            - data: <unknown>
+      name: Database Insights
+    - blocks:
+      - actions:
+          create: Always
+        kind: Connection
+        resource:
+          group: stash.appscode.com
+          kind: BackupSession
+          name: backupsessions
+          scope: Namespaced
+          version: v1beta1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Name
+            priority: 3
+            type: string
+          - name: Namespace
+            priority: 3
+            type: string
+          - name: Labels
+            priority: 3
+            type: object
+          - name: Invoker Kind
+            priority: 3
+            type: string
+          - name: Invoker Name
+            priority: 3
+            type: string
+          - name: Phase
+            priority: 3
+            type: string
+          - name: Duration
+            priority: 3
+            type: string
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          metadata: {}
+          rows: []
+      info:
+        actions:
+          create: IfEmpty
+        kind: Connection
+        resource:
+          group: ui.stash.appscode.com
+          kind: BackupOverview
+          name: backupoverviews
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - link: true
+            name: Name
+            priority: 3
+            sort:
+              enable: true
+              type: ""
+            type: string
+          - name: Namespace
+            priority: 3
+            type: string
+          - name: Labels
+            priority: 3
+            type: object
+          - name: Annotations
+            priority: 3
+            type: object
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          - name: Schedule
+            priority: 3
+            type: string
+          - name: Status
+            priority: 3
+            type: string
+          - name: Last Backup Time
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          - name: Upcoming Backup Time
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          - name: Repository
+            priority: 3
+            type: string
+          - name: Data Size
+            priority: 3
+            type: string
+          - name: Number Of Snapshots
+            priority: 3
+            type: integer
+          - name: Data Integrity
+            priority: 3
+            type: boolean
+          metadata: {}
+          rows: []
+      name: Backups
+    - blocks:
+      - actions:
+          create: Always
+        kind: Connection
+        resource:
+          group: ops.kubedb.com
+          kind: MongoDBOpsRequest
+          name: mongodbopsrequests
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Name
+            priority: 3
+            type: string
+          - name: Namespace
+            priority: 3
+            type: string
+          - name: Labels
+            priority: 3
+            type: object
+          - name: Type
+            priority: 3
+            type: string
+          - name: Target Database
+            priority: 3
+            type: string
+          - name: Status
+            priority: 3
+            type: string
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          metadata: {}
+          rows:
+          - cells:
+            - data: mops-shard-upgrade
+            - data: demo
+            - data: {}
+            - data: Upgrade
+            - data: mg-rs
+            - data: ""
+            - data: 21h
+              sort: 1642589273
+          - cells:
+            - data: supervisor-sabmkd
+            - data: demo
+            - data: {}
+            - data: Upgrade
+            - data: mg-sh
+            - data: ""
+            - data: 22h
+              sort: 1642588259
+      name: Operations
+    resource:
+      group: kubedb.com
+      kind: MongoDB
+      name: mongodbs
+      scope: Namespaced
+      version: v1alpha2
+    tabBar:
+      actions:
+        create: Never
+      kind: Connection
+      resource:
+        group: ui.k8s.appscode.com
+        kind: GenericResourceService
+        name: genericresourceservices
+        scope: Namespaced
+        version: v1alpha1
+      result:
+        status: Success
+      table:
+        columns:
+        - color: Foreground
+          name: Exposed
+          priority: 3
+          type: string
+        - color: Foreground
+          name: TLS
+          priority: 3
+          type: string
+        - color: Foreground
+          name: Backup
+          priority: 3
+          type: string
+        - color: Foreground
+          name: Monitoring
+          priority: 3
+          type: string
+        metadata: {}
+        rows:
+        - cells:
+          - color: danger
+            data: Unused
+          - color: danger
+            data: Unused
+          - color: danger
+            data: Unused
+          - color: success
+            data: Used
+    ui:
+      editor:
+        name: kubedbcom-mongodb-editor
+        url: https://bundles.byte.builders/ui/
+        version: v0.3.0
+      options:
+        name: kubedbcom-mongodb-editor-options
+        url: https://bundles.byte.builders/ui/
+        version: v0.3.0
