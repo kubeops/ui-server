@@ -19,34 +19,46 @@ package v1alpha1
 import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+const (
+	ResourceKindMenu = "Menu"
+	ResourceMenu     = "menu"
+	ResourceMenus    = "menus"
 )
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type ResourcePanel struct {
+type Menu struct {
 	metav1.TypeMeta `json:",inline"`
-	Sections        []*PanelSection `json:"sections,omitempty"`
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Home              *MenuSectionInfo `json:"home,omitempty"`
+	Sections          []*MenuSection   `json:"sections,omitempty"`
 }
 
-type PanelSection struct {
-	Name              string `json:"name,omitempty"`
-	ResourceClassInfo `json:",inline"`
-	Weight            int          `json:"-"`
-	Entries           []PanelEntry `json:"entries"`
+type MenuSection struct {
+	MenuSectionInfo `json:",inline,omitempty"`
+	Items           []MenuItem `json:"items"`
 }
 
-type PanelEntry struct {
+type MenuItem struct {
 	Name string `json:"name"`
 	// +optional
 	Path     string            `json:"path,omitempty"`
 	Resource *kmapi.ResourceID `json:"resource,omitempty"`
+	Missing  bool              `json:"missing,omitempty"`
 	// +optional
-	Required   bool   `json:"required,omitempty"`
-	LayoutName string `json:"layoutName"`
+	Required bool `json:"required,omitempty"`
 	// +optional
-	Icons      []ImageSpec           `json:"icons,omitempty"`
-	Namespaced bool                  `json:"namespaced"`
-	Missing    bool                  `json:"missing,omitempty"`
-	Installer  *DeploymentParameters `json:"installer,omitempty"`
+	LayoutName string `json:"layoutName,omitempty"`
+	// +optional
+	Icons     []ImageSpec           `json:"icons,omitempty"`
+	Installer *DeploymentParameters `json:"installer,omitempty"`
+	// +optional
+	Preset *core.TypedLocalObjectReference `json:"preset,omitempty"`
+	// +optional
+	Items []MenuItem `json:"items,omitempty"`
 }

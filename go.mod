@@ -30,8 +30,8 @@ require (
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
 	kmodules.xyz/client-go v0.0.0-20220118044154-b361db150f28
 	kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf
-	kmodules.xyz/resource-metadata v0.8.2-0.20220120094707-bcf0fa0b102b
-	kmodules.xyz/resource-metrics v0.0.7-0.20220113235224-64b74ecbc4f8
+	kmodules.xyz/resource-metadata v0.8.2-0.20220201025931-b237d92c632b
+	kmodules.xyz/resource-metrics v0.0.7
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	sigs.k8s.io/cli-utils v0.26.1
 	sigs.k8s.io/controller-runtime v0.9.0
@@ -70,7 +70,6 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.3 // indirect
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
 	github.com/go-openapi/swag v0.19.5 // indirect
-	github.com/gobuffalo/flect v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

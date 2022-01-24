@@ -16,11 +16,6 @@ limitations under the License.
 
 package v1alpha1
 
-func (s ResourceClass) IsRequired() bool {
-	for _, entry := range s.Spec.Entries {
-		if entry.Required {
-			return true
-		}
-	}
-	return false
+type YAMLFormatter interface {
+	ToYAML() ([]byte, error)
 }

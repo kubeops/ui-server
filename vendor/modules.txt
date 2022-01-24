@@ -94,9 +94,6 @@ github.com/go-openapi/spec
 # github.com/go-openapi/swag v0.19.5 => github.com/go-openapi/swag v0.19.5
 ## explicit
 github.com/go-openapi/swag
-# github.com/gobuffalo/flect v0.2.3
-## explicit; go 1.13
-github.com/gobuffalo/flect
 # github.com/gogo/protobuf v1.3.2 => github.com/gogo/protobuf v1.3.2
 ## explicit; go 1.15
 github.com/gogo/protobuf/gogoproto
@@ -351,7 +348,6 @@ golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
-golang.org/x/net/publicsuffix
 golang.org/x/net/trace
 golang.org/x/net/websocket
 # golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
@@ -1112,7 +1108,7 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.8.2-0.20220120094707-bcf0fa0b102b
+# kmodules.xyz/resource-metadata v0.8.2-0.20220201025931-b237d92c632b
 ## explicit; go 1.17
 kmodules.xyz/resource-metadata/apis/meta
 kmodules.xyz/resource-metadata/apis/meta/install
@@ -1120,14 +1116,13 @@ kmodules.xyz/resource-metadata/apis/meta/v1alpha1
 kmodules.xyz/resource-metadata/crds
 kmodules.xyz/resource-metadata/hub
 kmodules.xyz/resource-metadata/hub/resourceblockdefinitions
-kmodules.xyz/resource-metadata/hub/resourceclasses
 kmodules.xyz/resource-metadata/hub/resourcedescriptors
 kmodules.xyz/resource-metadata/hub/resourceoutlines
 kmodules.xyz/resource-metadata/hub/resourcetabledefinitions
 kmodules.xyz/resource-metadata/pkg/layouts
 kmodules.xyz/resource-metadata/pkg/tableconvertor
 kmodules.xyz/resource-metadata/pkg/tableconvertor/printers
-# kmodules.xyz/resource-metrics v0.0.7-0.20220113235224-64b74ecbc4f8
+# kmodules.xyz/resource-metrics v0.0.7
 ## explicit; go 1.17
 kmodules.xyz/resource-metrics
 kmodules.xyz/resource-metrics/api

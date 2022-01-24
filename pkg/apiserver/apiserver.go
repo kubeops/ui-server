@@ -32,8 +32,6 @@ import (
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderapi"
-	"kubeops.dev/ui-server/pkg/registry/meta/renderpage"
-	"kubeops.dev/ui-server/pkg/registry/meta/rendersection"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceblockdefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcedescriptor"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcegraph"
@@ -217,10 +215,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(meta.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		// TODO: remove
-		v1alpha1storage[metav1alpha1.ResourceRenderPages] = renderpage.NewStorage(cfg, ctrlClient, rbacAuthorizer)
-		v1alpha1storage[metav1alpha1.ResourceRenderSections] = rendersection.NewStorage(cfg, ctrlClient, rbacAuthorizer)
-
 		v1alpha1storage[metav1alpha1.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
 		v1alpha1storage[metav1alpha1.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[metav1alpha1.ResourceRenders] = render.NewStorage(ctrlClient, rbacAuthorizer)

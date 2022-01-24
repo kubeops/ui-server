@@ -17,35 +17,41 @@ limitations under the License.
 package v1alpha1
 
 import (
-	kmapi "kmodules.xyz/client-go/api/v1"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
-	ResourceKindRenderSection = "RenderSection"
-	ResourceRenderSection     = "rendersection"
-	ResourceRenderSections    = "rendersections"
+	ResourceKindRenderMenu = "RenderMenu"
+	ResourceRenderMenu     = "rendermenu"
+	ResourceRenderMenus    = "rendermenus"
 )
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type RenderSection struct {
+type RenderMenu struct {
 	metav1.TypeMeta `json:",inline"`
-	// Request describes the attributes for the graph request.
+	// Request describes the attributes for the render menu request.
 	// +optional
-	Request *RenderSectionRequest `json:"request,omitempty"`
-	// Response describes the attributes for the graph response.
+	Request *RenderMenuRequest `json:"request,omitempty"`
+	// Response describes the attributes for the render menu response.
 	// +optional
-	Response *RenderSectionResponse `json:"response,omitempty"`
+	Response *Menu `json:"response,omitempty"`
 }
 
-type RenderSectionRequest struct {
-	Source         kmapi.ObjectID  `json:"source"`
-	Target         ResourceLocator `json:"target"`
-	ConvertToTable bool            `json:"convertToTable"`
+type RenderMenuRequest struct {
+	Menu string   `json:"menu"`
+	Mode MenuMode `json:"mode"`
+	// +optional
+	Section *string `json:"section,omitempty"`
+	// +optional
+	Type *metav1.GroupKind `json:"type,omitempty"`
 }
 
-type RenderSectionResponse struct {
-	PageSection `json:",inline"`
-}
+// +kubebuilder:validation:Enum=Accordion;DropDown;Gallery
+type MenuMode string
+
+const (
+	MenuAccordion MenuMode = "Accordion"
+	MenuDropDown  MenuMode = "DropDown"
+	MenuGallery   MenuMode = "Gallery"
+)

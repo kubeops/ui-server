@@ -42,7 +42,6 @@ import (
 	apiv1 "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
 	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -220,66 +219,6 @@ func extractRefs(data map[string]interface{}, result ksets.ObjectReference) erro
 		}
 	}
 	return nil
-}
-
-func RenderSection(cfg *restclient.Config, kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator, convertToTable bool) (*v1alpha1.PageSection, error) {
-	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
-		Group: target.Ref.Group,
-		Kind:  target.Ref.Kind,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	section := &v1alpha1.PageSection{
-		Resource: *apiv1.NewResourceID(mapping),
-	}
-
-	q, vars, err := target.GraphQuery(src)
-	if err != nil {
-		return nil, err
-	}
-
-	if target.Query.Type == v1alpha1.GraphQLQuery {
-		objs, err := ExecGraphQLQuery(kc, q, vars)
-		if err != nil {
-			return nil, err
-		}
-
-		if convertToTable {
-			if err := Registry.Register(mapping.Resource, cfg); err != nil {
-				return nil, err
-			}
-
-			table, err := tableconvertor.TableForList(Registry, kc, mapping.Resource, objs)
-			if err != nil {
-				return nil, err
-			}
-			section.Table = table
-		} else {
-			section.Items = objs
-		}
-	} else if target.Query.Type == v1alpha1.RESTQuery {
-		obj, err := execRestQuery(kc, q, mapping.GroupVersionKind, src)
-		if err != nil {
-			return nil, err
-		}
-
-		if convertToTable {
-			if err := Registry.Register(mapping.Resource, cfg); err != nil {
-				return nil, err
-			}
-
-			table, err := tableconvertor.TableForList(Registry, kc, mapping.Resource, []unstructured.Unstructured{*obj})
-			if err != nil {
-				return nil, err
-			}
-			section.Table = table
-		} else {
-			section.Items = []unstructured.Unstructured{*obj}
-		}
-	}
-	return section, nil
 }
 
 func ExecRawQuery(kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator) (*apiv1.ResourceID, []apiv1.ObjectReference, error) {

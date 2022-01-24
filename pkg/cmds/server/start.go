@@ -121,8 +121,6 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	serverConfig.OpenAPIConfig.Info.Version = v.Version.Version
 	serverConfig.OpenAPIConfig.IgnorePrefixes = []string{
 		"/swaggerapi",
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenderPages),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenderSections),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceDescriptors),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceGraphs),
 		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenders),

@@ -16,8 +16,8 @@ limitations under the License.
 
 package v1alpha1
 
-func (section *PanelSection) Contains(rd *ResourceDescriptor) bool {
-	for _, entry := range section.Entries {
+func (section *MenuSection) Contains(rd *ResourceDescriptor) bool {
+	for _, entry := range section.Items {
 		if entry.Resource != nil &&
 			entry.Resource.Group == rd.Spec.Resource.Group &&
 			entry.Resource.Version == rd.Spec.Resource.Version &&
@@ -28,7 +28,7 @@ func (section *PanelSection) Contains(rd *ResourceDescriptor) bool {
 	return false
 }
 
-func (e PanelEntry) Equals(other PanelEntry) bool {
+func (e MenuItem) Equals(other MenuItem) bool {
 	if e.Resource != nil && other.Resource != nil {
 		return *e.Resource == *other.Resource
 	} else if e.Resource == nil && other.Resource == nil {
@@ -37,14 +37,14 @@ func (e PanelEntry) Equals(other PanelEntry) bool {
 	return false
 }
 
-func (a *ResourcePanel) Minus(b *ResourcePanel) {
+func (a *Menu) Minus(b *Menu) {
 	for _, bs := range b.Sections {
 	NEXT_ENTRY:
-		for _, be := range bs.Entries {
+		for _, be := range bs.Items {
 			for _, as := range a.Sections {
-				for idx, ae := range as.Entries {
+				for idx, ae := range as.Items {
 					if ae.Equals(be) {
-						as.Entries = append(as.Entries[:idx], as.Entries[idx+1:]...)
+						as.Items = append(as.Items[:idx], as.Items[idx+1:]...)
 						continue NEXT_ENTRY
 					}
 				}
