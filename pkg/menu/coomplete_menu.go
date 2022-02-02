@@ -37,7 +37,7 @@ var defaultIcons = []rsapi.ImageSpec{
 func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInterface) (*rsapi.Menu, error) {
 	sectionIcons := map[string][]rsapi.ImageSpec{}
 	for _, m := range menuoutlines.List() {
-		for _, sec := range m.Sections {
+		for _, sec := range m.Spec.Sections {
 			if sec.AutoDiscoverAPIGroup != "" {
 				sectionIcons[sec.AutoDiscoverAPIGroup] = sec.Icons
 			}
@@ -83,6 +83,8 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInter
 			APIVersion: rsapi.SchemeGroupVersion.String(),
 			Kind:       rsapi.ResourceKindMenuOutline,
 		},
-		Sections: sections,
+		Spec: rsapi.MenuSpec{
+			Sections: sections,
+		},
 	}, nil
 }

@@ -42,11 +42,14 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 			APIVersion: rsapi.SchemeGroupVersion.String(),
 			Kind:       rsapi.ResourceKindMenu,
 		},
-		Mode: rsapi.MenuAccordion,
-		Home: mo.Home.ToMenuSectionInfo(),
+		ObjectMeta: mo.ObjectMeta,
+		Spec: rsapi.MenuSpec{
+			Mode: rsapi.MenuAccordion,
+			Home: mo.Spec.Home.ToMenuSectionInfo(),
+		},
 	}
 
-	for _, so := range mo.Sections {
+	for _, so := range mo.Spec.Sections {
 		sec := rsapi.MenuSection{
 			MenuSectionInfo: *so.MenuSectionOutlineInfo.ToMenuSectionInfo(),
 		}
@@ -88,7 +91,7 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 		}
 
 		if len(sec.Items) > 0 {
-			menu.Sections = append(menu.Sections, &sec)
+			menu.Spec.Sections = append(menu.Spec.Sections, &sec)
 		}
 	}
 

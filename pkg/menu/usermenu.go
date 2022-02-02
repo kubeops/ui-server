@@ -26,7 +26,6 @@ import (
 	"github.com/zeebo/xxh3"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
 	cu "kmodules.xyz/client-go/client"
 	"kmodules.xyz/client-go/meta"
@@ -130,11 +129,7 @@ func (r *UserMenuDriver) List() (*rsapi.MenuList, error) {
 				menus = append(menus, *menu)
 			}
 		}
-		return &rsapi.MenuList{
-			TypeMeta: metav1.TypeMeta{},
-			// ListMeta: ,
-			Items: menus,
-		}, nil
+		return &rsapi.MenuList{Items: menus}, nil
 	} else if err != nil {
 		return nil, err
 	}
@@ -169,11 +164,7 @@ func (r *UserMenuDriver) List() (*rsapi.MenuList, error) {
 	sort.Slice(menus, func(i, j int) bool {
 		return menus[i].Name < menus[j].Name
 	})
-	return &rsapi.MenuList{
-		TypeMeta: metav1.TypeMeta{},
-		// ListMeta: ,
-		Items: menus,
-	}, nil
+	return &rsapi.MenuList{Items: menus}, nil
 }
 
 func (r *UserMenuDriver) Upsert(menu *rsapi.Menu) (*rsapi.Menu, error) {

@@ -48,11 +48,14 @@ func RenderDropDownMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenu
 			APIVersion: rsapi.SchemeGroupVersion.String(),
 			Kind:       rsapi.ResourceKindMenu,
 		},
-		Mode: rsapi.MenuDropDown,
-		Home: in.Home,
+		ObjectMeta: in.ObjectMeta,
+		Spec: rsapi.MenuSpec{
+			Mode: rsapi.MenuDropDown,
+			Home: in.Spec.Home,
+		},
 	}
 
-	for _, so := range in.Sections {
+	for _, so := range in.Spec.Sections {
 		if opts.Section != nil && so.Name != *opts.Section {
 			continue
 		}
@@ -141,17 +144,17 @@ func RenderDropDownMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenu
 		})
 
 		if len(items) > 0 {
-			out.Sections = append(out.Sections, &rsapi.MenuSection{
+			out.Spec.Sections = append(out.Spec.Sections, &rsapi.MenuSection{
 				MenuSectionInfo: so.MenuSectionInfo,
 				Items:           items,
 			})
 		}
 	}
 
-	if len(out.Sections) == 1 && opts.Type != nil {
-		out.Home = &out.Sections[0].MenuSectionInfo
-		out.Items = out.Sections[0].Items
-		out.Sections = nil
+	if len(out.Spec.Sections) == 1 && opts.Type != nil {
+		out.Spec.Home = &out.Spec.Sections[0].MenuSectionInfo
+		out.Spec.Items = out.Spec.Sections[0].Items
+		out.Spec.Sections = nil
 	}
 
 	return &out, nil

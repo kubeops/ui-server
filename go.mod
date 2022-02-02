@@ -36,15 +36,15 @@ require (
 	k8s.io/kubectl v0.21.1
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
-	kmodules.xyz/client-go v0.0.0-20220118144149-f5289f79ff44
+	kmodules.xyz/client-go v0.0.0-20220131065336-bb3e98486e83
 	kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf
-	kmodules.xyz/resource-metadata v0.8.2-0.20220202062920-2baf50069e8f
+	kmodules.xyz/resource-metadata v0.8.2-0.20220202132534-f0c60906a41b
 	kmodules.xyz/resource-metrics v0.0.7
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
-	kubepack.dev/kubepack v0.3.9-0.20220116143022-30c1dc0a58ab
-	kubepack.dev/lib-app v0.0.6-0.20220125094005-5c2d355823b5
-	kubepack.dev/lib-helm v0.3.2-0.20220125093010-400f2676b169
-	kubepack.dev/preset v0.0.0-20220124043329-56dbfee25a9d
+	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d
+	kubepack.dev/lib-app v0.0.6-0.20220202133430-06d5a54e87cf
+	kubepack.dev/lib-helm v0.3.2-0.20220202133039-f91fc7c04650
+	kubepack.dev/preset v0.0.0-20220202134203-5d5853a977cb
 	sigs.k8s.io/cli-utils v0.26.1
 	sigs.k8s.io/controller-runtime v0.9.0
 	sigs.k8s.io/yaml v1.2.0

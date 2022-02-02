@@ -1736,7 +1736,7 @@ kmodules.xyz/apply
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.0.0-20220118144149-f5289f79ff44
+# kmodules.xyz/client-go v0.0.0-20220131065336-bb3e98486e83
 ## explicit; go 1.17
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
@@ -1762,7 +1762,7 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.8.2-0.20220202062920-2baf50069e8f
+# kmodules.xyz/resource-metadata v0.8.2-0.20220202132534-f0c60906a41b
 ## explicit; go 1.17
 kmodules.xyz/resource-metadata/apis/meta
 kmodules.xyz/resource-metadata/apis/meta/install
@@ -1790,19 +1790,19 @@ kmodules.xyz/resource-metrics/kubedb.com/v1alpha2
 # kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 ## explicit; go 1.17
 kmodules.xyz/sets
-# kubepack.dev/kubepack v0.3.9-0.20220116143022-30c1dc0a58ab
+# kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d
 ## explicit; go 1.17
 kubepack.dev/kubepack/apis
 kubepack.dev/kubepack/apis/kubepack
 kubepack.dev/kubepack/apis/kubepack/v1alpha1
 kubepack.dev/kubepack/crds
 kubepack.dev/kubepack/pkg/lib
-# kubepack.dev/lib-app v0.0.6-0.20220125094005-5c2d355823b5
+# kubepack.dev/lib-app v0.0.6-0.20220202133430-06d5a54e87cf
 ## explicit; go 1.17
 kubepack.dev/lib-app/api/v1alpha1
 kubepack.dev/lib-app/pkg/editor
 kubepack.dev/lib-app/pkg/handler
-# kubepack.dev/lib-helm v0.3.2-0.20220125093010-400f2676b169
+# kubepack.dev/lib-helm v0.3.2-0.20220202133039-f91fc7c04650
 ## explicit; go 1.17
 kubepack.dev/lib-helm/pkg/action
 kubepack.dev/lib-helm/pkg/application
@@ -1820,7 +1820,7 @@ kubepack.dev/lib-helm/pkg/kube
 kubepack.dev/lib-helm/pkg/repo
 kubepack.dev/lib-helm/pkg/storage/driver
 kubepack.dev/lib-helm/pkg/values
-# kubepack.dev/preset v0.0.0-20220124043329-56dbfee25a9d
+# kubepack.dev/preset v0.0.0-20220202134203-5d5853a977cb
 ## explicit; go 1.17
 kubepack.dev/preset/apis/charts/v1alpha1
 kubepack.dev/preset/crds

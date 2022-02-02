@@ -46,11 +46,14 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu) (*rsapi.Menu, error) {
 			APIVersion: rsapi.SchemeGroupVersion.String(),
 			Kind:       rsapi.ResourceKindMenu,
 		},
-		Mode: rsapi.MenuGallery,
-		Home: in.Home,
+		ObjectMeta: in.ObjectMeta,
+		Spec: rsapi.MenuSpec{
+			Mode: rsapi.MenuGallery,
+			Home: in.Spec.Home,
+		},
 	}
 
-	for _, so := range in.Sections {
+	for _, so := range in.Spec.Sections {
 		items := make([]rsapi.MenuItem, 0)
 		for _, item := range so.Items {
 			mi := rsapi.MenuItem{
@@ -128,7 +131,7 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu) (*rsapi.Menu, error) {
 		})
 
 		if len(items) > 0 {
-			out.Sections = append(out.Sections, &rsapi.MenuSection{
+			out.Spec.Sections = append(out.Spec.Sections, &rsapi.MenuSection{
 				MenuSectionInfo: so.MenuSectionInfo,
 				Items:           items,
 			})

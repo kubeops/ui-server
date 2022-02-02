@@ -309,10 +309,12 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuList":                    schema_resource_metadata_apis_meta_v1alpha1_MenuList(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuOutline":                 schema_resource_metadata_apis_meta_v1alpha1_MenuOutline(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuOutlineList":             schema_resource_metadata_apis_meta_v1alpha1_MenuOutlineList(ref),
+		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuOutlineSpec":             schema_resource_metadata_apis_meta_v1alpha1_MenuOutlineSpec(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSection":                 schema_resource_metadata_apis_meta_v1alpha1_MenuSection(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionInfo":             schema_resource_metadata_apis_meta_v1alpha1_MenuSectionInfo(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutline":          schema_resource_metadata_apis_meta_v1alpha1_MenuSectionOutline(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutlineInfo":      schema_resource_metadata_apis_meta_v1alpha1_MenuSectionOutlineInfo(ref),
+		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSpec":                    schema_resource_metadata_apis_meta_v1alpha1_MenuSpec(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.NamedEdge":                   schema_resource_metadata_apis_meta_v1alpha1_NamedEdge(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ObjectConnection":            schema_resource_metadata_apis_meta_v1alpha1_ObjectConnection(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ObjectLocator":               schema_resource_metadata_apis_meta_v1alpha1_ObjectLocator(ref),
@@ -14588,49 +14590,17 @@ func schema_resource_metadata_apis_meta_v1alpha1_Menu(ref common.ReferenceCallba
 							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
-					"mode": {
+					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
-						},
-					},
-					"home": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionInfo"),
-						},
-					},
-					"sections": {
-						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Ref: ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSection"),
-									},
-								},
-							},
-						},
-					},
-					"items": {
-						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: map[string]interface{}{},
-										Ref:     ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuItem"),
-									},
-								},
-							},
+							Default: map[string]interface{}{},
+							Ref:     ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSpec"),
 						},
 					},
 				},
-				Required: []string{"mode"},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuItem", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSection", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionInfo"},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSpec"},
 	}
 }
 
@@ -14852,29 +14822,17 @@ func schema_resource_metadata_apis_meta_v1alpha1_MenuOutline(ref common.Referenc
 							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
-					"home": {
+					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutlineInfo"),
-						},
-					},
-					"sections": {
-						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: map[string]interface{}{},
-										Ref:     ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutline"),
-									},
-								},
-							},
+							Default: map[string]interface{}{},
+							Ref:     ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuOutlineSpec"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutline", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutlineInfo"},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuOutlineSpec"},
 	}
 }
 
@@ -14922,6 +14880,38 @@ func schema_resource_metadata_apis_meta_v1alpha1_MenuOutlineList(ref common.Refe
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuOutline"},
+	}
+}
+
+func schema_resource_metadata_apis_meta_v1alpha1_MenuOutlineSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"home": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutlineInfo"),
+						},
+					},
+					"sections": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutline"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutline", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionOutlineInfo"},
 	}
 }
 
@@ -15158,6 +15148,58 @@ func schema_resource_metadata_apis_meta_v1alpha1_MenuSectionOutlineInfo(ref comm
 		},
 		Dependencies: []string{
 			"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ImageSpec"},
+	}
+}
+
+func schema_resource_metadata_apis_meta_v1alpha1_MenuSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"mode": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"home": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionInfo"),
+						},
+					},
+					"sections": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSection"),
+									},
+								},
+							},
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuItem"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"mode"},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuItem", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSection", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.MenuSectionInfo"},
 	}
 }
 
