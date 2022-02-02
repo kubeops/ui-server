@@ -28,8 +28,8 @@ type ExtraOptions struct {
 
 func NewExtraOptions() *ExtraOptions {
 	return &ExtraOptions{
-		QPS:   100,
-		Burst: 100,
+		QPS:   1e6,
+		Burst: 1e6,
 	}
 }
 
