@@ -30,7 +30,6 @@ import (
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
-	"kubeops.dev/ui-server/pkg/registry/meta/menuoutline"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderapi"
 	"kubeops.dev/ui-server/pkg/registry/meta/rendermenu"
@@ -40,6 +39,8 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcelayout"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceoutline"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcetabledefinition"
+	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
+	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/ui/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/ui/podview"
 	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/ui/resourceservice"
@@ -234,7 +235,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceResourceTableDefinitions] = resourcetabledefinition.NewStorage()
 
 		v1alpha1storage[rsapi.ResourceRenderMenus] = rendermenu.NewStorage(ctrlClient, disco, meta.Namespace())
-		v1alpha1storage[rsapi.ResourceMenuOutlines] = menuoutline.NewStorage(ctrlClient, disco, meta.Namespace())
+		v1alpha1storage["usermenus"] = usermenu.NewStorage(ctrlClient, disco, meta.Namespace())
+		v1alpha1storage[rsapi.ResourceMenus] = vendormenu.NewStorage(ctrlClient, disco)
 
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
