@@ -236,6 +236,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage[rsapi.ResourceRenderMenus] = rendermenu.NewStorage(ctrlClient, disco, meta.Namespace())
 		v1alpha1storage["usermenus"] = usermenu.NewStorage(ctrlClient, disco, meta.Namespace())
+		v1alpha1storage["usermenus/available"] = usermenu.NewAvailableStorage(ctrlClient, disco, meta.Namespace())
 		v1alpha1storage[rsapi.ResourceMenus] = vendormenu.NewStorage(ctrlClient, disco)
 
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
