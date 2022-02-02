@@ -24,13 +24,13 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/discovery"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub"
 	"kmodules.xyz/resource-metadata/hub/resourceoutlines"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterface) (map[string]map[string]*v1alpha1.MenuItem, error) {
+func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterface) (map[string]map[string]*rsapi.MenuItem, error) {
 	reg := hub.NewRegistryOfKnownResources()
 
 	rsLists, err := disco.ServerPreferredResources()
@@ -39,7 +39,7 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 	}
 
 	// [group][Kind] => MenuItem
-	out := map[string]map[string]*v1alpha1.MenuItem{}
+	out := map[string]map[string]*rsapi.MenuItem{}
 	for _, rsList := range rsLists {
 		gv, err := schema.ParseGroupVersion(rsList.GroupVersion)
 		if err != nil {
@@ -71,7 +71,7 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 			}
 			gvr := rid.GroupVersionResource()
 
-			me := v1alpha1.MenuItem{
+			me := rsapi.MenuItem{
 				Name:       rid.Kind,
 				Path:       "",
 				Resource:   &rid,
@@ -89,7 +89,7 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 			}
 
 			if _, ok := out[gv.Group]; !ok {
-				out[gv.Group] = map[string]*v1alpha1.MenuItem{}
+				out[gv.Group] = map[string]*rsapi.MenuItem{}
 			}
 			out[gv.Group][rs.Kind] = &me // variants
 		}
@@ -98,7 +98,7 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 	return out, nil
 }
 
-func getMenuItem(out map[string]map[string]*v1alpha1.MenuItem, gk metav1.GroupKind) (*v1alpha1.MenuItem, bool) {
+func getMenuItem(out map[string]map[string]*rsapi.MenuItem, gk metav1.GroupKind) (*rsapi.MenuItem, bool) {
 	m, ok := out[gk.Group]
 	if !ok {
 		return nil, false

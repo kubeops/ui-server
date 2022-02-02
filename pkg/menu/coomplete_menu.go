@@ -21,21 +21,21 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub"
 	"kmodules.xyz/resource-metadata/hub/menuoutlines"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var defaultIcons = []v1alpha1.ImageSpec{
+var defaultIcons = []rsapi.ImageSpec{
 	{
 		Source: hub.CRDIconSVG,
 		Type:   "image/svg+xml",
 	},
 }
 
-func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInterface) (*v1alpha1.Menu, error) {
-	sectionIcons := map[string][]v1alpha1.ImageSpec{}
+func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInterface) (*rsapi.Menu, error) {
+	sectionIcons := map[string][]rsapi.ImageSpec{}
 	for _, m := range menuoutlines.List() {
 		for _, sec := range m.Sections {
 			if sec.AutoDiscoverAPIGroup != "" {
@@ -44,15 +44,15 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInter
 		}
 	}
 
-	out, err := GenerateMenuItems(kc, disco)
+	menuPerGK, err := GenerateMenuItems(kc, disco)
 	if err != nil {
 		return nil, err
 	}
 
-	sections := make([]*v1alpha1.MenuSection, 0, len(out))
-	for group, kinds := range out {
-		sec := v1alpha1.MenuSection{
-			MenuSectionInfo: v1alpha1.MenuSectionInfo{
+	sections := make([]*rsapi.MenuSection, 0, len(menuPerGK))
+	for group, kinds := range menuPerGK {
+		sec := rsapi.MenuSection{
+			MenuSectionInfo: rsapi.MenuSectionInfo{
 				Name: menuoutlines.MenuSectionName(group),
 			},
 		}
@@ -78,10 +78,10 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInter
 		return sections[i].Name < sections[j].Name
 	})
 
-	return &v1alpha1.Menu{
+	return &rsapi.Menu{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: v1alpha1.SchemeGroupVersion.String(),
-			Kind:       v1alpha1.ResourceKindMenuOutline,
+			APIVersion: rsapi.SchemeGroupVersion.String(),
+			Kind:       rsapi.ResourceKindMenuOutline,
 		},
 		Sections: sections,
 	}, nil

@@ -29,7 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/resource-metadata/apis/meta"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourceoutlines"
 	"kmodules.xyz/resource-metadata/pkg/layouts"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -49,14 +49,14 @@ func NewStorage(kc client.Client) *Storage {
 	return &Storage{
 		kc: kc,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    v1alpha1.SchemeGroupVersion.Group,
-			Resource: v1alpha1.ResourceResourceLayouts,
+			Group:    rsapi.SchemeGroupVersion.Group,
+			Resource: rsapi.ResourceResourceLayouts,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return v1alpha1.SchemeGroupVersion.WithKind(v1alpha1.ResourceKindResourceLayout)
+	return rsapi.SchemeGroupVersion.WithKind(rsapi.ResourceKindResourceLayout)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -65,20 +65,20 @@ func (r *Storage) NamespaceScoped() bool {
 
 // Getter
 func (r *Storage) New() runtime.Object {
-	return &v1alpha1.ResourceLayout{}
+	return &rsapi.ResourceLayout{}
 }
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
 	obj, err := layouts.LoadResourceLayout(r.kc, name)
 	if err != nil {
-		return nil, kerr.NewNotFound(schema.GroupResource{Group: meta.GroupName, Resource: v1alpha1.ResourceKindResourceLayout}, name)
+		return nil, kerr.NewNotFound(schema.GroupResource{Group: meta.GroupName, Resource: rsapi.ResourceKindResourceLayout}, name)
 	}
 	return obj, err
 }
 
 // Lister
 func (r *Storage) NewList() runtime.Object {
-	return &v1alpha1.ResourceLayoutList{}
+	return &rsapi.ResourceLayoutList{}
 }
 
 func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOptions) (runtime.Object, error) {
@@ -102,7 +102,7 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		objs = objs[:options.Limit]
 	}
 
-	items := make([]v1alpha1.ResourceLayout, 0, len(objs))
+	items := make([]rsapi.ResourceLayout, 0, len(objs))
 	for _, obj := range objs {
 		if options.LabelSelector != nil && !options.LabelSelector.Matches(labels.Set(obj.GetLabels())) {
 			continue
@@ -114,7 +114,7 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		items = append(items, *layout)
 	}
 
-	return &v1alpha1.ResourceLayoutList{Items: items}, nil
+	return &rsapi.ResourceLayoutList{Items: items}, nil
 }
 
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {

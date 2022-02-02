@@ -25,8 +25,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/sets"
-	apiv1 "kmodules.xyz/client-go/api/v1"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	kmapi "kmodules.xyz/client-go/api/v1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/pkg/layouts"
 	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -35,14 +35,14 @@ import (
 
 func RenderLayout(
 	kc client.Client,
-	src apiv1.ObjectInfo,
+	src kmapi.ObjectInfo,
 	layoutName string, // optional
 	pageName string, // optional
 	convertToTable bool,
 	renderBlocks sets.String,
-) (*v1alpha1.ResourceView, error) {
+) (*rsapi.ResourceView, error) {
 
-	srcRID, err := apiv1.ExtractResourceID(kc.RESTMapper(), src.Resource)
+	srcRID, err := kmapi.ExtractResourceID(kc.RESTMapper(), src.Resource)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func RenderLayout(
 		return nil, err
 	}
 
-	var layout *v1alpha1.ResourceLayout
+	var layout *rsapi.ResourceLayout
 	if layoutName != "" {
 		layout, err = layouts.LoadResourceLayout(kc, layoutName)
 		if err != nil {
@@ -66,7 +66,7 @@ func RenderLayout(
 		}
 	}
 
-	var out v1alpha1.ResourceView
+	var out rsapi.ResourceView
 	out.Resource = layout.Spec.Resource
 	out.LayoutName = layout.Name
 	out.UI = layout.Spec.UI
@@ -86,14 +86,14 @@ func RenderLayout(
 		}
 	}
 
-	out.Pages = make([]v1alpha1.ResourcePageView, 0, len(layout.Spec.Pages))
+	out.Pages = make([]rsapi.ResourcePageView, 0, len(layout.Spec.Pages))
 
 	for _, pageLayout := range layout.Spec.Pages {
 		if pageName != "" && pageLayout.Name != pageName {
 			continue
 		}
 
-		page := v1alpha1.ResourcePageView{
+		page := rsapi.ResourcePageView{
 			Name:    pageLayout.Name,
 			Info:    nil,
 			Insight: nil,
@@ -114,7 +114,7 @@ func RenderLayout(
 			}
 		}
 
-		blocks := make([]v1alpha1.PageBlockView, 0, len(pageLayout.Blocks))
+		blocks := make([]rsapi.PageBlockView, 0, len(pageLayout.Blocks))
 		for _, block := range pageLayout.Blocks {
 			if okToRender(block.Kind, renderBlocks) {
 				if bv, err := renderPageBlock(kc, srcRID, &srcObj, &block, convertToTable); err != nil {
@@ -132,12 +132,12 @@ func RenderLayout(
 	return &out, nil
 }
 
-func okToRender(kind v1alpha1.TableKind, renderBlocks sets.String) bool {
+func okToRender(kind rsapi.TableKind, renderBlocks sets.String) bool {
 	return renderBlocks.Len() == 0 || renderBlocks.Has(string(kind))
 }
 
-func RenderPageBlock(kc client.Client, src apiv1.ObjectInfo, block *v1alpha1.PageBlockLayout, convertToTable bool) (*v1alpha1.PageBlockView, error) {
-	srcRID, err := apiv1.ExtractResourceID(kc.RESTMapper(), src.Resource)
+func RenderPageBlock(kc client.Client, src kmapi.ObjectInfo, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
+	srcRID, err := kmapi.ExtractResourceID(kc.RESTMapper(), src.Resource)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to detect src resource id")
 	}
@@ -151,29 +151,29 @@ func RenderPageBlock(kc client.Client, src apiv1.ObjectInfo, block *v1alpha1.Pag
 	return renderPageBlock(kc, srcRID, &srcObj, block, convertToTable)
 }
 
-func renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstructured.Unstructured, block *v1alpha1.PageBlockLayout, convertToTable bool) (*v1alpha1.PageBlockView, error) {
+func renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
 	bv, err := _renderPageBlock(kc, srcRID, srcObj, block, convertToTable)
 	if err != nil {
-		bv.Result = v1alpha1.RenderResult{
-			Status:  v1alpha1.RenderError,
+		bv.Result = rsapi.RenderResult{
+			Status:  rsapi.RenderError,
 			Message: err.Error(),
 		}
 	} else {
-		bv.Result = v1alpha1.RenderResult{
-			Status: v1alpha1.RenderSuccess,
+		bv.Result = rsapi.RenderResult{
+			Status: rsapi.RenderSuccess,
 		}
 	}
 	return bv, nil
 }
 
-func _renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstructured.Unstructured, block *v1alpha1.PageBlockLayout, convertToTable bool) (*v1alpha1.PageBlockView, error) {
-	out := v1alpha1.PageBlockView{
+func _renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
+	out := rsapi.PageBlockView{
 		Kind:    block.Kind,
 		Name:    block.Name,
 		Actions: block.Actions,
 	}
 
-	if block.Kind == v1alpha1.TableKindSelf || block.Kind == v1alpha1.TableKindSubTable {
+	if block.Kind == rsapi.TableKindSelf || block.Kind == rsapi.TableKindSubTable {
 		out.Resource = srcRID
 		if convertToTable {
 			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
@@ -189,7 +189,7 @@ func _renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstru
 			out.Items = []unstructured.Unstructured{*srcObj}
 		}
 		return &out, nil
-	} else if block.Kind != v1alpha1.TableKindConnection {
+	} else if block.Kind != rsapi.TableKindConnection {
 		return nil, fmt.Errorf("unsupported table kind found in block %+v", block)
 	}
 
@@ -198,24 +198,24 @@ func _renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstru
 		Kind:  block.Ref.Kind,
 	})
 	if meta.IsNoMatchError(err) {
-		out.Resource = &apiv1.ResourceID{
+		out.Resource = &kmapi.ResourceID{
 			Group: block.Ref.Group,
 			// Version: "",
 			// Name:    "",
 			Kind: block.Ref.Kind,
 			// Scope:   "",
 		}
-		out.Result = v1alpha1.RenderResult{
-			Status: v1alpha1.RenderMissing,
+		out.Result = rsapi.RenderResult{
+			Status: rsapi.RenderMissing,
 		}
 		if convertToTable {
-			table := &v1alpha1.Table{
-				Columns: make([]v1alpha1.ResourceColumn, 0, len(block.View.Columns)),
+			table := &rsapi.Table{
+				Columns: make([]rsapi.ResourceColumn, 0, len(block.View.Columns)),
 			}
 			for _, def := range block.View.Columns {
-				table.Columns = append(table.Columns, v1alpha1.Convert_ResourceColumnDefinition_To_ResourceColumn(def))
+				table.Columns = append(table.Columns, rsapi.Convert_ResourceColumnDefinition_To_ResourceColumn(def))
 			}
-			table.Rows = make([]v1alpha1.TableRow, 0)
+			table.Rows = make([]rsapi.TableRow, 0)
 			out.Table = table
 		}
 		return &out, nil
@@ -223,15 +223,15 @@ func _renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstru
 		return nil, err
 	}
 
-	out.Resource = apiv1.NewResourceID(mapping)
+	out.Resource = kmapi.NewResourceID(mapping)
 
-	srcID := apiv1.NewObjectID(srcObj)
+	srcID := kmapi.NewObjectID(srcObj)
 	q, vars, err := block.GraphQuery(srcID.OID())
 	if err != nil {
 		return nil, err
 	}
 
-	if block.Query.Type == v1alpha1.GraphQLQuery {
+	if block.Query.Type == rsapi.GraphQLQuery {
 		objs, err := ExecGraphQLQuery(kc, q, vars)
 		if err != nil {
 			return nil, err
@@ -251,7 +251,7 @@ func _renderPageBlock(kc client.Client, srcRID *apiv1.ResourceID, srcObj *unstru
 		} else {
 			out.Items = objs
 		}
-	} else if block.Query.Type == v1alpha1.RESTQuery {
+	} else if block.Query.Type == rsapi.RESTQuery {
 		var obj unstructured.Unstructured
 		if q != "" {
 			err = yaml.Unmarshal([]byte(q), &obj)

@@ -21,12 +21,12 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/menuoutlines"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterface, menuName string) (*v1alpha1.Menu, error) {
+func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterface, menuName string) (*rsapi.Menu, error) {
 	mo, err := menuoutlines.LoadByName(menuName)
 	if err != nil {
 		return nil, err
@@ -37,21 +37,21 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 		return nil, err
 	}
 
-	menu := v1alpha1.Menu{
+	menu := rsapi.Menu{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: v1alpha1.SchemeGroupVersion.String(),
-			Kind:       v1alpha1.ResourceKindMenu,
+			APIVersion: rsapi.SchemeGroupVersion.String(),
+			Kind:       rsapi.ResourceKindMenu,
 		},
-		Home:     mo.Home,
-		Sections: nil,
+		Mode: rsapi.MenuAccordion,
+		Home: mo.Home.ToMenuSectionInfo(),
 	}
 
 	for _, so := range mo.Sections {
-		sec := v1alpha1.MenuSection{
-			MenuSectionInfo: so.MenuSectionInfo,
+		sec := rsapi.MenuSection{
+			MenuSectionInfo: *so.MenuSectionOutlineInfo.ToMenuSectionInfo(),
 		}
-		if sec.AutoDiscoverAPIGroup != "" {
-			kinds := out[sec.AutoDiscoverAPIGroup]
+		if so.AutoDiscoverAPIGroup != "" {
+			kinds := out[so.AutoDiscoverAPIGroup]
 			for _, item := range kinds {
 				sec.Items = append(sec.Items, *item) // variants
 			}
@@ -59,9 +59,9 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 				return sec.Items[i].Name < sec.Items[j].Name
 			})
 		} else {
-			items := make([]v1alpha1.MenuItem, 0, len(so.Items))
+			items := make([]rsapi.MenuItem, 0, len(so.Items))
 			for _, item := range so.Items {
-				mi := v1alpha1.MenuItem{
+				mi := rsapi.MenuItem{
 					Name:       item.Name,
 					Path:       item.Path,
 					Resource:   nil,

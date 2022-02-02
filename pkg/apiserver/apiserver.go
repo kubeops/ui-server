@@ -67,8 +67,7 @@ import (
 	"kmodules.xyz/custom-resources/apis/auditor"
 	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
-	metainstall "kmodules.xyz/resource-metadata/apis/meta/install"
-	metav1alpha1 "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -87,7 +86,7 @@ var (
 func init() {
 	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
-	metainstall.Install(Scheme)
+	rsinstall.Install(Scheme)
 	uiinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
@@ -225,16 +224,17 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(rsapi.SchemeGroupVersion.Group, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[metav1alpha1.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
-		v1alpha1storage[metav1alpha1.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
-		v1alpha1storage[metav1alpha1.ResourceRenders] = render.NewStorage(ctrlClient, rbacAuthorizer)
-		v1alpha1storage[metav1alpha1.ResourceRenderAPIs] = renderapi.NewStorage(ctrlClient, rbacAuthorizer)
-		v1alpha1storage[metav1alpha1.ResourceRenderMenus] = rendermenu.NewStorage(ctrlClient, disco)
-		v1alpha1storage[metav1alpha1.ResourceResourceBlockDefinitions] = resourceblockdefinition.NewStorage()
-		v1alpha1storage[metav1alpha1.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)
-		v1alpha1storage[metav1alpha1.ResourceResourceOutlines] = resourceoutline.NewStorage()
-		v1alpha1storage[metav1alpha1.ResourceResourceTableDefinitions] = resourcetabledefinition.NewStorage()
-		v1alpha1storage[metav1alpha1.ResourceMenuOutlines] = menuoutline.NewStorage(ctrlClient, meta.Namespace())
+		v1alpha1storage[rsapi.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
+		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceRenderAPIs] = renderapi.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceResourceBlockDefinitions] = resourceblockdefinition.NewStorage()
+		v1alpha1storage[rsapi.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)
+		v1alpha1storage[rsapi.ResourceResourceOutlines] = resourceoutline.NewStorage()
+		v1alpha1storage[rsapi.ResourceResourceTableDefinitions] = resourcetabledefinition.NewStorage()
+
+		v1alpha1storage[rsapi.ResourceRenderMenus] = rendermenu.NewStorage(ctrlClient, disco, meta.Namespace())
+		v1alpha1storage[rsapi.ResourceMenuOutlines] = menuoutline.NewStorage(ctrlClient, disco, meta.Namespace())
 
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 

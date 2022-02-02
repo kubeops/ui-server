@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 )
 
 const (
@@ -38,7 +38,7 @@ type Edge struct {
 	Src        schema.GroupVersionKind
 	Dst        schema.GroupVersionKind
 	W          uint64
-	Connection v1alpha1.ResourceConnectionSpec
+	Connection rsapi.ResourceConnectionSpec
 	Forward    bool
 }
 

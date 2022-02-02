@@ -52,3 +52,16 @@ func (a *Menu) Minus(b *Menu) {
 		}
 	}
 }
+
+func (in *MenuSectionOutlineInfo) ToMenuSectionInfo() *MenuSectionInfo {
+	if in == nil {
+		return nil
+	}
+	return &MenuSectionInfo{
+		Name:       in.Name,
+		Path:       in.Path,
+		APIGroup:   in.AutoDiscoverAPIGroup,
+		LayoutName: in.LayoutName,
+		Icons:      in.Icons,
+	}
+}

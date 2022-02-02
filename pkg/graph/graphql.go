@@ -21,7 +21,7 @@ import (
 
 	"github.com/graphql-go/graphql"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1 "kmodules.xyz/client-go/api/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/hub"
 )
 
@@ -49,7 +49,7 @@ func getGraphQLSchema() graphql.Schema {
 		},
 	})
 	for _, label := range hub.ListEdgeLabels() {
-		func(edgeLabel apiv1.EdgeLabel) {
+		func(edgeLabel kmapi.EdgeLabel) {
 			oidType.AddFieldConfig(string(edgeLabel), &graphql.Field{
 				Type:        graphql.NewList(oidType),
 				Description: fmt.Sprintf("%s from this object", edgeLabel),
@@ -75,7 +75,7 @@ func getGraphQLSchema() graphql.Schema {
 						return nil, fmt.Errorf("group is set but kind is not set")
 					}
 
-					if oid, ok := p.Source.(apiv1.ObjectID); ok {
+					if oid, ok := p.Source.(kmapi.ObjectID); ok {
 						links, err := objGraph.Links(&oid, edgeLabel)
 						if err != nil {
 							return nil, err
@@ -85,7 +85,7 @@ func getGraphQLSchema() graphql.Schema {
 							return linksForGK, nil
 						}
 
-						var out []apiv1.ObjectID
+						var out []kmapi.ObjectID
 						for _, refs := range links {
 							out = append(out, refs...)
 						}
@@ -110,7 +110,7 @@ func getGraphQLSchema() graphql.Schema {
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					key := p.Args["oid"].(string)
-					oid, err := apiv1.ParseObjectID(apiv1.OID(key))
+					oid, err := kmapi.ParseObjectID(kmapi.OID(key))
 					if err != nil {
 						return nil, err
 					}

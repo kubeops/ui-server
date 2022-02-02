@@ -35,13 +35,34 @@ type Menu struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Home              *MenuSectionInfo `json:"home,omitempty"`
-	Sections          []*MenuSection   `json:"sections,omitempty"`
+	Mode              MenuMode `json:"mode"`
+	// +optional
+	Home *MenuSectionInfo `json:"home,omitempty"`
+	// +optional
+	Sections []*MenuSection `json:"sections,omitempty"`
+	// +optional
+	Items []MenuItem `json:"items"`
 }
 
 type MenuSection struct {
 	MenuSectionInfo `json:",inline,omitempty"`
 	Items           []MenuItem `json:"items"`
+}
+
+type MenuSectionInfo struct {
+	Name string `json:"name,omitempty"`
+
+	// +optional
+	Path string `json:"path,omitempty"`
+	// +optional
+	APIGroup string `json:"apiGroup,omitempty"`
+
+	// +optional
+	LayoutName string `json:"layoutName,omitempty"`
+
+	// Icons is an optional list of icons for an application. Icon information includes the source, size,
+	// and mime type.
+	Icons []ImageSpec `json:"icons,omitempty"`
 }
 
 type MenuItem struct {
@@ -61,4 +82,13 @@ type MenuItem struct {
 	Preset *core.TypedLocalObjectReference `json:"preset,omitempty"`
 	// +optional
 	Items []MenuItem `json:"items,omitempty"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:object:root=true
+
+type MenuList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []Menu `json:"items,omitempty"`
 }

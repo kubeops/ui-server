@@ -590,7 +590,10 @@ github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/klauspost/compress v1.10.3/go.mod h1:aoV0uJVorq1K+umq18yTdKaF57EivdYsUV+/s2qKfXs=
 github.com/klauspost/compress v1.11.3/go.mod h1:aoV0uJVorq1K+umq18yTdKaF57EivdYsUV+/s2qKfXs=
+github.com/klauspost/cpuid v1.2.0 h1:NMpwD2G9JSFOE1/TJjGSo5zG7Yb2bTe7eq1jH+irmeE=
 github.com/klauspost/cpuid v1.2.0/go.mod h1:Pj4uuM528wm8OyEC2QMXAi2YiTZ96dNQPGgoMS4s3ek=
+github.com/klauspost/cpuid/v2 v2.0.9 h1:lgaqFMSdTdQYdZ04uHyN2d/eKdOMyi2YLSvlQIBFYa4=
+github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/kmodules/apimachinery v0.21.2-rc.0.0.20210617231004-332981b97d2d h1:6Yzcd8c16QYTv0rd0TSNWLNJ+WeJM5qp41eT9XIu78s=
 github.com/kmodules/apimachinery v0.21.2-rc.0.0.20210617231004-332981b97d2d/go.mod h1:jbreFvJo3ov9rj7eWT7+sYiRx+qZuCYXwWT1bcDswPY=
 github.com/kmodules/apiserver v0.21.2-0.20210716212718-83e5493ac170 h1:JnFBVfamGETJErVnJ4WoE3q+n1+4hrq61uY23HsV3c4=
@@ -988,6 +991,8 @@ github.com/yvasiyarov/gorelic v0.0.0-20141212073537-a9bba5b9ab50 h1:hlE8//ciYMzt
 github.com/yvasiyarov/gorelic v0.0.0-20141212073537-a9bba5b9ab50/go.mod h1:NUSPSUX/bi6SeDMUh6brw0nXpxHnc96TguQh0+r/ssA=
 github.com/yvasiyarov/newrelic_platform_go v0.0.0-20140908184405-b21fdbd4370f h1:ERexzlUfuTvpE74urLSbIQW0Z/6hF9t8U4NsJLaioAY=
 github.com/yvasiyarov/newrelic_platform_go v0.0.0-20140908184405-b21fdbd4370f/go.mod h1:GlGEuHIJweS1mbCqG+7vt2nvWLzLLnRHbXz5JKd/Qbg=
+github.com/zeebo/xxh3 v1.0.1 h1:FMSRIbkrLikb/0hZxmltpg84VkqDAT5M8ufXynuhXsI=
+github.com/zeebo/xxh3 v1.0.1/go.mod h1:8VHV24/3AZLn3b6Mlp/KuC33LWH687Wq6EnziEB+rsA=
 github.com/ziutek/mymysql v1.5.4 h1:GB0qdRGsTwQSBVYuVShFBKaXSnSnYYC2d9knnE1LHFs=
 github.com/ziutek/mymysql v1.5.4/go.mod h1:LMSpPZ6DbqWFxNCHW77HeMg9I646SAhApZ/wKdgO/C0=
 go.bytebuilders.dev/license-verifier v0.9.3 h1:foHyjil3Y2OesjUInQZeRl5kntWWCPkqqQOz1wSAmLo=
@@ -1531,8 +1536,8 @@ kmodules.xyz/resource-metadata v0.7.1-0.20211223071151-daf19bd77f84/go.mod h1:AF
 kmodules.xyz/resource-metadata v0.8.2-0.20220116072424-4ed4f0c4b8b5/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
 kmodules.xyz/resource-metadata v0.8.2-0.20220118155908-37e400a5c469/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
 kmodules.xyz/resource-metadata v0.8.2-0.20220125092446-dd5f41895dcd/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
-kmodules.xyz/resource-metadata v0.8.2-0.20220201025931-b237d92c632b h1:IIpefcOBk4JtIiDX3Ak0JdPihL0UnSMDWpmW/usstTM=
-kmodules.xyz/resource-metadata v0.8.2-0.20220201025931-b237d92c632b/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
+kmodules.xyz/resource-metadata v0.8.2-0.20220202062920-2baf50069e8f h1:3WtJ+dDQca3/iqA2JTDz/AcrOYOTGEpNqHSLMnHusUk=
+kmodules.xyz/resource-metadata v0.8.2-0.20220202062920-2baf50069e8f/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
 kmodules.xyz/resource-metrics v0.0.5/go.mod h1:6Dv63HDgp83DhA+lZNB7GIQR6PLjNrYW6ghQKioQzII=
 kmodules.xyz/resource-metrics v0.0.6/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
 kmodules.xyz/resource-metrics v0.0.7 h1:ISr4lms7BJbIAyzRKTng7uOSPzd7JDpfr7I2LF2cslA=
