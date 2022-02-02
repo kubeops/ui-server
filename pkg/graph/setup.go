@@ -39,10 +39,9 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
-	apiv1 "kmodules.xyz/client-go/api/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -82,11 +81,11 @@ func PollNewResourceTypes(cfg *restclient.Config) func(ctx context.Context) erro
 						continue
 					}
 
-					scope := apiv1.ClusterScoped
+					scope := kmapi.ClusterScoped
 					if rs.Namespaced {
-						scope = apiv1.NamespaceScoped
+						scope = kmapi.NamespaceScoped
 					}
-					rid := apiv1.ResourceID{
+					rid := kmapi.ResourceID{
 						Group:   gvk.Group,
 						Version: gvk.Version,
 						Name:    rs.Name,
@@ -132,15 +131,15 @@ func ExecGraphQLQuery(c client.Client, query string, vars map[string]interface{}
 	}
 
 	var gk schema.GroupKind
-	if v, ok := vars[v1alpha1.GraphQueryVarTargetGroup]; ok {
+	if v, ok := vars[rsapi.GraphQueryVarTargetGroup]; ok {
 		gk.Group = v.(string)
 	} else {
-		return nil, fmt.Errorf("vars is missing %s", v1alpha1.GraphQueryVarTargetGroup)
+		return nil, fmt.Errorf("vars is missing %s", rsapi.GraphQueryVarTargetGroup)
 	}
-	if v, ok := vars[v1alpha1.GraphQueryVarTargetKind]; ok {
+	if v, ok := vars[rsapi.GraphQueryVarTargetKind]; ok {
 		gk.Kind = v.(string)
 	} else {
-		return nil, fmt.Errorf("vars is missing %s", v1alpha1.GraphQueryVarTargetKind)
+		return nil, fmt.Errorf("vars is missing %s", rsapi.GraphQueryVarTargetKind)
 	}
 
 	mapping, err := c.RESTMapper().RESTMapping(gk)
@@ -162,7 +161,7 @@ func ExecGraphQLQuery(c client.Client, query string, vars map[string]interface{}
 	return objs, nil
 }
 
-func execRawGraphQLQuery(query string, vars map[string]interface{}) ([]apiv1.ObjectReference, error) {
+func execRawGraphQLQuery(query string, vars map[string]interface{}) ([]kmapi.ObjectReference, error) {
 	params := graphql.Params{
 		Schema:         Schema,
 		RequestString:  query,
@@ -184,7 +183,7 @@ func execRawGraphQLQuery(query string, vars map[string]interface{}) ([]apiv1.Obj
 	return refs, nil
 }
 
-func listRefs(data map[string]interface{}) ([]apiv1.ObjectReference, error) {
+func listRefs(data map[string]interface{}) ([]kmapi.ObjectReference, error) {
 	result := ksets.NewObjectReference()
 	err := extractRefs(data, result)
 	return result.List(), err
@@ -199,7 +198,7 @@ func extractRefs(data map[string]interface{}, result ksets.ObjectReference) erro
 			}
 		case []interface{}:
 			if k == "refs" {
-				var refs []apiv1.ObjectReference
+				var refs []kmapi.ObjectReference
 				err := meta_util.DecodeObject(u, &refs)
 				if err != nil {
 					return err
@@ -222,67 +221,7 @@ func extractRefs(data map[string]interface{}, result ksets.ObjectReference) erro
 	return nil
 }
 
-func RenderSection(cfg *restclient.Config, kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator, convertToTable bool) (*v1alpha1.PageSection, error) {
-	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
-		Group: target.Ref.Group,
-		Kind:  target.Ref.Kind,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	section := &v1alpha1.PageSection{
-		Resource: *apiv1.NewResourceID(mapping),
-	}
-
-	q, vars, err := target.GraphQuery(src)
-	if err != nil {
-		return nil, err
-	}
-
-	if target.Query.Type == v1alpha1.GraphQLQuery {
-		objs, err := ExecGraphQLQuery(kc, q, vars)
-		if err != nil {
-			return nil, err
-		}
-
-		if convertToTable {
-			if err := Registry.Register(mapping.Resource, cfg); err != nil {
-				return nil, err
-			}
-
-			table, err := tableconvertor.TableForList(Registry, kc, mapping.Resource, objs)
-			if err != nil {
-				return nil, err
-			}
-			section.Table = table
-		} else {
-			section.Items = objs
-		}
-	} else if target.Query.Type == v1alpha1.RESTQuery {
-		obj, err := execRestQuery(kc, q, mapping.GroupVersionKind, src)
-		if err != nil {
-			return nil, err
-		}
-
-		if convertToTable {
-			if err := Registry.Register(mapping.Resource, cfg); err != nil {
-				return nil, err
-			}
-
-			table, err := tableconvertor.TableForList(Registry, kc, mapping.Resource, []unstructured.Unstructured{*obj})
-			if err != nil {
-				return nil, err
-			}
-			section.Table = table
-		} else {
-			section.Items = []unstructured.Unstructured{*obj}
-		}
-	}
-	return section, nil
-}
-
-func ExecRawQuery(kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator) (*apiv1.ResourceID, []apiv1.ObjectReference, error) {
+func ExecRawQuery(kc client.Client, src kmapi.OID, target rsapi.ResourceLocator) (*kmapi.ResourceID, []kmapi.ObjectReference, error) {
 	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
 		Group: target.Ref.Group,
 		Kind:  target.Ref.Kind,
@@ -290,14 +229,14 @@ func ExecRawQuery(kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocat
 	if err != nil {
 		return nil, nil, err
 	}
-	rid := apiv1.NewResourceID(mapping)
+	rid := kmapi.NewResourceID(mapping)
 
 	q, vars, err := target.GraphQuery(src)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if target.Query.Type == v1alpha1.GraphQLQuery {
+	if target.Query.Type == rsapi.GraphQLQuery {
 		result, err := execRawGraphQLQuery(q, vars)
 		return rid, result, err
 	}
@@ -306,14 +245,14 @@ func ExecRawQuery(kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocat
 	if err != nil {
 		return nil, nil, err
 	}
-	ref := apiv1.ObjectReference{
+	ref := kmapi.ObjectReference{
 		Namespace: obj.GetNamespace(),
 		Name:      obj.GetName(),
 	}
-	return rid, []apiv1.ObjectReference{ref}, nil
+	return rid, []kmapi.ObjectReference{ref}, nil
 }
 
-func ExecQuery(kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator) (*apiv1.ResourceID, []unstructured.Unstructured, error) {
+func ExecQuery(kc client.Client, src kmapi.OID, target rsapi.ResourceLocator) (*kmapi.ResourceID, []unstructured.Unstructured, error) {
 	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
 		Group: target.Ref.Group,
 		Kind:  target.Ref.Kind,
@@ -321,14 +260,14 @@ func ExecQuery(kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator)
 	if err != nil {
 		return nil, nil, err
 	}
-	rid := apiv1.NewResourceID(mapping)
+	rid := kmapi.NewResourceID(mapping)
 
 	q, vars, err := target.GraphQuery(src)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if target.Query.Type == v1alpha1.GraphQLQuery {
+	if target.Query.Type == rsapi.GraphQLQuery {
 		result, err := ExecGraphQLQuery(kc, q, vars)
 		return rid, result, err
 	}
@@ -340,7 +279,7 @@ func ExecQuery(kc client.Client, src apiv1.OID, target v1alpha1.ResourceLocator)
 	return rid, []unstructured.Unstructured{*obj}, nil
 }
 
-func execRestQuery(kc client.Client, q string, gvk schema.GroupVersionKind, src apiv1.OID) (*unstructured.Unstructured, error) {
+func execRestQuery(kc client.Client, q string, gvk schema.GroupVersionKind, src kmapi.OID) (*unstructured.Unstructured, error) {
 	var out unstructured.Unstructured
 	if q != "" {
 		query, err := renderRESTQuery(kc, q, src)
@@ -360,17 +299,17 @@ func execRestQuery(kc client.Client, q string, gvk schema.GroupVersionKind, src 
 	return &out, nil
 }
 
-func renderRESTQuery(kc client.Client, q string, src apiv1.OID) (string, error) {
+func renderRESTQuery(kc client.Client, q string, src kmapi.OID) (string, error) {
 	if !strings.Contains(q, "{{") {
 		return q, nil
 	}
 
-	objID, err := apiv1.ParseObjectID(src)
+	objID, err := kmapi.ParseObjectID(src)
 	if err != nil {
 		return "", err
 	}
 
-	rid, err := apiv1.ExtractResourceID(kc.RESTMapper(), apiv1.ResourceID{
+	rid, err := kmapi.ExtractResourceID(kc.RESTMapper(), kmapi.ResourceID{
 		Group:   objID.Group,
 		Version: "",
 		Name:    "",

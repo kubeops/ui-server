@@ -29,7 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/resource-metadata/apis/meta"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	blockdefs "kmodules.xyz/resource-metadata/hub/resourceblockdefinitions"
 )
 
@@ -45,14 +45,14 @@ var _ rest.Lister = &Storage{}
 func NewStorage() *Storage {
 	return &Storage{
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    v1alpha1.SchemeGroupVersion.Group,
-			Resource: v1alpha1.ResourceResourceBlockDefinitions,
+			Group:    rsapi.SchemeGroupVersion.Group,
+			Resource: rsapi.ResourceResourceBlockDefinitions,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return v1alpha1.SchemeGroupVersion.WithKind(v1alpha1.ResourceKindResourceBlockDefinition)
+	return rsapi.SchemeGroupVersion.WithKind(rsapi.ResourceKindResourceBlockDefinition)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -61,20 +61,20 @@ func (r *Storage) NamespaceScoped() bool {
 
 // Getter
 func (r *Storage) New() runtime.Object {
-	return &v1alpha1.ResourceBlockDefinition{}
+	return &rsapi.ResourceBlockDefinition{}
 }
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
 	obj, err := blockdefs.LoadByName(name)
 	if err != nil {
-		return nil, kerr.NewNotFound(schema.GroupResource{Group: meta.GroupName, Resource: v1alpha1.ResourceKindResourceBlockDefinition}, name)
+		return nil, kerr.NewNotFound(schema.GroupResource{Group: meta.GroupName, Resource: rsapi.ResourceKindResourceBlockDefinition}, name)
 	}
 	return obj, err
 }
 
 // Lister
 func (r *Storage) NewList() runtime.Object {
-	return &v1alpha1.ResourceBlockDefinitionList{}
+	return &rsapi.ResourceBlockDefinitionList{}
 }
 
 func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOptions) (runtime.Object, error) {
@@ -98,7 +98,7 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		objs = objs[:options.Limit]
 	}
 
-	items := make([]v1alpha1.ResourceBlockDefinition, 0, len(objs))
+	items := make([]rsapi.ResourceBlockDefinition, 0, len(objs))
 	for _, obj := range objs {
 		if options.LabelSelector != nil && !options.LabelSelector.Matches(labels.Set(obj.GetLabels())) {
 			continue
@@ -106,7 +106,7 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		items = append(items, obj)
 	}
 
-	return &v1alpha1.ResourceBlockDefinitionList{Items: items}, nil
+	return &rsapi.ResourceBlockDefinitionList{Items: items}, nil
 }
 
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {

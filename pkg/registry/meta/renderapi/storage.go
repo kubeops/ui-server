@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -47,7 +47,7 @@ func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return v1alpha1.SchemeGroupVersion.WithKind(v1alpha1.ResourceKindRenderAPI)
+	return rsapi.SchemeGroupVersion.WithKind(rsapi.ResourceKindRenderAPI)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -55,11 +55,11 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) New() runtime.Object {
-	return &v1alpha1.RenderAPI{}
+	return &rsapi.RenderAPI{}
 }
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
-	in := obj.(*v1alpha1.RenderAPI)
+	in := obj.(*rsapi.RenderAPI)
 	if in.Request == nil {
 		return nil, apierrors.NewBadRequest("missing apirequest")
 	}

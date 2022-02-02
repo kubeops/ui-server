@@ -38,10 +38,10 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/cache"
 	"kmodules.xyz/apiversion"
-	apiv1 "kmodules.xyz/client-go/api/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/pointer"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -130,14 +130,14 @@ func (finder ObjectFinder) ListConnectedPartials(src *unstructured.Unstructured,
 	return result, nil
 }
 
-func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured, connections []v1alpha1.ResourceConnection) (map[apiv1.EdgeLabel]ksets.OID, error) {
+func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured, connections []rsapi.ResourceConnection) (map[kmapi.EdgeLabel]ksets.OID, error) {
 	type GKL struct {
 		Group  string
 		Kind   string
 		Labels string
 	}
 	srcGVK := src.GroupVersionKind()
-	connsPerGKL := map[GKL][]v1alpha1.ResourceConnection{}
+	connsPerGKL := map[GKL][]rsapi.ResourceConnection{}
 	for _, c := range connections {
 		gvk := c.Target.GroupVersionKind()
 		labels := make([]string, 0, len(c.Labels))
@@ -153,7 +153,7 @@ func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured
 		connsPerGKL[gkl] = append(connsPerGKL[gkl], c)
 	}
 
-	edges := map[apiv1.EdgeLabel]ksets.OID{}
+	edges := map[kmapi.EdgeLabel]ksets.OID{}
 	for _, conns := range connsPerGKL {
 		if len(conns) > 1 {
 			sort.Slice(conns, func(i, j int) bool {
@@ -174,7 +174,7 @@ func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured
 			return nil, err
 		}
 		for _, obj := range objects {
-			oid := apiv1.NewObjectID(obj).OID()
+			oid := kmapi.NewObjectID(obj).OID()
 			for _, lbl := range conns[0].Labels {
 				if _, ok := edges[lbl]; !ok {
 					edges[lbl] = ksets.NewOID()
@@ -194,7 +194,7 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 
 	if e.Forward {
 		// FIXME: How to handle namespace for Backward direction
-		if e.Connection.Type == v1alpha1.MatchSelector {
+		if e.Connection.Type == rsapi.MatchSelector {
 			// var ls string
 			var selector labels.Selector
 			var err error
@@ -269,7 +269,7 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 				}
 			}
 			return out, nil
-		} else if e.Connection.Type == v1alpha1.MatchName {
+		} else if e.Connection.Type == rsapi.MatchName {
 			if e.Connection.NameTemplate == "" {
 				return nil, fmt.Errorf("edge %v is missing nameTemplate", e)
 			}
@@ -304,9 +304,9 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 				}
 			}
 			return out, nil
-		} else if e.Connection.Type == v1alpha1.OwnedBy {
+		} else if e.Connection.Type == rsapi.OwnedBy {
 			return finder.findOwners(e, src.GetOwnerReferences(), src.GetNamespace())
-		} else if e.Connection.Type == v1alpha1.MatchRef {
+		} else if e.Connection.Type == rsapi.MatchRef {
 			// TODO: check that namespacePath must be empty
 
 			var out []*unstructured.Unstructured
@@ -384,7 +384,7 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 			namespace = src.GetNamespace()
 		} // else all namespace RETHINK
 
-		if e.Connection.Type == v1alpha1.MatchSelector {
+		if e.Connection.Type == rsapi.MatchSelector {
 			var out []*unstructured.Unstructured
 
 			lbl := src.GetLabels()
@@ -456,7 +456,7 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 				}
 			}
 			return out, nil
-		} else if e.Connection.Type == v1alpha1.MatchName {
+		} else if e.Connection.Type == rsapi.MatchName {
 			if e.Connection.NameTemplate != "" {
 				name, ok := ExtractName(src.GetName(), e.Connection.NameTemplate)
 				if !ok {
@@ -483,9 +483,9 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 
 				return out, nil
 			}
-		} else if e.Connection.Type == v1alpha1.OwnedBy {
+		} else if e.Connection.Type == rsapi.OwnedBy {
 			return finder.findChildren(e, src)
-		} else if e.Connection.Type == v1alpha1.MatchRef {
+		} else if e.Connection.Type == rsapi.MatchRef {
 			// TODO: check that namespacePath must be empty
 
 			opts := client.ListOptions{LabelSelector: labels.Everything()}
@@ -583,13 +583,13 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 	return nil, nil
 }
 
-func isConnected(conn v1alpha1.OwnershipLevel, obj *unstructured.Unstructured, owner *unstructured.Unstructured) bool {
+func isConnected(conn rsapi.OwnershipLevel, obj *unstructured.Unstructured, owner *unstructured.Unstructured) bool {
 	switch conn {
-	case v1alpha1.Controller:
+	case rsapi.Controller:
 		if metav1.IsControlledBy(obj, owner) {
 			return true
 		}
-	case v1alpha1.Owner:
+	case rsapi.Owner:
 		if IsOwnedBy(obj, owner) {
 			return true
 		}
@@ -669,7 +669,7 @@ func (finder ObjectFinder) findOwners(e *Edge, srcOwnerRefs []metav1.OwnerRefere
 		objkey.Name = ref.Name
 
 		if ref.APIVersion == e.Dst.GroupVersion().String() && ref.Kind == e.Dst.Kind {
-			if e.Connection.Level == v1alpha1.Controller {
+			if e.Connection.Level == rsapi.Controller {
 				if ref.Controller != nil && *ref.Controller {
 					var rs unstructured.Unstructured
 					rs.SetGroupVersionKind(e.Dst)
@@ -680,7 +680,7 @@ func (finder ObjectFinder) findOwners(e *Edge, srcOwnerRefs []metav1.OwnerRefere
 					out = append(out, &rs)
 					break
 				}
-			} else if e.Connection.Level == v1alpha1.Owner {
+			} else if e.Connection.Level == rsapi.Owner {
 				var rs unstructured.Unstructured
 				rs.SetGroupVersionKind(e.Dst)
 				err := finder.Client.Get(context.TODO(), objkey, &rs)
@@ -698,7 +698,7 @@ func (finder ObjectFinder) findOwners(e *Edge, srcOwnerRefs []metav1.OwnerRefere
 }
 
 func (finder ObjectFinder) findChildren(e *Edge, src *unstructured.Unstructured) ([]*unstructured.Unstructured, error) {
-	if e.Connection.Level != v1alpha1.Owner && e.Connection.Level != v1alpha1.Controller {
+	if e.Connection.Level != rsapi.Owner && e.Connection.Level != rsapi.Controller {
 		return nil, fmt.Errorf("connection level should be Owner or Controller, found %v", e.Connection.Level)
 	}
 
@@ -885,7 +885,7 @@ func ParseResourceRefs(records [][]string) ([]ResourceRef, error) {
 	return refs, nil
 }
 
-func (finder ObjectFinder) Get(ref *v1alpha1.ObjectRef) (*unstructured.Unstructured, error) {
+func (finder ObjectFinder) Get(ref *rsapi.ObjectRef) (*unstructured.Unstructured, error) {
 	gvk := schema.FromAPIVersionAndKind(ref.Target.APIVersion, ref.Target.Kind)
 
 	objkey := client.ObjectKey{Name: ref.Name}
@@ -923,7 +923,7 @@ func (finder ObjectFinder) Get(ref *v1alpha1.ObjectRef) (*unstructured.Unstructu
 	return &object, nil
 }
 
-func (finder ObjectFinder) Locate(locator *v1alpha1.ObjectLocator, edgeList []v1alpha1.NamedEdge) (*unstructured.Unstructured, error) {
+func (finder ObjectFinder) Locate(locator *rsapi.ObjectLocator, edgeList []rsapi.NamedEdge) (*unstructured.Unstructured, error) {
 	src, err := finder.Get(&locator.Src)
 	if err != nil {
 		return nil, err
@@ -932,7 +932,7 @@ func (finder ObjectFinder) Locate(locator *v1alpha1.ObjectLocator, edgeList []v1
 		return src, nil
 	}
 
-	m := make(map[string]*v1alpha1.NamedEdge)
+	m := make(map[string]*rsapi.NamedEdge)
 	for i, entry := range edgeList {
 		m[entry.Name] = &edgeList[i]
 	}

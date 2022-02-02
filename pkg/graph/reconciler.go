@@ -21,7 +21,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	apiv1 "kmodules.xyz/client-go/api/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logger "sigs.k8s.io/controller-runtime/pkg/log"
@@ -32,7 +32,7 @@ import (
 // Reconciler reconciles a Release object
 type Reconciler struct {
 	client.Client
-	R      apiv1.ResourceID
+	R      kmapi.ResourceID
 	Scheme *runtime.Scheme
 }
 
@@ -61,7 +61,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 			// on deleted requests.
 			return reconcile.Result{}, client.IgnoreNotFound(err)
 		} else {
-			objGraph.Update(apiv1.NewObjectID(&obj).OID(), result)
+			objGraph.Update(kmapi.NewObjectID(&obj).OID(), result)
 		}
 	}
 

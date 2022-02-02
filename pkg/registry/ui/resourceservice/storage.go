@@ -44,7 +44,7 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 	cu "kmodules.xyz/client-go/client"
 	mu "kmodules.xyz/client-go/meta"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/cli-utils/pkg/kstatus/status"
@@ -310,13 +310,13 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		objID := kmapi.NewObjectID(&item)
 		oid := objID.OID()
 
-		rid, objs, err := graph.ExecQuery(r.kc, oid, v1alpha1.ResourceLocator{
+		rid, objs, err := graph.ExecQuery(r.kc, oid, rsapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "",
 				Kind:  "Service",
 			},
-			Query: v1alpha1.ResourceQuery{
-				Type:    v1alpha1.GraphQLQuery,
+			Query: rsapi.ResourceQuery{
+				Type:    rsapi.GraphQLQuery,
 				ByLabel: kmapi.EdgeExposedBy,
 			},
 		})
@@ -364,13 +364,13 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 	{
 		objID := kmapi.NewObjectID(&item)
 		oid := objID.OID()
-		rid, refs, err := graph.ExecRawQuery(r.kc, oid, v1alpha1.ResourceLocator{
+		rid, refs, err := graph.ExecRawQuery(r.kc, oid, rsapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "stash.appscode.com",
 				Kind:  "BackupSession",
 			},
-			Query: v1alpha1.ResourceQuery{
-				Type: v1alpha1.GraphQLQuery,
+			Query: rsapi.ResourceQuery{
+				Type: rsapi.GraphQLQuery,
 				Raw: `query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
 		         find(oid: $src) {
 		           backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
@@ -399,13 +399,13 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		objID := kmapi.NewObjectID(&item)
 		oid := objID.OID()
 
-		rid, refs, err := graph.ExecRawQuery(r.kc, oid, v1alpha1.ResourceLocator{
+		rid, refs, err := graph.ExecRawQuery(r.kc, oid, rsapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "monitoring.coreos.com",
 				Kind:  "ServiceMonitor",
 			},
-			Query: v1alpha1.ResourceQuery{
-				Type: v1alpha1.GraphQLQuery,
+			Query: rsapi.ResourceQuery{
+				Type: rsapi.GraphQLQuery,
 				Raw: `query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
 		           find(oid: $src) {
 		             exposed_by(group: "", kind: "Service") {
@@ -429,13 +429,13 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		}
 
 		if genres.Spec.Facilities.Monitoring.Usage == uiv1alpha1.FacilityUnknown {
-			rid, refs, err = graph.ExecRawQuery(r.kc, oid, v1alpha1.ResourceLocator{
+			rid, refs, err = graph.ExecRawQuery(r.kc, oid, rsapi.ResourceLocator{
 				Ref: metav1.GroupKind{
 					Group: "monitoring.coreos.com",
 					Kind:  "PodMonitor",
 				},
-				Query: v1alpha1.ResourceQuery{
-					Type: v1alpha1.GraphQLQuery,
+				Query: rsapi.ResourceQuery{
+					Type: rsapi.GraphQLQuery,
 					Raw: `query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
 		           find(oid: $src) {
 		             exposed_by(group: "", kind: "Service") {

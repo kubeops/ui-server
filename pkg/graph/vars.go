@@ -20,7 +20,7 @@ import (
 	"sync"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	apiv1 "kmodules.xyz/client-go/api/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/hub"
 	ksets "kmodules.xyz/sets"
 )
@@ -29,14 +29,14 @@ var Registry = hub.NewRegistryOfKnownResources()
 
 var objGraph = &ObjectGraph{
 	m:     sync.RWMutex{},
-	edges: map[apiv1.OID]map[apiv1.EdgeLabel]ksets.OID{},
-	ids:   map[apiv1.OID]map[apiv1.EdgeLabel]ksets.OID{},
+	edges: map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID{},
+	ids:   map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID{},
 }
 
 var Schema = getGraphQLSchema()
 
-var resourceChannel = make(chan apiv1.ResourceID, 100)
-var resourceTracker = map[schema.GroupVersionKind]apiv1.ResourceID{}
+var resourceChannel = make(chan kmapi.ResourceID, 100)
+var resourceTracker = map[schema.GroupVersionKind]kmapi.ResourceID{}
 
 var gkSet = ksets.NewGroupKind(
 	schema.GroupKind{

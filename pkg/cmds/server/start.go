@@ -38,7 +38,7 @@ import (
 	ou "kmodules.xyz/client-go/openapi"
 	"kmodules.xyz/client-go/tools/clientcmd"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
-	metav1alpha1 "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -63,7 +63,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 			defaultEtcdPathPrefix,
 			apiserver.Codecs.LegacyCodec(
 				auditorv1alpha1.SchemeGroupVersion,
-				metav1alpha1.SchemeGroupVersion,
+				rsapi.SchemeGroupVersion,
 				identityv1alpha1.GroupVersion,
 				uiv1alpha1.GroupVersion,
 			),
@@ -121,17 +121,19 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	serverConfig.OpenAPIConfig.Info.Version = v.Version.Version
 	serverConfig.OpenAPIConfig.IgnorePrefixes = []string{
 		"/swaggerapi",
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenderPages),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenderSections),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceDescriptors),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceGraphs),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenders),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceRenderAPIs),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceBlockDefinitions),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceBlockDefinitions),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceLayouts),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceOutlines),
-		fmt.Sprintf("/apis/%s/%s", metav1alpha1.SchemeGroupVersion, metav1alpha1.ResourceResourceTableDefinitions),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceDescriptors),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceGraphs),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceRenders),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceRenderAPIs),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceBlockDefinitions),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceBlockDefinitions),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceLayouts),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceOutlines),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceTableDefinitions),
+
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceRenderMenus),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceMenus),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, "usermenus"),
 
 		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
 	}
