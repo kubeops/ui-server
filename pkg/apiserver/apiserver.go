@@ -30,8 +30,10 @@ import (
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
+	"kubeops.dev/ui-server/pkg/registry/meta/menuoutline"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderapi"
+	"kubeops.dev/ui-server/pkg/registry/meta/rendermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceblockdefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcedescriptor"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcegraph"
@@ -54,18 +56,21 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 	"kmodules.xyz/authorizer/rbac"
 	cu "kmodules.xyz/client-go/client"
+	"kmodules.xyz/client-go/meta"
 	"kmodules.xyz/custom-resources/apis/auditor"
 	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
-	"kmodules.xyz/resource-metadata/apis/meta"
 	metainstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	metav1alpha1 "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -85,6 +90,7 @@ func init() {
 	metainstall.Install(Scheme)
 	uiinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
+	utilruntime.Must(chartsapi.AddToScheme(Scheme))
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
 
 	// we need to add the options to empty v1
@@ -173,6 +179,10 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, fmt.Errorf("unable to start manager, reason: %v", err)
 	}
 	ctrlClient := mgr.GetClient()
+	disco, err := kubernetes.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		return nil, fmt.Errorf("unable to create discovery client, reason: %v", err)
+	}
 
 	cid, err := cu.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
@@ -212,17 +222,19 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		klog.InfoS("GraphQL handler registered!")
 	}
 	{
-		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(meta.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(rsapi.SchemeGroupVersion.Group, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[metav1alpha1.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
 		v1alpha1storage[metav1alpha1.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[metav1alpha1.ResourceRenders] = render.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[metav1alpha1.ResourceRenderAPIs] = renderapi.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[metav1alpha1.ResourceRenderMenus] = rendermenu.NewStorage(ctrlClient, disco)
 		v1alpha1storage[metav1alpha1.ResourceResourceBlockDefinitions] = resourceblockdefinition.NewStorage()
 		v1alpha1storage[metav1alpha1.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)
 		v1alpha1storage[metav1alpha1.ResourceResourceOutlines] = resourceoutline.NewStorage()
 		v1alpha1storage[metav1alpha1.ResourceResourceTableDefinitions] = resourcetabledefinition.NewStorage()
+		v1alpha1storage[metav1alpha1.ResourceMenuOutlines] = menuoutline.NewStorage(ctrlClient, meta.Namespace())
 
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 

@@ -14,7 +14,7 @@ This exposes a number of apis for a Kubernetes cluster, such as:
 
 ## Deploy into a Kubernetes Cluster
 
-You can deploy Indentity Server using Helm chart found [here](https://github.com/kubeops/installer/tree/master/charts/identity-server).
+You can deploy UI Server using Helm chart found [here](https://github.com/kubeops/installer/tree/master/charts/kube-ui-server).
 
 ```console
 helm repo add appscode https://charts.appscode.com/stable/

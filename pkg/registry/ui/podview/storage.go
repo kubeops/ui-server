@@ -37,7 +37,7 @@ import (
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	mu "kmodules.xyz/client-go/meta"
-	rsapi "kmodules.xyz/resource-metrics/api"
+	rmapi "kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -145,8 +145,8 @@ func (r *Storage) toPodView(pod *core.Pod) *uiv1alpha1.PodView {
 
 	result.Spec.Containers = make([]uiv1alpha1.ContainerView, 0, len(pod.Spec.Containers))
 	for _, c := range pod.Spec.Containers {
-		limits = rsapi.AddResourceList(limits, c.Resources.Limits)
-		requests = rsapi.AddResourceList(requests, c.Resources.Requests)
+		limits = rmapi.AddResourceList(limits, c.Resources.Limits)
+		requests = rmapi.AddResourceList(requests, c.Resources.Requests)
 
 		result.Spec.Containers = append(result.Spec.Containers, uiv1alpha1.ContainerView{
 			Name:       c.Name,
@@ -178,8 +178,8 @@ func (r *Storage) toPodView(pod *core.Pod) *uiv1alpha1.PodView {
 		})
 	}
 	for _, c := range pod.Spec.InitContainers {
-		limits = rsapi.MaxResourceList(limits, c.Resources.Limits)
-		requests = rsapi.MaxResourceList(requests, c.Resources.Requests)
+		limits = rmapi.MaxResourceList(limits, c.Resources.Limits)
+		requests = rmapi.MaxResourceList(requests, c.Resources.Requests)
 	}
 
 	if r.pc != nil {
