@@ -17,18 +17,38 @@ limitations under the License.
 package menu
 
 import (
+	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/discovery"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	"kmodules.xyz/client-go/tools/parser"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub"
 	"kmodules.xyz/resource-metadata/hub/resourceoutlines"
+	"kubepack.dev/lib-helm/pkg/repo"
+	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+func RenderMenu(driver *UserMenuDriver, req *rsapi.RenderMenuRequest) (*rsapi.Menu, error) {
+	switch req.Mode {
+	case rsapi.MenuAccordion:
+		return driver.Get(req.Menu)
+	case rsapi.MenuGallery:
+		return GetGalleryMenu(driver, req.Menu)
+	case rsapi.MenuDropDown:
+		return GetDropDownMenu(driver, req)
+	default:
+		return nil, apierrors.NewBadRequest(fmt.Sprintf("unknown menu mode %s", req.Mode))
+	}
+}
 
 func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterface) (map[string]map[string]*rsapi.MenuItem, error) {
 	reg := hub.NewRegistryOfKnownResources()
@@ -105,4 +125,30 @@ func getMenuItem(out map[string]map[string]*rsapi.MenuItem, gk metav1.GroupKind)
 	}
 	item, ok := m[gk.Kind]
 	return item, ok
+}
+
+func LoadVendorPresets(chrt *repo.ChartExtended) (map[string]*chartsapi.VendorChartPreset, error) {
+	cpsMap := map[string]*chartsapi.VendorChartPreset{}
+	for _, f := range chrt.Raw {
+		if !strings.HasPrefix(f.Name, "presets/") {
+			continue
+		}
+		if err := parser.ProcessResources(f.Data, func(ri parser.ResourceInfo) error {
+			if ri.Object.GroupVersionKind() != chartsapi.GroupVersion.WithKind(chartsapi.ResourceKindVendorChartPreset) {
+				return nil
+			}
+
+			var obj chartsapi.VendorChartPreset
+			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(ri.Object.UnstructuredContent(), &obj); err != nil {
+				return errors.Wrapf(err, "failed to convert from unstructured obj %q in file %s", ri.Object.GetName(), ri.Filename)
+			}
+			cpsMap[obj.Name] = &obj
+
+			return nil
+		}); err != nil {
+			return nil, err
+		}
+
+	}
+	return cpsMap, nil
 }
