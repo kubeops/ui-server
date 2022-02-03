@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM appscode/golang-dev:1.17
+FROM appscode/dlv:1.8.0
 
 FROM {ARG_FROM}
 
