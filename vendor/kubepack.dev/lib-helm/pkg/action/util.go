@@ -6,13 +6,22 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/flect"
+	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
 	"kmodules.xyz/client-go/discovery"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
+	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
+	storeapi "kubepack.dev/preset/apis/store/v1alpha1"
+	appapi "sigs.k8s.io/application/api/app/v1beta1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
 func debug(format string, v ...interface{}) {
@@ -31,7 +40,45 @@ func setAnnotations(chrt *chart.Chart, k, v string) {
 	}
 }
 
-func RefillMetadata(mapper discovery.ResourceMapper, ref, actual map[string]interface{}, gvr metav1.GroupVersionResource, rls types.NamespacedName) error {
+func NewUncachedClient(getter action.RESTClientGetter) (client.Client, error) {
+	cfg, err := getter.ToRESTConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	return NewUncachedClientForConfig(cfg)
+}
+
+func NewUncachedClientForConfig(cfg *rest.Config) (client.Client, error) {
+	mapper, err := apiutil.NewDynamicRESTMapper(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	scheme := runtime.NewScheme()
+	if err := clientgoscheme.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+	if err := chartsapi.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+	if err := storeapi.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+	if err := appapi.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+	return client.New(cfg, client.Options{
+		Scheme: scheme,
+		Mapper: mapper,
+		//Opts: client.WarningHandlerOptions{
+		//	SuppressWarnings:   false,
+		//	AllowDuplicateLogs: false,
+		//},
+	})
+}
+
+func RefillMetadata(kc client.Client, ref, actual map[string]interface{}, gvr metav1.GroupVersionResource, rls types.NamespacedName) error {
 	actual["metadata"] = map[string]interface{}{
 		"resource": map[string]interface{}{
 			"group":    gvr.Group,
@@ -61,6 +108,7 @@ func RefillMetadata(mapper discovery.ResourceMapper, ref, actual map[string]inte
 	//if err != nil {
 	//	return err
 	//}
+	mapper := discovery.NewResourceMapper(kc.RESTMapper())
 
 	for key, o := range actualResources {
 		// apiVersion
@@ -104,7 +152,7 @@ func RefillMetadata(mapper discovery.ResourceMapper, ref, actual map[string]inte
 
 		gvk := schema.FromAPIVersionAndKind(refObj["apiVersion"].(string), refObj["kind"].(string))
 		if gvr, err := mapper.GVR(gvk); err == nil {
-			if ed, ok := resourceeditors.LoadForGVR(gvr); ok {
+			if ed, ok := resourceeditors.LoadByGVR(kc, gvr); ok {
 				if ed.Spec.UI != nil {
 					for _, fields := range ed.Spec.UI.InstanceLabelPaths {
 						fields := strings.Trim(fields, ".")

@@ -31,6 +31,7 @@ import (
 	"kmodules.xyz/client-go/tools/parser"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub"
+	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"kmodules.xyz/resource-metadata/hub/resourceoutlines"
 	"kubepack.dev/lib-helm/pkg/repo"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
@@ -104,7 +105,7 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 			if rd, err := reg.LoadByGVR(gvr); err == nil {
 				me.Icons = rd.Spec.Icons
 			}
-			if rd, ok := LoadResourceEditor(kc, gvr); ok {
+			if rd, ok := resourceeditors.LoadByGVR(kc, gvr); ok {
 				me.Installer = rd.Spec.Installer
 			}
 
