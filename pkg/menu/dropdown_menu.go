@@ -29,6 +29,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog/v2"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"kubepack.dev/kubepack/pkg/lib"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -79,12 +80,12 @@ func RenderDropDownMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenu
 				continue
 			}
 
-			ed, ok := getEditor(mi.Resource)
+			ed, ok := resourceeditors.LoadByResourceID(kc, mi.Resource)
 			if !ok || ed.Spec.UI == nil || ed.Spec.UI.Options == nil || len(ed.Spec.Variants) == 0 {
 				items = append(items, mi)
 			} else if mi.Resource != nil {
 				gvr := mi.Resource.GroupVersionResource()
-				ed, ok := LoadResourceEditor(kc, gvr)
+				ed, ok := resourceeditors.LoadByGVR(kc, gvr)
 				if !ok {
 					return nil, fmt.Errorf("ResourceEditor not defined for %+v", gvr)
 				}
