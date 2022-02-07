@@ -31,6 +31,7 @@ import (
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"kubepack.dev/kubepack/pkg/lib"
+	"kubepack.dev/lib-helm/pkg/values"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -96,7 +97,7 @@ func RenderDropDownMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenu
 					klog.Fatal(err)
 				}
 
-				vpsMap, err := LoadVendorPresets(chrt)
+				vpsMap, err := values.LoadVendorPresets(chrt.Chart)
 				if err != nil {
 					return nil, errors.Wrapf(err, "failed to load vendor presets for chart %+v", chartRef)
 				}

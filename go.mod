@@ -36,8 +36,8 @@ require (
 	kmodules.xyz/resource-metrics v0.0.7
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d
-	kubepack.dev/lib-helm v0.3.2-0.20220203205019-08f9034b21b9
-	kubepack.dev/preset v0.0.0-20220202134203-5d5853a977cb
+	kubepack.dev/lib-helm v0.3.2-0.20220207083916-19ae74825432
+	kubepack.dev/preset v0.0.0-20220207074019-090909e7fcff
 	sigs.k8s.io/cli-utils v0.26.1
 	sigs.k8s.io/controller-runtime v0.9.0
 	sigs.k8s.io/yaml v1.2.0

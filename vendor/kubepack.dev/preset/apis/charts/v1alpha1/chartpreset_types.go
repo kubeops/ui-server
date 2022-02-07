@@ -18,7 +18,6 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"kmodules.xyz/client-go/apiextensions"
 	"kubepack.dev/preset/crds"
 )
@@ -29,13 +28,6 @@ const (
 	ResourceChartPresets    = "chartpresets"
 )
 
-// ChartPresetSpec defines the desired state of ChartPreset
-type ChartPresetSpec struct {
-	// +optional
-	// +kubebuilder:pruning:PreserveUnknownFields
-	Values *runtime.RawExtension `json:"values,omitempty"`
-}
-
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
@@ -44,7 +36,7 @@ type ChartPreset struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec ChartPresetSpec `json:"spec,omitempty"`
+	Spec ClusterChartPresetSpec `json:"spec,omitempty"`
 }
 
 //+kubebuilder:object:root=true

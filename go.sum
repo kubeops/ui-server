@@ -1454,10 +1454,10 @@ kmodules.xyz/webhook-runtime v0.0.0-20210928141616-7f73c2ab318a/go.mod h1:MFZFmJ
 kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d h1:kYp9WoHxw+fg6VL/hO6EvzioKn1xAV+0NMazL7nWiHo=
 kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d/go.mod h1:29gsVT85DQHoKE6t0ggPf0NgAtIJMHLt4RaqeBNe6dY=
 kubepack.dev/lib-helm v0.3.2-0.20211223113921-d8cbb538a0e3/go.mod h1:ITnSLP4Gv2h6r4cCsBr42VbpDqd20jbTnD+qD9NRBgg=
-kubepack.dev/lib-helm v0.3.2-0.20220203205019-08f9034b21b9 h1:uy+cLNQkBK++QGUTj05gbZZ4Zq1Nq80sS8r1shWUUj0=
-kubepack.dev/lib-helm v0.3.2-0.20220203205019-08f9034b21b9/go.mod h1:/Z0u2Wd/lR8BoVv6TzOrKIUHwMB/OzL87a+JoObcR6g=
-kubepack.dev/preset v0.0.0-20220202134203-5d5853a977cb h1:SBWFChf4P4GkFAYraQ2iI6XGLnFpIv8Ymog9/4vjWwA=
-kubepack.dev/preset v0.0.0-20220202134203-5d5853a977cb/go.mod h1:1s67LhHc0fnyjgkums9qfzlmeG0Z0CsV+2b0BDfWH6s=
+kubepack.dev/lib-helm v0.3.2-0.20220207083916-19ae74825432 h1:2qC21LLpfUKvpTsyiDS84VlmId/q9ABUDaMAK9NQsxg=
+kubepack.dev/lib-helm v0.3.2-0.20220207083916-19ae74825432/go.mod h1:1P4FwGNujeIfS+t0sjL+iw2PrFaSVPgWXfk/3B8gagk=
+kubepack.dev/preset v0.0.0-20220207074019-090909e7fcff h1:FZVdcGye5tkDNK0gFyuNNd2ANQ2UA5XGOdrtNTnxnds=
+kubepack.dev/preset v0.0.0-20220207074019-090909e7fcff/go.mod h1:1s67LhHc0fnyjgkums9qfzlmeG0Z0CsV+2b0BDfWH6s=
 modernc.org/cc v1.0.0/go.mod h1:1Sk4//wdnYJiUIxnW8ddKpaOJCF37yAdqYnkxUpaYxw=
 modernc.org/golex v1.0.0/go.mod h1:b/QX9oBD/LhixY6NDh+IdGv17hgB+51fET1i2kPSmvk=
 modernc.org/mathutil v1.0.0/go.mod h1:wU0vUrJsVWBZ4P6e7xtFJEhFSNsfRLJ8H458uRjg03k=
