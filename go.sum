@@ -1441,8 +1441,9 @@ kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61/go.mod h1:3LECbAL3F
 kmodules.xyz/openshift v0.0.0-20210618001443-f2507caa512f/go.mod h1:8E5ckbd1KMNmR4hc7ScvmQnGfx1ULUUp+UTmoDdxRkc=
 kmodules.xyz/resource-metadata v0.7.1-0.20211223071151-daf19bd77f84/go.mod h1:AF6yUxhF4CUx2aoAWEbX4fPEGKHgStT74fgBUSbhYs4=
 kmodules.xyz/resource-metadata v0.8.2-0.20220116072424-4ed4f0c4b8b5/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
-kmodules.xyz/resource-metadata v0.8.2-0.20220203195725-17129529420b h1:7Z4nRgp21s+9hfdlDBnzfExkbbw/rhf7uFKtjA446s0=
 kmodules.xyz/resource-metadata v0.8.2-0.20220203195725-17129529420b/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
+kmodules.xyz/resource-metadata v0.8.2-0.20220207104123-22b988cae7aa h1:DdQhWHHwWg3EPKrLoJ/SErAb4xWarp86/KyoIztNv64=
+kmodules.xyz/resource-metadata v0.8.2-0.20220207104123-22b988cae7aa/go.mod h1:1IaW0z9wqYWuomkLDo78j96QXvy01Wq+FQUR9DVR9Lg=
 kmodules.xyz/resource-metrics v0.0.5/go.mod h1:6Dv63HDgp83DhA+lZNB7GIQR6PLjNrYW6ghQKioQzII=
 kmodules.xyz/resource-metrics v0.0.6/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
 kmodules.xyz/resource-metrics v0.0.7 h1:ISr4lms7BJbIAyzRKTng7uOSPzd7JDpfr7I2LF2cslA=

@@ -52,7 +52,7 @@ func NewUserMenuDriver(kc client.Client, disco discovery.ServerResourcesInterfac
 }
 
 func configmapName(user, menu string) string {
-	// use ui.appscode.com.menu.$menu.$user
+	// use core.appscode.com.menu.$menu.$user
 	return fmt.Sprintf("%s.%s.v1.%s.%d", rsapi.SchemeGroupVersion.Group, rsapi.ResourceMenu, menu, hashUser(user))
 }
 

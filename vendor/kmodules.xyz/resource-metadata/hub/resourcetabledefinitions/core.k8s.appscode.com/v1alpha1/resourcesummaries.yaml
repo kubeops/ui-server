@@ -1,0 +1,75 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: ResourceTableDefinition
+metadata:
+  creationTimestamp: null
+  labels:
+    k8s.io/group: core.k8s.appscode.com
+    k8s.io/kind: ResourceSummary
+    k8s.io/resource: resourcesummaries
+    k8s.io/version: v1alpha1
+  name: core.k8s.appscode.com-v1alpha1-resourcesummaries
+spec:
+  columns:
+  - name: ClusterUID
+    pathTemplate: '{{ .spec.cluster.uid }}'
+    priority: 4
+    type: string
+  - name: ClusterName
+    pathTemplate: '{{ .spec.cluster.name }}'
+    priority: 4
+    type: string
+  - name: Cluster Name
+    pathTemplate: '{{ .spec.cluster.displayName }}'
+    priority: 3
+    type: string
+  - name: Cluster Provider
+    pathTemplate: '{{ .spec.cluster.provider }}'
+    priority: 3
+    type: string
+  - name: APIGroup
+    pathTemplate: '{{ .spec.apiType.group }}'
+    priority: 4
+    type: string
+  - name: APIVersion
+    pathTemplate: '{{ .spec.apiType.version }}'
+    priority: 4
+    type: string
+  - name: APIResource
+    pathTemplate: '{{ .spec.apiType.name }}'
+    priority: 4
+    type: string
+  - name: APIKind
+    pathTemplate: '{{ .spec.apiType.kind }}'
+    priority: 3
+    type: string
+  - name: APIScope
+    pathTemplate: '{{ .spec.apiType.scope }}'
+    priority: 4
+    type: string
+  - name: Total Resource Limits
+    pathTemplate: '{{ .spec.totalResource.limits | toRawJson }}'
+    priority: 3
+    type: object
+  - name: Total Resource Requests
+    pathTemplate: '{{ .spec.totalResource.requests | toRawJson }}'
+    priority: 3
+    type: object
+  - name: App Resource Limits
+    pathTemplate: '{{ .spec.appResource.limits | toRawJson }}'
+    priority: 3
+    type: object
+  - name: App Resource Requests
+    pathTemplate: '{{ .spec.appResource.requests | toRawJson }}'
+    priority: 3
+    type: object
+  - name: Count
+    pathTemplate: '{{ .spec.count }}'
+    priority: 3
+    type: integer
+  defaultView: true
+  resource:
+    group: core.k8s.appscode.com
+    kind: ResourceSummary
+    name: resourcesummaries
+    scope: Namespaced
+    version: v1alpha1

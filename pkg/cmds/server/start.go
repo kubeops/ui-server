@@ -23,7 +23,6 @@ import (
 	"net"
 
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
-	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
 	"kubeops.dev/ui-server/pkg/prometheus"
 
@@ -38,6 +37,7 @@ import (
 	ou "kmodules.xyz/client-go/openapi"
 	"kmodules.xyz/client-go/tools/clientcmd"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
+	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -65,7 +65,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 				auditorv1alpha1.SchemeGroupVersion,
 				rsapi.SchemeGroupVersion,
 				identityv1alpha1.GroupVersion,
-				uiv1alpha1.GroupVersion,
+				corev1alpha1.GroupVersion,
 			),
 		),
 		PrometheusOptions: prometheus.NewPrometheusConfig(),
@@ -114,7 +114,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		ou.GetDefinitions(
 			auditorv1alpha1.GetOpenAPIDefinitions,
 			identityv1alpha1.GetOpenAPIDefinitions,
-			uiv1alpha1.GetOpenAPIDefinitions,
+			corev1alpha1.GetOpenAPIDefinitions,
 		),
 		openapi.NewDefinitionNamer(apiserver.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"

@@ -20,8 +20,6 @@ import (
 	"net"
 	"strings"
 
-	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -31,6 +29,7 @@ import (
 	"k8s.io/client-go/rest"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/clusterid"
+	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 )
 
 type matcherType int
@@ -92,8 +91,8 @@ func (s GroupKindSelector) Matches(gk schema.GroupKind) bool {
 	return ok
 }
 
-func GetKubernetesInfo(cfg *rest.Config, kc kubernetes.Interface) (*uiv1alpha1.KubernetesInfo, error) {
-	var si uiv1alpha1.KubernetesInfo
+func GetKubernetesInfo(cfg *rest.Config, kc kubernetes.Interface) (*corev1alpha1.KubernetesInfo, error) {
+	var si corev1alpha1.KubernetesInfo
 
 	var err error
 	si.ClusterName = clusterid.ClusterName()
@@ -110,7 +109,7 @@ func GetKubernetesInfo(cfg *rest.Config, kc kubernetes.Interface) (*uiv1alpha1.K
 	if err != nil {
 		return nil, err
 	} else {
-		si.ControlPlane = &uiv1alpha1.ControlPlaneInfo{
+		si.ControlPlane = &corev1alpha1.ControlPlaneInfo{
 			NotBefore: metav1.NewTime(cert.NotBefore),
 			NotAfter:  metav1.NewTime(cert.NotAfter),
 			// DNSNames:       cert.DNSNames,

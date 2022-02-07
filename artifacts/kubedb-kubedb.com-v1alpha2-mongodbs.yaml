@@ -19,7 +19,7 @@ spec:
       byLabel: view
       type: GraphQL
     ref:
-      group: ui.k8s.appscode.com
+      group: core.k8s.appscode.com
       kind: GenericResource
     view:
       columns:
@@ -127,7 +127,7 @@ spec:
           }
         type: GraphQL
       ref:
-        group: ui.k8s.appscode.com
+        group: core.k8s.appscode.com
         kind: PodView
       view:
         columns:
@@ -697,7 +697,7 @@ spec:
         byLabel: view
         type: GraphQL
       ref:
-        group: ui.kubedb.com
+        group: core.kubedb.com
         kind: MongoDBInsight
       view:
         columns:
@@ -732,7 +732,7 @@ spec:
         byLabel: view
         type: GraphQL
       ref:
-        group: ui.kubedb.com
+        group: core.kubedb.com
         kind: MongoDBQueries
       view:
         columns:
@@ -777,7 +777,7 @@ spec:
         byLabel: view
         type: GraphQL
       ref:
-        group: ui.kubedb.com
+        group: core.kubedb.com
         kind: MongoDBSchemaOverview
       view:
         columns:
@@ -798,7 +798,7 @@ spec:
         byLabel: view
         type: GraphQL
       ref:
-        group: ui.kubedb.com
+        group: core.kubedb.com
         kind: MongoDBInsight
       view:
         columns:
@@ -902,7 +902,7 @@ spec:
           }
         type: GraphQL
       ref:
-        group: ui.stash.appscode.com
+        group: core.stash.appscode.com
         kind: BackupOverview
       view:
         columns:
@@ -984,7 +984,7 @@ spec:
       byLabel: view
       type: GraphQL
     ref:
-      group: ui.k8s.appscode.com
+      group: core.k8s.appscode.com
       kind: GenericResourceService
     view:
       columns:

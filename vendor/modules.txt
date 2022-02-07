@@ -1708,8 +1708,10 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.8.2-0.20220203195725-17129529420b
+# kmodules.xyz/resource-metadata v0.8.2-0.20220207104123-22b988cae7aa
 ## explicit; go 1.17
+kmodules.xyz/resource-metadata/apis/core/install
+kmodules.xyz/resource-metadata/apis/core/v1alpha1
 kmodules.xyz/resource-metadata/apis/meta
 kmodules.xyz/resource-metadata/apis/meta/install
 kmodules.xyz/resource-metadata/apis/meta/v1alpha1
