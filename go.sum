@@ -1442,12 +1442,12 @@ kmodules.xyz/openshift v0.0.0-20210618001443-f2507caa512f/go.mod h1:8E5ckbd1KMNm
 kmodules.xyz/resource-metadata v0.7.1-0.20211223071151-daf19bd77f84/go.mod h1:AF6yUxhF4CUx2aoAWEbX4fPEGKHgStT74fgBUSbhYs4=
 kmodules.xyz/resource-metadata v0.8.2-0.20220116072424-4ed4f0c4b8b5/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
 kmodules.xyz/resource-metadata v0.8.2-0.20220203195725-17129529420b/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
-kmodules.xyz/resource-metadata v0.8.2-0.20220207104123-22b988cae7aa h1:DdQhWHHwWg3EPKrLoJ/SErAb4xWarp86/KyoIztNv64=
-kmodules.xyz/resource-metadata v0.8.2-0.20220207104123-22b988cae7aa/go.mod h1:1IaW0z9wqYWuomkLDo78j96QXvy01Wq+FQUR9DVR9Lg=
+kmodules.xyz/resource-metadata v0.9.1 h1:YQAeAnVKK7jULbV4HTcY2JJrtVsh9B64V6wn2FZEZm8=
+kmodules.xyz/resource-metadata v0.9.1/go.mod h1:GsaythrHLBLKhEy8/l+ioJC0mFmJmZR0FRXpkyxztt8=
 kmodules.xyz/resource-metrics v0.0.5/go.mod h1:6Dv63HDgp83DhA+lZNB7GIQR6PLjNrYW6ghQKioQzII=
 kmodules.xyz/resource-metrics v0.0.6/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
-kmodules.xyz/resource-metrics v0.0.7 h1:ISr4lms7BJbIAyzRKTng7uOSPzd7JDpfr7I2LF2cslA=
-kmodules.xyz/resource-metrics v0.0.7/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
+kmodules.xyz/resource-metrics v0.0.8 h1:4WHV7vKGfoxpZquu/Jowq4pgoMEithyMjFfJIg68Nq8=
+kmodules.xyz/resource-metrics v0.0.8/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
 kmodules.xyz/schema-checker v0.2.0/go.mod h1:J1QUIFsqW0h/WNrIGzzy3UopTzg+RmMJXxvAZfmYDb4=
 kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2 h1:w+n+ZOjcHapYxi1sAp1aHKZaxrlThVfk0YRl+Pe/twk=
 kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2/go.mod h1:shZDmq8S1GFtTq/Cxj+50egTx90XV2uaL6oqlhDsAC8=
