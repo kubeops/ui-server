@@ -98,9 +98,9 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu) (*rsapi.Menu, error) {
 					}
 
 					qs := gourl.Values{}
-					qs.Set("preset-group", *ref.APIGroup)
-					qs.Set("preset-kind", ref.Kind)
-					qs.Set("preset-name", ref.Name)
+					qs.Set("presetGroup", *ref.APIGroup)
+					qs.Set("presetKind", ref.Kind)
+					qs.Set("presetName", ref.Name)
 					u := gourl.URL{
 						Path:     path.Join(mi.Resource.Group, mi.Resource.Version, mi.Resource.Name),
 						RawQuery: qs.Encode(),
