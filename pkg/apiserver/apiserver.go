@@ -23,12 +23,14 @@ import (
 
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
-	uiinstall "kubeops.dev/ui-server/apis/ui/install"
-	uiv1alpha1 "kubeops.dev/ui-server/apis/ui/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/prometheus"
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
+	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/core/genericresource"
+	podviewstorage "kubeops.dev/ui-server/pkg/registry/core/podview"
+	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/core/resourceservice"
+	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderapi"
@@ -41,10 +43,6 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcetabledefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
-	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/ui/genericresource"
-	podviewstorage "kubeops.dev/ui-server/pkg/registry/ui/podview"
-	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/ui/resourceservice"
-	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/ui/resourcesummary"
 
 	"github.com/graphql-go/handler"
 	core "k8s.io/api/core/v1"
@@ -68,6 +66,8 @@ import (
 	"kmodules.xyz/custom-resources/apis/auditor"
 	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
+	uiinstall "kmodules.xyz/resource-metadata/apis/core/install"
+	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
@@ -169,7 +169,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		Port:                   0,
 		HealthProbeBindAddress: "",
 		LeaderElection:         false,
-		LeaderElectionID:       "5b87adeb.ui.kubedb.com",
+		LeaderElectionID:       "5b87adeb.ui-server.kubeops.dev",
 		ClientDisableCacheFor: []client.Object{
 			&core.Pod{},
 		},
@@ -269,13 +269,13 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		}
 	}
 	{
-		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(uiv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(corev1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[uiv1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, pc)
-		v1alpha1storage[uiv1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
-		v1alpha1storage[uiv1alpha1.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
-		v1alpha1storage[uiv1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[corev1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, pc)
+		v1alpha1storage[corev1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[corev1alpha1.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[corev1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

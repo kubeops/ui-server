@@ -20,7 +20,7 @@ response:
         create: Never
       kind: Connection
       resource:
-        group: ui.k8s.appscode.com
+        group: core.k8s.appscode.com
         kind: GenericResource
         name: genericresources
         scope: Namespaced
@@ -72,7 +72,7 @@ response:
           create: Never
         kind: Connection
         resource:
-          group: ui.k8s.appscode.com
+          group: core.k8s.appscode.com
           kind: PodView
           name: podviews
           scope: Namespaced
@@ -499,7 +499,7 @@ response:
           create: Never
         kind: Connection
         resource:
-          group: ui.kubedb.com
+          group: core.kubedb.com
           kind: MongoDBInsight
           name: mongodbinsights
           scope: Namespaced
@@ -612,7 +612,7 @@ response:
           create: Never
         kind: Connection
         resource:
-          group: ui.kubedb.com
+          group: core.kubedb.com
           kind: MongoDBQueries
           name: mongodbqueries
           scope: Namespaced
@@ -831,7 +831,7 @@ response:
           create: Never
         kind: Connection
         resource:
-          group: ui.kubedb.com
+          group: core.kubedb.com
           kind: MongoDBSchemaOverview
           name: mongodbschemaoverviews
           scope: Namespaced
@@ -901,7 +901,7 @@ response:
           create: Never
         kind: Connection
         resource:
-          group: ui.kubedb.com
+          group: core.kubedb.com
           kind: MongoDBInsight
           name: mongodbinsights
           scope: Namespaced
@@ -1057,7 +1057,7 @@ response:
           create: IfEmpty
         kind: Connection
         resource:
-          group: ui.stash.appscode.com
+          group: core.stash.appscode.com
           kind: BackupOverview
           name: backupoverviews
           scope: Namespaced
@@ -1190,7 +1190,7 @@ response:
         create: Never
       kind: Connection
       resource:
-        group: ui.k8s.appscode.com
+        group: core.k8s.appscode.com
         kind: GenericResourceService
         name: genericresourceservices
         scope: Namespaced

@@ -2,7 +2,7 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: RenderAPI
 request:
   resource:
-    group: ui.kubedb.com
+    group: core.kubedb.com
     # kind: MongoDBInsight
     # kind: MongoDBQueries
     kind: MongoDBSchemaOverview
@@ -12,7 +12,7 @@ request:
     name: 'mg-sh'
 
   # resource:
-  #   group: ui.k8s.appscode.com
+  #   group: core.k8s.appscode.com
   #   kind: GenericResource
   #   version: v1alpha1
   # ref:
