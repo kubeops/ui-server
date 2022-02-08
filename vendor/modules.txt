@@ -1699,7 +1699,7 @@ kmodules.xyz/client-go/tools/clientcmd
 kmodules.xyz/client-go/tools/clusterid
 kmodules.xyz/client-go/tools/parser
 kmodules.xyz/client-go/tools/wait
-# kmodules.xyz/custom-resources v0.0.0-20220104014416-7dcc448afcaf
+# kmodules.xyz/custom-resources v0.0.0-20220208103158-61b298634e43
 ## explicit; go 1.16
 kmodules.xyz/custom-resources/apis/auditor
 kmodules.xyz/custom-resources/apis/auditor/install
@@ -1708,7 +1708,7 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.9.3
+# kmodules.xyz/resource-metadata v0.9.5
 ## explicit; go 1.17
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
