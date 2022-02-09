@@ -350,9 +350,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/client-go/api/v1.TypedObjectReference":             schema_kmodulesxyz_client_go_api_v1_TypedObjectReference(ref),
 		"kmodules.xyz/client-go/api/v1.X509Subject":                      schema_kmodulesxyz_client_go_api_v1_X509Subject(ref),
 		"kmodules.xyz/client-go/api/v1.stringSetMerger":                  schema_kmodulesxyz_client_go_api_v1_stringSetMerger(ref),
-		"kubeops.dev/ui-server/apis/identity/v1alpha1.UserInfo":        schema_ui_server_apis_identity_v1alpha1_UserInfo(ref),
-		"kubeops.dev/ui-server/apis/identity/v1alpha1.WhoAmI":          schema_ui_server_apis_identity_v1alpha1_WhoAmI(ref),
-		"kubeops.dev/ui-server/apis/identity/v1alpha1.WhoAmIResponse":  schema_ui_server_apis_identity_v1alpha1_WhoAmIResponse(ref),
+		"kubeops.dev/ui-server/apis/identity/v1alpha1.UserInfo":          schema_ui_server_apis_identity_v1alpha1_UserInfo(ref),
+		"kubeops.dev/ui-server/apis/identity/v1alpha1.WhoAmI":            schema_ui_server_apis_identity_v1alpha1_WhoAmI(ref),
+		"kubeops.dev/ui-server/apis/identity/v1alpha1.WhoAmIResponse":    schema_ui_server_apis_identity_v1alpha1_WhoAmIResponse(ref),
 	}
 }
 

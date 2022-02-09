@@ -18,11 +18,16 @@ package menu
 
 import (
 	"sort"
+	"strings"
 
+	"github.com/gobuffalo/flect"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	"kmodules.xyz/resource-metadata/hub"
 	"kmodules.xyz/resource-metadata/hub/menuoutlines"
+	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -48,6 +53,8 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 			Home: mo.Spec.Home.ToMenuSectionInfo(),
 		},
 	}
+
+	reg := hub.NewRegistryOfKnownResources()
 
 	for _, so := range mo.Spec.Sections {
 		sec := rsapi.MenuSection{
@@ -83,6 +90,23 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 						if mi.LayoutName == "" {
 							mi.LayoutName = generated.LayoutName
 						}
+					} else if gvr, ok := reg.FindGVR(item.Type, true); ok {
+						rd, _ := reg.LoadByGVR(gvr)
+						ed, _ := resourceeditors.LoadByGVR(kc, gvr)
+
+						mi.Resource = &rd.Spec.Resource
+						mi.Missing = true
+						mi.Installer = ed.Spec.Installer
+						// mi.LayoutName = ""
+					} else {
+						mi.Resource = &kmapi.ResourceID{
+							Group:   item.Type.Group,
+							Version: "v1alpha1",                                       // fake default
+							Name:    strings.ToLower(flect.Pluralize(item.Type.Kind)), // fake resource name
+							Kind:    item.Type.Kind,
+							Scope:   kmapi.NamespaceScoped, // fake default
+						}
+						mi.Missing = true
 					}
 				}
 				items = append(items, mi)
