@@ -30,9 +30,21 @@ response:
       - missing: true
         name: Machines
         required: true
+        resource:
+          group: cluster.x-k8s.io
+          kind: Machine
+          name: machines
+          scope: Namespaced
+          version: v1alpha3
       - missing: true
         name: Machine Sets
         required: true
+        resource:
+          group: cluster.x-k8s.io
+          kind: MachineSet
+          name: machinesets
+          scope: Namespaced
+          version: v1alpha3
       name: Kubernetes
       path: /ui.appscode.com/v1alpha1/sections/kubernetes
     - icons:
@@ -77,9 +89,15 @@ response:
           name: statefulsets
           scope: Namespaced
           version: v1
-      - missing: true
+      - layoutName: apps-v1-daemonsets
         name: Daemon Sets
         required: true
+        resource:
+          group: apps
+          kind: DaemonSet
+          name: daemonsets
+          scope: Namespaced
+          version: v1
       - layoutName: batch-v1-jobs
         name: Jobs
         required: true
@@ -308,6 +326,12 @@ response:
       - missing: true
         name: Voyager Ingresses
         required: true
+        resource:
+          group: voyager.appscode.com
+          kind: Ingress
+          name: ingresses
+          scope: Namespaced
+          version: v1
       - layoutName: networking.k8s.io-v1-networkpolicies
         name: Network Policies
         required: true
@@ -324,9 +348,15 @@ response:
       - src: https://cdn.appscode.com/k8s/icons/resourceclasses/config.png
         type: image/png
       items:
-      - missing: true
+      - layoutName: core-v1-configmaps
         name: Config Maps
         required: true
+        resource:
+          group: ""
+          kind: ConfigMap
+          name: configmaps
+          scope: Namespaced
+          version: v1
       - layoutName: core-v1-secrets
         name: Secrets
         required: true

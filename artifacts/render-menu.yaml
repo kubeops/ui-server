@@ -1,8 +1,8 @@
 apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: RenderMenu
 request:
-  menu: kubedb
-  mode: Gallery
+  menu: cluster
+  mode: Accordion
 
 
 # type RenderMenuRequest struct {
