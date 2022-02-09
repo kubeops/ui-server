@@ -1,0 +1,547 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: Menu
+metadata:
+  creationTimestamp: null
+  name: cluster
+spec:
+  mode: Accordion
+  sections:
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/kubernetes.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/kubernetes.png
+      type: image/png
+    items:
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/resourceclasses/basic.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/resourceclasses/basic.png
+        type: image/png
+      missing: true
+      name: Basic
+      path: /
+      required: true
+    - missing: true
+      name: Machines
+      required: true
+    - missing: true
+      name: Machine Sets
+      required: true
+    name: Kubernetes
+    path: /ui.appscode.com/v1alpha1/sections/kubernetes
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/workloads.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/workloads.png
+      type: image/png
+    items:
+    - layoutName: apps-v1-deployments
+      name: Deployments
+      required: true
+      resource:
+        group: apps
+        kind: Deployment
+        name: deployments
+        scope: Namespaced
+        version: v1
+    - layoutName: apps-v1-replicasets
+      name: Replica Sets
+      required: true
+      resource:
+        group: apps
+        kind: ReplicaSet
+        name: replicasets
+        scope: Namespaced
+        version: v1
+    - layoutName: core-v1-replicationcontrollers
+      name: Replication Controllers
+      required: true
+      resource:
+        group: ""
+        kind: ReplicationController
+        name: replicationcontrollers
+        scope: Namespaced
+        version: v1
+    - layoutName: apps-v1-statefulsets
+      name: Stateful Sets
+      required: true
+      resource:
+        group: apps
+        kind: StatefulSet
+        name: statefulsets
+        scope: Namespaced
+        version: v1
+    - missing: true
+      name: Daemon Sets
+      required: true
+    - layoutName: batch-v1-jobs
+      name: Jobs
+      required: true
+      resource:
+        group: batch
+        kind: Job
+        name: jobs
+        scope: Namespaced
+        version: v1
+    - layoutName: batch-v1-cronjobs
+      name: Cron Jobs
+      resource:
+        group: batch
+        kind: CronJob
+        name: cronjobs
+        scope: Namespaced
+        version: v1
+    - layoutName: core-v1-pods
+      name: Pods
+      required: true
+      resource:
+        group: ""
+        kind: Pod
+        name: pods
+        scope: Namespaced
+        version: v1
+    name: Workloads
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/helm.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/helm.png
+      type: image/png
+    items:
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/resourceclasses/release.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/resourceclasses/release.png
+        type: image/png
+      missing: true
+      name: Releases
+      path: /helm/v3/releases
+    name: Helm 3
+  - apiGroup: kubedb.com
+    icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/datastore.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/datastore.png
+      type: image/png
+    items:
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/elasticsearches.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/elasticsearches.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-elasticsearches
+      name: Elasticsearch
+      resource:
+        group: kubedb.com
+        kind: Elasticsearch
+        name: elasticsearches
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/etcds.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/etcds.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-etcds
+      name: Etcd
+      resource:
+        group: kubedb.com
+        kind: Etcd
+        name: etcds
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mariadbs.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mariadbs.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-mariadbs
+      name: MariaDB
+      resource:
+        group: kubedb.com
+        kind: MariaDB
+        name: mariadbs
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/memcacheds.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/memcacheds.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-memcacheds
+      name: Memcached
+      resource:
+        group: kubedb.com
+        kind: Memcached
+        name: memcacheds
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mongodbs.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mongodbs.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-mongodbs
+      name: MongoDB
+      resource:
+        group: kubedb.com
+        kind: MongoDB
+        name: mongodbs
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mysqls.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mysqls.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-mysqls
+      name: MySQL
+      resource:
+        group: kubedb.com
+        kind: MySQL
+        name: mysqls
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/perconaxtradbs.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/perconaxtradbs.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-perconaxtradbs
+      name: PerconaXtraDB
+      resource:
+        group: kubedb.com
+        kind: PerconaXtraDB
+        name: perconaxtradbs
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/pgbouncers.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/pgbouncers.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-pgbouncers
+      name: PgBouncer
+      resource:
+        group: kubedb.com
+        kind: PgBouncer
+        name: pgbouncers
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/postgreses.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/postgreses.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-postgreses
+      name: Postgres
+      resource:
+        group: kubedb.com
+        kind: Postgres
+        name: postgreses
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/proxysqls.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/proxysqls.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-proxysqls
+      name: ProxySQL
+      resource:
+        group: kubedb.com
+        kind: ProxySQL
+        name: proxysqls
+        scope: Namespaced
+        version: v1alpha2
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/redises.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/kubedb.com/redises.png
+        type: image/png
+      layoutName: kubedb.com-v1alpha2-redises
+      name: Redis
+      resource:
+        group: kubedb.com
+        kind: Redis
+        name: redises
+        scope: Namespaced
+        version: v1alpha2
+    - layoutName: kubedb.com-v1alpha2-redissentinels
+      name: RedisSentinel
+      resource:
+        group: kubedb.com
+        kind: RedisSentinel
+        name: redissentinels
+        scope: Namespaced
+        version: v1alpha2
+    name: Datastore
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/networking.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/networking.png
+      type: image/png
+    items:
+    - layoutName: core-v1-services
+      name: Services
+      required: true
+      resource:
+        group: ""
+        kind: Service
+        name: services
+        scope: Namespaced
+        version: v1
+    - layoutName: networking.k8s.io-v1-ingresses
+      name: Ingresses
+      required: true
+      resource:
+        group: networking.k8s.io
+        kind: Ingress
+        name: ingresses
+        scope: Namespaced
+        version: v1
+    - missing: true
+      name: Voyager Ingresses
+      required: true
+    - layoutName: networking.k8s.io-v1-networkpolicies
+      name: Network Policies
+      required: true
+      resource:
+        group: networking.k8s.io
+        kind: NetworkPolicy
+        name: networkpolicies
+        scope: Namespaced
+        version: v1
+    name: Service & Discovery
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/config.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/config.png
+      type: image/png
+    items:
+    - missing: true
+      name: Config Maps
+      required: true
+    - layoutName: core-v1-secrets
+      name: Secrets
+      required: true
+      resource:
+        group: ""
+        kind: Secret
+        name: secrets
+        scope: Namespaced
+        version: v1
+    name: Config
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/storage.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/storage.png
+      type: image/png
+    items:
+    - layoutName: core-v1-persistentvolumeclaims
+      name: Persistent Volume Claims
+      required: true
+      resource:
+        group: ""
+        kind: PersistentVolumeClaim
+        name: persistentvolumeclaims
+        scope: Namespaced
+        version: v1
+    - layoutName: core-v1-persistentvolumes
+      name: Persistent Volulmes
+      required: true
+      resource:
+        group: ""
+        kind: PersistentVolume
+        name: persistentvolumes
+        scope: Cluster
+        version: v1
+    - layoutName: storage.k8s.io-v1-storageclasses
+      name: Storage Classes
+      required: true
+      resource:
+        group: storage.k8s.io
+        kind: StorageClass
+        name: storageclasses
+        scope: Cluster
+        version: v1
+    name: Storage
+  - apiGroup: monitoring.coreos.com
+    icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/monitoring.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/monitoring.png
+      type: image/png
+    items:
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/alertmanagers.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/alertmanagers.png
+        type: image/png
+      layoutName: monitoring.coreos.com-v1-alertmanagers
+      name: Alertmanager
+      resource:
+        group: monitoring.coreos.com
+        kind: Alertmanager
+        name: alertmanagers
+        scope: Namespaced
+        version: v1
+    - layoutName: monitoring.coreos.com-v1alpha1-alertmanagerconfigs
+      name: AlertmanagerConfig
+      resource:
+        group: monitoring.coreos.com
+        kind: AlertmanagerConfig
+        name: alertmanagerconfigs
+        scope: Namespaced
+        version: v1alpha1
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/podmonitors.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/podmonitors.png
+        type: image/png
+      layoutName: monitoring.coreos.com-v1-podmonitors
+      name: PodMonitor
+      resource:
+        group: monitoring.coreos.com
+        kind: PodMonitor
+        name: podmonitors
+        scope: Namespaced
+        version: v1
+    - layoutName: monitoring.coreos.com-v1-probes
+      name: Probe
+      resource:
+        group: monitoring.coreos.com
+        kind: Probe
+        name: probes
+        scope: Namespaced
+        version: v1
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/prometheuses.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/prometheuses.png
+        type: image/png
+      layoutName: monitoring.coreos.com-v1-prometheuses
+      name: Prometheus
+      resource:
+        group: monitoring.coreos.com
+        kind: Prometheus
+        name: prometheuses
+        scope: Namespaced
+        version: v1
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/prometheusrules.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/prometheusrules.png
+        type: image/png
+      layoutName: monitoring.coreos.com-v1-prometheusrules
+      name: PrometheusRule
+      resource:
+        group: monitoring.coreos.com
+        kind: PrometheusRule
+        name: prometheusrules
+        scope: Namespaced
+        version: v1
+    - icons:
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/servicemonitors.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/monitoring.coreos.com/servicemonitors.png
+        type: image/png
+      layoutName: monitoring.coreos.com-v1-servicemonitors
+      name: ServiceMonitor
+      resource:
+        group: monitoring.coreos.com
+        kind: ServiceMonitor
+        name: servicemonitors
+        scope: Namespaced
+        version: v1
+    - layoutName: monitoring.coreos.com-v1-thanosrulers
+      name: ThanosRuler
+      resource:
+        group: monitoring.coreos.com
+        kind: ThanosRuler
+        name: thanosrulers
+        scope: Namespaced
+        version: v1
+    name: Monitoring
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/security.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/security.png
+      type: image/png
+    items:
+    - layoutName: policy-v1beta1-podsecuritypolicies
+      name: Policy
+      required: true
+      resource:
+        group: policy
+        kind: PodSecurityPolicy
+        name: podsecuritypolicies
+        scope: Cluster
+        version: v1beta1
+    - layoutName: core-v1-serviceaccounts
+      name: Service Accounts
+      required: true
+      resource:
+        group: ""
+        kind: ServiceAccount
+        name: serviceaccounts
+        scope: Namespaced
+        version: v1
+    name: Security
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/admin.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/admin.png
+      type: image/png
+    items:
+    - layoutName: core-v1-namespaces
+      name: Namespaces
+      required: true
+      resource:
+        group: ""
+        kind: Namespace
+        name: namespaces
+        scope: Cluster
+        version: v1
+    - layoutName: core-v1-limitranges
+      name: Limit Ranges
+      resource:
+        group: ""
+        kind: LimitRange
+        name: limitranges
+        scope: Namespaced
+        version: v1
+    - layoutName: core-v1-resourcequotas
+      name: Resource Quotas
+      resource:
+        group: ""
+        kind: ResourceQuota
+        name: resourcequotas
+        scope: Namespaced
+        version: v1
+    - layoutName: rbac.authorization.k8s.io-v1-clusterroles
+      name: Cluster Roles
+      required: true
+      resource:
+        group: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: clusterroles
+        scope: Cluster
+        version: v1
+    - layoutName: rbac.authorization.k8s.io-v1-roles
+      name: Roles
+      required: true
+      resource:
+        group: rbac.authorization.k8s.io
+        kind: Role
+        name: roles
+        scope: Namespaced
+        version: v1
+    - layoutName: storage.k8s.io-v1-csidrivers
+      name: CSI Drivers
+      resource:
+        group: storage.k8s.io
+        kind: CSIDriver
+        name: csidrivers
+        scope: Cluster
+        version: v1
+    name: Admin

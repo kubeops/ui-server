@@ -1,0 +1,98 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: Menu
+metadata:
+  creationTimestamp: null
+  name: kubedb
+spec:
+  home:
+    name: Home
+    path: /
+  mode: Accordion
+  sections:
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/datastore.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/datastore.png
+      type: image/png
+    items:
+    - layoutName: kubedb-kubedb.com-v1alpha2-elasticsearches
+      name: Elasticsearch
+      required: true
+      resource:
+        group: kubedb.com
+        kind: Elasticsearch
+        name: elasticsearches
+        scope: Namespaced
+        version: v1alpha2
+    - layoutName: kubedb-kubedb.com-v1alpha2-mariadbs
+      name: MariaDB
+      required: true
+      resource:
+        group: kubedb.com
+        kind: MariaDB
+        name: mariadbs
+        scope: Namespaced
+        version: v1alpha2
+    - layoutName: kubedb-kubedb.com-v1alpha2-memcacheds
+      name: Memcached
+      required: true
+      resource:
+        group: kubedb.com
+        kind: Memcached
+        name: memcacheds
+        scope: Namespaced
+        version: v1alpha2
+    - layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+      name: MongoDB
+      required: true
+      resource:
+        group: kubedb.com
+        kind: MongoDB
+        name: mongodbs
+        scope: Namespaced
+        version: v1alpha2
+    - layoutName: kubedb-kubedb.com-v1alpha2-mysqls
+      name: MySQL
+      required: true
+      resource:
+        group: kubedb.com
+        kind: MySQL
+        name: mysqls
+        scope: Namespaced
+        version: v1alpha2
+    - layoutName: kubedb-kubedb.com-v1alpha2-postgreses
+      name: PostgreSQL
+      required: true
+      resource:
+        group: kubedb.com
+        kind: Postgres
+        name: postgreses
+        scope: Namespaced
+        version: v1alpha2
+    - layoutName: kubedb-kubedb.com-v1alpha2-redises
+      name: Redis
+      required: true
+      resource:
+        group: kubedb.com
+        kind: Redis
+        name: redises
+        scope: Namespaced
+        version: v1alpha2
+    name: Datastore
+    path: /ui.appscode.com/v1alpha1/sections/datastore
+  - icons:
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/datastore.svg
+      type: image/svg+xml
+    - src: https://cdn.appscode.com/k8s/icons/resourceclasses/datastore.png
+      type: image/png
+    items:
+    - layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+      name: Backups
+      resource:
+        group: kubedb.com
+        kind: MongoDB
+        name: mongodbs
+        scope: Namespaced
+        version: v1alpha2
+    name: Backups
+    path: /ui.appscode.com/v1alpha1/sections/backups

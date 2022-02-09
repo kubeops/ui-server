@@ -1,0 +1,24 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderMenu
+request:
+  menu: kubedb
+  mode: Gallery
+
+
+# type RenderMenuRequest struct {
+#   Menu string   `json:"menu"`
+#   Mode MenuMode `json:"mode"`
+#   // +optional
+#   Section *string `json:"section,omitempty"`
+#   // +optional
+#   Type *metav1.GroupKind `json:"type,omitempty"`
+# }
+
+# // +kubebuilder:validation:Enum=Accordion;DropDown;Gallery
+# type MenuMode string
+
+# const (
+#   MenuAccordion MenuMode = "Accordion"
+#   MenuDropDown  MenuMode = "DropDown"
+#   MenuGallery   MenuMode = "Gallery"
+# )

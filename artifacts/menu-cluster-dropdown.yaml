@@ -1,0 +1,174 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderMenu
+request:
+  menu: cluster
+  mode: DropDown
+  section: Datastore
+response:
+  apiVersion: meta.k8s.appscode.com/v1alpha1
+  kind: Menu
+  metadata:
+    creationTimestamp: null
+    name: cluster
+  spec:
+    mode: DropDown
+    sections:
+    - apiGroup: kubedb.com
+      icons:
+      - src: https://cdn.appscode.com/k8s/icons/resourceclasses/datastore.svg
+        type: image/svg+xml
+      - src: https://cdn.appscode.com/k8s/icons/resourceclasses/datastore.png
+        type: image/png
+      items:
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/elasticsearches.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/elasticsearches.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-elasticsearches
+        name: Elasticsearch
+        resource:
+          group: kubedb.com
+          kind: Elasticsearch
+          name: elasticsearches
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/etcds.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/etcds.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-etcds
+        name: Etcd
+        resource:
+          group: kubedb.com
+          kind: Etcd
+          name: etcds
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mariadbs.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mariadbs.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-mariadbs
+        name: MariaDB
+        resource:
+          group: kubedb.com
+          kind: MariaDB
+          name: mariadbs
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/memcacheds.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/memcacheds.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-memcacheds
+        name: Memcached
+        resource:
+          group: kubedb.com
+          kind: Memcached
+          name: memcacheds
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mongodbs.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mongodbs.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-mongodbs
+        name: MongoDB
+        resource:
+          group: kubedb.com
+          kind: MongoDB
+          name: mongodbs
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mysqls.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/mysqls.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-mysqls
+        name: MySQL
+        resource:
+          group: kubedb.com
+          kind: MySQL
+          name: mysqls
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/perconaxtradbs.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/perconaxtradbs.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-perconaxtradbs
+        name: PerconaXtraDB
+        resource:
+          group: kubedb.com
+          kind: PerconaXtraDB
+          name: perconaxtradbs
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/pgbouncers.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/pgbouncers.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-pgbouncers
+        name: PgBouncer
+        resource:
+          group: kubedb.com
+          kind: PgBouncer
+          name: pgbouncers
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/postgreses.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/postgreses.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-postgreses
+        name: Postgres
+        resource:
+          group: kubedb.com
+          kind: Postgres
+          name: postgreses
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/proxysqls.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/proxysqls.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-proxysqls
+        name: ProxySQL
+        resource:
+          group: kubedb.com
+          kind: ProxySQL
+          name: proxysqls
+          scope: Namespaced
+          version: v1alpha2
+      - icons:
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/redises.svg
+          type: image/svg+xml
+        - src: https://cdn.appscode.com/k8s/icons/kubedb.com/redises.png
+          type: image/png
+        layoutName: kubedb.com-v1alpha2-redises
+        name: Redis
+        resource:
+          group: kubedb.com
+          kind: Redis
+          name: redises
+          scope: Namespaced
+          version: v1alpha2
+      - layoutName: kubedb.com-v1alpha2-redissentinels
+        name: RedisSentinel
+        resource:
+          group: kubedb.com
+          kind: RedisSentinel
+          name: redissentinels
+          scope: Namespaced
+          version: v1alpha2
+      name: Datastore
