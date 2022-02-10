@@ -260,7 +260,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			GenerateName:               item.GetGenerateName(),
 			Namespace:                  item.GetNamespace(),
 			SelfLink:                   "",
-			UID:                        "GSVC-" + item.GetUID(),
+			UID:                        "gsvc-" + item.GetUID(),
 			ResourceVersion:            item.GetResourceVersion(),
 			Generation:                 item.GetGeneration(),
 			CreationTimestamp:          item.GetCreationTimestamp(),

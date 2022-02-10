@@ -132,7 +132,7 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 		},
 		Status: pod.Status,
 	}
-	result.UID = "PDVW-" + pod.GetUID()
+	result.UID = "pdvw-" + pod.GetUID()
 	result.SelfLink = ""
 	result.ManagedFields = nil
 	result.OwnerReferences = nil
