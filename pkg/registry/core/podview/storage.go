@@ -22,7 +22,6 @@ import (
 
 	"kubeops.dev/ui-server/pkg/prometheus"
 
-	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
@@ -31,7 +30,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
@@ -134,7 +132,7 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 		},
 		Status: pod.Status,
 	}
-	result.UID = types.UID(uuid.Must(uuid.NewUUID()).String())
+	result.UID = "PDVW-" + pod.GetUID()
 	result.SelfLink = ""
 	result.ManagedFields = nil
 	result.OwnerReferences = nil

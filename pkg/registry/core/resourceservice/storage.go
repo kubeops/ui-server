@@ -25,7 +25,6 @@ import (
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/shared"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -35,7 +34,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
@@ -262,7 +260,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			GenerateName:               item.GetGenerateName(),
 			Namespace:                  item.GetNamespace(),
 			SelfLink:                   "",
-			UID:                        types.UID(uuid.Must(uuid.NewUUID()).String()),
+			UID:                        "GSVC-" + item.GetUID(),
 			ResourceVersion:            item.GetResourceVersion(),
 			Generation:                 item.GetGeneration(),
 			CreationTimestamp:          item.GetCreationTimestamp(),
