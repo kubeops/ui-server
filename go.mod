@@ -44,7 +44,7 @@ require (
 	sigs.k8s.io/yaml v1.2.0
 )
 
-replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.9.1-0.20220112213948-0e7a1aa77c8e
+replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.9.1-0.20220212102520-811f7a3fafea
 
 require (
 	cloud.google.com/go v0.72.0 // indirect

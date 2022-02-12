@@ -557,8 +557,8 @@ github.com/kmodules/apiserver v0.21.2-0.20210716212718-83e5493ac170 h1:JnFBVfamG
 github.com/kmodules/apiserver v0.21.2-0.20210716212718-83e5493ac170/go.mod h1:nLLYZvMWn35glJ4/FZRhzLG/3MPxAaZTgV4FJZdr+tY=
 github.com/kmodules/application v0.8.4-0.20210427030912-90eeee3bc4ad h1:bLX7w0CEGCd/8gLO++ONzL2nziePFK57Kn3gJJhHeWA=
 github.com/kmodules/application v0.8.4-0.20210427030912-90eeee3bc4ad/go.mod h1:RoNyT1ItAQurzNxBKsMn95tIo0EjJpTFtZG8rfOGIT4=
-github.com/kmodules/controller-runtime v0.9.1-0.20220112213948-0e7a1aa77c8e h1:ZtRo4J+890eICk3TfR40VfKY9Ori7r7vmgEYSPr/kuk=
-github.com/kmodules/controller-runtime v0.9.1-0.20220112213948-0e7a1aa77c8e/go.mod h1:TgkfvrhhEw3PlI0BRL/5xM+89y3/yc0ZDfdbTl84si8=
+github.com/kmodules/controller-runtime v0.9.1-0.20220212102520-811f7a3fafea h1:MMl8WK0CC6xCI4aoKW3bqL+ni4NAM5ua9aaxzjIyepM=
+github.com/kmodules/controller-runtime v0.9.1-0.20220212102520-811f7a3fafea/go.mod h1:TgkfvrhhEw3PlI0BRL/5xM+89y3/yc0ZDfdbTl84si8=
 github.com/kmodules/kubernetes v1.22.0-alpha.0.0.20210617232219-a432af45d932/go.mod h1:mgkvSg6x5tL795vhwYyg0pKDYmCm/WYdy8LI54LvRJA=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/konsorten/go-windows-terminal-sequences v1.0.2/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=

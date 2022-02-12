@@ -1788,7 +1788,7 @@ sigs.k8s.io/cli-utils/pkg/kstatus/polling/statusreaders
 sigs.k8s.io/cli-utils/pkg/kstatus/polling/testutil
 sigs.k8s.io/cli-utils/pkg/kstatus/status
 sigs.k8s.io/cli-utils/pkg/object
-# sigs.k8s.io/controller-runtime v0.9.0 => github.com/kmodules/controller-runtime v0.9.1-0.20220112213948-0e7a1aa77c8e
+# sigs.k8s.io/controller-runtime v0.9.0 => github.com/kmodules/controller-runtime v0.9.1-0.20220212102520-811f7a3fafea
 ## explicit; go 1.16
 sigs.k8s.io/controller-runtime/pkg/builder
 sigs.k8s.io/controller-runtime/pkg/cache
@@ -1911,7 +1911,7 @@ sigs.k8s.io/structured-merge-diff/v4/value
 # sigs.k8s.io/yaml v1.2.0
 ## explicit; go 1.12
 sigs.k8s.io/yaml
-# sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.9.1-0.20220112213948-0e7a1aa77c8e
+# sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.9.1-0.20220212102520-811f7a3fafea
 # bitbucket.org/ww/goautoneg => gomodules.xyz/goautoneg v0.0.0-20120707110453-a547fc61f48d
 # cloud.google.com/go => cloud.google.com/go v0.54.0
 # cloud.google.com/go/bigquery => cloud.google.com/go/bigquery v1.4.0
