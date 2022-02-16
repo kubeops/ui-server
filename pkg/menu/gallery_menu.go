@@ -34,15 +34,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func GetGalleryMenu(driver *UserMenuDriver, menuName string) (*rsapi.Menu, error) {
-	menu, err := driver.Get(menuName)
+func GetGalleryMenu(driver *UserMenuDriver, opts *rsapi.RenderMenuRequest) (*rsapi.Menu, error) {
+	menu, err := driver.Get(opts.Menu)
 	if err != nil {
 		return nil, err
 	}
-	return RenderGalleryMenu(driver.GetClient(), menu)
+	return RenderGalleryMenu(driver.GetClient(), menu, opts)
 }
 
-func RenderGalleryMenu(kc client.Client, in *rsapi.Menu) (*rsapi.Menu, error) {
+func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuRequest) (*rsapi.Menu, error) {
 	out := rsapi.Menu{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: rsapi.SchemeGroupVersion.String(),
@@ -56,6 +56,10 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu) (*rsapi.Menu, error) {
 	}
 
 	for _, so := range in.Spec.Sections {
+		if opts.Section != nil && so.Name != *opts.Section {
+			continue
+		}
+
 		items := make([]rsapi.MenuItem, 0)
 		for _, item := range so.Items {
 			mi := rsapi.MenuItem{
@@ -67,6 +71,12 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu) (*rsapi.Menu, error) {
 				LayoutName: item.LayoutName,
 				Icons:      item.Icons,
 				Installer:  item.Installer,
+			}
+
+			if mi.Resource != nil &&
+				opts.Type != nil &&
+				(opts.Type.Group != mi.Resource.Group || opts.Type.Kind != mi.Resource.Kind) {
+				continue
 			}
 
 			ed, ok := resourceeditors.LoadByResourceID(kc, mi.Resource)

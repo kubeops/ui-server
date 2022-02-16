@@ -38,7 +38,7 @@ func RenderMenu(driver *UserMenuDriver, req *rsapi.RenderMenuRequest) (*rsapi.Me
 	case rsapi.MenuAccordion:
 		return driver.Get(req.Menu)
 	case rsapi.MenuGallery:
-		return GetGalleryMenu(driver, req.Menu)
+		return GetGalleryMenu(driver, req)
 	case rsapi.MenuDropDown:
 		return GetDropDownMenu(driver, req)
 	default:
