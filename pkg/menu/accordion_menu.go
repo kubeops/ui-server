@@ -21,7 +21,9 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/flect"
+	"github.com/google/uuid"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -53,6 +55,7 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 			Home: mo.Spec.Home.ToMenuSectionInfo(),
 		},
 	}
+	menu.UID = types.UID(uuid.Must(uuid.NewUUID()).String()) // needed to save menu in configmap
 
 	reg := hub.NewRegistryOfKnownResources()
 

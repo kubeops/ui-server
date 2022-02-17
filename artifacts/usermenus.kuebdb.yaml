@@ -16,6 +16,7 @@ spec:
       type: image/png
     items:
     - layoutName: kubedb-kubedb.com-v1alpha2-elasticsearches
+      missing: true
       name: Elasticsearch
       required: true
       resource:
@@ -34,6 +35,7 @@ spec:
         scope: Namespaced
         version: v1alpha2
     - layoutName: kubedb-kubedb.com-v1alpha2-memcacheds
+      missing: true
       name: Memcached
       required: true
       resource:
@@ -70,6 +72,7 @@ spec:
         scope: Namespaced
         version: v1alpha2
     - layoutName: kubedb-kubedb.com-v1alpha2-redises
+      missing: true
       name: Redis
       required: true
       resource:

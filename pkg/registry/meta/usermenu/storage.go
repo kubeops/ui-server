@@ -45,6 +45,7 @@ var _ rest.Scoper = &Storage{}
 var _ rest.Lister = &Storage{}
 var _ rest.Getter = &Storage{}
 var _ rest.CreaterUpdater = &Storage{}
+var _ rest.GracefulDeleter = &Storage{}
 
 func NewStorage(kc client.Client, disco discovery.ServerResourcesInterface, ns string) *Storage {
 	return &Storage{
@@ -114,14 +115,27 @@ func (r *Storage) Update(ctx context.Context, name string, objInfo rest.UpdatedO
 		return nil, false, apierrors.NewBadRequest("missing user info")
 	}
 
-	var oldObj rsapi.Menu
-	oldObj.Name = name
-	newObj, err := objInfo.UpdatedObject(ctx, &oldObj)
+	driver := menu.NewUserMenuDriver(r.kc, r.disco, r.ns, user.GetName())
+	oldObj, err := driver.Get(name)
+	if err != nil {
+		return nil, false, err
+	}
+	newObj, err := objInfo.UpdatedObject(ctx, oldObj)
 	if err != nil {
 		return nil, false, err
 	}
 
-	driver := menu.NewUserMenuDriver(r.kc, r.disco, r.ns, user.GetName())
 	result, err := driver.Upsert(newObj.(*rsapi.Menu))
 	return result, err == nil, err
+}
+
+func (r *Storage) Delete(ctx context.Context, name string, deleteValidation rest.ValidateObjectFunc, options *metav1.DeleteOptions) (runtime.Object, bool, error) {
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return nil, false, apierrors.NewBadRequest("missing user info")
+	}
+
+	driver := menu.NewUserMenuDriver(r.kc, r.disco, r.ns, user.GetName())
+	result, err := driver.Delete(name)
+	return result, true, err
 }
