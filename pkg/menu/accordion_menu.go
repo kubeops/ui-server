@@ -93,12 +93,16 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 						if mi.LayoutName == "" {
 							mi.LayoutName = generated.LayoutName
 						}
+						if len(mi.Icons) == 0 {
+							mi.Icons = generated.Icons
+						}
 					} else if gvr, ok := reg.FindGVR(item.Type, true); ok {
 						rd, _ := reg.LoadByGVR(gvr)
 						ed, _ := resourceeditors.LoadByGVR(kc, gvr)
 
 						mi.Resource = &rd.Spec.Resource
 						mi.Missing = true
+						mi.Icons = rd.Spec.Icons
 						mi.Installer = ed.Spec.Installer
 						// mi.LayoutName = ""
 					} else {
@@ -108,6 +112,13 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 							Name:    strings.ToLower(flect.Pluralize(item.Type.Kind)), // fake resource name
 							Kind:    item.Type.Kind,
 							Scope:   kmapi.NamespaceScoped, // fake default
+						}
+						mi.Icons = []rsapi.ImageSpec{
+							{
+								Source: hub.CRDIconSVG,
+								Size:   "",
+								Type:   "image/svg+xml",
+							},
 						}
 						mi.Missing = true
 					}
