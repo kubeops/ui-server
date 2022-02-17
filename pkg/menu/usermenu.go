@@ -53,7 +53,7 @@ func NewUserMenuDriver(kc client.Client, disco discovery.ServerResourcesInterfac
 
 func configmapName(user, menu string) string {
 	// use core.appscode.com.menu.$menu.$user
-	return fmt.Sprintf("%s.%s.v1.%s.%d", rsapi.SchemeGroupVersion.Group, rsapi.ResourceMenu, menu, hashUser(user))
+	return fmt.Sprintf("appscode.com.%s.v1.%s.%d" /*rsapi.SchemeGroupVersion.Group,*/, rsapi.ResourceMenu, menu, hashUser(user))
 }
 
 func hashUser(user string) uint64 {
@@ -176,7 +176,7 @@ func (r *UserMenuDriver) Upsert(menu *rsapi.Menu) (*rsapi.Menu, error) {
 	var cm core.ConfigMap
 	cm.Namespace = r.ns
 	cm.Name = configmapName(r.user, menu.Name)
-	result, _, err := cu.CreateOrPatch(context.TODO(), r.kc, &cm, func(obj client.Object, createOp bool) client.Object {
+	_, _, err = cu.CreateOrPatch(context.TODO(), r.kc, &cm, func(obj client.Object, createOp bool) client.Object {
 		in := obj.(*core.ConfigMap)
 		in.Labels = meta.OverwriteKeys(in.Labels, map[string]string{
 			"k8s.io/group": rsapi.SchemeGroupVersion.Group,
@@ -189,7 +189,7 @@ func (r *UserMenuDriver) Upsert(menu *rsapi.Menu) (*rsapi.Menu, error) {
 		}
 		return in
 	})
-	return result.(*rsapi.Menu), err
+	return menu, err
 }
 
 func (r *UserMenuDriver) Available(menu string) (*rsapi.Menu, error) {
@@ -203,4 +203,21 @@ func (r *UserMenuDriver) Available(menu string) (*rsapi.Menu, error) {
 	}
 	all.Minus(existing)
 	return all, nil
+}
+
+func (r *UserMenuDriver) Delete(menu string) (*rsapi.Menu, error) {
+	cmName := configmapName(r.user, menu)
+	m, err := r.Get(menu)
+	if err != nil {
+		return nil, err
+	}
+
+	var cm core.ConfigMap
+	cm.Namespace = r.ns
+	cm.Name = cmName
+	err = r.kc.Delete(context.TODO(), &cm)
+	if client.IgnoreNotFound(err) != nil {
+		return nil, err
+	}
+	return m, nil
 }
