@@ -434,7 +434,7 @@ endif
 .PHONY: install
 install:
 	@cd ../installer; \
-	helm install kube-ui-server charts/kube-ui-server --wait \
+	helm upgrade -i kube-ui-server charts/kube-ui-server --wait \
 		--namespace=$(KUBE_NAMESPACE) --create-namespace \
 		--set image.registry=$(REGISTRY) \
 		--set image.tag=$(TAG_PROD) \
@@ -544,4 +544,4 @@ push-to-kind: container
 	@echo "Image has been pushed successfully into kind cluster."
 
 .PHONY: deploy-to-kind
-deploy-to-kind: uninstall push-to-kind install
+deploy-to-kind: push-to-kind install
