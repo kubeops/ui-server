@@ -866,7 +866,7 @@ gomodules.xyz/sets
 # gomodules.xyz/wait v0.2.0
 ## explicit; go 1.14
 gomodules.xyz/wait
-# gomodules.xyz/x v0.0.12
+# gomodules.xyz/x v0.0.13
 ## explicit; go 1.17
 gomodules.xyz/x/ioutil
 gomodules.xyz/x/strings
@@ -1709,7 +1709,7 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.9.8-0.20220218005912-56330dbf42e3
+# kmodules.xyz/resource-metadata v0.9.9-0.20220218022149-2e718861f809
 ## explicit; go 1.17
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
