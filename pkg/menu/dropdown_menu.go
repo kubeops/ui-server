@@ -119,7 +119,7 @@ func RenderDropDownMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenu
 						RawQuery: qs.Encode(),
 					}
 
-					name, err := GetPresetName(kc, chartRef, vpsMap, ref)
+					name, err := GetPresetName(kc, chartRef, vpsMap, ref.TypedLocalObjectReference)
 					if err != nil {
 						return nil, err
 					}
@@ -128,13 +128,15 @@ func RenderDropDownMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenu
 						// cp := mi
 						mi.Name = name
 						mi.Path = u.String()
-						mi.Preset = &ref
+						mi.Preset = &ref.TypedLocalObjectReference
+						mi.Icons = ref.Icons
 						// items = append(items, mi)
 					} else {
 						cp := mi
 						cp.Name = name
 						cp.Path = u.String()
-						cp.Preset = &ref
+						cp.Preset = &ref.TypedLocalObjectReference
+						cp.Icons = ref.Icons
 						mi.Items = append(mi.Items, cp)
 					}
 				}
