@@ -27,7 +27,6 @@ import (
 	"k8s.io/client-go/discovery"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	"kmodules.xyz/resource-metadata/hub"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"kmodules.xyz/resource-metadata/hub/resourceoutlines"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -47,8 +46,6 @@ func RenderMenu(driver *UserMenuDriver, req *rsapi.RenderMenuRequest) (*rsapi.Me
 }
 
 func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterface) (map[string]map[string]*rsapi.MenuItem, error) {
-	reg := hub.NewRegistryOfKnownResources()
-
 	rsLists, err := disco.ServerPreferredResources()
 	if err != nil && !discovery.IsGroupDiscoveryFailedError(err) {
 		return nil, err
@@ -97,11 +94,9 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 				// Icons:    rd.Spec.Icons,
 				// Installer:  rd.Spec.Installer,
 			}
-			if rd, err := reg.LoadByGVR(gvr); err == nil {
-				me.Icons = rd.Spec.Icons
-			}
-			if rd, ok := resourceeditors.LoadByGVR(kc, gvr); ok {
-				me.Installer = rd.Spec.Installer
+			if ed, ok := resourceeditors.LoadByGVR(kc, gvr); ok {
+				me.Icons = ed.Spec.Icons
+				me.Installer = ed.Spec.Installer
 			}
 
 			if _, ok := out[gv.Group]; !ok {

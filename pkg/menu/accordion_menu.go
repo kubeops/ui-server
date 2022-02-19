@@ -102,7 +102,7 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 
 						mi.Resource = &rd.Spec.Resource
 						mi.Missing = true
-						mi.Icons = rd.Spec.Icons
+						mi.Icons = ed.Spec.Icons
 						mi.Installer = ed.Spec.Installer
 						// mi.LayoutName = ""
 					} else {
