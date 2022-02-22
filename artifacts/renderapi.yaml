@@ -2,7 +2,7 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: RenderAPI
 request:
   resource:
-    group: core.kubedb.com
+    group: core.k8s.appscode.com
     # kind: MongoDBInsight
     # kind: MongoDBQueries
     kind: MongoDBSchemaOverview
@@ -18,3 +18,7 @@ request:
   # ref:
   #   namespace: demo
   #   name: 'mg-sh~MongoDB.kubedb.com'
+
+
+core.k8s.appscode.com/v1alpha1/genericresources?convertToTable=true&labelSelector=k8s.io/group=kubedb.com' \
+
