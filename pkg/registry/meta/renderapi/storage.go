@@ -65,17 +65,39 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 	req := in.Request
 
-	var out unstructured.Unstructured
-	out.SetGroupVersionKind(schema.GroupVersionKind{
-		Group:   req.Resource.Group,
-		Version: req.Resource.Version,
-		Kind:    req.Resource.Kind,
-	})
-	err := r.kc.Get(context.TODO(), client.ObjectKey{Namespace: req.Ref.Namespace, Name: req.Ref.Name}, &out)
-	if err != nil {
-		return nil, err
+	if req.Selector == nil {
+		var out unstructured.Unstructured
+		out.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   req.Resource.Group,
+			Version: req.Resource.Version,
+			Kind:    req.Resource.Kind,
+		})
+		err := r.kc.Get(context.TODO(), client.ObjectKey{Namespace: req.Ref.Namespace, Name: req.Ref.Name}, &out)
+		if err != nil {
+			return nil, err
+		}
+		in.Response = &out
+	} else {
+		selector, err := metav1.LabelSelectorAsSelector(req.Selector)
+		if err != nil {
+			return nil, err
+		}
+		opts := client.ListOptions{
+			Namespace:     req.Ref.Namespace,
+			LabelSelector: selector,
+		}
+		var out unstructured.UnstructuredList
+		out.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   req.Resource.Group,
+			Version: req.Resource.Version,
+			Kind:    req.Resource.Kind,
+		})
+		err = r.kc.List(context.TODO(), &out, &opts)
+		if err != nil {
+			return nil, err
+		}
+		in.Response = &out
 	}
-	in.Response = &out
 
 	return in, nil
 }
