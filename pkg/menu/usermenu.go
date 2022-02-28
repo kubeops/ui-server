@@ -135,7 +135,7 @@ func (r *UserMenuDriver) List() (*rsapi.MenuList, error) {
 
 	allMenus := map[string]rsapi.Menu{}
 	for _, cm := range list.Items {
-		if v, ok := cm.Annotations["k8s.io/owner"]; !ok || v != r.user {
+		if v, ok := cm.Data[keyUsername]; !ok || v != r.user {
 			continue
 		}
 
@@ -185,10 +185,7 @@ func (r *UserMenuDriver) Upsert(menu *rsapi.Menu) (*rsapi.Menu, error) {
 			"k8s.io/group": rsapi.SchemeGroupVersion.Group,
 			"k8s.io/kind":  rsapi.ResourceKindMenu,
 		})
-		// r.user contains invalid chars for label value, so stored in annotations
-		in.Annotations = meta.OverwriteKeys(in.Annotations, map[string]string{
-			"k8s.io/owner": r.user,
-		})
+		// r.user contains invalid chars for label value, so stored in data
 		in.Data = map[string]string{
 			keyUsername: r.user,
 			keyMenu:     string(data),
