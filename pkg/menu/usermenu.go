@@ -135,7 +135,7 @@ func (r *UserMenuDriver) List() (*rsapi.MenuList, error) {
 
 	allMenus := map[string]rsapi.Menu{}
 	for _, cm := range list.Items {
-		if v, ok := cm.Annotations["k8s.io/owner"]; ok && v != r.user {
+		if v, ok := cm.Annotations["k8s.io/owner"]; !ok || v != r.user {
 			continue
 		}
 
