@@ -116,7 +116,6 @@ func (r *UserMenuDriver) List() (*rsapi.MenuList, error) {
 	err := r.kc.List(context.TODO(), &list, client.InNamespace(r.ns), client.MatchingLabels{
 		"k8s.io/group": rsapi.SchemeGroupVersion.Group,
 		"k8s.io/kind":  rsapi.ResourceKindMenu,
-		"k8s.io/owner": r.user,
 	})
 	if apierrors.IsNotFound(err) {
 		names := menuoutlines.Names()
@@ -136,6 +135,10 @@ func (r *UserMenuDriver) List() (*rsapi.MenuList, error) {
 
 	allMenus := map[string]rsapi.Menu{}
 	for _, cm := range list.Items {
+		if v, ok := cm.Annotations["k8s.io/owner"]; ok && v != r.user {
+			continue
+		}
+
 		menu, err := extractMenu(&cm)
 		if err != nil {
 			return nil, err
@@ -181,6 +184,9 @@ func (r *UserMenuDriver) Upsert(menu *rsapi.Menu) (*rsapi.Menu, error) {
 		in.Labels = meta.OverwriteKeys(in.Labels, map[string]string{
 			"k8s.io/group": rsapi.SchemeGroupVersion.Group,
 			"k8s.io/kind":  rsapi.ResourceKindMenu,
+		})
+		// r.user contains invalid chars for label value, so stored in annotations
+		in.Annotations = meta.OverwriteKeys(in.Annotations, map[string]string{
 			"k8s.io/owner": r.user,
 		})
 		in.Data = map[string]string{
