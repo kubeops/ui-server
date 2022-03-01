@@ -41,7 +41,6 @@ func RenderLayout(
 	convertToTable bool,
 	renderBlocks sets.String,
 ) (*rsapi.ResourceView, error) {
-
 	srcRID, err := kmapi.ExtractResourceID(kc.RESTMapper(), src.Resource)
 	if err != nil {
 		return nil, err

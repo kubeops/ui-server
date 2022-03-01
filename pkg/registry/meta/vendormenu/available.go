@@ -35,8 +35,10 @@ type AvailableStorage struct {
 	disco discovery.ServerResourcesInterface
 }
 
-var _ rest.GroupVersionKindProvider = &AvailableStorage{}
-var _ rest.Getter = &AvailableStorage{}
+var (
+	_ rest.GroupVersionKindProvider = &AvailableStorage{}
+	_ rest.Getter                   = &AvailableStorage{}
+)
 
 func NewAvailableStorage(kc client.Client, disco discovery.ServerResourcesInterface) *AvailableStorage {
 	return &AvailableStorage{

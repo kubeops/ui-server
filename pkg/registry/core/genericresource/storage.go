@@ -56,10 +56,12 @@ type Storage struct {
 	convertor rest.TableConvertor
 }
 
-var _ rest.GroupVersionKindProvider = &Storage{}
-var _ rest.Scoper = &Storage{}
-var _ rest.Getter = &Storage{}
-var _ rest.Lister = &Storage{}
+var (
+	_ rest.GroupVersionKindProvider = &Storage{}
+	_ rest.Scoper                   = &Storage{}
+	_ rest.Getter                   = &Storage{}
+	_ rest.Lister                   = &Storage{}
+)
 
 func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
 	return &Storage{

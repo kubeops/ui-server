@@ -25,7 +25,7 @@ import (
 )
 
 func NewRootCmd() *cobra.Command {
-	var rootCmd = &cobra.Command{
+	rootCmd := &cobra.Command{
 		Use:               "ui-operator [command]",
 		Short:             `kube-ui-server by AppsCode`,
 		DisableAutoGenTag: true,

@@ -38,8 +38,10 @@ type AvailableStorage struct {
 	ns    string
 }
 
-var _ rest.GroupVersionKindProvider = &AvailableStorage{}
-var _ rest.Getter = &AvailableStorage{}
+var (
+	_ rest.GroupVersionKindProvider = &AvailableStorage{}
+	_ rest.Getter                   = &AvailableStorage{}
+)
 
 func NewAvailableStorage(kc client.Client, disco discovery.ServerResourcesInterface, ns string) *AvailableStorage {
 	return &AvailableStorage{
