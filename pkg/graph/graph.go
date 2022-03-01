@@ -126,6 +126,7 @@ func (g *ObjectGraph) links(oid *kmapi.ObjectID, seeds []kmapi.OID, edgeLabel km
 
 func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.EdgeLabel) ksets.OID {
 	processed := ksets.NewOID()
+	result := ksets.NewOID()
 	var x kmapi.OID
 	for len(idsToProcess) > 0 {
 		x, idsToProcess = idsToProcess[0], idsToProcess[1:]
@@ -135,13 +136,15 @@ func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.Ed
 		if edgedPerLabel, ok := g.edges[x]; ok {
 			edges = edgedPerLabel[edgeLabel]
 		}
+		result = result.Union(edges)
+
 		for id := range edges {
 			if !processed.Has(id) {
 				idsToProcess = append(idsToProcess, id)
 			}
 		}
 	}
-	return processed
+	return result
 }
 
 type objectEdge struct {

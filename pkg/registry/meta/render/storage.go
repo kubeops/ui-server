@@ -22,6 +22,7 @@ import (
 	"kubeops.dev/ui-server/pkg/graph"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -29,6 +30,8 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	tabledefs "kmodules.xyz/resource-metadata/hub/resourcetabledefinitions"
+	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -71,11 +74,35 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 
 	var resp rsapi.RenderResponse
 	if req.Block != nil {
+		var autoColumns bool
+		if len(req.Block.View.Columns) == 0 {
+			// copied from: https://github.com/kmodules/resource-metadata/blob/v0.9.9/pkg/layouts/lib.go#L331-L348
+			var columns []rsapi.ResourceColumnDefinition
+			mapping, err := r.kc.RESTMapper().RESTMapping(schema.GroupKind{Group: req.Block.Ref.Group, Kind: req.Block.Ref.Kind})
+			if meta.IsNoMatchError(err) {
+				columns = tableconvertor.FilterColumnsWithDefaults(nil, schema.GroupVersionResource{} /*ignore*/, columns, rsapi.List)
+			} else if err == nil {
+				if rv, ok := tabledefs.LoadDefaultByGVK(mapping.GroupVersionKind); ok {
+					columns = rv.Spec.Columns
+				}
+				columns, err = tabledefs.FlattenColumns(columns)
+				if err != nil {
+					return nil, err
+				}
+				columns = tableconvertor.FilterColumnsWithDefaults(r.kc, mapping.Resource, columns, rsapi.List)
+			}
+			req.Block.View.Columns = columns
+			autoColumns = true
+		}
+
 		bv, err := graph.RenderPageBlock(r.kc, req.Source, req.Block, req.ConvertToTable)
 		if err != nil {
 			return nil, err
 		}
 		resp.Block = bv
+		if autoColumns {
+			req.Block.View.Columns = nil
+		}
 	} else {
 		renderBlocks := sets.NewString()
 		for _, k := range req.RenderBlocks {
