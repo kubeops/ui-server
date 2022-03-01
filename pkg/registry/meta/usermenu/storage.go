@@ -40,12 +40,14 @@ type Storage struct {
 	convertor rest.TableConvertor
 }
 
-var _ rest.GroupVersionKindProvider = &Storage{}
-var _ rest.Scoper = &Storage{}
-var _ rest.Lister = &Storage{}
-var _ rest.Getter = &Storage{}
-var _ rest.CreaterUpdater = &Storage{}
-var _ rest.GracefulDeleter = &Storage{}
+var (
+	_ rest.GroupVersionKindProvider = &Storage{}
+	_ rest.Scoper                   = &Storage{}
+	_ rest.Lister                   = &Storage{}
+	_ rest.Getter                   = &Storage{}
+	_ rest.CreaterUpdater           = &Storage{}
+	_ rest.GracefulDeleter          = &Storage{}
+)
 
 func NewStorage(kc client.Client, disco discovery.ServerResourcesInterface, ns string) *Storage {
 	return &Storage{

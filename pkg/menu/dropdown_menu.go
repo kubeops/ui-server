@@ -168,7 +168,8 @@ func GetPresetName(
 	kc client.Client,
 	chartRef *rsapi.ChartRepoRef,
 	vpsMap map[string]*chartsapi.VendorChartPreset,
-	ref core.TypedLocalObjectReference) (string, error) {
+	ref core.TypedLocalObjectReference,
+) (string, error) {
 	if ref.Kind == chartsapi.ResourceKindVendorChartPreset {
 		ps, ok := vpsMap[ref.Name]
 		if !ok {

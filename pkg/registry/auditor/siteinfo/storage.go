@@ -40,9 +40,11 @@ type Storage struct {
 	si *auditorv1alpha1.SiteInfo
 }
 
-var _ rest.GroupVersionKindProvider = &Storage{}
-var _ rest.Scoper = &Storage{}
-var _ rest.Creater = &Storage{}
+var (
+	_ rest.GroupVersionKindProvider = &Storage{}
+	_ rest.Scoper                   = &Storage{}
+	_ rest.Creater                  = &Storage{}
+)
 
 func NewStorage(cfg *restclient.Config, c client.Client) (*Storage, error) {
 	kc, err := kubernetes.NewForConfig(cfg)

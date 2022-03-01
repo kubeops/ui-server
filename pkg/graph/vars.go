@@ -35,8 +35,10 @@ var objGraph = &ObjectGraph{
 
 var Schema = getGraphQLSchema()
 
-var resourceChannel = make(chan kmapi.ResourceID, 100)
-var resourceTracker = map[schema.GroupVersionKind]kmapi.ResourceID{}
+var (
+	resourceChannel = make(chan kmapi.ResourceID, 100)
+	resourceTracker = map[schema.GroupVersionKind]kmapi.ResourceID{}
+)
 
 var gkSet = ksets.NewGroupKind(
 	schema.GroupKind{

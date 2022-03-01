@@ -36,9 +36,11 @@ type Storage struct {
 	a  authorizer.Authorizer
 }
 
-var _ rest.GroupVersionKindProvider = &Storage{}
-var _ rest.Scoper = &Storage{}
-var _ rest.Creater = &Storage{}
+var (
+	_ rest.GroupVersionKindProvider = &Storage{}
+	_ rest.Scoper                   = &Storage{}
+	_ rest.Creater                  = &Storage{}
+)
 
 func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{

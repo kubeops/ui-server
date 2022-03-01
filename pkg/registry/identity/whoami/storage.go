@@ -29,12 +29,13 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 )
 
-type Storage struct {
-}
+type Storage struct{}
 
-var _ rest.GroupVersionKindProvider = &Storage{}
-var _ rest.Scoper = &Storage{}
-var _ rest.Creater = &Storage{}
+var (
+	_ rest.GroupVersionKindProvider = &Storage{}
+	_ rest.Scoper                   = &Storage{}
+	_ rest.Creater                  = &Storage{}
+)
 
 func NewStorage() *Storage {
 	return &Storage{}
