@@ -1,24 +1,9 @@
 apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: RenderAPI
 request:
-  resource:
-    group: core.k8s.appscode.com
-    # kind: MongoDBInsight
-    # kind: MongoDBQueries
-    kind: MongoDBSchemaOverview
-    version: v1alpha1
-  ref:
-    namespace: demo
-    name: 'mg-sh'
-
-  # resource:
-  #   group: core.k8s.appscode.com
-  #   kind: GenericResource
-  #   version: v1alpha1
-  # ref:
-  #   namespace: demo
-  #   name: 'mg-sh~MongoDB.kubedb.com'
-
-
-core.k8s.appscode.com/v1alpha1/genericresources?convertToTable=true&labelSelector=k8s.io/group=kubedb.com' \
-
+  group: ""
+  kind: Pod
+  version: v1
+  namespace: kubeops
+  name: kube-ui-server-78c7fc97d7-b6s5n
+  convertToTable: true

@@ -1,8 +1,8 @@
 ## How to update Hub files in kube-ui-server
 
 ```bash
-UI_SERVER_NAMESPACE=kubeops
-UI_SERVER_POD=$(kubectl get pods -n $UI_SERVER_NAMESPACE -l app.kubernetes.io/instance=kube-ui-server -o jsonpath={.items[0].metadata.name})
+export UI_SERVER_NAMESPACE=kubeops
+export UI_SERVER_POD=$(kubectl get pods -n $UI_SERVER_NAMESPACE -l app.kubernetes.io/instance=kube-ui-server -o jsonpath={.items[0].metadata.name})
 
 kubectl cp hub $UI_SERVER_POD:/tmp -n $UI_SERVER_NAMESPACE
 # verify
@@ -17,4 +17,13 @@ kubectl exec -it $UI_SERVER_POD -n $UI_SERVER_NAMESPACE -- cat /tmp/$LOCATION
 kubectl exec -it $UI_SERVER_POD -n $UI_SERVER_NAMESPACE -- sh -c "date > /tmp/hub/resourceeditors/trigger"
 # verify
 kubectl exec -it $UI_SERVER_POD -n $UI_SERVER_NAMESPACE -- cat /tmp/hub/resourceeditors/trigger
+```
+
+## How to modify GET & LIST proxy calls
+
+```bash
+$ cd ~/go/src/kmodules.xyz/resource-metadata
+$ ln -s $(pwd)/hub /tmp/hub
+
+# Now modify the trigger file and refresh ui
 ```
