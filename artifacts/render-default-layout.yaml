@@ -6,9 +6,9 @@ request:
       group: kubedb.com
       kind: MongoDB
     ref:
-      namespace: default
-      name: mgo-rs
-  # layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+      name: mg-std
+      namespace: demo
+  layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
   convertToTable: true
 
   # block:
@@ -33,23 +33,33 @@ request:
   #     group: ""
   #     kind: Pod
 
-  block:
-    displayMode: List
-    kind: Connection
-    name: Pods
-    query:
-      raw: |-
-        query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
-          find(oid: $src) {
-            offshoot(group: "", kind: "Pod") {
-              refs: view(group: $targetGroup, kind: $targetKind) {
-                namespace
-                name
-              }
-            }
-          }
-        }
-      type: GraphQL
-    ref:
-      group: core.k8s.appscode.com
-      kind: PodView
+  # block:
+  #   displayMode: List
+  #   kind: Connection
+  #   name: Pods
+  #   query:
+  #     raw: |-
+  #       query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+  #         find(oid: $src) {
+  #           offshoot(group: "", kind: "Pod") {
+  #             refs: view(group: $targetGroup, kind: $targetKind) {
+  #               namespace
+  #               name
+  #             }
+  #           }
+  #         }
+  #       }
+  #     type: GraphQL
+  #   ref:
+  #     group: core.k8s.appscode.com
+  #     kind: PodView
+
+  # block:
+  #   displayMode: Field
+  #   kind: Connection
+  #   query:
+  #     byLabel: view
+  #     type: GraphQL
+  #   ref:
+  #     group: ui.kubedb.com
+  #     kind: MongoDBInsight
