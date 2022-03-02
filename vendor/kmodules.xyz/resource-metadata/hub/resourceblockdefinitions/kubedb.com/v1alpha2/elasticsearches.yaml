@@ -27,7 +27,7 @@ spec:
     kind: Connection
     name: Elasticsearch Version
     query:
-      byLabel: offshoot
+      byLabel: catalog
       type: GraphQL
     ref:
       group: catalog.kubedb.com
@@ -93,7 +93,7 @@ spec:
     kind: Connection
     name: Pod Disruption Budgets
     query:
-      byLabel: offshoot
+      byLabel: policy
       type: GraphQL
     ref:
       group: policy

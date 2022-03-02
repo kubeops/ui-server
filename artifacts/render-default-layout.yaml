@@ -6,34 +6,50 @@ request:
       group: kubedb.com
       kind: MongoDB
     ref:
-      namespace: demo
-      name: mg-sh
-  layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
-  # pageName: Operations
+      namespace: default
+      name: mgo-rs
+  # layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
   convertToTable: true
 
-    # group: ""
-    # kind: Pod
-    # namespace: kube-system
-    # name: coredns-65648f44c6-b55n8
-    # name: calico-kube-controllers
-    # group: apps
-    # kind: Deployment
-    # namespace: kube-system
-    # name: coredns
-    # name: calico-kube-controllers
-
   # block:
-  #   kind:
+  #   displayMode: List
+  #   kind: Connection
+  #   name: AppBinding
   #   query:
   #     type: GraphQL
-  #     byLabel: exposed_by
+  #     byLabel: offshoot
+  #   ref:
+  #     group: appcatalog.appscode.com
+  #     kind: AppBinding
+
+  # block:
+  #   displayMode: List
+  #   kind: Connection
+  #   name: Pods
+  #   query:
+  #     type: GraphQL
+  #     byLabel: offshoot
   #   ref:
   #     group: ""
-  #     kind: Service
-  #   # ref:
-  #   #   group: ""
-  #   #   kind: Pod
-  #   # ref:
-  #   #   group: apps
-  #   #   kind: ReplicaSet
+  #     kind: Pod
+
+  block:
+    displayMode: List
+    kind: Connection
+    name: Pods
+    query:
+      raw: |-
+        query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+          find(oid: $src) {
+            offshoot(group: "", kind: "Pod") {
+              refs: view(group: $targetGroup, kind: $targetKind) {
+                namespace
+                name
+              }
+            }
+          }
+        }
+      type: GraphQL
+    ref:
+      group: core.k8s.appscode.com
+      kind: PodView
