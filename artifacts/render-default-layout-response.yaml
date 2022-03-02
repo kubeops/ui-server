@@ -1,12 +1,21 @@
 apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: Render
 request:
+  block:
+    displayMode: Field
+    kind: Connection
+    query:
+      byLabel: view
+      type: GraphQL
+    ref:
+      group: ui.kubedb.com
+      kind: MongoDBInsight
+    view: {}
   convertToTable: true
-  layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
   source:
     ref:
-      name: mg-std
-      namespace: demo
+      name: mg-rs
+      namespace: default
     resource:
       group: kubedb.com
       kind: MongoDB
@@ -14,578 +23,112 @@ request:
       scope: ""
       version: ""
 response:
-  view:
-    header:
-      actions:
-        create: Never
-      kind: Connection
-      resource:
-        group: core.k8s.appscode.com
-        kind: GenericResource
-        name: genericresources
-        scope: Namespaced
-        version: v1alpha1
-      result:
-        status: Success
-      table:
-        columns:
-        - name: Cluster Name
-          priority: 3
-          type: string
-        - name: Version
-          priority: 3
-          type: string
-        - name: Mode
-          priority: 3
-          type: string
-        - format: resource-map
-          name: App Resource Limits
-          priority: 3
-          type: object
-        - format: resource-map
-          name: App Resource Requests
-          priority: 3
-          type: object
-        - name: Status
-          priority: 3
-          type: string
-        metadata: {}
-        rows:
-        - cells:
-          - data: console-demo
-          - data: 4.4.6
-          - data: Standalone
-          - data:
-              cpu: 500m
-              memory: 1Gi
-              storage: 1Gi
-          - data:
-              cpu: 500m
-              memory: 1Gi
-              storage: 1Gi
-          - color: success
-            data: Ready
-    layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
-    pages:
-    - blocks:
-      - actions:
-          create: Never
-        kind: Connection
-        name: Nodes
-        resource:
-          group: core.k8s.appscode.com
-          kind: PodView
-          name: podviews
-          scope: Namespaced
-          version: v1alpha1
-        result:
-          status: Success
-        table:
-          columns:
-          - format: name
-            name: Name
-            priority: 3
-            type: string
-          - name: Role
-            priority: 3
-            type: string
-          - name: CPU (usage/limit)
-            priority: 3
-            type: string
-          - name: Memory (usage/limit)
-            priority: 3
-            type: string
-          - name: Storage (usage)
-            priority: 3
-            type: string
-          - name: Status
-            priority: 3
-            type: string
-          - name: Age
-            priority: 3
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows:
-          - cells:
-            - data: mg-std-0
-            - data: '-'
-            - data: 39m / 500m
-            - data: 206Mi / 1Gi
-            - data: 181Mi
-            - color: success is-light
-              data: Running
-            - data: 2d
-              sort: 1646042993
-      info:
-        actions:
-          create: Never
-        kind: Connection
-        resource:
-          group: appcatalog.appscode.com
-          kind: AppBinding
-          name: appbindings
-          scope: Namespaced
-          version: v1alpha1
-        result:
-          status: Success
-        table:
-          columns:
-          - name: Name
-            priority: 3
-            type: string
-          - name: Namespace
-            priority: 3
-            type: string
-          - name: Labels
-            priority: 3
-            type: object
-          - name: Annotations
-            priority: 1
-            type: object
-          - name: Type
-            priority: 3
-            type: string
-          - name: Version
-            priority: 3
-            type: string
-          - name: Service
-            priority: 3
-            type: string
-          - name: Secret
-            priority: 3
-            type: string
-          - name: Backup Task
-            priority: 1
-            type: string
-          - name: Restore Task
-            priority: 1
-            type: string
-          - name: Age
-            priority: 3
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows:
-          - cells:
-            - data: mg-std
-            - data: demo
-            - data:
-                app.kubernetes.io/component: database
-                app.kubernetes.io/instance: mg-std
-                app.kubernetes.io/managed-by: kubedb.com
-                app.kubernetes.io/name: mongodbs.kubedb.com
-            - data:
-                kubectl.kubernetes.io/last-applied-configuration: |
-                  {"apiVersion":"kubedb.com/v1alpha2","kind":"MongoDB","metadata":{"annotations":{"meta.helm.sh/release-name":"mg-std","meta.helm.sh/release-namespace":"demo"},"labels":{"app.kubernetes.io/instance":"mg-std","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"mongodbs.kubedb.com"},"name":"mg-std","namespace":"demo"},"spec":{"clusterAuthMode":"keyFile","podTemplate":{"spec":{"resources":{"limits":{"cpu":".5","memory":"1024Mi"}}}},"replicas":1,"sslMode":"disabled","storage":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"1Gi"}},"storageClassName":"linode-block-storage-retain"},"storageType":"Durable","terminationPolicy":"WipeOut","version":"4.4.6"}}
-                meta.helm.sh/release-name: mg-std
-                meta.helm.sh/release-namespace: demo
-            - data: kubedb.com/mongodb
-            - data: 4.4.6
-            - data: mg-std
-            - data: mg-std-auth
-            - data: mongodb-backup-4.4.6
-            - data: mongodb-restore-4.4.6
-            - data: 2d
-              sort: 1646042994
-      insight:
-        actions:
-          create: Never
-        kind: Connection
-        resource:
-          group: ui.kubedb.com
-          kind: MongoDBInsight
-          name: mongodbinsights
-          scope: Namespaced
-          version: v1alpha1
-        result:
-          status: Success
-        table:
-          columns:
-          - name: Current Connections
-            priority: 3
-            type: integer
-          - name: Total Connections
-            priority: 3
-            type: integer
-          - name: Available Connections
-            priority: 3
-            type: integer
-          - name: Active Connections
-            priority: 3
-            type: integer
-          - name: Total Collections
-            priority: 3
-            type: integer
-          - name: Data Size
-            priority: 3
-            type: integer
-          - name: Total Indexes
-            priority: 3
-            type: integer
-          - name: Index Size
-            priority: 3
-            type: integer
-          - name: Number Of Shards
-            priority: 3
-            type: integer
-          - name: Replicas Per Shards
-            priority: 3
-            type: integer
-          - name: Number Of Chunks
-            priority: 3
-            type: integer
-          - name: Balancer Enabled
-            priority: 3
-            type: boolean
-          - name: Chunks Balanced
-            priority: 3
-            type: boolean
-          - name: Replicas
-            priority: 3
-            type: integer
-          metadata: {}
-          rows: []
-      name: Overview
-    - blocks:
-      - actions:
-          create: Never
-        kind: Connection
-        name: Slow Queries
-        resource:
-          group: ui.kubedb.com
-          kind: MongoDBQueries
-          name: mongodbqueries
-          scope: Namespaced
-          version: v1alpha1
-        result:
-          status: Success
-        table:
-          columns:
-          - name: Operation
-            priority: 3
-            type: string
-          - name: Database Name
-            priority: 3
-            type: string
-          - name: Collection Name
-            priority: 3
-            type: string
-          - name: Command
-            priority: 3
-            type: string
-          - name: Count
-            priority: 3
-            type: integer
-          - name: Avg Execution Time (msec)
-            priority: 3
-            type: integer
-          - name: Min Execution Time (msec)
-            priority: 3
-            type: integer
-          - name: Max Execution Time (msec)
-            priority: 3
-            type: integer
-          metadata: {}
-          rows: []
-      - actions:
-          create: Never
-        kind: Connection
-        name: Top Collections
-        resource:
-          group: ui.kubedb.com
-          kind: MongoDBSchemaOverview
-          name: mongodbschemaoverviews
-          scope: Namespaced
-          version: v1alpha1
-        result:
-          status: Success
-        table:
-          columns:
-          - name: Name
-            priority: 3
-            type: string
-          - name: Total Size
-            priority: 3
-            sort:
-              enable: true
-              type: integer
-            type: string
-          metadata: {}
-          rows: []
-      insight:
-        actions:
-          create: Never
-        kind: Connection
-        resource:
-          group: ui.kubedb.com
-          kind: MongoDBInsight
-          name: mongodbinsights
-          scope: Namespaced
-          version: v1alpha1
-        result:
-          status: Success
-        table:
-          columns:
-          - name: Current Connections
-            priority: 3
-            type: integer
-          - name: Total Connections
-            priority: 3
-            type: integer
-          - name: Available Connections
-            priority: 3
-            type: integer
-          - name: Active Connections
-            priority: 3
-            type: integer
-          - name: Total Collections
-            priority: 3
-            type: integer
-          - name: Data Size
-            priority: 3
-            type: integer
-          - name: Total Indexes
-            priority: 3
-            type: integer
-          - name: Index Size
-            priority: 3
-            type: integer
-          - name: Number Of Shards
-            priority: 3
-            type: integer
-          - name: Replicas Per Shards
-            priority: 3
-            type: integer
-          - name: Number Of Chunks
-            priority: 3
-            type: integer
-          - name: Balancer Enabled
-            priority: 3
-            type: boolean
-          - name: Chunks Balanced
-            priority: 3
-            type: boolean
-          - name: Replicas
-            priority: 3
-            type: integer
-          metadata: {}
-          rows: []
-      name: Database Insights
-    - blocks:
-      - actions:
-          create: Always
-        kind: Connection
-        name: Recent Backups
-        resource:
-          group: stash.appscode.com
-          kind: BackupSession
-          name: backupsessions
-          scope: Namespaced
-          version: v1beta1
-        result:
-          status: Success
-        table:
-          columns:
-          - name: Name
-            priority: 3
-            type: string
-          - name: Namespace
-            priority: 3
-            type: string
-          - name: Labels
-            priority: 3
-            type: object
-          - name: Invoker Kind
-            priority: 3
-            type: string
-          - name: Invoker Name
-            priority: 3
-            type: string
-          - name: Phase
-            priority: 3
-            type: string
-          - name: Duration
-            priority: 3
-            type: string
-          - name: Age
-            priority: 3
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows: []
-      info:
-        actions:
-          create: IfEmpty
-        kind: Connection
-        resource:
-          group: ui.stash.appscode.com
-          kind: BackupOverview
-          name: backupoverviews
-          scope: Namespaced
-          version: v1alpha1
-        result:
-          status: Success
-        table:
-          columns:
-          - name: Name
-            priority: 3
-            sort:
-              enable: true
-            type: string
-          - name: Namespace
-            priority: 3
-            type: string
-          - name: Labels
-            priority: 3
-            type: object
-          - name: Annotations
-            priority: 3
-            type: object
-          - name: Age
-            priority: 3
-            sort:
-              enable: true
-              type: integer
-            type: date
-          - name: Schedule
-            priority: 3
-            type: string
-          - name: Status
-            priority: 3
-            type: string
-          - name: Last Backup Time
-            priority: 3
-            sort:
-              enable: true
-              type: integer
-            type: date
-          - name: Upcoming Backup Time
-            priority: 3
-            sort:
-              enable: true
-              type: integer
-            type: date
-          - name: Repository
-            priority: 3
-            type: string
-          - name: Data Size
-            priority: 3
-            type: string
-          - name: Number Of Snapshots
-            priority: 3
-            type: integer
-          - name: Data Integrity
-            priority: 3
-            type: boolean
-          metadata: {}
-          rows: []
-      name: Backups
-    - blocks:
-      - actions:
-          create: Always
-        kind: Connection
-        name: Recent Operations
-        resource:
-          group: ops.kubedb.com
-          kind: MongoDBOpsRequest
-          name: mongodbopsrequests
-          scope: Namespaced
-          version: v1alpha1
-        result:
-          status: Success
-        table:
-          columns:
-          - name: Name
-            priority: 3
-            type: string
-          - name: Namespace
-            priority: 3
-            type: string
-          - name: Labels
-            priority: 3
-            type: object
-          - name: Type
-            priority: 3
-            type: string
-          - name: Target Database
-            priority: 3
-            type: string
-          - name: Status
-            priority: 3
-            type: string
-          - name: Age
-            priority: 3
-            sort:
-              enable: true
-              type: integer
-            type: date
-          metadata: {}
-          rows: []
-      name: Operations
+  block:
+    kind: Connection
     resource:
-      group: kubedb.com
-      kind: MongoDB
-      name: mongodbs
+      group: ui.kubedb.com
+      kind: MongoDBInsight
+      name: mongodbinsights
       scope: Namespaced
-      version: v1alpha2
-    tabBar:
-      actions:
-        create: Never
-      kind: Connection
-      resource:
-        group: core.k8s.appscode.com
-        kind: GenericResourceService
-        name: genericresourceservices
-        scope: Namespaced
-        version: v1alpha1
-      result:
-        status: Success
-      table:
-        columns:
-        - icon: true
-          name: Exposed
-          priority: 3
-          type: string
-        - icon: true
-          name: TLS
-          priority: 3
-          type: string
-        - icon: true
-          name: Backup
-          priority: 3
-          type: string
-        - icon: true
-          name: Monitoring
-          priority: 3
-          type: string
-        metadata: {}
-        rows:
-        - cells:
-          - color: danger
-            data: Unused
-            icon: https://cdn.appscode.com/***.png
-          - color: danger
-            data: Unused
-            icon: https://cdn.appscode.com/***.png
-          - color: danger
-            data: Unused
-            icon: https://cdn.appscode.com/***.png
-          - color: danger
-            data: Unused
-            icon: https://cdn.appscode.com/***.png
-    ui:
-      editor:
-        name: kubedbcom-mongodb-editor
-        url: https://bundles.byte.builders/ui/
-        version: v0.3.0
-      options:
-        name: kubedbcom-mongodb-editor-options
-        url: https://bundles.byte.builders/ui/
-        version: v0.3.0
+      version: v1alpha1
+    result:
+      status: Success
+    table:
+      columns:
+      - name: Name
+        priority: 3
+        sort:
+          enable: true
+        type: string
+      - name: Namespace
+        priority: 3
+        type: string
+      - name: Labels
+        priority: 3
+        type: object
+      - name: Annotations
+        priority: 3
+        type: object
+      - name: Age
+        priority: 3
+        sort:
+          enable: true
+          type: integer
+        type: date
+      - name: Version
+        priority: 3
+        type: string
+      - name: Type
+        priority: 3
+        type: string
+      - name: Status
+        priority: 3
+        type: string
+      - name: Current Connections
+        priority: 3
+        type: integer
+      - name: Total Connections
+        priority: 3
+        type: integer
+      - name: Available Connections
+        priority: 3
+        type: integer
+      - name: Active Connections
+        priority: 3
+        type: integer
+      - name: Total Collections
+        priority: 3
+        type: integer
+      - name: Data Size
+        priority: 3
+        type: integer
+      - name: Total Indexes
+        priority: 3
+        type: integer
+      - name: Index Size
+        priority: 3
+        type: integer
+      - name: Number Of Shards
+        priority: 3
+        type: integer
+      - name: Replicas Per Shards
+        priority: 3
+        type: integer
+      - name: Number Of Chunks
+        priority: 3
+        type: integer
+      - name: Balancer Enabled
+        priority: 3
+        type: boolean
+      - name: Chunks Balanced
+        priority: 3
+        type: boolean
+      - name: Replicas
+        priority: 3
+        type: integer
+      metadata: {}
+      rows:
+      - cells:
+        - data: mg-rs
+        - data: default
+        - data: {}
+        - data: {}
+        - data: 2d9h
+          sort: 1646039113
+        - data: 4.4.6
+        - data: ReplicaSet
+        - data: Ready
+        - data: 33
+        - data: 180790
+        - data: 838827
+        - data: 5
+        - data: 15
+        - data: 3481922
+        - data: 15
+        - data: 299008
+        - data: <unknown>
+        - data: <unknown>
+        - data: <unknown>
+        - data: <unknown>
+        - data: <unknown>
+        - data: 3
