@@ -200,13 +200,14 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 		limits[core.ResourceStorage] = storageCap
 	}
 
-	if r.pc != nil {
-		result.Spec.Resources = corev1alpha1.ResourceView{
-			Limits:   limits,
-			Requests: requests,
-			Usage:    prometheus.GetPodResourceUsage(r.pc, pod.ObjectMeta),
-		}
+	rv := corev1alpha1.ResourceView{
+		Limits:   limits,
+		Requests: requests,
 	}
+	if r.pc != nil {
+		rv.Usage = prometheus.GetPodResourceUsage(r.pc, pod.ObjectMeta)
+	}
+	result.Spec.Resources = rv
 
 	return &result
 }
