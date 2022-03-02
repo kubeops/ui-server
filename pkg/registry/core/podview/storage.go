@@ -26,6 +26,7 @@ import (
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -180,6 +181,23 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 	for _, c := range pod.Spec.InitContainers {
 		limits = rmapi.MaxResourceList(limits, c.Resources.Limits)
 		requests = rmapi.MaxResourceList(requests, c.Resources.Requests)
+	}
+
+	{
+		// storage
+		storageReq := resource.Quantity{Format: resource.BinarySI}
+		storageCap := resource.Quantity{Format: resource.BinarySI}
+		for _, vol := range pod.Spec.Volumes {
+			if vol.PersistentVolumeClaim != nil {
+				var pvc core.PersistentVolumeClaim
+				if err := r.kc.Get(context.TODO(), client.ObjectKey{Namespace: pod.Namespace, Name: vol.PersistentVolumeClaim.ClaimName}, &pvc); err == nil {
+					storageReq.Add(*pvc.Spec.Resources.Requests.Storage())
+					storageCap.Add(*pvc.Status.Capacity.Storage())
+				}
+			}
+		}
+		requests[core.ResourceStorage] = storageReq
+		limits[core.ResourceStorage] = storageCap
 	}
 
 	if r.pc != nil {
