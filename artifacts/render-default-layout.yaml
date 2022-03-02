@@ -6,9 +6,9 @@ request:
       group: kubedb.com
       kind: MongoDB
     ref:
-      name: mg-std
-      namespace: demo
-  layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+      name: mg-rs
+      namespace: default
+  # layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
   convertToTable: true
 
   # block:
@@ -54,12 +54,12 @@ request:
   #     group: core.k8s.appscode.com
   #     kind: PodView
 
-  # block:
-  #   displayMode: Field
-  #   kind: Connection
-  #   query:
-  #     byLabel: view
-  #     type: GraphQL
-  #   ref:
-  #     group: ui.kubedb.com
-  #     kind: MongoDBInsight
+  block:
+    displayMode: Field
+    kind: Connection
+    query:
+      byLabel: view
+      type: GraphQL
+    ref:
+      group: ui.kubedb.com
+      kind: MongoDBInsight

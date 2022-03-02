@@ -546,3 +546,6 @@ push-to-kind: container
 
 .PHONY: deploy-to-kind
 deploy-to-kind: push-to-kind install
+
+.PHONY: deploy
+deploy: uninstall push install
