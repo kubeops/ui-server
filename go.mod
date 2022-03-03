@@ -33,7 +33,7 @@ require (
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
 	kmodules.xyz/client-go v0.0.0-20220302084100-4d54605d5701
 	kmodules.xyz/custom-resources v0.0.0-20220208103158-61b298634e43
-	kmodules.xyz/resource-metadata v0.9.10
+	kmodules.xyz/resource-metadata v0.9.11-0.20220303064727-d77b31f5c364
 	kmodules.xyz/resource-metrics v0.0.8
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d

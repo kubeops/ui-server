@@ -31,7 +31,6 @@ import (
 	"gomodules.xyz/encoding/json"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
-	metatable "k8s.io/apimachinery/pkg/api/meta/table"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -193,6 +192,17 @@ func (c *convertor) rowFn(obj interface{}) ([]v1alpha1.TableCell, error) {
 				cell.Link = v.(string)
 			}
 		}
+		if col.Tooltip != nil && col.Tooltip.Template != "" {
+			if v, err := renderTemplate(data, columnOptions{
+				Name:     col.Name,
+				Type:     "string",
+				Template: col.Tooltip.Template,
+			}, buf); err != nil {
+				return nil, err
+			} else {
+				cell.Tooltip = v.(string)
+			}
+		}
 		if col.Icon != nil && col.Icon.Template != "" {
 			if v, err := renderTemplate(data, columnOptions{
 				Name:     col.Name,
@@ -316,7 +326,7 @@ func cellForJSONValue(col columnOptions, value string) (interface{}, error) {
 		if err != nil {
 			return "<invalid>", nil
 		}
-		return metatable.ConvertToHumanReadableDateType(timestamp), nil
+		return ConvertToHumanReadableDateType(timestamp), nil
 	case "object":
 		if value == "" || value == "null" {
 			return map[string]interface{}{}, nil

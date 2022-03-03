@@ -6,8 +6,8 @@ request:
       group: kubedb.com
       kind: MongoDB
     ref:
-      name: mg-rs
-      namespace: default
+      name: mg-rs-demo
+      namespace: demo
   # layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
   convertToTable: true
 
@@ -54,12 +54,55 @@ request:
   #     group: core.k8s.appscode.com
   #     kind: PodView
 
+  # block:
+  #   displayMode: Field
+  #   kind: Connection
+  #   query:
+  #     byLabel: view
+  #     type: GraphQL
+  #   ref:
+  #     group: ui.kubedb.com
+  #     kind: MongoDBInsight
+
+
+  # block:
+  #   displayMode: List
+  #   kind: Connection
+  #   name: Recent Backups
+  #   query:
+  #     raw: |-
+  #       query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+  #         find(oid: $src) {
+  #           backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
+  #             refs: offshoot(group: $targetGroup, kind: $targetKind) {
+  #               namespace
+  #               name
+  #             }
+  #           }
+  #         }
+  #       }
+  #     type: GraphQL
+  #   ref:
+  #     group: stash.appscode.com
+  #     kind: BackupSession
+
+
   block:
     displayMode: Field
     kind: Connection
     query:
-      byLabel: view
+      raw: |-
+        query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+          find(oid: $src) {
+            backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
+              refs: view(group: $targetGroup, kind: $targetKind) {
+                namespace
+                name
+              }
+            }
+          }
+        }
       type: GraphQL
     ref:
-      group: ui.kubedb.com
-      kind: MongoDBInsight
+      group: ui.stash.appscode.com
+      kind: BackupOverview

@@ -5,17 +5,27 @@ request:
     displayMode: Field
     kind: Connection
     query:
-      byLabel: view
+      raw: |-
+        query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+          find(oid: $src) {
+            backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
+              refs: view(group: $targetGroup, kind: $targetKind) {
+                namespace
+                name
+              }
+            }
+          }
+        }
       type: GraphQL
     ref:
-      group: ui.kubedb.com
-      kind: MongoDBInsight
+      group: ui.stash.appscode.com
+      kind: BackupOverview
     view: {}
   convertToTable: true
   source:
     ref:
-      name: mg-rs
-      namespace: default
+      name: mg-rs-demo
+      namespace: demo
     resource:
       group: kubedb.com
       kind: MongoDB
@@ -26,9 +36,9 @@ response:
   block:
     kind: Connection
     resource:
-      group: ui.kubedb.com
-      kind: MongoDBInsight
-      name: mongodbinsights
+      group: ui.stash.appscode.com
+      kind: BackupOverview
+      name: backupoverviews
       scope: Namespaced
       version: v1alpha1
     result:
@@ -55,80 +65,57 @@ response:
           enable: true
           type: integer
         type: date
-      - name: Version
-        priority: 3
-        type: string
-      - name: Type
+      - name: Schedule
         priority: 3
         type: string
       - name: Status
         priority: 3
         type: string
-      - name: Current Connections
+      - name: Last Backup Time
         priority: 3
-        type: integer
-      - name: Total Connections
+        sort:
+          enable: true
+          type: integer
+        type: date
+      - name: Upcoming Backup Time
         priority: 3
-        type: integer
-      - name: Available Connections
+        sort:
+          enable: true
+          type: integer
+        type: date
+      - name: Repository
         priority: 3
-        type: integer
-      - name: Active Connections
-        priority: 3
-        type: integer
-      - name: Total Collections
-        priority: 3
-        type: integer
+        type: string
       - name: Data Size
         priority: 3
-        type: integer
-      - name: Total Indexes
+        type: string
+      - name: Number Of Snapshots
         priority: 3
         type: integer
-      - name: Index Size
-        priority: 3
-        type: integer
-      - name: Number Of Shards
-        priority: 3
-        type: integer
-      - name: Replicas Per Shards
-        priority: 3
-        type: integer
-      - name: Number Of Chunks
-        priority: 3
-        type: integer
-      - name: Balancer Enabled
+      - name: Data Integrity
         priority: 3
         type: boolean
-      - name: Chunks Balanced
-        priority: 3
-        type: boolean
-      - name: Replicas
-        priority: 3
-        type: integer
       metadata: {}
       rows:
       - cells:
-        - data: mg-rs
-        - data: default
-        - data: {}
-        - data: {}
-        - data: 2d9h
-          sort: 1646039113
-        - data: 4.4.6
-        - data: ReplicaSet
-        - data: Ready
-        - data: 33
-        - data: 180790
-        - data: 838827
-        - data: 5
-        - data: 15
-        - data: 3481922
-        - data: 15
-        - data: 299008
+        - data: mg-rs-demo
+        - data: demo
+        - data:
+            app.kubernetes.io/instance: mg-rs-demo
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: mongodbs.kubedb.com
+        - data:
+            meta.helm.sh/release-name: mg-rs-demo
+            meta.helm.sh/release-namespace: demo
+        - data: 16h
+          sort: 1646225039
+        - data: '"*/5 * * * *" (Every 5 minutes)'
+        - data: Active
+        - data: <unknown>
+          sort: -62135596800
+        - data: <invalid>
+          sort: 1646284500
+        - data: mg-rs-demo-repo
+        - data: ""
         - data: <unknown>
         - data: <unknown>
-        - data: <unknown>
-        - data: <unknown>
-        - data: <unknown>
-        - data: 3
