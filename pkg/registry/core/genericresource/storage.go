@@ -18,15 +18,11 @@ package genericresource
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"sort"
 
 	"kubeops.dev/ui-server/pkg/shared"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
@@ -34,18 +30,14 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	cu "kmodules.xyz/client-go/client"
-	mu "kmodules.xyz/client-go/meta"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
-	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
-	"sigs.k8s.io/cli-utils/pkg/kstatus/status"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -139,7 +131,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, err
 	}
 
-	return r.toGenericResource(obj, rid, cmeta)
+	return corev1alpha1.ToGenericResource(&obj, rid, cmeta)
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -198,7 +190,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				continue
 			}
 
-			genres, err := r.toGenericResource(item, apiType, cmeta)
+			genres, err := corev1alpha1.ToGenericResource(&item, apiType, cmeta)
 			if err != nil {
 				return nil, err
 			}
@@ -236,137 +228,4 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
-}
-
-func (r *Storage) toGenericResource(item unstructured.Unstructured, apiType *kmapi.ResourceID, cmeta *kmapi.ClusterMetadata) (*corev1alpha1.GenericResource, error) {
-	content := item.UnstructuredContent()
-
-	s, err := status.Compute(&item)
-	if err != nil {
-		return nil, err
-	}
-
-	var resstatus *runtime.RawExtension
-	if v, ok, _ := unstructured.NestedFieldNoCopy(content, "status"); ok {
-		data, err := json.Marshal(v)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert status to json, reason: %v", err)
-		}
-		resstatus = &runtime.RawExtension{Raw: data}
-	}
-
-	genres := corev1alpha1.GenericResource{
-		// TypeMeta:   metav1.TypeMeta{},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:                       corev1alpha1.GetGenericResourceName(&item),
-			GenerateName:               item.GetGenerateName(),
-			Namespace:                  item.GetNamespace(),
-			SelfLink:                   "",
-			UID:                        types.UID(uuid.Must(uuid.NewUUID()).String()),
-			ResourceVersion:            item.GetResourceVersion(),
-			Generation:                 item.GetGeneration(),
-			CreationTimestamp:          item.GetCreationTimestamp(),
-			DeletionTimestamp:          item.GetDeletionTimestamp(),
-			DeletionGracePeriodSeconds: item.GetDeletionGracePeriodSeconds(),
-			Labels:                     item.GetLabels(),
-			Annotations:                map[string]string{},
-			// OwnerReferences:            item.GetOwnerReferences(),
-			// Finalizers:                 item.GetFinalizers(),
-			ClusterName: item.GetClusterName(),
-			// ManagedFields:              nil,
-		},
-		Spec: corev1alpha1.GenericResourceSpec{
-			Cluster:              *cmeta,
-			APIType:              *apiType,
-			Name:                 item.GetName(),
-			Replicas:             0,
-			RoleReplicas:         nil,
-			Mode:                 "",
-			TotalResource:        core.ResourceRequirements{},
-			AppResource:          core.ResourceRequirements{},
-			RoleResourceLimits:   nil,
-			RoleResourceRequests: nil,
-
-			Status: corev1alpha1.GenericResourceStatus{
-				Status:  s.Status.String(),
-				Message: s.Message,
-			},
-		},
-		Status: resstatus,
-	}
-	for k, v := range item.GetAnnotations() {
-		if k != mu.LastAppliedConfigAnnotation {
-			genres.Annotations[k] = v
-		}
-	}
-
-	{
-		if v, ok, _ := unstructured.NestedString(item.UnstructuredContent(), "spec", "version"); ok {
-			genres.Spec.Version = v
-		}
-	}
-	{
-		rv, err := resourcemetrics.Replicas(content)
-		if err != nil {
-			return nil, err
-		}
-		genres.Spec.Replicas = rv
-	}
-	{
-		rv, err := resourcemetrics.RoleReplicas(content)
-		if err != nil {
-			return nil, err
-		}
-		genres.Spec.RoleReplicas = rv
-	}
-	{
-		rv, err := resourcemetrics.Mode(content)
-		if err != nil {
-			return nil, err
-		}
-		genres.Spec.Mode = rv
-	}
-	{
-		rv, err := resourcemetrics.TotalResourceRequests(content)
-		if err != nil {
-			return nil, err
-		}
-		genres.Spec.TotalResource.Requests = rv
-	}
-	{
-		rv, err := resourcemetrics.TotalResourceLimits(content)
-		if err != nil {
-			return nil, err
-		}
-		genres.Spec.TotalResource.Limits = rv
-	}
-	{
-		rv, err := resourcemetrics.AppResourceRequests(content)
-		if err != nil {
-			return nil, err
-		}
-		genres.Spec.AppResource.Requests = rv
-	}
-	{
-		rv, err := resourcemetrics.AppResourceLimits(content)
-		if err != nil {
-			return nil, err
-		}
-		genres.Spec.AppResource.Limits = rv
-	}
-	{
-		rv, err := resourcemetrics.RoleResourceRequests(content)
-		if err != nil {
-			return nil, err
-		}
-		genres.Spec.RoleResourceRequests = rv
-	}
-	{
-		rv, err := resourcemetrics.RoleResourceLimits(content)
-		if err != nil {
-			return nil, err
-		}
-		genres.Spec.RoleResourceLimits = rv
-	}
-	return &genres, nil
 }
