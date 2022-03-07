@@ -41,7 +41,7 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 
 	res, err := getPromQueryResult(pc, promCPUQuery)
 	if err != nil {
-		klog.Errorf("failed to get prometheus cpu query result, reason:", err)
+		klog.Errorf("failed to get prometheus cpu query result, reason: %v", err)
 		return resUsage
 	}
 	cpu := float64(0)
