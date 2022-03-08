@@ -1,5 +1,3 @@
-# using fieldPath: .spec.queries
-
 apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: ResourceTableDefinition
 metadata:
@@ -7,8 +5,26 @@ metadata:
   name: ui.kubedb.com-v1alpha1-mongodbqueries-queries
 spec:
   columns:
-  - name: Operation
-    pathTemplate: '{{ .operation }}'
+  - color:
+      template: |
+        {{ $operation := .operation | lower }}
+        {{ $color := "gray" }}
+        {{ if list "command" | has $operation }}
+          {{ $color = "primary" }}
+        {{ else if list "insert" "group" | has $operation }}
+          {{ $color = "success" }}
+        {{ else if list "count" "distinct" "mapreduce" | has $operation }}
+          {{ $color = "info" }}
+        {{ else if list "update" "query" | has $operation }}
+          {{ $color = "warning" }}
+        {{ else if list "remove" | has $operation }}
+          {{ $color = "danger" }}
+        {{ else if list "geonear" "getmore" | has $operation }}
+          {{ $color = "dark" }}
+        {{ end }}
+        {{- printf "%s" $color -}}
+    name: Operation
+    pathTemplate: '{{ .operation | default `-` | upper }}'
     priority: 3
     type: string
   - name: Database Name
@@ -22,7 +38,7 @@ spec:
   - name: Command
     pathTemplate: '{{ .command }}'
     priority: 3
-    type: string
+    type: object
   - name: Count
     pathTemplate: '{{ .count }}'
     priority: 3
