@@ -41,22 +41,32 @@ spec:
     pathTemplate: '{{ .spec.schedule }}'
     priority: 3
     type: string
-  - name: Status
+  - color:
+      template: |
+        {{ $status := .spec.status }}
+        {{ $color := "gray" }}
+        {{ if list "Active" | has $status }}
+          {{ $color = "success" }}
+        {{ else if list "Paused" | has $status }}
+          {{ $color = "warning" }}
+        {{ end }}
+        {{- printf "%s is-light" $color -}}
+    name: Status
     pathTemplate: '{{ .spec.status }}'
     priority: 3
     type: string
   - name: Last Backup Time
     pathTemplate: '{{ .spec.lastBackupTime }}'
     priority: 3
-    type: date
     tooltip:
       template: '{{ .spec.lastBackupTime }}'
+    type: date
   - name: Upcoming Backup Time
     pathTemplate: '{{ .spec.upcomingBackupTime }}'
     priority: 3
-    type: date
     tooltip:
       template: '{{ .spec.upcomingBackupTime }}'
+    type: date
   - name: Repository
     pathTemplate: '{{ .spec.repository }}'
     priority: 3
