@@ -20,15 +20,26 @@ request:
           target:
             group: kubedb.com
             kind: MongoDB
-            name: {{ .metadata.name }}
-            namespace: {{ .metadata.namespace }}
+            name: {{ .name }}
+            namespace: {{ .namespace }}
           dashboard:
-            title: "<xyz>"
+            title: "KubeDB / MongoDB / Summary"
           panels: []
       type: REST
     ref:
       group: ui.openviz.dev
       kind: EmbeddedDashboard
+    fieldPath: .response.urls
+    view:
+      columns:
+      - name: Title
+        pathTemplate: '{{ .title }}'
+        priority: 3
+        type: string
+      - name: Embedded URL
+        pathTemplate: '{{ .embeddedURL }}'
+        priority: 3
+        type: string
 
   # block:
   #   displayMode: List
