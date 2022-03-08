@@ -6,10 +6,29 @@ request:
       group: kubedb.com
       kind: MongoDB
     ref:
-      name: mg-rs-demo
+      name: mg-sh
       namespace: demo
   # layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
   convertToTable: true
+
+  block:
+    displayMode: List
+    kind: Connection
+    query:
+      raw: |
+        request:
+          target:
+            group: kubedb.com
+            kind: MongoDB
+            name: {{ .metadata.name }}
+            namespace: {{ .metadata.namespace }}
+          dashboard:
+            title: "<xyz>"
+          panels: []
+      type: REST
+    ref:
+      group: ui.openviz.dev
+      kind: EmbeddedDashboard
 
   # block:
   #   displayMode: List
@@ -86,23 +105,22 @@ request:
   #     group: stash.appscode.com
   #     kind: BackupSession
 
-
-  block:
-    displayMode: Field
-    kind: Connection
-    query:
-      raw: |-
-        query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
-          find(oid: $src) {
-            backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
-              refs: view(group: $targetGroup, kind: $targetKind) {
-                namespace
-                name
-              }
-            }
-          }
-        }
-      type: GraphQL
-    ref:
-      group: ui.stash.appscode.com
-      kind: BackupOverview
+  # block:
+  #   displayMode: Field
+  #   kind: Connection
+  #   query:
+  #     raw: |-
+  #       query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+  #         find(oid: $src) {
+  #           backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
+  #             refs: view(group: $targetGroup, kind: $targetKind) {
+  #               namespace
+  #               name
+  #             }
+  #           }
+  #         }
+  #       }
+  #     type: GraphQL
+  #   ref:
+  #     group: ui.stash.appscode.com
+  #     kind: BackupOverview
