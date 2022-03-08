@@ -177,11 +177,11 @@ func _renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstru
 		if convertToTable {
 			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
 			if err != nil {
-				return nil, err
+				return &out, err
 			}
 			table, err := converter.ConvertToTable(context.TODO(), srcObj, nil)
 			if err != nil {
-				return nil, err
+				return &out, err
 			}
 			out.Table = table
 		} else {
@@ -189,7 +189,7 @@ func _renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstru
 		}
 		return &out, nil
 	} else if block.Kind != rsapi.TableKindConnection {
-		return nil, fmt.Errorf("unsupported table kind found in block %+v", block)
+		return &out, fmt.Errorf("unsupported table kind found in block %+v", block)
 	}
 
 	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
@@ -219,7 +219,7 @@ func _renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstru
 		}
 		return &out, nil
 	} else if err != nil {
-		return nil, err
+		return &out, err
 	}
 
 	out.Resource = kmapi.NewResourceID(mapping)
@@ -227,55 +227,56 @@ func _renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstru
 	srcID := kmapi.NewObjectID(srcObj)
 	q, vars, err := block.GraphQuery(srcID.OID())
 	if err != nil {
-		return nil, err
+		return &out, err
 	}
 
 	if block.Query.Type == rsapi.GraphQLQuery {
 		objs, err := ExecGraphQLQuery(kc, q, vars)
 		if err != nil {
-			return nil, err
+			return &out, err
 		}
 
 		if convertToTable {
 			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
 			if err != nil {
-				return nil, err
+				return &out, err
 			}
 			list := &unstructured.UnstructuredList{Items: objs}
 			table, err := converter.ConvertToTable(context.TODO(), list, nil)
 			if err != nil {
-				return nil, err
+				return &out, err
 			}
 			out.Table = table
 		} else {
 			out.Items = objs
 		}
 	} else if block.Query.Type == rsapi.RESTQuery {
-		var obj unstructured.Unstructured
+		var obj map[string]interface{}
 		if q != "" {
 			err = yaml.Unmarshal([]byte(q), &obj)
 			if err != nil {
-				return nil, errors.Wrapf(err, "failed to unmarshal query %s", q)
+				return &out, errors.Wrapf(err, "failed to unmarshal query %s", q)
 			}
 		}
-		obj.SetGroupVersionKind(mapping.GroupVersionKind)
-		err = kc.Create(context.TODO(), &obj)
+		u := unstructured.Unstructured{Object: obj}
+		u.SetGroupVersionKind(mapping.GroupVersionKind)
+		err = kc.Create(context.TODO(), &u)
 		if err != nil {
-			return nil, err
+			return &out, err
 		}
 
 		if convertToTable {
 			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
 			if err != nil {
-				return nil, err
+				return &out, err
 			}
-			table, err := converter.ConvertToTable(context.TODO(), &obj, nil)
+			table, err := converter.ConvertToTable(context.TODO(), &u, nil)
 			if err != nil {
-				return nil, err
+				return &out, err
 			}
 			out.Table = table
 		} else {
-			out.Items = []unstructured.Unstructured{obj}
+			out.Items = []unstructured.Unstructured{u}
 		}
 	}
 	return &out, nil

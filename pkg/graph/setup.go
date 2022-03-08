@@ -17,19 +17,14 @@ limitations under the License.
 package graph
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"strings"
-	"sync"
-	"text/template"
 	"time"
 
-	"github.com/Masterminds/sprig/v3"
 	"github.com/graphql-go/graphql"
 	"github.com/pkg/errors"
 	"gomodules.xyz/sets"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -47,12 +42,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/yaml"
 )
-
-var pool = sync.Pool{
-	New: func() interface{} {
-		return new(bytes.Buffer)
-	},
-}
 
 func PollNewResourceTypes(cfg *restclient.Config) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
@@ -241,7 +230,7 @@ func ExecRawQuery(kc client.Client, src kmapi.OID, target rsapi.ResourceLocator)
 		return rid, result, err
 	}
 
-	obj, err := execRestQuery(kc, q, mapping.GroupVersionKind, src)
+	obj, err := execRestQuery(kc, q, mapping.GroupVersionKind)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -272,79 +261,24 @@ func ExecQuery(kc client.Client, src kmapi.OID, target rsapi.ResourceLocator) (*
 		return rid, result, err
 	}
 
-	obj, err := execRestQuery(kc, q, mapping.GroupVersionKind, src)
+	obj, err := execRestQuery(kc, q, mapping.GroupVersionKind)
 	if err != nil {
 		return rid, nil, err
 	}
 	return rid, []unstructured.Unstructured{*obj}, nil
 }
 
-func execRestQuery(kc client.Client, q string, gvk schema.GroupVersionKind, src kmapi.OID) (*unstructured.Unstructured, error) {
+func execRestQuery(kc client.Client, q string, gvk schema.GroupVersionKind) (*unstructured.Unstructured, error) {
 	var out unstructured.Unstructured
-	if q != "" {
-		query, err := renderRESTQuery(kc, q, src)
-		if err != nil {
-			return nil, err
-		}
-		err = yaml.Unmarshal([]byte(query), &out)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to unmarshal query %s", q)
-		}
+	err := yaml.Unmarshal([]byte(q), &out)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to unmarshal query %s", q)
 	}
+
 	out.SetGroupVersionKind(gvk)
-	err := kc.Create(context.TODO(), &out)
+	err = kc.Create(context.TODO(), &out)
 	if err != nil {
 		return nil, err
 	}
 	return &out, nil
-}
-
-func renderRESTQuery(kc client.Client, q string, src kmapi.OID) (string, error) {
-	if !strings.Contains(q, "{{") {
-		return q, nil
-	}
-
-	objID, err := kmapi.ParseObjectID(src)
-	if err != nil {
-		return "", err
-	}
-
-	rid, err := kmapi.ExtractResourceID(kc.RESTMapper(), kmapi.ResourceID{
-		Group:   objID.Group,
-		Version: "",
-		Name:    "",
-		Kind:    objID.Kind,
-		Scope:   "",
-	})
-	if err != nil {
-		return "", err
-	}
-
-	var obj metav1.PartialObjectMetadata
-	obj.SetGroupVersionKind(rid.GroupVersionKind())
-	err = kc.Get(context.TODO(), objID.ObjectKey(), &obj)
-	if err != nil {
-		return "", err
-	}
-
-	tpl, err := template.New("").Funcs(sprig.TxtFuncMap()).Parse(q)
-	if err != nil {
-		klog.ErrorS(err, "failed to parse query", "query", q, "src", src)
-		return "", errors.Wrapf(err, "falied to parse query %s", q)
-	}
-	// Do nothing and continue execution.
-	// If printed, the result of the index operation is the string "<no value>".
-	// We mitigate that later.
-	tpl.Option("missingkey=default")
-
-	buf := pool.Get().(*bytes.Buffer)
-	defer pool.Put(buf)
-
-	buf.Reset()
-	err = tpl.Execute(buf, obj)
-	if err != nil {
-		klog.ErrorS(err, "failed to render query", "query", q, "src", src)
-		return "", errors.Wrapf(err, "falied to render query %s", q)
-	}
-	return buf.String(), nil
 }
