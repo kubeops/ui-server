@@ -1451,8 +1451,8 @@ kmodules.xyz/client-go v0.0.0-20220113110622-dbc40d36b6f8/go.mod h1:Lr0QB1gymE1j
 kmodules.xyz/client-go v0.0.0-20220118144149-f5289f79ff44/go.mod h1:aOwnhdxO0uh54ds1wQYRlKVtYlzLyakaesmMQeupVek=
 kmodules.xyz/client-go v0.0.0-20220203031013-1de48437aaf3/go.mod h1:aOwnhdxO0uh54ds1wQYRlKVtYlzLyakaesmMQeupVek=
 kmodules.xyz/client-go v0.0.0-20220215012708-9963581d69a7/go.mod h1:sOq5P3AkZdv6D/skvUPwEG15NDYy5olwBllH/JXfhGI=
-kmodules.xyz/client-go v0.0.0-20220302084100-4d54605d5701 h1:/ejsbEMVqbHyK8PvqNIKIxpyEYdQXJK3giTDXndSCpw=
-kmodules.xyz/client-go v0.0.0-20220302084100-4d54605d5701/go.mod h1:hu7eGess/SEbiss671Y062QBc8O45Qh0IGv19/0kPXM=
+kmodules.xyz/client-go v0.0.0-20220308080632-2543b61b64fd h1:9sOSO9moUpqn2CKeXh+GYP8ol1nU5IsLHJvZtNIzKz0=
+kmodules.xyz/client-go v0.0.0-20220308080632-2543b61b64fd/go.mod h1:hu7eGess/SEbiss671Y062QBc8O45Qh0IGv19/0kPXM=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20210618002152-fae23aef5fb4/go.mod h1:IIkUctlfoptoci0BOrsUf8ya+MOG5uaeh1PE4uzaIbA=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20211025154117-6edb24ef11bc h1:ot/XqJCnfQXF3jawygywjPNNDbjo3d/QiG6Aoz2yjaA=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20211025154117-6edb24ef11bc/go.mod h1:yLOBJKasPhnCodKSZGFZ6OGFFrp0tq3ALS9rDnYFjkg=
@@ -1465,8 +1465,8 @@ kmodules.xyz/openshift v0.0.0-20210618001443-f2507caa512f/go.mod h1:8E5ckbd1KMNm
 kmodules.xyz/resource-metadata v0.7.1-0.20211223071151-daf19bd77f84/go.mod h1:AF6yUxhF4CUx2aoAWEbX4fPEGKHgStT74fgBUSbhYs4=
 kmodules.xyz/resource-metadata v0.8.2-0.20220116072424-4ed4f0c4b8b5/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
 kmodules.xyz/resource-metadata v0.8.2-0.20220203195725-17129529420b/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
-kmodules.xyz/resource-metadata v0.9.11-0.20220308054156-595b906159ec h1:hgAVaPNsCqvKGrJ1Sb8kYuPTOkd33MrqS7GuarUVB1A=
-kmodules.xyz/resource-metadata v0.9.11-0.20220308054156-595b906159ec/go.mod h1:7KTmk24ijE0d03qhMT4laCTpeaN4KC4v7yvlIhhyMo0=
+kmodules.xyz/resource-metadata v0.9.11-0.20220308081939-bd2546dab08e h1:jLnw6LyQ2DPKVwqqIusmwV2WEUj7LLfSujcJrL/GRzc=
+kmodules.xyz/resource-metadata v0.9.11-0.20220308081939-bd2546dab08e/go.mod h1:9GhjDZXgS1bGBg+l6WBrkQcBLRV3TfvmW4UBxlE3xN4=
 kmodules.xyz/resource-metrics v0.0.5/go.mod h1:6Dv63HDgp83DhA+lZNB7GIQR6PLjNrYW6ghQKioQzII=
 kmodules.xyz/resource-metrics v0.0.6/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
 kmodules.xyz/resource-metrics v0.0.8 h1:4WHV7vKGfoxpZquu/Jowq4pgoMEithyMjFfJIg68Nq8=
