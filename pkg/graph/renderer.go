@@ -157,7 +157,7 @@ func renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstruc
 			Status:  rsapi.RenderError,
 			Message: err.Error(),
 		}
-	} else {
+	} else if bv.Result.Status != rsapi.RenderMissing {
 		bv.Result = rsapi.RenderResult{
 			Status: rsapi.RenderSuccess,
 		}
