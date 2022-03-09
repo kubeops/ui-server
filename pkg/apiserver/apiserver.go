@@ -63,6 +63,7 @@ import (
 	"kmodules.xyz/authorizer/rbac"
 	cu "kmodules.xyz/client-go/client"
 	"kmodules.xyz/client-go/meta"
+	appcatalogapi "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	"kmodules.xyz/custom-resources/apis/auditor"
 	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
@@ -92,6 +93,7 @@ func init() {
 	crdinstall.Install(Scheme)
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
+	utilruntime.Must(appcatalogapi.AddToScheme(Scheme))
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
@@ -189,12 +191,15 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 
-	pc, err := c.ExtraConfig.PromConfig.NewPrometheusClient()
+	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
+
+	builder, err := prometheus.NewBuilder(mgr, &c.ExtraConfig.PromConfig)
 	if err != nil {
 		return nil, err
 	}
-
-	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
+	if err := builder.Setup(); err != nil {
+		return nil, err
+	}
 
 	if err := mgr.Add(manager.RunnableFunc(graph.PollNewResourceTypes(cfg))); err != nil {
 		setupLog.Error(err, "unable to set up resource poller")
@@ -273,7 +278,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(corev1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[corev1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, pc)
+		v1alpha1storage[corev1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, builder)
 		v1alpha1storage[corev1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[corev1alpha1.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[corev1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)

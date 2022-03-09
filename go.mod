@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/graphql-go/graphql v0.8.0
 	github.com/graphql-go/handler v0.2.3
+	github.com/hexops/gotextdiff v1.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.28.0
@@ -16,6 +17,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/zeebo/xxh3 v1.0.1
 	go.bytebuilders.dev/license-verifier v0.9.7
+	gomodules.xyz/atomic-writer v0.0.2
 	gomodules.xyz/jsonpath v0.0.1
 	gomodules.xyz/logs v0.0.6
 	gomodules.xyz/pointer v0.1.0
@@ -32,6 +34,7 @@ require (
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
 	kmodules.xyz/client-go v0.0.0-20220308080632-2543b61b64fd
 	kmodules.xyz/custom-resources v0.0.0-20220307091238-ea82eb5973a0
+	kmodules.xyz/monitoring-agent-api v0.0.0-20220307213519-a6beb8e40d26
 	kmodules.xyz/resource-metadata v0.10.3
 	kmodules.xyz/resource-metrics v0.0.8
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
@@ -43,7 +46,7 @@ require (
 	sigs.k8s.io/yaml v1.3.0
 )
 
-replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.9.1-0.20220212102520-811f7a3fafea
+replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.9.1-0.20220308094157-549765510cd6
 
 require (
 	cloud.google.com/go v0.81.0 // indirect
