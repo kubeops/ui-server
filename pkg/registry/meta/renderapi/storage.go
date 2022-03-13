@@ -18,6 +18,7 @@ package renderapi
 
 import (
 	"context"
+	kmapi "kmodules.xyz/client-go/api/v1"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -105,7 +106,18 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			return nil, err
 		}
 		if req.ConvertToTable {
-			table, err := tableconvertor.TableForList(r.kc, out.Items)
+			rid, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), kmapi.ResourceID{
+				Group:   gvk.Group,
+				Version: gvk.Version,
+				Name:    "",
+				Kind:    gvk.Kind,
+				Scope:   "",
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			table, err := tableconvertor.TableForList(r.kc, rid.GroupVersionResource(), out.Items)
 			if err != nil {
 				return nil, err
 			}
