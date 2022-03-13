@@ -1,45 +1,83 @@
+# apiVersion: meta.k8s.appscode.com/v1alpha1
+# kind: Render
+# request:
+#   source:
+#     resource:
+#       group: kubedb.com
+#       kind: MongoDB
+#     ref:
+#       name: mg-sh
+#       namespace: demo
+#   # layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+#   convertToTable: true
+
+
 apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: Render
 request:
   source:
     resource:
-      group: kubedb.com
-      kind: MongoDB
+      group: core
+      version: v1
+      name: pods
     ref:
-      name: mg-sh
       namespace: demo
-  # layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+      name: mg-rs-demo-0
+  layoutName: core-v1-pods
+  pageName: Basic
   convertToTable: true
+  renderBlocks:
+  - Self
+  - SubTable
 
-  block:
-    displayMode: List
-    kind: Connection
-    query:
-      raw: |
-        request:
-          target:
-            group: kubedb.com
-            kind: MongoDB
-            name: {{ .name }}
-            namespace: {{ .namespace }}
-          dashboard:
-            title: "KubeDB / MongoDB / Summary"
-          panels: []
-      type: REST
-    ref:
-      group: ui.openviz.dev
-      kind: EmbeddedDashboard
-    fieldPath: .response.urls
-    view:
-      columns:
-      - name: Title
-        pathTemplate: '{{ .title }}'
-        priority: 3
-        type: string
-      - name: Embedded URL
-        pathTemplate: '{{ .embeddedURL }}'
-        priority: 3
-        type: string
+
+# apiVersion: meta.k8s.appscode.com/v1alpha1
+# kind: Render
+# request:
+#   source:
+#     resource:
+#       group: kubedb.com
+#       version: v1alpha2
+#       name: mongodbs
+#     ref:
+#       namespace: demo
+#       name: mg-std
+#   layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
+#   pageName: Database Insights
+#   convertToTable: true
+#   renderBlocks:
+#   - Connection
+
+
+  # block:
+  #   displayMode: List
+  #   kind: Connection
+  #   query:
+  #     raw: |
+  #       request:
+  #         target:
+  #           group: kubedb.com
+  #           kind: MongoDB
+  #           name: {{ .name }}
+  #           namespace: {{ .namespace }}
+  #         dashboard:
+  #           title: "KubeDB / MongoDB / Summary"
+  #         panels: []
+  #     type: REST
+  #   ref:
+  #     group: ui.openviz.dev
+  #     kind: EmbeddedDashboard
+  #   fieldPath: .response.urls
+  #   view:
+  #     columns:
+  #     - name: Title
+  #       pathTemplate: '{{ .title }}'
+  #       priority: 3
+  #       type: string
+  #     - name: Embedded URL
+  #       pathTemplate: '{{ .embeddedURL }}'
+  #       priority: 3
+  #       type: string
 
   # block:
   #   displayMode: List

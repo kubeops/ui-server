@@ -1,121 +1,341 @@
 apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: Render
 request:
-  block:
-    displayMode: Field
-    kind: Connection
-    query:
-      raw: |-
-        query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
-          find(oid: $src) {
-            backup_via(group: "stash.appscode.com", kind: "BackupConfiguration") {
-              refs: view(group: $targetGroup, kind: $targetKind) {
-                namespace
-                name
-              }
-            }
-          }
-        }
-      type: GraphQL
-    ref:
-      group: ui.stash.appscode.com
-      kind: BackupOverview
-    view: {}
   convertToTable: true
+  layoutName: core-v1-pods
+  pageName: Basic
+  renderBlocks:
+  - Self
+  - SubTable
   source:
     ref:
-      name: mg-rs-demo
+      name: mg-rs-demo-0
       namespace: demo
     resource:
-      group: kubedb.com
-      kind: MongoDB
-      name: ""
+      group: core
+      kind: ""
+      name: pods
       scope: ""
-      version: ""
+      version: v1
 response:
-  block:
-    kind: Connection
+  view:
+    layoutName: core-v1-pods
+    pages:
+    - blocks:
+      - kind: SubTable
+        name: Containers
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Image
+            priority: 0
+            type: string
+          - name: Arguments
+            priority: 0
+            type: object
+          - name: Environment Variables
+            priority: 0
+            type: object
+          - name: Ports
+            priority: 0
+            type: string
+          - name: Volume Mounts
+            priority: 0
+            type: string
+          metadata:
+            resourceVersion: "436141"
+          rows:
+          - cells:
+            - data: mongodb
+            - data: mongo:5.0.2
+            - data:
+              - --dbpath=/data/db
+              - --auth
+              - --bind_ip_all
+              - --port=27017
+              - --ipv6
+              - --tlsMode=disabled
+              - --replSet=rs0
+              - --keyFile=/data/configdb/key.txt
+              - --clusterAuthMode=keyFile
+            - data:
+              - name: POD_NAMESPACE
+                valueFrom:
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.namespace
+              - name: REPLICA_SET
+                value: rs0
+              - name: AUTH
+                value: "true"
+              - name: SSL_MODE
+                value: disabled
+              - name: CLUSTER_AUTH_MODE
+                value: keyFile
+              - name: MONGO_INITDB_ROOT_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    key: username
+                    name: mg-rs-demo-auth
+              - name: MONGO_INITDB_ROOT_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    key: password
+                    name: mg-rs-demo-auth
+              - name: POD_NAME
+                valueFrom:
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.name
+            - data: 27017/TCP
+            - data: |-
+                workdir:/work-dir
+                config:/data/configdb
+                datadir:/data/db
+                init-scripts:/init-scripts
+                kube-api-access-hgv4s:/var/run/secrets/kubernetes.io/serviceaccount
+          - cells:
+            - data: replication-mode-detector
+            - data: kubedb/replication-mode-detector:v0.12.0
+            - data:
+              - run
+              - --db-name=mg-rs-demo
+              - --db-kind=MongoDB
+              - --logtostderr=true
+              - --alsologtostderr=false
+              - --v=3
+              - --stderrthreshold=2
+            - data:
+              - name: MONGO_INITDB_ROOT_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    key: username
+                    name: mg-rs-demo-auth
+              - name: MONGO_INITDB_ROOT_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    key: password
+                    name: mg-rs-demo-auth
+              - name: POD_NAME
+                valueFrom:
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.name
+            - data: ""
+            - data: kube-api-access-hgv4s:/var/run/secrets/kubernetes.io/serviceaccount
+      - kind: SubTable
+        name: Init-Containers
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Name
+            priority: 0
+            type: string
+          - name: Image
+            priority: 0
+            type: string
+          - name: Arguments
+            priority: 0
+            type: object
+          - name: Environment Variables
+            priority: 0
+            type: object
+          - name: Ports
+            priority: 0
+            type: string
+          - name: Volume Mounts
+            priority: 0
+            type: string
+          metadata:
+            resourceVersion: "436141"
+          rows:
+          - cells:
+            - data: copy-config
+            - data: kubedb/mongodb-init:4.2-v3
+            - data:
+              - -c
+              - "\n\t\t\techo \"running install.sh\"\n\t\t\t/scripts/install.sh"
+            - data:
+              - name: SSL_MODE
+                value: disabled
+            - data: ""
+            - data: |-
+                config:/data/configdb
+                init-scripts:/init-scripts
+                certdir:/var/run/mongodb/tls
+                keydir:/keydir-readonly
+                kube-api-access-hgv4s:/var/run/secrets/kubernetes.io/serviceaccount
+      - kind: SubTable
+        name: Tolerations
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Effect
+            priority: 0
+            type: string
+          - name: Key
+            priority: 0
+            type: string
+          - name: Operator
+            priority: 0
+            type: string
+          - name: Toleration Seconds
+            priority: 0
+            type: string
+          metadata:
+            resourceVersion: "436141"
+          rows:
+          - cells:
+            - data: NoExecute
+            - data: node.kubernetes.io/not-ready
+            - data: Exists
+            - data: "300"
+          - cells:
+            - data: NoExecute
+            - data: node.kubernetes.io/unreachable
+            - data: Exists
+            - data: "300"
+      - kind: SubTable
+        name: Conditions
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Type
+            priority: 0
+            type: string
+          - name: Status
+            priority: 0
+            type: string
+          - name: Reason
+            priority: 0
+            type: string
+          - name: Last Transition Time
+            priority: 0
+            type: date
+          - name: Last Update Time
+            priority: 0
+            type: date
+          - name: Message
+            priority: 0
+            type: string
+          metadata:
+            resourceVersion: "436141"
+          rows:
+          - cells:
+            - data: Initialized
+            - data: "True"
+            - data: ""
+            - data: 9d
+            - data: <unknown>
+            - data: ""
+          - cells:
+            - data: Ready
+            - data: "True"
+            - data: ""
+            - data: 9d
+            - data: <unknown>
+            - data: ""
+          - cells:
+            - data: ContainersReady
+            - data: "True"
+            - data: ""
+            - data: 9d
+            - data: <unknown>
+            - data: ""
+          - cells:
+            - data: PodScheduled
+            - data: "True"
+            - data: ""
+            - data: 9d
+            - data: <unknown>
+            - data: ""
+      - kind: SubTable
+        name: Owners
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: API Version
+            priority: 0
+            type: string
+          - name: Kind
+            priority: 0
+            type: string
+          - name: Name
+            priority: 0
+            type: string
+          - name: Controller
+            priority: 0
+            type: string
+          - name: Block Onwer Deletion
+            priority: 0
+            type: string
+          metadata:
+            resourceVersion: "436141"
+          rows:
+          - cells:
+            - data: apps/v1
+            - data: StatefulSet
+            - data: mg-rs-demo
+            - data: "true"
+            - data: "true"
+      info:
+        kind: Self
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+        result:
+          message: 'strconv.ParseInt: parsing "%!d(string=1646311150)": invalid syntax'
+          status: Error
+      name: Basic
     resource:
-      group: ui.stash.appscode.com
-      kind: BackupOverview
-      name: backupoverviews
+      group: ""
+      kind: Pod
+      name: pods
       scope: Namespaced
-      version: v1alpha1
-    result:
-      status: Success
-    table:
-      columns:
-      - name: Name
-        priority: 3
-        sort:
-          enable: true
-        type: string
-      - name: Namespace
-        priority: 3
-        type: string
-      - name: Labels
-        priority: 3
-        type: object
-      - name: Annotations
-        priority: 3
-        type: object
-      - name: Age
-        priority: 3
-        sort:
-          enable: true
-          type: integer
-        type: date
-      - name: Schedule
-        priority: 3
-        type: string
-      - name: Status
-        priority: 3
-        type: string
-      - name: Last Backup Time
-        priority: 3
-        sort:
-          enable: true
-          type: integer
-        type: date
-      - name: Upcoming Backup Time
-        priority: 3
-        sort:
-          enable: true
-          type: integer
-        type: date
-      - name: Repository
-        priority: 3
-        type: string
-      - name: Data Size
-        priority: 3
-        type: string
-      - name: Number Of Snapshots
-        priority: 3
-        type: integer
-      - name: Data Integrity
-        priority: 3
-        type: boolean
-      metadata: {}
-      rows:
-      - cells:
-        - data: mg-rs-demo
-        - data: demo
-        - data:
-            app.kubernetes.io/instance: mg-rs-demo
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: mongodbs.kubedb.com
-        - data:
-            meta.helm.sh/release-name: mg-rs-demo
-            meta.helm.sh/release-namespace: demo
-        - data: 16h
-          sort: 1646225039
-        - data: '"*/5 * * * *" (Every 5 minutes)'
-        - data: Active
-        - data: <unknown>
-          sort: -62135596800
-        - data: <invalid>
-          sort: 1646284500
-        - data: mg-rs-demo-repo
-        - data: ""
-        - data: <unknown>
-        - data: <unknown>
+      version: v1
+    ui:
+      editor:
+        name: core-pod-editor
+        url: https://bundles.byte.builders/ui/
+        version: v0.4.0
