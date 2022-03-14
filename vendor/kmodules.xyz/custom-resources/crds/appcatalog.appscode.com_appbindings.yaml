@@ -47,16 +47,6 @@ spec:
           spec:
             description: AppBindingSpec is the spec for app
             properties:
-              clientCertificateSecret:
-                description: ClientCertificateSecret is the name of the secret that
-                  will hold the client certificate and private key associated with
-                  the AppBinding.
-                properties:
-                  name:
-                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-                      TODO: Add other useful fields. apiVersion, kind, uid?'
-                    type: string
-                type: object
               clientConfig:
                 description: ClientConfig defines how to communicate with the app.
                   Required
@@ -227,6 +217,15 @@ spec:
                       type: object
                   type: object
                 type: array
+              tlsSecret:
+                description: TLSSecret is the name of the secret that will hold the
+                  client certificate and private key associated with the AppBinding.
+                properties:
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                type: object
               type:
                 description: Type used to facilitate programmatic handling of application.
                 type: string

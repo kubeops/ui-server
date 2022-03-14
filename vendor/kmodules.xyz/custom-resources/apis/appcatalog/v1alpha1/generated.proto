@@ -118,9 +118,9 @@ message AppBindingSpec {
   // +kubebuilder:pruning:PreserveUnknownFields
   optional k8s.io.apimachinery.pkg.runtime.RawExtension parameters = 6;
 
-  // ClientCertificateSecret is the name of the secret that will hold
+  // TLSSecret is the name of the secret that will hold
   // the client certificate and private key associated with the AppBinding.
-  optional k8s.io.api.core.v1.LocalObjectReference clientCertificateSecret = 7;
+  optional k8s.io.api.core.v1.LocalObjectReference tlsSecret = 7;
 }
 
 message AppReference {

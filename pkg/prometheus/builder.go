@@ -162,7 +162,7 @@ func (r *ClientBuilder) Setup() error {
 		for _, app := range appList.Items {
 			if app.GetNamespace() == a.GetNamespace() &&
 				(app.Spec.Secret != nil && app.Spec.Secret.Name == a.GetName() ||
-					app.Spec.ClientCertificateSecret != nil && app.Spec.ClientCertificateSecret.Name == a.GetName()) {
+					app.Spec.TLSSecret != nil && app.Spec.TLSSecret.Name == a.GetName()) {
 				req = append(req, reconcile.Request{NamespacedName: client.ObjectKeyFromObject(&app)})
 			}
 		}
@@ -219,9 +219,9 @@ func (r *ClientBuilder) build(app *appcatalogapi.AppBinding) (*Config, map[strin
 		cfg.TLSConfig.CAFile = filepath.Join(r.tmpDir, "ca.crt")
 	}
 
-	if app.Spec.ClientCertificateSecret != nil && app.Spec.ClientCertificateSecret.Name != "" {
+	if app.Spec.TLSSecret != nil && app.Spec.TLSSecret.Name != "" {
 		var clientSecret core.Secret
-		key := client.ObjectKey{Namespace: app.Namespace, Name: app.Spec.ClientCertificateSecret.Name}
+		key := client.ObjectKey{Namespace: app.Namespace, Name: app.Spec.TLSSecret.Name}
 		err = r.mgr.GetClient().Get(context.TODO(), key, &clientSecret)
 		if err != nil {
 			return nil, nil, errors.Wrapf(err, "Secret %s not found", key)

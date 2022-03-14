@@ -33,7 +33,7 @@ require (
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
 	kmodules.xyz/client-go v0.0.0-20220308080632-2543b61b64fd
-	kmodules.xyz/custom-resources v0.0.0-20220307091238-ea82eb5973a0
+	kmodules.xyz/custom-resources v0.0.0-20220314103517-150ada19b198
 	kmodules.xyz/monitoring-agent-api v0.0.0-20220307213519-a6beb8e40d26
 	kmodules.xyz/resource-metadata v0.10.5
 	kmodules.xyz/resource-metrics v0.0.8

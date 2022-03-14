@@ -16015,9 +16015,9 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_AppBindingSpec(ref common.
 							Ref:         ref("k8s.io/apimachinery/pkg/runtime.RawExtension"),
 						},
 					},
-					"clientCertificateSecret": {
+					"tlsSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ClientCertificateSecret is the name of the secret that will hold the client certificate and private key associated with the AppBinding.",
+							Description: "TLSSecret is the name of the secret that will hold the client certificate and private key associated with the AppBinding.",
 							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},

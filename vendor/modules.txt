@@ -1716,8 +1716,8 @@ kmodules.xyz/client-go/tools/clientcmd
 kmodules.xyz/client-go/tools/clusterid
 kmodules.xyz/client-go/tools/parser
 kmodules.xyz/client-go/tools/wait
-# kmodules.xyz/custom-resources v0.0.0-20220307091238-ea82eb5973a0
-## explicit; go 1.16
+# kmodules.xyz/custom-resources v0.0.0-20220314103517-150ada19b198
+## explicit; go 1.17
 kmodules.xyz/custom-resources/apis/appcatalog
 kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1
 kmodules.xyz/custom-resources/apis/auditor

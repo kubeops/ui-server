@@ -82,9 +82,9 @@ type AppBindingSpec struct {
 	// +kubebuilder:pruning:PreserveUnknownFields
 	Parameters *runtime.RawExtension `json:"parameters,omitempty" protobuf:"bytes,6,opt,name=parameters"`
 
-	// ClientCertificateSecret is the name of the secret that will hold
+	// TLSSecret is the name of the secret that will hold
 	// the client certificate and private key associated with the AppBinding.
-	ClientCertificateSecret *core.LocalObjectReference `json:"clientCertificateSecret,omitempty" protobuf:"bytes,7,opt,name=clientCertificateSecret"`
+	TLSSecret *core.LocalObjectReference `json:"tlsSecret,omitempty" protobuf:"bytes,7,opt,name=tlsSecret"`
 }
 
 type AppType string

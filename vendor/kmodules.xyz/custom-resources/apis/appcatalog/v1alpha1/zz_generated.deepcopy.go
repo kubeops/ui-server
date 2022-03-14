@@ -154,8 +154,8 @@ func (in *AppBindingSpec) DeepCopyInto(out *AppBindingSpec) {
 		*out = new(runtime.RawExtension)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.ClientCertificateSecret != nil {
-		in, out := &in.ClientCertificateSecret, &out.ClientCertificateSecret
+	if in.TLSSecret != nil {
+		in, out := &in.TLSSecret, &out.TLSSecret
 		*out = new(v1.LocalObjectReference)
 		**out = **in
 	}
