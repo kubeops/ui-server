@@ -34,7 +34,7 @@ require (
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
 	kmodules.xyz/client-go v0.0.0-20220308080632-2543b61b64fd
 	kmodules.xyz/custom-resources v0.0.0-20220314103517-150ada19b198
-	kmodules.xyz/monitoring-agent-api v0.0.0-20220307213519-a6beb8e40d26
+	kmodules.xyz/monitoring-agent-api v0.0.0-20220314122108-c5440692cd87
 	kmodules.xyz/resource-metadata v0.10.5
 	kmodules.xyz/resource-metrics v0.0.8
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
@@ -165,8 +165,6 @@ require (
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
-	github.com/onsi/ginkgo v1.16.5 // indirect
-	github.com/onsi/gomega v1.17.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/opencontainers/runc v1.0.3 // indirect

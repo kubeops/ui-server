@@ -20,8 +20,6 @@ import (
 	"context"
 	"errors"
 
-	"kubeops.dev/ui-server/pkg/prometheus"
-
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -34,6 +32,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/klog/v2"
 	mu "kmodules.xyz/client-go/meta"
+	promclient "kmodules.xyz/monitoring-agent-api/client"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rmapi "kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -42,7 +41,7 @@ import (
 type Storage struct {
 	kc        client.Client
 	a         authorizer.Authorizer
-	builder   *prometheus.ClientBuilder
+	builder   *promclient.ClientBuilder
 	gr        schema.GroupResource
 	convertor rest.TableConvertor
 }
@@ -54,7 +53,7 @@ var (
 	_ rest.Getter                   = &Storage{}
 )
 
-func NewStorage(kc client.Client, a authorizer.Authorizer, builder *prometheus.ClientBuilder) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer, builder *promclient.ClientBuilder) *Storage {
 	s := &Storage{
 		kc:      kc,
 		a:       a,
@@ -204,7 +203,7 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 	if pc, err := r.builder.GetPrometheusClient(); err != nil {
 		klog.ErrorS(err, "failed to create Prometheus client")
 	} else if pc != nil {
-		rv.Usage = prometheus.GetPodResourceUsage(pc, pod.ObjectMeta)
+		rv.Usage = promclient.GetPodResourceUsage(pc, pod.ObjectMeta)
 	}
 	result.Spec.Resources = rv
 
