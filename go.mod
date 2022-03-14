@@ -35,7 +35,7 @@ require (
 	kmodules.xyz/client-go v0.0.0-20220308080632-2543b61b64fd
 	kmodules.xyz/custom-resources v0.0.0-20220307091238-ea82eb5973a0
 	kmodules.xyz/monitoring-agent-api v0.0.0-20220307213519-a6beb8e40d26
-	kmodules.xyz/resource-metadata v0.10.4
+	kmodules.xyz/resource-metadata v0.10.5
 	kmodules.xyz/resource-metrics v0.0.8
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d

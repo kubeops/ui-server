@@ -29,7 +29,10 @@ response:
           scope: Namespaced
           version: v1
         result:
-          message: 'strconv.ParseInt: parsing "%!d(string=1646039114)": invalid syntax'
+          message: 'falied to render column {Name:Age Type:integer Template:{{ .metadata.creationTimestamp
+            | toDate "2006-01-02T15:04:05Z07:00" | unixEpoch }}}: template: :1:33:
+            executing "" at <toDate "2006-01-02T15:04:05Z07:00">: error calling toDate:
+            reflect: call of reflect.Value.IsNil on string Value'
           status: Error
       name: Basic
     resource:
