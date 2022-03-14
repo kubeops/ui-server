@@ -1,3 +1,21 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: Render
+request:
+  source:
+    resource:
+      group: core
+      version: v1
+      name: pods
+    ref:
+      namespace: default
+      name: mg-rs-0
+  layoutName: core-v1-pods
+  pageName: Basic
+  convertToTable: true
+  renderBlocks:
+  - Self
+
+
 # apiVersion: meta.k8s.appscode.com/v1alpha1
 # kind: Render
 # request:
@@ -10,26 +28,6 @@
 #       namespace: demo
 #   # layoutName: kubedb-kubedb.com-v1alpha2-mongodbs
 #   convertToTable: true
-
-
-apiVersion: meta.k8s.appscode.com/v1alpha1
-kind: Render
-request:
-  source:
-    resource:
-      group: core
-      version: v1
-      name: pods
-    ref:
-      namespace: demo
-      name: mg-rs-demo-0
-  layoutName: core-v1-pods
-  pageName: Basic
-  convertToTable: true
-  renderBlocks:
-  - Self
-  - SubTable
-
 
 # apiVersion: meta.k8s.appscode.com/v1alpha1
 # kind: Render
