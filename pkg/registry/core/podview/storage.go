@@ -22,8 +22,6 @@ import (
 
 	"kubeops.dev/ui-server/pkg/prometheus"
 
-	"github.com/prometheus/client_golang/api"
-	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -34,6 +32,7 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/klog/v2"
 	mu "kmodules.xyz/client-go/meta"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rmapi "kmodules.xyz/resource-metrics/api"
@@ -43,7 +42,7 @@ import (
 type Storage struct {
 	kc        client.Client
 	a         authorizer.Authorizer
-	pc        promv1.API
+	builder   *prometheus.ClientBuilder
 	gr        schema.GroupResource
 	convertor rest.TableConvertor
 }
@@ -55,10 +54,11 @@ var (
 	_ rest.Getter                   = &Storage{}
 )
 
-func NewStorage(kc client.Client, a authorizer.Authorizer, pc api.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer, builder *prometheus.ClientBuilder) *Storage {
 	s := &Storage{
-		kc: kc,
-		a:  a,
+		kc:      kc,
+		a:       a,
+		builder: builder,
 		gr: schema.GroupResource{
 			Group:    "",
 			Resource: "pods",
@@ -67,9 +67,6 @@ func NewStorage(kc client.Client, a authorizer.Authorizer, pc api.Client) *Stora
 			Group:    corev1alpha1.GroupName,
 			Resource: corev1alpha1.ResourcePodViews,
 		}),
-	}
-	if pc != nil {
-		s.pc = promv1.NewAPI(pc)
 	}
 	return s
 }
@@ -204,8 +201,10 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 		Limits:   limits,
 		Requests: requests,
 	}
-	if r.pc != nil {
-		rv.Usage = prometheus.GetPodResourceUsage(r.pc, pod.ObjectMeta)
+	if pc, err := r.builder.GetPrometheusClient(); err != nil {
+		klog.ErrorS(err, "failed to create Prometheus client")
+	} else if pc != nil {
+		rv.Usage = prometheus.GetPodResourceUsage(pc, pod.ObjectMeta)
 	}
 	result.Spec.Resources = rv
 
