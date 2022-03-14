@@ -29,11 +29,48 @@ response:
           scope: Namespaced
           version: v1
         result:
-          message: 'falied to render column {Name:Age Type:integer Template:{{ .metadata.creationTimestamp
-            | toDate "2006-01-02T15:04:05Z07:00" | unixEpoch }}}: template: :1:33:
-            executing "" at <toDate "2006-01-02T15:04:05Z07:00">: error calling toDate:
-            reflect: call of reflect.Value.IsNil on string Value'
-          status: Error
+          status: Success
+        table:
+          columns:
+          - name: Name
+            priority: 3
+            sort:
+              enable: true
+            type: string
+          - name: Namespace
+            priority: 3
+            type: string
+          - name: Labels
+            priority: 3
+            type: object
+          - name: Annotations
+            priority: 3
+            type: object
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          metadata:
+            resourceVersion: "128935"
+          rows:
+          - cells:
+            - data: mg-rs-0
+            - data: default
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-rs
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+                controller-revision-hash: mg-rs-7d7d5b6fc7
+                kubedb.com/role: primary
+                statefulset.kubernetes.io/pod-name: mg-rs-0
+            - data:
+                cni.projectcalico.org/podIP: 10.2.3.5/32
+                cni.projectcalico.org/podIPs: 10.2.3.5/32
+            - data: 13d
+              sort: 1646039114
       name: Basic
     resource:
       group: ""
