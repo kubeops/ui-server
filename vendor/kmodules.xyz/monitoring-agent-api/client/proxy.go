@@ -22,26 +22,13 @@ import (
 	"os"
 	"path/filepath"
 
+	appcatalog "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+
 	prom_config "github.com/prometheus/common/config"
 	"k8s.io/client-go/rest"
 )
 
-var tmpDir = func() string {
-	dir, err := os.MkdirTemp("/tmp", "prometheus-*")
-	if err != nil {
-		panic(err)
-	}
-	return dir
-}()
-
-type ServiceReference struct {
-	Scheme    string
-	Name      string
-	Namespace string
-	Port      int
-}
-
-func ToPrometheusConfig(cfg *rest.Config, ref ServiceReference) (*Config, error) {
+func ToPrometheusConfig(cfg *rest.Config, ref appcatalog.ServiceReference) (*Config, error) {
 	if err := rest.LoadTLSFiles(cfg); err != nil {
 		return nil, err
 	}

@@ -1745,7 +1745,7 @@ kmodules.xyz/custom-resources/apis/auditor/install
 kmodules.xyz/custom-resources/apis/auditor/v1alpha1
 kmodules.xyz/custom-resources/crds
 kmodules.xyz/custom-resources/util/siteinfo
-# kmodules.xyz/monitoring-agent-api v0.0.0-20220314122108-c5440692cd87
+# kmodules.xyz/monitoring-agent-api v0.0.0-20220314131012-05a1a33d1e2c
 ## explicit; go 1.17
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/client
