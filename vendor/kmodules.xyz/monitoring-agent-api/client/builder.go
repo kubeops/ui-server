@@ -1,5 +1,5 @@
 /*
-Copyright AppsCode Inc. and Contributors.
+Copyright AppsCode Inc. and Contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package prometheus
+package client
 
 import (
 	"context"
@@ -23,6 +23,10 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+
+	appcatalog "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	appcatalogapi "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 
 	"github.com/hexops/gotextdiff"
 	"github.com/hexops/gotextdiff/myers"
@@ -33,9 +37,6 @@ import (
 	atomic_writer "gomodules.xyz/atomic-writer"
 	core "k8s.io/api/core/v1"
 	"k8s.io/klog/v2"
-	appcatalog "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	appcatalogapi "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"

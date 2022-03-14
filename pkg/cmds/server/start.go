@@ -24,7 +24,6 @@ import (
 
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
-	"kubeops.dev/ui-server/pkg/prometheus"
 
 	"github.com/spf13/pflag"
 	v "gomodules.xyz/x/version"
@@ -37,6 +36,7 @@ import (
 	ou "kmodules.xyz/client-go/openapi"
 	"kmodules.xyz/client-go/tools/clientcmd"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
+	promclient "kmodules.xyz/monitoring-agent-api/client"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -48,7 +48,7 @@ const defaultEtcdPathPrefix = "/registry/k8s.appscode.com"
 // UIServerOptions contains state for master/api server
 type UIServerOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions
-	PrometheusOptions  *prometheus.Config
+	PrometheusOptions  *promclient.Config
 	ExtraOptions       *ExtraOptions
 
 	StdOut io.Writer
@@ -68,7 +68,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 				corev1alpha1.GroupVersion,
 			),
 		),
-		PrometheusOptions: prometheus.NewPrometheusConfig(),
+		PrometheusOptions: promclient.NewPrometheusConfig(),
 		ExtraOptions:      NewExtraOptions(),
 		StdOut:            out,
 		StdErr:            errOut,

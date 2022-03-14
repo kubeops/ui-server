@@ -24,7 +24,6 @@ import (
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
-	"kubeops.dev/ui-server/pkg/prometheus"
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/core/genericresource"
@@ -67,6 +66,7 @@ import (
 	"kmodules.xyz/custom-resources/apis/auditor"
 	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
+	promclient "kmodules.xyz/monitoring-agent-api/client"
 	uiinstall "kmodules.xyz/resource-metadata/apis/core/install"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
@@ -113,7 +113,7 @@ func init() {
 // ExtraConfig holds custom apiserver config
 type ExtraConfig struct {
 	ClientConfig *restclient.Config
-	PromConfig   prometheus.Config
+	PromConfig   promclient.Config
 }
 
 // Config defines the config for the apiserver
@@ -193,7 +193,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
 
-	builder, err := prometheus.NewBuilder(mgr, &c.ExtraConfig.PromConfig)
+	builder, err := promclient.NewBuilder(mgr, &c.ExtraConfig.PromConfig)
 	if err != nil {
 		return nil, err
 	}
