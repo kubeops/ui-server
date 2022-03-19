@@ -18,6 +18,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -123,6 +124,13 @@ func (r *ClientBuilder) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		files[filename] = FileHash{
 			Data: fp.Data,
 			Hash: xxh3.Hash(fp.Data),
+		}
+	}
+	{
+		data, _ := json.Marshal(cfg)
+		files["prometheus.json"] = FileHash{
+			Data: data,
+			Hash: xxh3.Hash(data),
 		}
 	}
 

@@ -38,18 +38,26 @@ func ToPrometheusConfig(cfg *rest.Config, ref appcatalog.ServiceReference) (*Con
 		return nil, err
 	}
 
-	caFile := filepath.Join(certDir, "ca.crt")
-	certFile := filepath.Join(certDir, "tls.crt")
-	keyFile := filepath.Join(certDir, "tls.key")
+	var caFile, certFile, keyFile string
+	if len(cfg.TLSClientConfig.CAData) > 0 {
+		caFile = filepath.Join(certDir, "ca.crt")
+		if err = ioutil.WriteFile(caFile, cfg.TLSClientConfig.CAData, 0o644); err != nil {
+			return nil, err
+		}
+	}
 
-	if err := ioutil.WriteFile(caFile, cfg.TLSClientConfig.CAData, 0o644); err != nil {
-		return nil, err
+	if len(cfg.TLSClientConfig.CertData) > 0 {
+		certFile = filepath.Join(certDir, "tls.crt")
+		if err = ioutil.WriteFile(certFile, cfg.TLSClientConfig.CertData, 0o644); err != nil {
+			return nil, err
+		}
 	}
-	if err := ioutil.WriteFile(certFile, cfg.TLSClientConfig.CertData, 0o644); err != nil {
-		return nil, err
-	}
-	if err := ioutil.WriteFile(keyFile, cfg.TLSClientConfig.KeyData, 0o644); err != nil {
-		return nil, err
+
+	if len(cfg.TLSClientConfig.KeyData) > 0 {
+		keyFile = filepath.Join(certDir, "tls.key")
+		if err = ioutil.WriteFile(keyFile, cfg.TLSClientConfig.KeyData, 0o644); err != nil {
+			return nil, err
+		}
 	}
 
 	return &Config{
