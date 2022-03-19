@@ -60,6 +60,7 @@ func ToPrometheusConfig(cfg *rest.Config, ref appcatalog.ServiceReference) (*Con
 		}
 	}
 
+	// ref: https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster-services/#manually-constructing-apiserver-proxy-urls
 	return &Config{
 		Addr: fmt.Sprintf("%s/api/v1/namespaces/%s/services/%s:%s:%d/proxy/", cfg.Host, ref.Namespace, ref.Scheme, ref.Name, ref.Port),
 		BasicAuth: BasicAuth{

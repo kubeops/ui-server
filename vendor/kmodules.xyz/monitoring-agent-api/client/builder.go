@@ -26,7 +26,6 @@ import (
 	"sync"
 
 	appcatalog "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	appcatalogapi "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 
 	"github.com/hexops/gotextdiff"
@@ -64,6 +63,10 @@ type ClientBuilder struct {
 	w        *atomic_writer.AtomicWriter
 	existing map[string]FileHash
 	appCfg   *Config
+
+	// last cfg
+	cfg *Config
+	c   promv1.API
 }
 
 func NewBuilder(mgr manager.Manager, flags *Config) (*ClientBuilder, error) {
@@ -95,7 +98,7 @@ func (r *ClientBuilder) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 	key := req.NamespacedName
 
-	app := &appcatalogapi.AppBinding{}
+	app := &appcatalog.AppBinding{}
 	if err := r.mgr.GetClient().Get(ctx, key, app); err != nil {
 		klog.Infof("AppBinding %q doesn't exist anymore", req.NamespacedName.String())
 		r.unset()
@@ -146,10 +149,10 @@ func (r *ClientBuilder) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 func (r *ClientBuilder) Setup() error {
 	if err := r.mgr.GetFieldIndexer().IndexField(
 		context.Background(),
-		&appcatalogapi.AppBinding{},
+		&appcatalog.AppBinding{},
 		mona.DefaultPrometheusKey,
 		func(rawObj client.Object) []string {
-			app := rawObj.(*appcatalogapi.AppBinding)
+			app := rawObj.(*appcatalog.AppBinding)
 			if v, ok := app.Annotations[mona.DefaultPrometheusKey]; ok && v == "true" {
 				return []string{"true"}
 			}
@@ -159,7 +162,7 @@ func (r *ClientBuilder) Setup() error {
 	}
 
 	authHandler := handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
-		var appList appcatalogapi.AppBindingList
+		var appList appcatalog.AppBindingList
 		err := r.mgr.GetClient().List(context.TODO(), &appList, client.MatchingFields{
 			mona.DefaultPrometheusKey: "true",
 		})
@@ -189,7 +192,7 @@ func (r *ClientBuilder) Setup() error {
 		Complete(r)
 }
 
-func (r *ClientBuilder) build(app *appcatalogapi.AppBinding) (*Config, map[string]atomic_writer.FileProjection, error) {
+func (r *ClientBuilder) build(app *appcatalog.AppBinding) (*Config, map[string]atomic_writer.FileProjection, error) {
 	var cfg Config
 
 	addr, err := app.URL()
@@ -301,20 +304,24 @@ func (r *ClientBuilder) GetPrometheusClient() (promv1.API, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
+	var cfg *Config
 	if r.appCfg != nil {
-		pc, err := r.appCfg.NewPrometheusClient()
-		if err != nil {
-			return nil, err
-		}
-		return promv1.NewAPI(pc), nil
+		cfg = r.appCfg
+	} else if r.flags != nil && r.flags.Addr != "" {
+		cfg = r.flags
+	}
+	if cfg == nil {
+		return nil, nil
+	}
+	if r.cfg == cfg { // pointer equality
+		return r.c, nil
 	}
 
-	if r.flags != nil && r.flags.Addr != "" {
-		pc, err := r.flags.NewPrometheusClient()
-		if err != nil {
-			return nil, err
-		}
-		return promv1.NewAPI(pc), nil
+	pc, err := cfg.NewPrometheusClient()
+	if err != nil {
+		return nil, err
 	}
-	return nil, nil
+	r.cfg = cfg
+	r.c = promv1.NewAPI(pc)
+	return r.c, nil
 }
