@@ -119,19 +119,21 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 	for _, d := range rd.Spec.Dashboards {
 		cond := true
-		if d.If.Condition != "" {
-			result, err := renderTemplate(d.If.Condition, src.UnstructuredContent(), buf)
-			if err != nil {
-				return nil, errors.Wrapf(err, "failed to check condition for dashboard with title %s", d.Title)
+		if d.If != nil {
+			if d.If.Condition != "" {
+				result, err := renderTemplate(d.If.Condition, src.UnstructuredContent(), buf)
+				if err != nil {
+					return nil, errors.Wrapf(err, "failed to check condition for dashboard with title %s", d.Title)
+				}
+				result = strings.TrimSpace(result)
+				cond = strings.EqualFold(result, "true")
+			} else if d.If.Connected != nil {
+				_, targets, err := graph.ExecRawQuery(r.kc, kmapi.NewObjectID(&src).OID(), *d.If.Connected)
+				if err != nil {
+					return nil, errors.Wrapf(err, "failed to check connection for dashboard with title %s", d.Title)
+				}
+				cond = len(targets) > 0
 			}
-			result = strings.TrimSpace(result)
-			cond = strings.EqualFold(result, "true")
-		} else if d.If.Connected != nil {
-			_, targets, err := graph.ExecRawQuery(r.kc, kmapi.NewObjectID(&src).OID(), *d.If.Connected)
-			if err != nil {
-				return nil, errors.Wrapf(err, "failed to check connection for dashboard with title %s", d.Title)
-			}
-			cond = len(targets) > 0
 		}
 		if !cond {
 			continue

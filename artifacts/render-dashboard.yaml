@@ -1,0 +1,11 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderDashboard
+request:
+  name: kubedb.com-v1alpha2-mongodbs
+  resource:
+    group: kubedb.com
+    version: v1alpha2
+    name: mongodbs
+  ref:
+    namespace: demo
+    name: mg-sh

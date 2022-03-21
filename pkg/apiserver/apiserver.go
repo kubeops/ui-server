@@ -70,8 +70,8 @@ import (
 	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
 	promclient "kmodules.xyz/monitoring-agent-api/client"
-	uiinstall "kmodules.xyz/resource-metadata/apis/core/install"
-	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rscoreinstall "kmodules.xyz/resource-metadata/apis/core/install"
+	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
@@ -92,7 +92,7 @@ func init() {
 	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
 	rsinstall.Install(Scheme)
-	uiinstall.Install(Scheme)
+	rscoreinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
@@ -281,13 +281,13 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		}
 	}
 	{
-		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(corev1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(rscoreapi.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[corev1alpha1.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, builder)
-		v1alpha1storage[corev1alpha1.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
-		v1alpha1storage[corev1alpha1.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
-		v1alpha1storage[corev1alpha1.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[rscoreapi.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, builder)
+		v1alpha1storage[rscoreapi.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[rscoreapi.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[rscoreapi.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
