@@ -17,8 +17,10 @@ limitations under the License.
 package shared
 
 import (
+	"bytes"
 	"net"
 	"strings"
+	"sync"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -31,6 +33,12 @@ import (
 	"kmodules.xyz/client-go/tools/clusterid"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 )
+
+var BufferPool = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
+}
 
 type matcherType int
 

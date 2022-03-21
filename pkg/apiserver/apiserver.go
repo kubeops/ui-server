@@ -33,6 +33,7 @@ import (
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderapi"
+	"kubeops.dev/ui-server/pkg/registry/meta/renderdashboard"
 	"kubeops.dev/ui-server/pkg/registry/meta/rendermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceblockdefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcedescriptor"
@@ -44,6 +45,8 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
 
 	"github.com/graphql-go/handler"
+	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
+	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
 	core "k8s.io/api/core/v1"
 	crdinstall "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -94,6 +97,7 @@ func init() {
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
 	utilruntime.Must(appcatalogapi.AddToScheme(Scheme))
+	utilruntime.Must(openvizapi.AddToScheme(Scheme))
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
@@ -234,6 +238,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[rsapi.ResourceRenderAPIs] = renderapi.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient, openvizcs.NewForConfigOrDie(cfg))
+
 		v1alpha1storage[rsapi.ResourceResourceBlockDefinitions] = resourceblockdefinition.NewStorage()
 		v1alpha1storage[rsapi.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceOutlines] = resourceoutline.NewStorage()
