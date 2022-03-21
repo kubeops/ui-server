@@ -704,6 +704,17 @@ go.opencensus.io/trace
 go.opencensus.io/trace/internal
 go.opencensus.io/trace/propagation
 go.opencensus.io/trace/tracestate
+# go.openviz.dev/apimachinery v0.0.2
+## explicit; go 1.17
+go.openviz.dev/apimachinery/apis/openviz
+go.openviz.dev/apimachinery/apis/openviz/v1alpha1
+go.openviz.dev/apimachinery/apis/ui
+go.openviz.dev/apimachinery/apis/ui/v1alpha1
+go.openviz.dev/apimachinery/client/clientset/versioned
+go.openviz.dev/apimachinery/client/clientset/versioned/scheme
+go.openviz.dev/apimachinery/client/clientset/versioned/typed/openviz/v1alpha1
+go.openviz.dev/apimachinery/client/clientset/versioned/typed/ui/v1alpha1
+go.openviz.dev/apimachinery/crds
 # go.starlark.net v0.0.0-20200821142938-949cc6f4b097
 ## explicit; go 1.13
 go.starlark.net/internal/compile
@@ -1720,7 +1731,7 @@ kmodules.xyz/apply
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.0.0-20220308080632-2543b61b64fd
+# kmodules.xyz/client-go v0.0.0-20220317213815-2a6d5a5784f2
 ## explicit; go 1.17
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
@@ -1752,7 +1763,7 @@ kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.10.6
+# kmodules.xyz/resource-metadata v0.10.7-0.20220321121506-f603bc29e264
 ## explicit; go 1.17
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -1763,6 +1774,7 @@ kmodules.xyz/resource-metadata/crds
 kmodules.xyz/resource-metadata/hub
 kmodules.xyz/resource-metadata/hub/menuoutlines
 kmodules.xyz/resource-metadata/hub/resourceblockdefinitions
+kmodules.xyz/resource-metadata/hub/resourcedashboards
 kmodules.xyz/resource-metadata/hub/resourcedescriptors
 kmodules.xyz/resource-metadata/hub/resourceeditors
 kmodules.xyz/resource-metadata/hub/resourceoutlines

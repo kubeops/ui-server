@@ -3,6 +3,7 @@ module kubeops.dev/ui-server
 go 1.17
 
 require (
+	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/go-openapi/spec v0.19.8
 	github.com/gobuffalo/flect v0.2.3
 	github.com/google/gofuzz v1.2.0
@@ -14,6 +15,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/zeebo/xxh3 v1.0.1
 	go.bytebuilders.dev/license-verifier v0.9.7
+	go.openviz.dev/apimachinery v0.0.2
 	gomodules.xyz/jsonpath v0.0.1
 	gomodules.xyz/logs v0.0.6
 	gomodules.xyz/pointer v0.1.0
@@ -28,10 +30,10 @@ require (
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.0.0-20211121124031-167d0ef7c671
-	kmodules.xyz/client-go v0.0.0-20220308080632-2543b61b64fd
+	kmodules.xyz/client-go v0.0.0-20220317213815-2a6d5a5784f2
 	kmodules.xyz/custom-resources v0.0.0-20220314103517-150ada19b198
 	kmodules.xyz/monitoring-agent-api v0.0.0-20220319222118-0290ed5b75e1
-	kmodules.xyz/resource-metadata v0.10.6
+	kmodules.xyz/resource-metadata v0.10.7-0.20220321121506-f603bc29e264
 	kmodules.xyz/resource-metrics v0.0.8
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d
@@ -60,7 +62,6 @@ require (
 	github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
-	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
 	github.com/Masterminds/squirrel v1.5.0 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/Microsoft/hcsshim v0.8.14 // indirect
