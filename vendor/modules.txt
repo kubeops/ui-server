@@ -889,16 +889,17 @@ gomodules.xyz/blobfs/testing
 # gomodules.xyz/clock v0.0.0-20200817085942-06523dba733f
 ## explicit; go 1.14
 gomodules.xyz/clock
-# gomodules.xyz/encoding v0.0.2
-## explicit; go 1.16
+# gomodules.xyz/encoding v0.0.4
+## explicit; go 1.17
 gomodules.xyz/encoding/json
+gomodules.xyz/encoding/json/query
 # gomodules.xyz/flags v0.1.3
 ## explicit; go 1.16
 gomodules.xyz/flags
 # gomodules.xyz/jsonpatch/v2 v2.2.0
 ## explicit; go 1.12
 gomodules.xyz/jsonpatch/v2
-# gomodules.xyz/jsonpath v0.0.1
+# gomodules.xyz/jsonpath v0.0.2
 ## explicit; go 1.16
 gomodules.xyz/jsonpath
 gomodules.xyz/jsonpath/third_party/forked/golang/template
@@ -1763,7 +1764,7 @@ kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.10.7-0.20220321224725-775591ddb087
+# kmodules.xyz/resource-metadata v0.10.7-0.20220322033543-6a34199454a9
 ## explicit; go 1.17
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
