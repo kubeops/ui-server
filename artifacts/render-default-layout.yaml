@@ -2,18 +2,78 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: Render
 request:
   source:
-    resource:
-      group: core
-      version: v1
-      name: pods
     ref:
-      namespace: default
-      name: mg-rs-0
-  layoutName: core-v1-pods
-  pageName: Basic
+      name: mg-sh
+      namespace: demo
+    resource:
+      group: kubedb.com
+      kind: MongoDB
+      name: ""
+      scope: ""
+      version: ""
+  block:
+    displayMode: List
+    fieldPath: '{.response.dashboards[0].panels}'
+    kind: Connection
+    query:
+      raw: |
+        request:
+          embeddedLink: true
+          dashboards:
+          - title: "KubeDB / MongoDB / Summary"
+            vars:
+            - name: namespace
+              value: {{ .namespace }}
+            - name: db
+              value: {{ .name }}
+            panels:
+              - { "title": "CPU Usage", "width": 12 }
+              - { "title": "Memory Usage", "width": 12 }
+              - { "title": "Disk Usage", "width": 6 }
+              - { "title": "Disk R/W Info", "width": 6 }
+              - { "title": "IOPS (Reads+Writes)", "width": 6 }
+              - { "title": "ThroughPut (Read+Write)", "width": 6 }
+              - { "title": "Receive Bandwidth", "width": 6 }
+              - { "title": "Transmit Bandwidth", "width": 6 }
+      type: REST
+    ref:
+      group: ui.openviz.dev
+      kind: DashboardGroup
+    view:
+      # name: ui.openviz.dev-v1alpha1-dashboardgroups-panels
+      columns:
+      - name: Title
+        pathTemplate: '{{ .title }}'
+        priority: 3
+        type: string
+      - name: URL
+        pathTemplate: '{{ .url }}'
+        priority: 3
+        type: string
+      - name: Width
+        pathTemplate: '{{ .width }}'
+        priority: 3
+        type: integer
   convertToTable: true
-  renderBlocks:
-  - Self
+
+
+
+# apiVersion: meta.k8s.appscode.com/v1alpha1
+# kind: Render
+# request:
+#   source:
+#     resource:
+#       group: core
+#       version: v1
+#       name: pods
+#     ref:
+#       namespace: default
+#       name: mg-rs-0
+#   layoutName: core-v1-pods
+#   pageName: Basic
+#   convertToTable: true
+#   renderBlocks:
+#   - Self
 
 
 # apiVersion: meta.k8s.appscode.com/v1alpha1
