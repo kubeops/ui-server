@@ -172,7 +172,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	for _, e := range dg.Response.Dashboards {
 		conv := rsapi.DashboardResponse{
 			Title:  e.Title,
-			Link:   e.Link,
+			URL:    e.URL,
 			Panels: make([]rsapi.PanelLinkResponse, 0, len(e.Panels)),
 		}
 		for _, p := range e.Panels {

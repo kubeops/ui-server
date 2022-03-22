@@ -103,7 +103,7 @@ type DashboardGroupResponse struct {
 type DashboardResponse struct {
 	DashboardRef `json:",inline"`
 	// +optional
-	Link string `json:"link,omitempty"`
+	URL string `json:"url,omitempty"`
 	// +optional
 	Panels []PanelLinkResponse `json:"panels,omitempty"`
 }

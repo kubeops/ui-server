@@ -704,7 +704,7 @@ go.opencensus.io/trace
 go.opencensus.io/trace/internal
 go.opencensus.io/trace/propagation
 go.opencensus.io/trace/tracestate
-# go.openviz.dev/apimachinery v0.0.2
+# go.openviz.dev/apimachinery v0.0.3
 ## explicit; go 1.17
 go.openviz.dev/apimachinery/apis/openviz
 go.openviz.dev/apimachinery/apis/openviz/v1alpha1
@@ -1764,7 +1764,7 @@ kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61
 ## explicit; go 1.15
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.10.7-0.20220322033543-6a34199454a9
+# kmodules.xyz/resource-metadata v0.10.7-0.20220322090813-25b3d5b2c800
 ## explicit; go 1.17
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
