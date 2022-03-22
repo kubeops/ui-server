@@ -15,7 +15,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/zeebo/xxh3 v1.0.1
 	go.bytebuilders.dev/license-verifier v0.9.7
-	go.openviz.dev/apimachinery v0.0.2
+	go.openviz.dev/apimachinery v0.0.3
 	gomodules.xyz/jsonpath v0.0.2
 	gomodules.xyz/logs v0.0.6
 	gomodules.xyz/pointer v0.1.0
@@ -33,7 +33,7 @@ require (
 	kmodules.xyz/client-go v0.0.0-20220317213815-2a6d5a5784f2
 	kmodules.xyz/custom-resources v0.0.0-20220314103517-150ada19b198
 	kmodules.xyz/monitoring-agent-api v0.0.0-20220319222118-0290ed5b75e1
-	kmodules.xyz/resource-metadata v0.10.7-0.20220322033543-6a34199454a9
+	kmodules.xyz/resource-metadata v0.10.7-0.20220322090813-25b3d5b2c800
 	kmodules.xyz/resource-metrics v0.0.8
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d
