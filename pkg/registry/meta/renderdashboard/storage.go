@@ -17,18 +17,11 @@ limitations under the License.
 package renderdashboard
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"strings"
-	"text/template"
 
 	"kubeops.dev/ui-server/pkg/graph"
-	"kubeops.dev/ui-server/pkg/shared"
 
-	"github.com/Masterminds/sprig/v3"
-	"github.com/pkg/errors"
-	openvizauipi "go.openviz.dev/apimachinery/apis/ui/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -105,64 +98,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		}
 	}
 
-	if rd.Spec.Provider != rsapi.DashboardProviderGrafana {
-		return nil, fmt.Errorf("dashboard %s uses unsupported provider %q", rd.Name, rd.Spec.Provider)
-	}
-
-	buf := shared.BufferPool.Get().(*bytes.Buffer)
-	defer shared.BufferPool.Put(buf)
-
-	dg := &openvizauipi.DashboardGroup{
-		Request: &openvizauipi.DashboardGroupRequest{
-			Dashboards: make([]openvizauipi.DashboardRequest, 0, len(rd.Spec.Dashboards)),
-		},
-	}
-	for _, d := range rd.Spec.Dashboards {
-		cond := true
-		if d.If != nil {
-			if d.If.Condition != "" {
-				result, err := renderTemplate(d.If.Condition, src.UnstructuredContent(), buf)
-				if err != nil {
-					return nil, errors.Wrapf(err, "failed to check condition for dashboard with title %s", d.Title)
-				}
-				result = strings.TrimSpace(result)
-				cond = strings.EqualFold(result, "true")
-			} else if d.If.Connected != nil {
-				_, targets, err := graph.ExecRawQuery(r.kc, kmapi.NewObjectID(&src).OID(), *d.If.Connected)
-				if err != nil {
-					return nil, errors.Wrapf(err, "failed to check connection for dashboard with title %s", d.Title)
-				}
-				cond = len(targets) > 0
-			}
-		}
-		if !cond {
-			continue
-		}
-
-		out := openvizauipi.DashboardRequest{
-			DashboardRef: openvizauipi.DashboardRef{
-				Title: d.Title,
-			},
-			Vars:   make([]openvizauipi.DashboardVar, 0, len(d.Vars)),
-			Panels: nil,
-		}
-		for _, v := range d.Vars {
-			if v.Type != rsapi.DashboardVarTypeTarget {
-				val, err := renderTemplate(v.Value, src.UnstructuredContent(), buf)
-				if err != nil {
-					return nil, errors.Wrapf(err, "failed to render the value of variable %q in dashboard with title %s", v.Name, d.Title)
-				}
-				out.Vars = append(out.Vars, openvizauipi.DashboardVar{
-					Name:  v.Name,
-					Value: val,
-					Type:  openvizauipi.DashboardVarTypeSource,
-				})
-			}
-		}
-
-		dg.Request.Dashboards = append(dg.Request.Dashboards, out)
-	}
-	dg, err = r.oc.UiV1alpha1().DashboardGroups().Create(context.TODO(), dg, metav1.CreateOptions{})
+	dg, err := graph.RenderDashboard(r.kc, r.oc, rd, &src)
 	if err != nil {
 		return nil, err
 	}
@@ -184,25 +120,4 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		in.Response.Dashboards = append(in.Response.Dashboards, conv)
 	}
 	return in, nil
-}
-
-func renderTemplate(text string, data interface{}, buf *bytes.Buffer) (string, error) {
-	if !strings.Contains(text, "{{") {
-		return text, nil
-	}
-
-	tpl, err := template.New("").Funcs(sprig.TxtFuncMap()).Parse(text)
-	if err != nil {
-		return "", errors.Wrapf(err, "falied to parse template %s", text)
-	}
-	// Do nothing and continue execution.
-	// If printed, the result of the index operation is the string "<no value>".
-	// We mitigate that later.
-	tpl.Option("missingkey=default")
-	buf.Reset()
-	err = tpl.Execute(buf, data)
-	if err != nil {
-		return "", errors.Wrapf(err, "falied to render template %s", text)
-	}
-	return strings.ReplaceAll(buf.String(), "<no value>", ""), nil
 }
