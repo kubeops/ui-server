@@ -189,6 +189,10 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to create discovery client, reason: %v", err)
 	}
+	oc, err := openvizcs.NewForConfig(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
+	}
 
 	cid, err := cu.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
@@ -236,9 +240,9 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[rsapi.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
 		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
-		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, oc, rbacAuthorizer)
 		v1alpha1storage[rsapi.ResourceRenderAPIs] = renderapi.NewStorage(ctrlClient, rbacAuthorizer)
-		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient, openvizcs.NewForConfigOrDie(cfg))
+		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient, oc)
 
 		v1alpha1storage[rsapi.ResourceResourceBlockDefinitions] = resourceblockdefinition.NewStorage()
 		v1alpha1storage[rsapi.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)

@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -35,6 +36,7 @@ import (
 
 func RenderLayout(
 	kc client.Client,
+	oc openvizcs.Interface,
 	src kmapi.ObjectInfo,
 	layoutName string, // optional
 	pageName string, // optional
@@ -71,14 +73,14 @@ func RenderLayout(
 	out.UI = layout.Spec.UI
 
 	if layout.Spec.Header != nil && okToRender(layout.Spec.Header.Kind, renderBlocks) {
-		if bv, err := renderPageBlock(kc, srcRID, &srcObj, layout.Spec.Header, convertToTable); err != nil {
+		if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, layout.Spec.Header, convertToTable); err != nil {
 			return nil, err
 		} else {
 			out.Header = bv
 		}
 	}
 	if layout.Spec.TabBar != nil && okToRender(layout.Spec.TabBar.Kind, renderBlocks) {
-		if bv, err := renderPageBlock(kc, srcRID, &srcObj, layout.Spec.TabBar, convertToTable); err != nil {
+		if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, layout.Spec.TabBar, convertToTable); err != nil {
 			return nil, err
 		} else {
 			out.TabBar = bv
@@ -99,14 +101,14 @@ func RenderLayout(
 			Blocks:  nil,
 		}
 		if pageLayout.Info != nil && okToRender(pageLayout.Info.Kind, renderBlocks) {
-			if bv, err := renderPageBlock(kc, srcRID, &srcObj, pageLayout.Info, convertToTable); err != nil {
+			if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, pageLayout.Info, convertToTable); err != nil {
 				return nil, err
 			} else {
 				page.Info = bv
 			}
 		}
 		if pageLayout.Insight != nil && okToRender(pageLayout.Insight.Kind, renderBlocks) {
-			if bv, err := renderPageBlock(kc, srcRID, &srcObj, pageLayout.Insight, convertToTable); err != nil {
+			if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, pageLayout.Insight, convertToTable); err != nil {
 				return nil, err
 			} else {
 				page.Insight = bv
@@ -116,7 +118,7 @@ func RenderLayout(
 		blocks := make([]rsapi.PageBlockView, 0, len(pageLayout.Blocks))
 		for _, block := range pageLayout.Blocks {
 			if okToRender(block.Kind, renderBlocks) {
-				if bv, err := renderPageBlock(kc, srcRID, &srcObj, &block, convertToTable); err != nil {
+				if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, &block, convertToTable); err != nil {
 					return nil, err
 				} else {
 					blocks = append(blocks, *bv)
@@ -135,7 +137,7 @@ func okToRender(kind rsapi.TableKind, renderBlocks sets.String) bool {
 	return renderBlocks.Len() == 0 || renderBlocks.Has(string(kind))
 }
 
-func RenderPageBlock(kc client.Client, src kmapi.ObjectInfo, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
+func RenderPageBlock(kc client.Client, oc openvizcs.Interface, src kmapi.ObjectInfo, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
 	srcRID, err := kmapi.ExtractResourceID(kc.RESTMapper(), src.Resource)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to detect src resource id")
@@ -147,11 +149,11 @@ func RenderPageBlock(kc client.Client, src kmapi.ObjectInfo, block *rsapi.PageBl
 		return nil, err
 	}
 
-	return renderPageBlock(kc, srcRID, &srcObj, block, convertToTable)
+	return renderPageBlock(kc, oc, srcRID, &srcObj, block, convertToTable)
 }
 
-func renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
-	bv, err := _renderPageBlock(kc, srcRID, srcObj, block, convertToTable)
+func renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
+	bv, err := _renderPageBlock(kc, oc, srcRID, srcObj, block, convertToTable)
 	if err != nil {
 		bv.Result = rsapi.RenderResult{
 			Status:  rsapi.RenderError,
@@ -165,7 +167,7 @@ func renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstruc
 	return bv, nil
 }
 
-func _renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
+func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
 	out := rsapi.PageBlockView{
 		Kind:    block.Kind,
 		Name:    block.Name,
@@ -175,11 +177,11 @@ func _renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstru
 	if block.Kind == rsapi.TableKindSelf || block.Kind == rsapi.TableKindSubTable {
 		out.Resource = srcRID
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj))
 			if err != nil {
 				return &out, err
 			}
-			table, err := converter.ConvertToTable(context.TODO(), srcObj, nil)
+			table, err := converter.ConvertToTable(context.TODO(), srcObj)
 			if err != nil {
 				return &out, err
 			}
@@ -237,12 +239,12 @@ func _renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstru
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj))
 			if err != nil {
 				return &out, err
 			}
 			list := &unstructured.UnstructuredList{Items: objs}
-			table, err := converter.ConvertToTable(context.TODO(), list, nil)
+			table, err := converter.ConvertToTable(context.TODO(), list)
 			if err != nil {
 				return &out, err
 			}
@@ -266,11 +268,11 @@ func _renderPageBlock(kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstru
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns)
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj))
 			if err != nil {
 				return &out, err
 			}
-			table, err := converter.ConvertToTable(context.TODO(), &u, nil)
+			table, err := converter.ConvertToTable(context.TODO(), &u)
 			if err != nil {
 				return &out, err
 			}

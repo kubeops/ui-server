@@ -82,7 +82,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			return nil, err
 		}
 		if req.ConvertToTable {
-			table, err := tableconvertor.TableForObject(r.kc, &out)
+			table, err := tableconvertor.TableForObject(r.kc, &out, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -117,7 +117,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 				return nil, err
 			}
 
-			table, err := tableconvertor.TableForList(r.kc, rid.GroupVersionResource(), out.Items)
+			table, err := tableconvertor.TableForList(r.kc, rid.GroupVersionResource(), out.Items, nil)
 			if err != nil {
 				return nil, err
 			}
