@@ -2,46 +2,85 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: Render
 request:
   source:
-    ref:
-      name: mg-sh
-      namespace: demo
     resource:
       group: kubedb.com
-      kind: MongoDB
-      name: ""
-      scope: ""
-      version: ""
-  block:
-    displayMode: List
-    kind: Connection
-    query:
-      raw: |
-        request:
-          resource:
-            group: kubedb.com
-            name: mongodbs
-            version: v1alpha2
-          ref:
-            name: {{ .name }}
-            namespace: {{ .namespace }}
-          name: kubedb.com-v1alpha2-mongodbs
-      type: REST
+      version: v1alpha2
+      name: mongodbs
     ref:
-      group: meta.k8s.appscode.com
-      kind: RenderDashboard
-    fieldPath: .response.dashboards
-    view:
-      # name: ui.openviz.dev-v1alpha1-dashboardgroups-panels
-      columns:
-      - name: Title
-        pathTemplate: '{{ .title }}'
-        priority: 3
-        type: string
-      - name: URL
-        pathTemplate: '{{ .url }}'
-        priority: 3
-        type: string
+      namespace: demo
+      name: mg-sh
+  layoutName: kubedb.com-v1alpha2-mongodbs-kubedb
+  pageName: Overview
   convertToTable: true
+  renderBlocks:
+  - Connection
+
+  # block:
+  #   displayMode: List
+  #   kind: Connection
+  #   name: Pods
+  #   query:
+  #     raw: |-
+  #       query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
+  #         find(oid: $src) {
+  #           offshoot(group: "", kind: "Pod") {
+  #             refs: view(group: $targetGroup, kind: $targetKind) {
+  #               namespace
+  #               name
+  #             }
+  #           }
+  #         }
+  #       }
+  #     type: GraphQL
+  #   ref:
+  #     group: core.k8s.appscode.com
+  #     kind: PodView
+
+
+# apiVersion: meta.k8s.appscode.com/v1alpha1
+# kind: Render
+# request:
+#   source:
+#     ref:
+#       name: mg-sh
+#       namespace: demo
+#     resource:
+#       group: kubedb.com
+#       kind: MongoDB
+#       name: ""
+#       scope: ""
+#       version: ""
+#   block:
+#     displayMode: List
+#     kind: Connection
+#     query:
+#       raw: |
+#         request:
+#           resource:
+#             group: kubedb.com
+#             name: mongodbs
+#             version: v1alpha2
+#           ref:
+#             name: {{ .name }}
+#             namespace: {{ .namespace }}
+#           name: kubedb.com-v1alpha2-mongodbs
+#       type: REST
+#     ref:
+#       group: meta.k8s.appscode.com
+#       kind: RenderDashboard
+#     fieldPath: .response.dashboards
+#     view:
+#       # name: ui.openviz.dev-v1alpha1-dashboardgroups-panels
+#       columns:
+#       - name: Title
+#         pathTemplate: '{{ .title }}'
+#         priority: 3
+#         type: string
+#       - name: URL
+#         pathTemplate: '{{ .url }}'
+#         priority: 3
+#         type: string
+#   convertToTable: true
 
 
 
@@ -206,26 +245,6 @@ request:
   #     group: ""
   #     kind: Pod
 
-  # block:
-  #   displayMode: List
-  #   kind: Connection
-  #   name: Pods
-  #   query:
-  #     raw: |-
-  #       query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
-  #         find(oid: $src) {
-  #           offshoot(group: "", kind: "Pod") {
-  #             refs: view(group: $targetGroup, kind: $targetKind) {
-  #               namespace
-  #               name
-  #             }
-  #           }
-  #         }
-  #       }
-  #     type: GraphQL
-  #   ref:
-  #     group: core.k8s.appscode.com
-  #     kind: PodView
 
   # block:
   #   displayMode: Field

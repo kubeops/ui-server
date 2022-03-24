@@ -438,7 +438,7 @@ install:
 	helm upgrade -i kube-ui-server charts/kube-ui-server --wait \
 		--namespace=$(KUBE_NAMESPACE) --create-namespace \
 		--set image.registry=$(REGISTRY) \
-		--set image.tag=$(TAG_PROD) \
+		--set image.tag=$(TAG_DBG) \
 		--set imagePullPolicy=$(IMAGE_PULL_POLICY) \
 		$(IMAGE_PULL_SECRETS); \
 
@@ -541,7 +541,7 @@ run:
 .PHONY: push-to-kind
 push-to-kind: container
 	@echo "Loading docker image into kind cluster...."
-	@kind load docker-image $(IMAGE):$(TAG_PROD)
+	@kind load docker-image $(IMAGE):$(TAG_DBG)
 	@echo "Image has been pushed successfully into kind cluster."
 
 .PHONY: deploy-to-kind
