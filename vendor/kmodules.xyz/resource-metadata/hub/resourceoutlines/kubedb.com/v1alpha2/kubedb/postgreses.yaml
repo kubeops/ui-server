@@ -22,7 +22,7 @@ spec:
       group: core.k8s.appscode.com
       kind: GenericResource
     view:
-      name: kubedb-core.k8s.appscode.com-v1alpha1-genericresources
+      name: core.k8s.appscode.com-v1alpha1-genericresources-kubedb
   pages:
   - blocks:
     - actions:
@@ -60,7 +60,7 @@ spec:
         create: Never
       displayMode: List
       kind: Connection
-      name: Pods
+      name: Nodes
       query:
         raw: |-
           query Find($src: String!, $targetGroup: String!, $targetKind: String!) {
@@ -128,7 +128,7 @@ spec:
         name: meta.k8s.appscode.com-v1alpha1-resourcedashboards-urls
     - actions:
         create: Never
-      displayMode: Field
+      displayMode: List
       fieldPath: .spec.queries
       kind: Connection
       name: Slow Queries
@@ -142,7 +142,7 @@ spec:
         name: ui.kubedb.com-v1alpha1-postgresqueries-queries
     - actions:
         create: Never
-      displayMode: Field
+      displayMode: List
       fieldPath: .spec.databases
       kind: Connection
       name: Databases
@@ -202,6 +202,8 @@ spec:
       ref:
         group: stash.appscode.com
         kind: BackupSession
+      view:
+        name: stash.appscode.com-v1beta1-backupsessions-kubedb
     info:
       actions:
         create: IfEmpty
@@ -236,6 +238,8 @@ spec:
       ref:
         group: ops.kubedb.com
         kind: PostgresOpsRequest
+      view:
+        name: ops.kubedb.com-v1alpha1-postgresopsrequests-kubedb
     name: Operations
   resource:
     group: kubedb.com
@@ -255,4 +259,4 @@ spec:
       group: core.k8s.appscode.com
       kind: GenericResourceService
     view:
-      name: kubedb-core.k8s.appscode.com-v1alpha1-genericresourceservices
+      name: core.k8s.appscode.com-v1alpha1-genericresourceservices-kubedb

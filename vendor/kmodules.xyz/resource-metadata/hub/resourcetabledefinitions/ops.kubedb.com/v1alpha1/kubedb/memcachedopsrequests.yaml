@@ -4,10 +4,10 @@ metadata:
   creationTimestamp: null
   labels:
     k8s.io/group: ops.kubedb.com
-    k8s.io/kind: MongoDBOpsRequest
-    k8s.io/resource: mongodbopsrequests
+    k8s.io/kind: MemcachedOpsRequest
+    k8s.io/resource: memcachedopsrequests
     k8s.io/version: v1alpha1
-  name: kubedb-ops.kubedb.com-v1alpha1-mongodbopsrequests
+  name: ops.kubedb.com-v1alpha1-memcachedopsrequests-kubedb
 spec:
   columns:
   - name: Name
@@ -59,7 +59,7 @@ spec:
   defaultView: false
   resource:
     group: ops.kubedb.com
-    kind: MongoDBOpsRequest
-    name: mongodbopsrequests
+    kind: MemcachedOpsRequest
+    name: memcachedopsrequests
     scope: Namespaced
     version: v1alpha1
