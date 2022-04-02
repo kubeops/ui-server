@@ -33,7 +33,7 @@ require (
 	kmodules.xyz/client-go v0.0.0-20220317213815-2a6d5a5784f2
 	kmodules.xyz/custom-resources v0.0.0-20220314103517-150ada19b198
 	kmodules.xyz/monitoring-agent-api v0.0.0-20220319222118-0290ed5b75e1
-	kmodules.xyz/resource-metadata v0.10.13-0.20220401045140-6ad48ab958b4
+	kmodules.xyz/resource-metadata v0.10.13-0.20220402002257-43b24fef4b40
 	kmodules.xyz/resource-metrics v0.0.8
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d
@@ -43,6 +43,8 @@ require (
 	sigs.k8s.io/controller-runtime v0.9.0
 	sigs.k8s.io/yaml v1.3.0
 )
+
+replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220402001353-7974c9ab9cc9
 
 replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.9.1-0.20220308094157-549765510cd6
 
@@ -96,6 +98,7 @@ require (
 	github.com/docker/go-metrics v0.0.0-20180209012529-399ea8c73916 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/docker/libtrust v0.0.0-20160708172513-aabc10ec26b7 // indirect
+	github.com/dustin/go-humanize v1.0.1-0.20220316001817-d5090ed65664 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d // indirect
@@ -214,6 +217,7 @@ require (
 	gomodules.xyz/encoding v0.0.4 // indirect
 	gomodules.xyz/flags v0.1.3 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
+	gomodules.xyz/mergo v0.3.13-0.20220214162359-48efe39fd402 // indirect
 	gomodules.xyz/wait v0.2.0 // indirect
 	google.golang.org/api v0.44.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
