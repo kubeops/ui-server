@@ -34,7 +34,7 @@ require (
 	kmodules.xyz/custom-resources v0.0.0-20220314103517-150ada19b198
 	kmodules.xyz/monitoring-agent-api v0.0.0-20220319222118-0290ed5b75e1
 	kmodules.xyz/resource-metadata v0.10.13
-	kmodules.xyz/resource-metrics v0.0.8
+	kmodules.xyz/resource-metrics v0.0.9
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d
 	kubepack.dev/lib-helm v0.3.2-0.20220207083916-19ae74825432
