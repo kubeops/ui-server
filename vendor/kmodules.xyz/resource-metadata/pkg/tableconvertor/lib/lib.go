@@ -14,23 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package printers
+package lib
 
-import (
-	"time"
-
-	"kmodules.xyz/resource-metadata/pkg/tableconvertor/lib"
-
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/duration"
-)
-
-// translateTimestampSince returns the elapsed time since timestamp in
-// human-readable approximation.
-func translateTimestampSince(timestamp metav1.Time) string {
-	if timestamp.IsZero() {
-		return lib.UnknownValue
-	}
-
-	return duration.HumanDuration(time.Since(timestamp.Time))
-}
+const UnknownValue = "<unknown>"
