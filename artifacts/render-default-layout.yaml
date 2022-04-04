@@ -5,15 +5,32 @@ request:
     resource:
       group: kubedb.com
       version: v1alpha2
-      name: mongodbs
+      name: postgreses
     ref:
       namespace: demo
-      name: mg-sh
-  layoutName: kubedb.com-v1alpha2-mongodbs-kubedb
-  pageName: Overview
+      name: pg-std
+  layoutName: kubedb.com-v1alpha2-postgreses-kubedb
+  pageName: Database Insights
   convertToTable: true
   renderBlocks:
   - Connection
+
+# apiVersion: meta.k8s.appscode.com/v1alpha1
+# kind: Render
+# request:
+#   source:
+#     resource:
+#       group: kubedb.com
+#       version: v1alpha2
+#       name: mongodbs
+#     ref:
+#       namespace: demo
+#       name: mg-sh
+#   layoutName: kubedb.com-v1alpha2-mongodbs-kubedb
+#   pageName: Overview
+#   convertToTable: true
+#   renderBlocks:
+#   - Connection
 
   # block:
   #   displayMode: List
