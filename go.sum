@@ -389,8 +389,8 @@ github.com/golangplus/fmt v0.0.0-20150411045040-2a5d6d7d2995/go.mod h1:lJgMEyOkY
 github.com/golangplus/testing v0.0.0-20180327235837-af21d9c3145e/go.mod h1:0AA//k/eakGydO4jKRoRL2j92ZKSzTgj9tclaCrvXHk=
 github.com/gomodules/jwt v3.2.2+incompatible h1:tEQKHcGKfDKsHLf5VmQvKf3YTmQPNt9GP5b4YF2jyDs=
 github.com/gomodules/jwt v3.2.2+incompatible/go.mod h1:cOm5eKP+RVgQveNVZfQ7ZEc5KPmk2F2i/JNDKlkzzDQ=
-github.com/gomodules/sprig/v3 v3.2.3-0.20220402001353-7974c9ab9cc9 h1:M5Ye+W0MN9To3kZv+JBh1xOajj+WH/hMDI4UffgGyeA=
-github.com/gomodules/sprig/v3 v3.2.3-0.20220402001353-7974c9ab9cc9/go.mod h1:70huEoC6heWUvVNiFAnIRaEmvzAECK551RuYBCkT13w=
+github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8 h1:rWzwdmHqkXrISyacSZcK9oLZIu5nIxesPwp9f8LpTvc=
+github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8/go.mod h1:70huEoC6heWUvVNiFAnIRaEmvzAECK551RuYBCkT13w=
 github.com/gomodules/uuid v4.0.0+incompatible/go.mod h1:y+m9jPMEPSC/06TKQU/pMb7c5qNUHtEvfjPt8yNA8p0=
 github.com/gomodules/validate v0.19.8-1.16/go.mod h1:8DJv2CVJQ6kGNpFW6eV9N3JviE1C85nY1c2z52x1Gk4=
 github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c/go.mod h1:lNA+9X1NB3Zf8V7Ke586lFgjr2dZNuvo3lPJSGZ5JPQ=
@@ -1468,8 +1468,8 @@ kmodules.xyz/openshift v0.0.0-20210618001443-f2507caa512f/go.mod h1:8E5ckbd1KMNm
 kmodules.xyz/resource-metadata v0.7.1-0.20211223071151-daf19bd77f84/go.mod h1:AF6yUxhF4CUx2aoAWEbX4fPEGKHgStT74fgBUSbhYs4=
 kmodules.xyz/resource-metadata v0.8.2-0.20220116072424-4ed4f0c4b8b5/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
 kmodules.xyz/resource-metadata v0.8.2-0.20220203195725-17129529420b/go.mod h1:1SGviU14pH9nhwp+hBGI9mVqvv0MRt8r/j7B8eMFIj0=
-kmodules.xyz/resource-metadata v0.10.13 h1:zMKzvfI3KBhJ5XwUQdH7thy8ng8PRkrYqKeKsAVVfII=
-kmodules.xyz/resource-metadata v0.10.13/go.mod h1:G+3ABKNNo/znJfBbJ+MSmRGgY7UZ2QeSFtxMEDVBudU=
+kmodules.xyz/resource-metadata v0.10.15-0.20220405061949-7002f767369c h1:Ufb34k9DGHj2W+Ij7ENQHEMe0hd/y5lZfc/5hEr/Ju4=
+kmodules.xyz/resource-metadata v0.10.15-0.20220405061949-7002f767369c/go.mod h1:yBc0KXQlFY7+6Yh9714E+w0TMh7ytSQ7yo8tblUIWBg=
 kmodules.xyz/resource-metrics v0.0.5/go.mod h1:6Dv63HDgp83DhA+lZNB7GIQR6PLjNrYW6ghQKioQzII=
 kmodules.xyz/resource-metrics v0.0.6/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
 kmodules.xyz/resource-metrics v0.0.8/go.mod h1:M7rWuo2qh3BpHhogiEVPnvGY9Xx4Pfygqn1Rex8YbgM=
