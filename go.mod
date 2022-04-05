@@ -33,7 +33,7 @@ require (
 	kmodules.xyz/client-go v0.0.0-20220317213815-2a6d5a5784f2
 	kmodules.xyz/custom-resources v0.0.0-20220314103517-150ada19b198
 	kmodules.xyz/monitoring-agent-api v0.0.0-20220319222118-0290ed5b75e1
-	kmodules.xyz/resource-metadata v0.10.13
+	kmodules.xyz/resource-metadata v0.10.15-0.20220405061949-7002f767369c
 	kmodules.xyz/resource-metrics v0.0.9
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d
@@ -44,7 +44,7 @@ require (
 	sigs.k8s.io/yaml v1.3.0
 )
 
-replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220402001353-7974c9ab9cc9
+replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8
 
 replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.9.1-0.20220308094157-549765510cd6
 
