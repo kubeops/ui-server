@@ -33,7 +33,7 @@ require (
 	kmodules.xyz/client-go v0.0.0-20220317213815-2a6d5a5784f2
 	kmodules.xyz/custom-resources v0.0.0-20220314103517-150ada19b198
 	kmodules.xyz/monitoring-agent-api v0.0.0-20220319222118-0290ed5b75e1
-	kmodules.xyz/resource-metadata v0.10.15
+	kmodules.xyz/resource-metadata v0.10.16-0.20220419233724-fbd1b7e25b05
 	kmodules.xyz/resource-metrics v0.0.9
 	kmodules.xyz/sets v0.0.0-20220102205946-ac2b95a10ab2
 	kubepack.dev/kubepack v0.3.9-0.20220201033352-575b50c5a43d
@@ -237,7 +237,7 @@ require (
 	k8s.io/kubectl v0.21.1 // indirect
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b // indirect
 	kmodules.xyz/apply v0.0.0-20210503080849-eb226c295465 // indirect
-	kmodules.xyz/offshoot-api v0.0.0-20210829122105-6f4d481b0c61 // indirect
+	kmodules.xyz/offshoot-api v0.0.0-20220419215722-c7fc995091d3 // indirect
 	rsc.io/letsencrypt v0.0.3 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.15 // indirect
 	sigs.k8s.io/application v0.8.2-0.20200306235134-f10d9ca8abd4 // indirect

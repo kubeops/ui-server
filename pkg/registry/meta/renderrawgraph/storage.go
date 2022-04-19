@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package resourcegraph
+package renderrawgraph
 
 import (
 	"context"
@@ -48,7 +48,7 @@ func NewStorage(kc client.Client) *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return rsapi.SchemeGroupVersion.WithKind(rsapi.ResourceKindResourceGraph)
+	return rsapi.SchemeGroupVersion.WithKind(rsapi.ResourceKindRenderRawGraph)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -56,30 +56,35 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) New() runtime.Object {
-	return &rsapi.ResourceGraph{}
+	return &rsapi.RenderRawGraph{}
 }
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
-	in := obj.(*rsapi.ResourceGraph)
+	in := obj.(*rsapi.RenderRawGraph)
 	if in.Request == nil {
 		return nil, apierrors.NewBadRequest("missing apirequest")
 	}
 
-	rid := in.Request.Source.Resource
-	if rid.Kind == "" {
-		r2, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
-		if err != nil {
-			return nil, err
+	var oid kmapi.OID
+	if in.Request.Source != nil {
+		rid := in.Request.Source.Resource
+		if rid.Kind == "" {
+			r2, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
+			if err != nil {
+				return nil, err
+			}
+			rid = *r2
 		}
-		rid = *r2
+		src := kmapi.ObjectID{
+			Group:     rid.Group,
+			Kind:      rid.Kind,
+			Namespace: in.Request.Source.Ref.Namespace,
+			Name:      in.Request.Source.Ref.Name,
+		}
+		oid = src.OID()
 	}
-	src := kmapi.ObjectID{
-		Group:     rid.Group,
-		Kind:      rid.Kind,
-		Namespace: in.Request.Source.Ref.Namespace,
-		Name:      in.Request.Source.Ref.Name,
-	}
-	resp, err := graph.ResourceGraph(r.kc.RESTMapper(), src)
+
+	resp, err := graph.Render(oid)
 	if err != nil {
 		return nil, err
 	}
