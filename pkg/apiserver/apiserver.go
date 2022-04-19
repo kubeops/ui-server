@@ -35,6 +35,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/renderapi"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderdashboard"
 	"kubeops.dev/ui-server/pkg/registry/meta/rendermenu"
+	"kubeops.dev/ui-server/pkg/registry/meta/renderrawgraph"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceblockdefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcedescriptor"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcegraph"
@@ -239,9 +240,10 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[rsapi.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
-		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, oc, rbacAuthorizer)
 		v1alpha1storage[rsapi.ResourceRenderAPIs] = renderapi.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceRenderRawGraphs] = renderrawgraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient, oc)
 
 		v1alpha1storage[rsapi.ResourceResourceBlockDefinitions] = resourceblockdefinition.NewStorage()

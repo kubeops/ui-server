@@ -29,8 +29,8 @@ var Registry = hub.NewRegistryOfKnownResources()
 
 var objGraph = &ObjectGraph{
 	m:     sync.RWMutex{},
-	edges: map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID{},
-	ids:   map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID{},
+	Edges: map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID{},
+	IDs:   map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID{},
 }
 
 var Schema = getGraphQLSchema()
