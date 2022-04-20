@@ -2,10 +2,12 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: ResourceGraph
 request:
   source:
-    group: apps
-    kind: Deployment
-    name: coredns
-    namespace: kube-system
+    resource:
+      group: apps
+      kind: Deployment
+    ref:
+      name: coredns
+      namespace: kube-system
 response:
   connections:
   - labels:
