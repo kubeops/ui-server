@@ -221,7 +221,6 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		ListMeta: metav1.ListMeta{},
 		Items:    items,
 	}
-	result.ListMeta.SelfLink = ""
 
 	return &result, nil
 }

@@ -24,6 +24,7 @@ type InstallOptions struct {
 	ChartName                string         `json:"chartName"`
 	Version                  string         `json:"version"`
 	Values                   values.Options `json:",inline,omitempty"`
+	ClientOnly               bool           `json:"clientOnly"`
 	DryRun                   bool           `json:"dryRun"`
 	DisableHooks             bool           `json:"disableHooks"`
 	Replace                  bool           `json:"replace"`
@@ -102,7 +103,7 @@ func (x *Installer) Run() (*release.Release, *engine.State, error) {
 	cmd.ReleaseName = x.opts.ReleaseName
 	cmd.Namespace = x.opts.Namespace
 	cmd.Replace = x.opts.Replace // Skip the name check
-	cmd.ClientOnly = false
+	cmd.ClientOnly = x.opts.ClientOnly
 	cmd.APIVersions = chartutil.VersionSet(extraAPIs)
 	cmd.Version = x.opts.Version
 	cmd.DisableHooks = x.opts.DisableHooks

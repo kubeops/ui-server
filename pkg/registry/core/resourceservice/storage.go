@@ -229,7 +229,6 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		ListMeta: metav1.ListMeta{},
 		Items:    items,
 	}
-	result.ListMeta.SelfLink = ""
 
 	return &result, nil
 }
@@ -272,7 +271,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			Annotations:                map[string]string{},
 			// OwnerReferences:            item.GetOwnerReferences(),
 			// Finalizers:                 item.GetFinalizers(),
-			ClusterName: item.GetClusterName(),
+			ZZZ_DeprecatedClusterName: item.GetZZZ_DeprecatedClusterName(),
 			// ManagedFields:              nil,
 		},
 		Spec: corev1alpha1.GenericResourceServiceSpec{
