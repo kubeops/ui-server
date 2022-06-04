@@ -132,7 +132,6 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 		Status: pod.Status,
 	}
 	result.UID = "pdvw-" + pod.GetUID()
-	result.SelfLink = ""
 	result.ManagedFields = nil
 	result.OwnerReferences = nil
 	result.Finalizers = nil
@@ -272,7 +271,6 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		ListMeta: podList.ListMeta,
 		Items:    podviews,
 	}
-	result.ListMeta.SelfLink = ""
 
 	return &result, err
 }
