@@ -89,7 +89,7 @@ require (
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5 // indirect
-	github.com/containerd/containerd v1.6.3 // indirect
+	github.com/containerd/containerd v1.6.6 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.3 // indirect
@@ -271,8 +271,6 @@ replace (
 )
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.5
-
-replace k8s.io/apimachinery => github.com/kmodules/apimachinery v0.24.2-rc.0.0.20220603191800-1c7484099dee
 
 replace k8s.io/apiserver => github.com/kmodules/apiserver v0.0.0-20220603223637-59dad1716c43
 
