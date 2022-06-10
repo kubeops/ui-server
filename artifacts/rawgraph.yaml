@@ -1,3 +1,20 @@
 apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: RenderRawGraph
-request: {}
+request:
+  source:
+    resource:
+      group: kubedb.com
+      version: v1alpha2
+      name: elasticsearches
+    ref:
+      name: es-test
+      namespace: demo
+
+  # source:
+  #   resource:
+  #     group: ui.kubedb.com
+  #     version: v1alpha1
+  #     kind: ElasticsearchInsight
+  #   ref:
+  #     name: es-test
+  #     namespace: demo
