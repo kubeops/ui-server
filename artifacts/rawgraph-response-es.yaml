@@ -1,0 +1,52 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderRawGraph
+request:
+  source:
+    ref:
+      name: es-test
+      namespace: demo
+    resource:
+      group: kubedb.com
+      kind: ""
+      name: elasticsearches
+      scope: ""
+      version: v1alpha2
+response:
+  edges:
+    catalog:
+      G=catalog.kubedb.com,K=ElasticsearchVersion,NS=,N=xpack-7.13.2: true
+    connect_via:
+      G=appcatalog.appscode.com,K=AppBinding,NS=demo,N=es-test: true
+    exposed_by:
+      G=,K=Service,NS=demo,N=es-test: true
+      G=,K=Service,NS=demo,N=es-test-master: true
+      G=,K=Service,NS=demo,N=es-test-pods: true
+      G=,K=Service,NS=demo,N=es-test-stats: true
+    offshoot:
+      G=appcatalog.appscode.com,K=AppBinding,NS=demo,N=es-test: true
+      G=apps,K=StatefulSet,NS=demo,N=es-test: true
+    view:
+      G=core.k8s.appscode.com,K=GenericResource,NS=demo,N=es-test~Elasticsearch.kubedb.com: true
+      G=core.k8s.appscode.com,K=GenericResourceService,NS=demo,N=es-test~Elasticsearch.kubedb.com: true
+      G=ui.kubedb.com,K=ElasticsearchInsight,NS=demo,N=es-test: true
+      G=ui.kubedb.com,K=ElasticsearchNodesStats,NS=demo,N=es-test: true
+      G=ui.kubedb.com,K=ElasticsearchSchemaOverview,NS=demo,N=es-test: true
+  ids:
+    catalog:
+      G=catalog.kubedb.com,K=ElasticsearchVersion,NS=,N=xpack-7.13.2: {}
+    connect_via:
+      G=appcatalog.appscode.com,K=AppBinding,NS=demo,N=es-test: {}
+    exposed_by:
+      G=,K=Service,NS=demo,N=es-test: {}
+      G=,K=Service,NS=demo,N=es-test-master: {}
+      G=,K=Service,NS=demo,N=es-test-pods: {}
+      G=,K=Service,NS=demo,N=es-test-stats: {}
+    offshoot:
+      G=appcatalog.appscode.com,K=AppBinding,NS=demo,N=es-test: {}
+      G=apps,K=StatefulSet,NS=demo,N=es-test: {}
+    view:
+      G=core.k8s.appscode.com,K=GenericResource,NS=demo,N=es-test~Elasticsearch.kubedb.com: {}
+      G=core.k8s.appscode.com,K=GenericResourceService,NS=demo,N=es-test~Elasticsearch.kubedb.com: {}
+      G=ui.kubedb.com,K=ElasticsearchInsight,NS=demo,N=es-test: {}
+      G=ui.kubedb.com,K=ElasticsearchNodesStats,NS=demo,N=es-test: {}
+      G=ui.kubedb.com,K=ElasticsearchSchemaOverview,NS=demo,N=es-test: {}

@@ -29,7 +29,7 @@ var Registry = hub.NewRegistryOfKnownResources()
 
 var objGraph = &ObjectGraph{
 	m:     sync.RWMutex{},
-	Edges: map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID{},
+	Edges: map[kmapi.OID]map[kmapi.EdgeLabel]map[kmapi.OID]bool{},
 	IDs:   map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID{},
 }
 

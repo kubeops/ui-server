@@ -32,9 +32,10 @@ import (
 )
 
 type ObjectGraph struct {
-	m     sync.RWMutex                                `json:"-"`
-	Edges map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID `json:"edges,omitempty"` // oid -> label -> Edges
-	IDs   map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID `json:"ids,omitempty"`   // oid -> label -> Edges
+	m sync.RWMutex `json:"-"`
+	// bool == true , self link
+	Edges map[kmapi.OID]map[kmapi.EdgeLabel]map[kmapi.OID]bool `json:"edges,omitempty"` // oid -> label -> Edges
+	IDs   map[kmapi.OID]map[kmapi.EdgeLabel]ksets.OID          `json:"ids,omitempty"`   // oid -> label -> Edges
 }
 
 func (g *ObjectGraph) render(src kmapi.OID) (*runtime.RawExtension, error) {
@@ -49,8 +50,8 @@ func (g *ObjectGraph) render(src kmapi.OID) (*runtime.RawExtension, error) {
 	}
 
 	srcGraph := struct {
-		Edges map[kmapi.EdgeLabel]ksets.OID `json:"edges,omitempty"` // oid -> label -> Edges
-		IDs   map[kmapi.EdgeLabel]ksets.OID `json:"ids,omitempty"`   // oid -> label -> Edges
+		Edges map[kmapi.EdgeLabel]map[kmapi.OID]bool `json:"edges,omitempty"` // oid -> label -> Edges
+		IDs   map[kmapi.EdgeLabel]ksets.OID          `json:"ids,omitempty"`   // oid -> label -> Edges
 	}{
 		Edges: g.Edges[src],
 		IDs:   g.IDs[src],
@@ -68,50 +69,19 @@ func (g *ObjectGraph) Update(src kmapi.OID, connsPerLabel map[kmapi.EdgeLabel]ks
 	g.m.Lock()
 	defer g.m.Unlock()
 
-	for lbl, conns := range connsPerLabel {
-
-		if oldConnsPerLabel, ok := g.IDs[src]; ok {
-			if oldConns, ok := oldConnsPerLabel[lbl]; ok {
-				if oldConns.Difference(conns).Len() == 0 {
-					continue
-				}
-
-				g.Edges[src][lbl].Delete(oldConns.UnsortedList()...)
-				for dst := range oldConns {
-					g.Edges[dst][lbl].Delete(src)
-				}
+	for lbl, connMap := range g.Edges[src] {
+		for to, srcLink := range connMap {
+			if srcLink {
+				delete(connMap, to) // reassign map?
+				// delete(g.Edges[to][lbl], src)
+				g.delEdge(to, src, lbl)
 			}
-		}
-
-		if _, ok := g.Edges[src]; !ok {
-			g.Edges[src] = map[kmapi.EdgeLabel]ksets.OID{}
-		}
-		if _, ok := g.Edges[src][lbl]; !ok {
-			g.Edges[src][lbl] = ksets.NewOID()
-		}
-		g.Edges[src][lbl].Insert(conns.UnsortedList()...)
-
-		for dst := range conns {
-			if _, ok := g.Edges[dst]; !ok {
-				g.Edges[dst] = map[kmapi.EdgeLabel]ksets.OID{}
-			}
-			if _, ok := g.Edges[dst][lbl]; !ok {
-				g.Edges[dst][lbl] = ksets.NewOID()
-			}
-			g.Edges[dst][lbl].Insert(src)
 		}
 	}
-
-	// remove edged that don't exist anymore
-	oldConnsPerLabel := g.IDs[src]
-	for lbl, conns := range oldConnsPerLabel {
-		if _, ok := connsPerLabel[lbl]; ok {
-			continue
-		}
-
-		g.Edges[src][lbl].Delete(conns.UnsortedList()...)
-		for dst := range conns {
-			g.Edges[dst][lbl].Delete(src)
+	for lbl, conns := range connsPerLabel {
+		for to := range conns {
+			g.setEdge(src, to, lbl, true)
+			g.setEdge(to, src, lbl, false)
 		}
 	}
 
@@ -120,6 +90,29 @@ func (g *ObjectGraph) Update(src kmapi.OID, connsPerLabel map[kmapi.EdgeLabel]ks
 	} else {
 		g.IDs[src] = connsPerLabel
 	}
+}
+
+func (g *ObjectGraph) setEdge(src, to kmapi.OID, lbl kmapi.EdgeLabel, self bool) {
+	if g.Edges == nil {
+		g.Edges = map[kmapi.OID]map[kmapi.EdgeLabel]map[kmapi.OID]bool{}
+	}
+	if g.Edges[src] == nil {
+		g.Edges[src] = map[kmapi.EdgeLabel]map[kmapi.OID]bool{}
+	}
+	if g.Edges[src][lbl] == nil {
+		g.Edges[src][lbl] = map[kmapi.OID]bool{}
+	}
+	g.Edges[src][lbl][to] = self
+}
+
+func (g *ObjectGraph) delEdge(src, to kmapi.OID, lbl kmapi.EdgeLabel) {
+	if _, ok := g.Edges[src]; !ok {
+		return
+	}
+	if _, ok := g.Edges[src][lbl]; !ok {
+		return
+	}
+	delete(g.Edges[src][lbl], to)
 }
 
 func (g *ObjectGraph) Links(oid *kmapi.ObjectID, edgeLabel kmapi.EdgeLabel) (map[metav1.GroupKind][]kmapi.ObjectID, error) {
@@ -161,9 +154,11 @@ func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.Ed
 		x, idsToProcess = idsToProcess[0], idsToProcess[1:]
 		processed.Insert(x)
 
-		var edges ksets.OID
+		edges := ksets.NewOID()
 		if edgedPerLabel, ok := g.Edges[x]; ok {
-			edges = edgedPerLabel[edgeLabel]
+			for to := range edgedPerLabel[edgeLabel] {
+				edges.Insert(to)
+			}
 		}
 		result = result.Union(edges)
 
@@ -263,9 +258,11 @@ func (g *ObjectGraph) connectedEdges(idsToProcess []kmapi.OID, edgeLabel kmapi.E
 		x, idsToProcess = idsToProcess[0], idsToProcess[1:]
 		processed.Insert(x)
 
-		var edges ksets.OID
+		edges := ksets.NewOID()
 		if edgedPerLabel, ok := g.Edges[x]; ok {
-			edges = edgedPerLabel[edgeLabel]
+			for to := range edgedPerLabel[edgeLabel] {
+				edges.Insert(to)
+			}
 		}
 		for id := range edges {
 			objID, _ = kmapi.ParseObjectID(id)
