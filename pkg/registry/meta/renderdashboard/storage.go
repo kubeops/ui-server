@@ -32,6 +32,7 @@ import (
 	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedashboards"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -87,7 +88,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, err
 	}
 
-	var rd *rsapi.ResourceDashboard
+	var rd *uiapi.ResourceDashboard
 	if req.Name == "" {
 		if rd, err = resourcedashboards.LoadByGVR(r.kc, rid.GroupVersionResource()); err != nil {
 			return nil, err

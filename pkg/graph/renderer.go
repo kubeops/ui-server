@@ -28,6 +28,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/pkg/layouts"
 	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -232,7 +233,7 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		return &out, err
 	}
 
-	if block.Query.Type == rsapi.GraphQLQuery {
+	if block.Query.Type == sharedapi.GraphQLQuery {
 		objs, err := ExecGraphQLQuery(kc, q, vars)
 		if err != nil {
 			return &out, err
@@ -252,7 +253,7 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		} else {
 			out.Items = objs
 		}
-	} else if block.Query.Type == rsapi.RESTQuery {
+	} else if block.Query.Type == sharedapi.RESTQuery {
 		var obj map[string]interface{}
 		if q != "" {
 			err = yaml.Unmarshal([]byte(q), &obj)

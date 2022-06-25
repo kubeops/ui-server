@@ -36,7 +36,7 @@ import (
 	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
-	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -120,15 +120,15 @@ func ExecGraphQLQuery(c client.Client, query string, vars map[string]interface{}
 	}
 
 	var gk schema.GroupKind
-	if v, ok := vars[rsapi.GraphQueryVarTargetGroup]; ok {
+	if v, ok := vars[sharedapi.GraphQueryVarTargetGroup]; ok {
 		gk.Group = v.(string)
 	} else {
-		return nil, fmt.Errorf("vars is missing %s", rsapi.GraphQueryVarTargetGroup)
+		return nil, fmt.Errorf("vars is missing %s", sharedapi.GraphQueryVarTargetGroup)
 	}
-	if v, ok := vars[rsapi.GraphQueryVarTargetKind]; ok {
+	if v, ok := vars[sharedapi.GraphQueryVarTargetKind]; ok {
 		gk.Kind = v.(string)
 	} else {
-		return nil, fmt.Errorf("vars is missing %s", rsapi.GraphQueryVarTargetKind)
+		return nil, fmt.Errorf("vars is missing %s", sharedapi.GraphQueryVarTargetKind)
 	}
 
 	mapping, err := c.RESTMapper().RESTMapping(gk)
@@ -210,7 +210,7 @@ func extractRefs(data map[string]interface{}, result ksets.ObjectReference) erro
 	return nil
 }
 
-func ExecRawQuery(kc client.Client, src kmapi.OID, target rsapi.ResourceLocator) (*kmapi.ResourceID, []kmapi.ObjectReference, error) {
+func ExecRawQuery(kc client.Client, src kmapi.OID, target sharedapi.ResourceLocator) (*kmapi.ResourceID, []kmapi.ObjectReference, error) {
 	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
 		Group: target.Ref.Group,
 		Kind:  target.Ref.Kind,
@@ -225,7 +225,7 @@ func ExecRawQuery(kc client.Client, src kmapi.OID, target rsapi.ResourceLocator)
 		return nil, nil, err
 	}
 
-	if target.Query.Type == rsapi.GraphQLQuery {
+	if target.Query.Type == sharedapi.GraphQLQuery {
 		result, err := execRawGraphQLQuery(q, vars)
 		return rid, result, err
 	}
@@ -241,7 +241,7 @@ func ExecRawQuery(kc client.Client, src kmapi.OID, target rsapi.ResourceLocator)
 	return rid, []kmapi.ObjectReference{ref}, nil
 }
 
-func ExecQuery(kc client.Client, src kmapi.OID, target rsapi.ResourceLocator) (*kmapi.ResourceID, []unstructured.Unstructured, error) {
+func ExecQuery(kc client.Client, src kmapi.OID, target sharedapi.ResourceLocator) (*kmapi.ResourceID, []unstructured.Unstructured, error) {
 	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
 		Group: target.Ref.Group,
 		Kind:  target.Ref.Kind,
@@ -256,7 +256,7 @@ func ExecQuery(kc client.Client, src kmapi.OID, target rsapi.ResourceLocator) (*
 		return nil, nil, err
 	}
 
-	if target.Query.Type == rsapi.GraphQLQuery {
+	if target.Query.Type == sharedapi.GraphQLQuery {
 		result, err := ExecGraphQLQuery(kc, q, vars)
 		return rid, result, err
 	}

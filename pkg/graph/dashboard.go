@@ -32,19 +32,20 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
+	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedashboards"
 	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func renderDashboard(kc client.Client, oc openvizcs.Interface, srcObj *unstructured.Unstructured) tableconvertor.DashboardRendererFunc {
-	return func(name string) (*rsapi.ResourceDashboard, string, error) {
+	return func(name string) (*uiapi.ResourceDashboard, string, error) {
 		rd, err := resourcedashboards.LoadByName(kc, name)
 		if err != nil {
 			return nil, "", err
 		}
-		if rd.Spec.Provider != rsapi.DashboardProviderGrafana {
+		if rd.Spec.Provider != uiapi.DashboardProviderGrafana {
 			return nil, "", fmt.Errorf("unsupported provider %q for dashbaord %s", rd.Spec.Provider, name)
 		}
 		if len(rd.Spec.Dashboards) == 0 {
@@ -61,8 +62,8 @@ func renderDashboard(kc client.Client, oc openvizcs.Interface, srcObj *unstructu
 	}
 }
 
-func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *rsapi.ResourceDashboard, src *unstructured.Unstructured) (*openvizauipi.DashboardGroup, error) {
-	if rd.Spec.Provider != rsapi.DashboardProviderGrafana {
+func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.ResourceDashboard, src *unstructured.Unstructured) (*openvizauipi.DashboardGroup, error) {
+	if rd.Spec.Provider != uiapi.DashboardProviderGrafana {
 		return nil, fmt.Errorf("dashboard %s uses unsupported provider %q", rd.Name, rd.Spec.Provider)
 	}
 
@@ -104,7 +105,7 @@ func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *rsapi.Resourc
 			Panels: nil,
 		}
 		for _, v := range d.Vars {
-			if v.Type != rsapi.DashboardVarTypeTarget {
+			if v.Type != sharedapi.DashboardVarTypeTarget {
 				val, err := renderTemplate(v.Value, src.UnstructuredContent(), buf)
 				if err != nil {
 					return nil, errors.Wrapf(err, "failed to render the value of variable %q in dashboard with title %s", v.Name, d.Title)
