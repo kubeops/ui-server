@@ -22,12 +22,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub"
 	"kmodules.xyz/resource-metadata/hub/menuoutlines"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var defaultIcons = []rsapi.ImageSpec{
+var defaultIcons = []sharedapi.ImageSpec{
 	{
 		Source: hub.CRDIconSVG,
 		Type:   "image/svg+xml",
@@ -35,7 +36,7 @@ var defaultIcons = []rsapi.ImageSpec{
 }
 
 func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInterface) (*rsapi.Menu, error) {
-	sectionIcons := map[string][]rsapi.ImageSpec{}
+	sectionIcons := map[string][]sharedapi.ImageSpec{}
 	for _, m := range menuoutlines.List() {
 		for _, sec := range m.Spec.Sections {
 			if sec.AutoDiscoverAPIGroup != "" {

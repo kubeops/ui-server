@@ -27,6 +27,7 @@ import (
 	"k8s.io/client-go/discovery"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub"
 	"kmodules.xyz/resource-metadata/hub/menuoutlines"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
@@ -113,7 +114,7 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 							Kind:    item.Type.Kind,
 							Scope:   kmapi.NamespaceScoped, // fake default
 						}
-						mi.Icons = []rsapi.ImageSpec{
+						mi.Icons = []sharedapi.ImageSpec{
 							{
 								Source: hub.CRDIconSVG,
 								Size:   "",

@@ -29,6 +29,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog/v2"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"kubepack.dev/kubepack/pkg/lib"
 	"kubepack.dev/lib-helm/pkg/values"
@@ -166,7 +167,7 @@ func RenderDropDownMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenu
 
 func GetPresetName(
 	kc client.Client,
-	chartRef *rsapi.ChartRepoRef,
+	chartRef *sharedapi.ChartRepoRef,
 	vpsMap map[string]*chartsapi.VendorChartPreset,
 	ref core.TypedLocalObjectReference,
 ) (string, error) {
