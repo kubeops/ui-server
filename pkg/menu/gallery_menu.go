@@ -123,10 +123,14 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 
 					if len(ed.Spec.Variants) == 1 {
 						// cp := mi
-						mi.Name = name
+						if name != resourceeditors.DefaultEditorName(mi.Resource.GroupVersionResource()) {
+							mi.Name = name
+						}
 						mi.Path = u.String()
 						mi.Preset = &ref.TypedLocalObjectReference
-						mi.Icons = ref.Icons
+						if len(ref.Icons) > 0 {
+							mi.Icons = ref.Icons
+						}
 						items = append(items, mi)
 					} else {
 						cp := mi
