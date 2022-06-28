@@ -27,7 +27,6 @@ import (
 	"gomodules.xyz/pointer"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/klog/v2"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
@@ -95,7 +94,7 @@ func RenderDropDownMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenu
 				chartRef := ed.Spec.UI.Options
 				chrt, err := lib.DefaultRegistry.GetChart(chartRef.URL, chartRef.Name, chartRef.Version)
 				if err != nil {
-					klog.Fatal(err)
+					return nil, errors.Wrapf(err, "failed to get chart %s/%s@%s", chartRef.URL, chartRef.Name, chartRef.Version)
 				}
 
 				vpsMap, err := values.LoadVendorPresets(chrt.Chart)

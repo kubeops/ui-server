@@ -25,7 +25,6 @@ import (
 	"github.com/pkg/errors"
 	"gomodules.xyz/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/klog/v2"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"kubepack.dev/kubepack/pkg/lib"
@@ -92,7 +91,7 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 				chartRef := ed.Spec.UI.Options
 				chrt, err := lib.DefaultRegistry.GetChart(chartRef.URL, chartRef.Name, chartRef.Version)
 				if err != nil {
-					klog.Fatal(err)
+					return nil, errors.Wrapf(err, "failed to get chart %s/%s@%s", chartRef.URL, chartRef.Name, chartRef.Version)
 				}
 
 				vpsMap, err := values.LoadVendorPresets(chrt.Chart)
