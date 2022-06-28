@@ -75,6 +75,7 @@ import (
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -93,6 +94,7 @@ func init() {
 	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
 	rsinstall.Install(Scheme)
+	uiinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))

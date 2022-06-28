@@ -29,14 +29,14 @@ require (
 	k8s.io/kube-openapi v0.0.0-20220413171646-5e7f5fdc6da6
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.24.0
-	kmodules.xyz/client-go v0.24.0
+	kmodules.xyz/client-go v0.24.5
 	kmodules.xyz/custom-resources v0.24.0
 	kmodules.xyz/monitoring-agent-api v0.24.0
-	kmodules.xyz/resource-metadata v0.12.0
+	kmodules.xyz/resource-metadata v0.12.1
 	kmodules.xyz/resource-metrics v0.10.1
 	kmodules.xyz/sets v0.24.0
-	kubepack.dev/kubepack v0.4.0
-	kubepack.dev/lib-helm v0.3.2-0.20220604063230-32de2acacbfb
+	kubepack.dev/kubepack v0.4.1-0.20220604085220-0b1719a66516
+	kubepack.dev/lib-helm v0.3.2-0.20220628112852-e1f4a31c6721
 	kubepack.dev/preset v0.0.1
 	sigs.k8s.io/cli-utils v0.31.1
 	sigs.k8s.io/controller-runtime v0.12.1
@@ -180,7 +180,7 @@ require (
 	github.com/prometheus/common v0.34.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rubenv/sql-migrate v1.1.1 // indirect
-	github.com/russross/blackfriday v1.5.2 // indirect
+	github.com/russross/blackfriday v1.5.3-0.20190124082335-a477dd164691 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
@@ -238,7 +238,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0 // indirect
-	helm.sh/helm/v3 v3.0.0-00010101000000-000000000000 // indirect
+	helm.sh/helm/v3 v3.6.1 // indirect
 	k8s.io/cli-runtime v0.24.1 // indirect
 	k8s.io/component-base v0.24.1 // indirect
 	k8s.io/component-helpers v0.24.1 // indirect
@@ -248,7 +248,7 @@ require (
 	kmodules.xyz/offshoot-api v0.24.1 // indirect
 	oras.land/oras-go v1.1.0 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30 // indirect
-	sigs.k8s.io/application v0.0.0-00010101000000-000000000000 // indirect
+	sigs.k8s.io/application v0.8.2-0.20200306235134-f10d9ca8abd4 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/kustomize/api v0.11.4 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.6 // indirect
