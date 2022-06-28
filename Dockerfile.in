@@ -16,6 +16,10 @@ FROM {ARG_FROM}
 
 LABEL org.opencontainers.image.source https://github.com/kubeops/ui-server
 
+RUN set -x \
+  && apk add --update --upgrade --no-cache pcre2 ca-certificates tzdata \
+  && echo 'Etc/UTC' > /etc/timezone
+
 ADD bin/{ARG_OS}_{ARG_ARCH}/{ARG_BIN} /{ARG_BIN}
 
 USER nobody
