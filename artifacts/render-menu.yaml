@@ -2,11 +2,11 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: RenderMenu
 request:
   menu: kubedb
-  mode: Accordion
-  # mode: Gallery
-  # type:
-  #   group: kubedb.com
-  #   kind: MongoDB
+  # mode: Accordion
+  mode: Gallery
+  type:
+    group: kubedb.com
+    kind: MongoDB
 
 # request:
 #   menu: cluster

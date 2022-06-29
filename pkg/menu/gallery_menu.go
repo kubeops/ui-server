@@ -19,8 +19,6 @@ package menu
 import (
 	"context"
 	"fmt"
-	gourl "net/url"
-	"path"
 	"sort"
 
 	"github.com/pkg/errors"
@@ -110,14 +108,14 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 						return nil, fmt.Errorf("unknown preset kind %q used in menu item %s", ref.Kind, mi.Name)
 					}
 
-					qs := gourl.Values{}
-					qs.Set("presetGroup", *ref.APIGroup)
-					qs.Set("presetKind", ref.Kind)
-					qs.Set("presetName", ref.Name)
-					u := gourl.URL{
-						Path:     path.Join(mi.Resource.Group, mi.Resource.Version, mi.Resource.Name),
-						RawQuery: qs.Encode(),
-					}
+					//qs := gourl.Values{}
+					//qs.Set("presetGroup", *ref.APIGroup)
+					//qs.Set("presetKind", ref.Kind)
+					//qs.Set("presetName", ref.Name)
+					//u := gourl.URL{
+					//	Path:     path.Join(mi.Resource.Group, mi.Resource.Version, mi.Resource.Name),
+					//	RawQuery: qs.Encode(),
+					//}
 
 					name, err := GetPresetName(kc, chartRef, vpsMap, ref.TypedLocalObjectReference)
 					if err != nil {
@@ -127,8 +125,9 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 					if len(ed.Spec.Variants) == 1 {
 						// cp := mi
 						mi.Name = name
-						mi.Path = u.String()
-						mi.Preset = &ref.TypedLocalObjectReference
+						// mi.Path = u.String()
+						refCopy := ref.TypedLocalObjectReference
+						mi.Preset = &refCopy
 						if len(ref.Icons) > 0 {
 							mi.Icons = ref.Icons
 						}
@@ -136,8 +135,9 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 					} else {
 						cp := mi
 						cp.Name = name
-						cp.Path = u.String()
-						cp.Preset = &ref.TypedLocalObjectReference
+						// cp.Path = u.String()
+						refCopy := ref.TypedLocalObjectReference
+						cp.Preset = &refCopy
 						mi.Icons = ref.Icons
 						items = append(items, cp)
 					}
