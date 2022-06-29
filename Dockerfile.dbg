@@ -12,11 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM appscode/dlv:1.8.0
+FROM appscode/dlv:1.8.3
 
 FROM {ARG_FROM}
 
 LABEL org.opencontainers.image.source https://github.com/kubeops/ui-server
+
+RUN set -x \
+  && apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y --no-install-recommends ca-certificates \
+  && rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man /tmp/* \
+  && echo 'Etc/UTC' > /etc/timezone
 
 ADD bin/{ARG_OS}_{ARG_ARCH}/{ARG_BIN} /{ARG_BIN}
 COPY --from=0 /usr/local/bin/dlv /bin/dlv
