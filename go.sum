@@ -1792,8 +1792,8 @@ kmodules.xyz/monitoring-agent-api v0.24.0 h1:CPFvzDppUKckMBLwaMnZbpYCuP7+NhcS4t7
 kmodules.xyz/monitoring-agent-api v0.24.0/go.mod h1:lu1TmXRMx9IcjMpY8s5nc4HNOhOix5/z9caEnbL8JxA=
 kmodules.xyz/offshoot-api v0.24.1 h1:8KCVNkLwdebzWmHcTdZPTQGxqI92bqA+vrmz65ueULY=
 kmodules.xyz/offshoot-api v0.24.1/go.mod h1:fYu0051hoJXXs70OjmIE+Q5smOgmzvYFhRJXCiFShaY=
-kmodules.xyz/resource-metadata v0.12.2 h1:hNJjGz9fYkR/YzvXPV3js3BMt456g2teN/GVtvEAGyA=
-kmodules.xyz/resource-metadata v0.12.2/go.mod h1:N3pgffPM+AOTBfswdZvCfFsB1IuZ8yzAceZAlnCm1eA=
+kmodules.xyz/resource-metadata v0.12.3-0.20220629092033-2d669e76f51f h1:0bAd+YgsWzpOvL6Mtt+NPD5W8CDybw3Wo0t68bkdwN8=
+kmodules.xyz/resource-metadata v0.12.3-0.20220629092033-2d669e76f51f/go.mod h1:N3pgffPM+AOTBfswdZvCfFsB1IuZ8yzAceZAlnCm1eA=
 kmodules.xyz/resource-metrics v0.10.1 h1:q1dhk0eYxkZqd1peRy9wHGd8tOktBBH3kzgeTVaNBiY=
 kmodules.xyz/resource-metrics v0.10.1/go.mod h1:YK0hjiLq6oBaGROmLSVcVDbmEgSxT1vpt8BCZZ+9teY=
 kmodules.xyz/sets v0.24.0 h1:GbltLEPVnURjcmWyf8eFstgJBpm9o151wsrABkByGrc=
@@ -1802,8 +1802,8 @@ kubepack.dev/kubepack v0.4.1-0.20220604085220-0b1719a66516 h1:LV9pXQkQJNoyq6nkSO
 kubepack.dev/kubepack v0.4.1-0.20220604085220-0b1719a66516/go.mod h1:WME3IkCaVx13IUNJMfXFbir50OeDQ/8yM5W0sU0FeqI=
 kubepack.dev/lib-helm v0.3.2-0.20220628112852-e1f4a31c6721 h1:MtNDDTtz9e5nCqRF9JCUqVN0+acLgFWlGZmdTBxrf3A=
 kubepack.dev/lib-helm v0.3.2-0.20220628112852-e1f4a31c6721/go.mod h1:3/nrvhjsvywBFo33pnJuoTwcSf8fppXl4xa169Q+GLU=
-kubepack.dev/preset v0.0.1 h1:Xioqs+rZGMII2hUKqAQu1rRZpt5eZ4vI11AK/nGXlcA=
-kubepack.dev/preset v0.0.1/go.mod h1:AC+7Ne2Cl2CbOtrvFDZADehZ1peG+4sf7d3TT/J8yVc=
+kubepack.dev/preset v0.0.2 h1:Pmp3arNSEiA08irq+SQeHL+vuho7KCnTG323JxRZYoA=
+kubepack.dev/preset v0.0.2/go.mod h1:AC+7Ne2Cl2CbOtrvFDZADehZ1peG+4sf7d3TT/J8yVc=
 nhooyr.io/websocket v1.8.6/go.mod h1:B70DZP8IakI65RVQ51MsWP/8jndNma26DVA/nFSCgW0=
 nhooyr.io/websocket v1.8.7/go.mod h1:B70DZP8IakI65RVQ51MsWP/8jndNma26DVA/nFSCgW0=
 oras.land/oras-go v1.1.0 h1:tfWM1RT7PzUwWphqHU6ptPU3ZhwVnSw/9nEGf519rYg=

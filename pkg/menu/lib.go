@@ -38,8 +38,6 @@ func RenderMenu(driver *UserMenuDriver, req *rsapi.RenderMenuRequest) (*rsapi.Me
 		return driver.Get(req.Menu)
 	case rsapi.MenuGallery:
 		return GetGalleryMenu(driver, req)
-	case rsapi.MenuDropDown:
-		return GetDropDownMenu(driver, req)
 	default:
 		return nil, apierrors.NewBadRequest(fmt.Sprintf("unknown menu mode %s", req.Mode))
 	}
@@ -97,6 +95,11 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 			if ed, ok := resourceeditors.LoadByGVR(kc, gvr); ok {
 				me.Icons = ed.Spec.Icons
 				me.Installer = ed.Spec.Installer
+
+				me.PresetCount = len(ed.Spec.Variants)
+				if me.PresetCount == 1 {
+					me.Preset = &ed.Spec.Variants[0].TypedLocalObjectReference
+				}
 			}
 
 			if _, ok := out[gv.Group]; !ok {
