@@ -34,6 +34,8 @@ spec:
           spec:
             description: ClusterChartPresetSpec defines the desired state of ClusterChartPreset
             properties:
+              displayName:
+                type: string
               selector:
                 description: 'selector is a label query over pods that should match
                   the replica count. It must match the pod template''s labels. More
