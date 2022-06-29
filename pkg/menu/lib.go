@@ -96,8 +96,8 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 				me.Icons = ed.Spec.Icons
 				me.Installer = ed.Spec.Installer
 
-				me.PresetCount = len(ed.Spec.Variants)
-				if me.PresetCount == 1 {
+				me.AvailableVariants = len(ed.Spec.Variants)
+				if me.AvailableVariants == 1 {
 					me.Preset = &ed.Spec.Variants[0].TypedLocalObjectReference
 				}
 			}

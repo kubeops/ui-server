@@ -86,7 +86,7 @@ type MenuItem struct {
 	// +optional
 	Preset *core.TypedLocalObjectReference `json:"preset,omitempty"`
 	// +optional
-	PresetCount int `json:"presetCount,omitempty"`
+	AvailableVariants int `json:"availableVariants,omitempty"`
 	// +optional
 	Items []MenuItem `json:"items,omitempty"`
 }

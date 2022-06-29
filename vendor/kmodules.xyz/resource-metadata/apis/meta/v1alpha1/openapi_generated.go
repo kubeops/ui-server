@@ -14957,7 +14957,7 @@ func schema_resource_metadata_apis_meta_v1alpha1_MenuItem(ref common.ReferenceCa
 							Ref: ref("k8s.io/api/core/v1.TypedLocalObjectReference"),
 						},
 					},
-					"presetCount": {
+					"availableVariants": {
 						SchemaProps: spec.SchemaProps{
 							Type:   []string{"integer"},
 							Format: "int32",
