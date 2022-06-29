@@ -80,7 +80,7 @@ func (r *Storage) NewList() runtime.Object {
 }
 
 func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOptions) (runtime.Object, error) {
-	if options.FieldSelector != nil {
+	if options.FieldSelector != nil && !options.FieldSelector.Empty() {
 		return nil, kerr.NewBadRequest("fieldSelector is not a supported")
 	}
 
