@@ -138,7 +138,9 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 						// cp.Path = u.String()
 						refCopy := ref.TypedLocalObjectReference
 						cp.Preset = &refCopy
-						mi.Icons = ref.Icons
+						if len(ref.Icons) > 0 {
+							cp.Icons = ref.Icons
+						}
 						items = append(items, cp)
 					}
 				}
