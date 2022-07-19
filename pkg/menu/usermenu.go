@@ -31,6 +31,7 @@ import (
 	"kmodules.xyz/client-go/meta"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/menuoutlines"
+	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/yaml"
 )
@@ -91,6 +92,31 @@ func extractMenu(cm *core.ConfigMap) (*rsapi.Menu, error) {
 	return &obj, nil
 }
 
+func updateMenuVariantsInfo(kc client.Client, in *rsapi.Menu) *rsapi.Menu {
+	for _, s := range in.Spec.Sections {
+		s.Items = updateMenuItemVariantsInfo(kc, s.Items)
+	}
+	return in
+}
+
+func updateMenuItemVariantsInfo(kc client.Client, in []rsapi.MenuItem) []rsapi.MenuItem {
+	for _, item := range in {
+		if item.Resource != nil {
+			gvr := item.Resource.GroupVersionResource()
+			if ed, ok := resourceeditors.LoadByGVR(kc, gvr); ok {
+				item.AvailableVariants = len(ed.Spec.Variants)
+				if item.AvailableVariants == 1 {
+					item.Preset = &ed.Spec.Variants[0].TypedLocalObjectReference
+				}
+				if len(item.Items) > 0 {
+					item.Items = updateMenuItemVariantsInfo(kc, item.Items)
+				}
+			}
+		}
+	}
+	return in
+}
+
 func (r *UserMenuDriver) GetClient() client.Client {
 	return r.kc
 }
@@ -108,7 +134,11 @@ func (r *UserMenuDriver) Get(menu string) (*rsapi.Menu, error) {
 	} else if err != nil {
 		return nil, err
 	}
-	return extractMenu(&cm)
+	m, err := extractMenu(&cm)
+	if err != nil {
+		return nil, err
+	}
+	return updateMenuVariantsInfo(r.kc, m), nil
 }
 
 func (r *UserMenuDriver) List() (*rsapi.MenuList, error) {
@@ -143,6 +173,7 @@ func (r *UserMenuDriver) List() (*rsapi.MenuList, error) {
 		if err != nil {
 			return nil, err
 		}
+		menu = updateMenuVariantsInfo(r.kc, menu)
 		cmName := configmapName(r.user, menu.Name)
 		if cmName != cm.Name {
 			return nil, apierrors.NewInternalError(fmt.Errorf("ConfigMap %s/%s contains unexpected menu %s", cm.Namespace, cm.Name, menu.Name))
