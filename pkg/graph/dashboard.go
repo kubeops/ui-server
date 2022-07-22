@@ -21,11 +21,9 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"text/template"
 
 	"kubeops.dev/ui-server/pkg/shared"
 
-	"github.com/Masterminds/sprig/v3"
 	"github.com/pkg/errors"
 	openvizauipi "go.openviz.dev/apimachinery/apis/ui/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
@@ -79,7 +77,7 @@ func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.Resourc
 		cond := true
 		if d.If != nil {
 			if d.If.Condition != "" {
-				result, err := renderTemplate(d.If.Condition, src.UnstructuredContent(), buf)
+				result, err := shared.RenderTemplate(d.If.Condition, src.UnstructuredContent(), buf)
 				if err != nil {
 					return nil, errors.Wrapf(err, "failed to check condition for dashboard with title %s", d.Title)
 				}
@@ -106,7 +104,7 @@ func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.Resourc
 		}
 		for _, v := range d.Vars {
 			if v.Type != sharedapi.DashboardVarTypeTarget {
-				val, err := renderTemplate(v.Value, src.UnstructuredContent(), buf)
+				val, err := shared.RenderTemplate(v.Value, src.UnstructuredContent(), buf)
 				if err != nil {
 					return nil, errors.Wrapf(err, "failed to render the value of variable %q in dashboard with title %s", v.Name, d.Title)
 				}
@@ -121,25 +119,4 @@ func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.Resourc
 		dg.Request.Dashboards = append(dg.Request.Dashboards, out)
 	}
 	return oc.UiV1alpha1().DashboardGroups().Create(context.TODO(), dg, metav1.CreateOptions{})
-}
-
-func renderTemplate(text string, data interface{}, buf *bytes.Buffer) (string, error) {
-	if !strings.Contains(text, "{{") {
-		return text, nil
-	}
-
-	tpl, err := template.New("").Funcs(sprig.TxtFuncMap()).Parse(text)
-	if err != nil {
-		return "", errors.Wrapf(err, "falied to parse template %s", text)
-	}
-	// Do nothing and continue execution.
-	// If printed, the result of the index operation is the string "<no value>".
-	// We mitigate that later.
-	tpl.Option("missingkey=default")
-	buf.Reset()
-	err = tpl.Execute(buf, data)
-	if err != nil {
-		return "", errors.Wrapf(err, "falied to render template %s", text)
-	}
-	return strings.ReplaceAll(buf.String(), "<no value>", ""), nil
 }

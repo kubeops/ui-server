@@ -1,0 +1,21 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: ResourceQuery
+request:
+  source:
+    resource:
+      group: kubedb.com
+      version: v1alpha2
+      name: mongodbs
+    # name: mg-alert
+    namespace: demo
+    selector: {}
+  # Ref;Object;Table
+  outputFormat: Ref
+
+  # target:
+  #   query:
+  #     byLabel: view
+  #     type: GraphQL
+  #   ref:
+  #     group: core.k8s.appscode.com
+  #     kind: GenericResourceService

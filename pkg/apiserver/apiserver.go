@@ -32,7 +32,6 @@ import (
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
-	"kubeops.dev/ui-server/pkg/registry/meta/renderapi"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderdashboard"
 	"kubeops.dev/ui-server/pkg/registry/meta/rendermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderrawgraph"
@@ -41,6 +40,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcegraph"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcelayout"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceoutline"
+	"kubeops.dev/ui-server/pkg/registry/meta/resourcequery"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcetabledefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
@@ -244,7 +244,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
 		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, oc, rbacAuthorizer)
-		v1alpha1storage[rsapi.ResourceRenderAPIs] = renderapi.NewStorage(ctrlClient, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceResourceQueries] = resourcequery.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[rsapi.ResourceRenderRawGraphs] = renderrawgraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient, oc)
 
