@@ -174,11 +174,12 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		Name:    block.Name,
 		Actions: block.Actions,
 	}
+	srcGVR := srcRID.GroupVersionResource()
 
 	if block.Kind == rsapi.TableKindSelf || block.Kind == rsapi.TableKindSubTable {
 		out.Resource = srcRID
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj))
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj), RenderExec(nil, &srcGVR))
 			if err != nil {
 				return &out, err
 			}
@@ -240,7 +241,7 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj))
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj), RenderExec(&srcGVR, &mapping.Resource))
 			if err != nil {
 				return &out, err
 			}
@@ -269,7 +270,7 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj))
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj), RenderExec(&srcGVR, &mapping.Resource))
 			if err != nil {
 				return &out, err
 			}

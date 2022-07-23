@@ -150,6 +150,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 }
 
 func (r *Storage) toOutput(rid *kmapi.ResourceID, src runtime.Object, f rsapi.OutputFormat) (*runtime.RawExtension, error) {
+	gvr := rid.GroupVersionResource()
 	switch f {
 	case rsapi.OutputFormatTable:
 		if meta.IsListType(src) {
@@ -158,13 +159,13 @@ func (r *Storage) toOutput(rid *kmapi.ResourceID, src runtime.Object, f rsapi.Ou
 				return nil, err
 			}
 
-			table, err := tableconvertor.TableForList(r.kc, rid.GroupVersionResource(), items.([]unstructured.Unstructured), nil)
+			table, err := tableconvertor.TableForList(r.kc, rid.GroupVersionResource(), items.([]unstructured.Unstructured), nil, graph.RenderExec(nil, &gvr))
 			if err != nil {
 				return nil, err
 			}
 			return &runtime.RawExtension{Object: table}, nil
 		}
-		table, err := tableconvertor.TableForObject(r.kc, src, nil)
+		table, err := tableconvertor.TableForObject(r.kc, src, nil, graph.RenderExec(nil, &gvr))
 		if err != nil {
 			return nil, err
 		}

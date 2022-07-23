@@ -465,6 +465,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 
 		gvr := apiType.GroupVersionResource()
 		podGVR := schema.GroupVersionResource{Version: "v1", Resource: "Pods"}
+		podviewGVR := corev1alpha1.GroupVersion.WithResource(corev1alpha1.ResourcePodViews)
 		if rd, err := resourcedescriptors.LoadByGVR(gvr); err == nil {
 			execServices := make([]corev1alpha1.ExecServiceFacilitator, 0, len(rd.Spec.Exec))
 
@@ -491,16 +492,10 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 					continue
 				}
 
-				if gvr == podGVR {
+				if gvr == podGVR || gvr == podviewGVR {
 					execServices = append(execServices, corev1alpha1.ExecServiceFacilitator{
-						Alias: exec.Alias,
-						Resource: kmapi.ResourceID{
-							Group:   "",
-							Version: "v1",
-							Name:    "pods",
-							Kind:    "Pod",
-							Scope:   kmapi.NamespaceScoped,
-						},
+						Alias:    exec.Alias,
+						Resource: "pods",
 						Ref: kmapi.ObjectReference{
 							Namespace: item.GetNamespace(),
 							Name:      item.GetName(),
@@ -518,14 +513,8 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 					}
 
 					execServices = append(execServices, corev1alpha1.ExecServiceFacilitator{
-						Alias: exec.Alias,
-						Resource: kmapi.ResourceID{
-							Group:   "",
-							Version: "v1",
-							Name:    "services",
-							Kind:    "Service",
-							Scope:   kmapi.NamespaceScoped,
-						},
+						Alias:    exec.Alias,
+						Resource: "services",
 						Ref: kmapi.ObjectReference{
 							Namespace: item.GetNamespace(),
 							Name:      svcName,
