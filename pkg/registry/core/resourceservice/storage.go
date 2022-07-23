@@ -17,10 +17,12 @@ limitations under the License.
 package resourceservice
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/shared"
@@ -42,7 +44,9 @@ import (
 	cu "kmodules.xyz/client-go/client"
 	mu "kmodules.xyz/client-go/meta"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
+	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/cli-utils/pkg/kstatus/status"
@@ -240,6 +244,9 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiType *kmapi.ResourceID, cmeta *kmapi.ClusterMetadata) (*corev1alpha1.GenericResourceService, error) {
 	content := item.UnstructuredContent()
 
+	objID := kmapi.NewObjectID(&item)
+	oid := objID.OID()
+
 	s, err := status.Compute(&item)
 	if err != nil {
 		return nil, err
@@ -306,9 +313,6 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 	}
 
 	{
-		objID := kmapi.NewObjectID(&item)
-		oid := objID.OID()
-
 		rid, objs, err := graph.ExecQuery(r.kc, oid, sharedapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "",
@@ -361,8 +365,6 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		}
 	}
 	{
-		objID := kmapi.NewObjectID(&item)
-		oid := objID.OID()
 		rid, refs, err := graph.ExecRawQuery(r.kc, oid, sharedapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "stash.appscode.com",
@@ -395,9 +397,6 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		}
 	}
 	{
-		objID := kmapi.NewObjectID(&item)
-		oid := objID.OID()
-
 		rid, refs, err := graph.ExecRawQuery(r.kc, oid, sharedapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "monitoring.coreos.com",
@@ -460,6 +459,106 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			}
 		}
 	}
+	{
+		buf := shared.BufferPool.Get().(*bytes.Buffer)
+		defer shared.BufferPool.Put(buf)
+
+		gvr := apiType.GroupVersionResource()
+		podGVR := schema.GroupVersionResource{Version: "v1", Resource: "Pods"}
+		if rd, err := resourcedescriptors.LoadByGVR(gvr); err == nil {
+			execServices := make([]corev1alpha1.ExecServiceFacilitator, 0, len(rd.Spec.Exec))
+
+			for _, exec := range rd.Spec.Exec {
+				cond := true
+				if exec.If != nil {
+					if exec.If.Condition != "" {
+						buf.Reset()
+						result, err := shared.RenderTemplate(exec.If.Condition, content, buf)
+						if err != nil {
+							return nil, errors.Wrapf(err, "failed to check condition for %+v exec with alias %s", gvr, exec.Alias)
+						}
+						result = strings.TrimSpace(result)
+						cond = strings.EqualFold(result, "true")
+					} else if exec.If.Connected != nil {
+						_, targets, err := graph.ExecRawQuery(r.kc, oid, *exec.If.Connected)
+						if err != nil {
+							return nil, errors.Wrapf(err, "failed to check connection for %+v exec with alias %s", gvr, exec.Alias)
+						}
+						cond = len(targets) > 0
+					}
+				}
+				if !cond {
+					continue
+				}
+
+				if gvr == podGVR {
+					execServices = append(execServices, corev1alpha1.ExecServiceFacilitator{
+						Alias: exec.Alias,
+						Resource: kmapi.ResourceID{
+							Group:   "",
+							Version: "v1",
+							Name:    "pods",
+							Kind:    "Pod",
+							Scope:   kmapi.NamespaceScoped,
+						},
+						Ref: kmapi.ObjectReference{
+							Namespace: item.GetNamespace(),
+							Name:      item.GetName(),
+						},
+						Container:      exec.Container,
+						Command:        exec.Command,
+						Help:           exec.Help,
+						KubectlCommand: genKubectlCommand("Pod", item.GetName(), item.GetNamespace(), exec),
+					})
+				} else {
+					buf.Reset()
+					svcName, err := shared.RenderTemplate(exec.ServiceNameTemplate, content, buf)
+					if err != nil {
+						return nil, errors.Wrapf(err, "failed to render service name for %+v exec with alias %s", gvr, exec.Alias)
+					}
+
+					execServices = append(execServices, corev1alpha1.ExecServiceFacilitator{
+						Alias: exec.Alias,
+						Resource: kmapi.ResourceID{
+							Group:   "",
+							Version: "v1",
+							Name:    "services",
+							Kind:    "Service",
+							Scope:   kmapi.NamespaceScoped,
+						},
+						Ref: kmapi.ObjectReference{
+							Namespace: item.GetNamespace(),
+							Name:      svcName,
+						},
+						Container:      exec.Container,
+						Command:        exec.Command,
+						Help:           exec.Help,
+						KubectlCommand: genKubectlCommand("Service", svcName, item.GetNamespace(), exec),
+					})
+				}
+			}
+
+			genres.Spec.Facilities.Exec = execServices
+		}
+	}
 
 	return &genres, nil
+}
+
+func genKubectlCommand(kind, name, ns string, exec rsapi.ResourceExec) string {
+	isBash := func(cmd []string) bool {
+		return len(cmd) > 2 &&
+			(cmd[0] == "bash" || cmd[0] == "/bin/bash" || cmd[0] == "sh" || cmd[0] == "/bin/sh") &&
+			cmd[1] == "-c"
+	}
+	cmd := fmt.Sprintf("kubectl exec -it -n %s %s/%s", ns, strings.ToLower(kind), name)
+	if exec.Container != "" {
+		cmd += fmt.Sprintf("  -c %s", exec.Container)
+	}
+	if isBash(exec.Command) {
+		cmd += fmt.Sprintf(" -- %s %s '%s'", exec.Command[0], exec.Command[1], exec.Command[2])
+	} else {
+		cmd += fmt.Sprintf(" -- %s", strings.Join(exec.Command, " "))
+	}
+	return cmd
 }
