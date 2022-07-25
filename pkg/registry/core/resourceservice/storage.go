@@ -464,8 +464,6 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		defer shared.BufferPool.Put(buf)
 
 		gvr := apiType.GroupVersionResource()
-		podGVR := schema.GroupVersionResource{Version: "v1", Resource: "Pods"}
-		podviewGVR := corev1alpha1.GroupVersion.WithResource(corev1alpha1.ResourcePodViews)
 		if rd, err := resourcedescriptors.LoadByGVR(gvr); err == nil {
 			execServices := make([]corev1alpha1.ExecServiceFacilitator, 0, len(rd.Spec.Exec))
 
@@ -492,7 +490,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 					continue
 				}
 
-				if gvr == podGVR || gvr == podviewGVR {
+				if shared.IsPod(gvr) {
 					execServices = append(execServices, corev1alpha1.ExecServiceFacilitator{
 						Alias:    exec.Alias,
 						Resource: "pods",
