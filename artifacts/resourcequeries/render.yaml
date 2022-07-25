@@ -1,0 +1,18 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: Render
+request:
+  convertToTable: true
+  layoutName: kubedb.com-v1alpha2-mongodbs-kubedb
+  pageName: Overview
+  renderBlocks:
+  - Connection
+  source:
+    ref:
+      name: mg-alert
+      namespace: demo
+    resource:
+      group: kubedb.com
+      kind: ''
+      name: mongodbs
+      scope: ''
+      version: v1alpha2

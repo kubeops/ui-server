@@ -174,3 +174,12 @@ func skipIP(ip net.IP) bool {
 		ip.IsLinkLocalMulticast() ||
 		ip.IsLinkLocalUnicast()
 }
+
+var (
+	podGVR     = schema.GroupVersionResource{Version: "v1", Resource: "Pods"}
+	podviewGVR = corev1alpha1.GroupVersion.WithResource(corev1alpha1.ResourcePodViews)
+)
+
+func IsPod(gvr schema.GroupVersionResource) bool {
+	return gvr == podGVR || gvr == podviewGVR
+}

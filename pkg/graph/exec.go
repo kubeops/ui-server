@@ -21,6 +21,7 @@ import (
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
 	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
+	"kubeops.dev/ui-server/pkg/shared"
 )
 
 func RenderExec(src, target *schema.GroupVersionResource) tableconvertor.ResourceExecFunc {
@@ -32,15 +33,15 @@ func RenderExec(src, target *schema.GroupVersionResource) tableconvertor.Resourc
 		rdTarget, _ = resourcedescriptors.LoadByGVR(*target)
 	}
 	return func() []rsapi.ResourceExec {
-		if rdTarget != nil {
+		if rdTarget != nil && len(rdTarget.Spec.Exec) > 0 {
 			return rdTarget.Spec.Exec
 		}
-		if rdSrc != nil && len(rdSrc.Spec.Exec) > 0 {
+		if shared.IsPod(*target) && rdSrc != nil && len(rdSrc.Spec.Exec) > 0 {
 			in := rdSrc.Spec.Exec[0]
 			out := rsapi.ResourceExec{
 				Alias:               "",
 				If:                  nil,
-				ServiceNameTemplate: in.ServiceNameTemplate,
+				ServiceNameTemplate: "",
 				Container:           in.Container,
 				Command:             in.Command,
 				Help:                in.Help,

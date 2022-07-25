@@ -1,0 +1,435 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: Render
+request:
+  convertToTable: true
+  layoutName: kubedb.com-v1alpha2-mongodbs-kubedb
+  pageName: Overview
+  renderBlocks:
+  - Connection
+  source:
+    ref:
+      name: mg-alert
+      namespace: demo
+    resource:
+      group: kubedb.com
+      kind: ""
+      name: mongodbs
+      scope: ""
+      version: v1alpha2
+response:
+  view:
+    header:
+      actions:
+        create: Never
+      kind: Connection
+      resource:
+        group: core.k8s.appscode.com
+        kind: GenericResource
+        name: genericresources
+        scope: Namespaced
+        version: v1alpha1
+      result:
+        status: Success
+      table:
+        columns:
+        - name: Cluster Name
+          priority: 3
+          type: string
+        - name: Version
+          priority: 3
+          type: string
+        - name: Mode
+          priority: 3
+          type: string
+        - format: resource-map
+          name: CPU
+          priority: 3
+          type: object
+        - format: resource-map
+          name: Memory
+          priority: 3
+          type: object
+        - format: resource-map
+          name: Storage
+          priority: 3
+          type: object
+        - name: Status
+          priority: 3
+          type: string
+        metadata: {}
+        rows:
+        - cells:
+          - data: console-demo
+          - data: 5.0.2
+          - data: Standalone
+          - data:
+              limit: 700m
+              request: 700m
+          - data:
+              limit: 2Gi
+              request: 2Gi
+          - data:
+              limit: 10Gi
+              request: 10Gi
+          - color: success
+            data: Ready
+          namespace: demo
+    layoutName: kubedb.com-v1alpha2-mongodbs-kubedb
+    pages:
+    - blocks:
+      - actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.openviz.dev
+          kind: DashboardGroup
+          name: dashboardgroups
+          scope: Cluster
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Title
+            priority: 3
+            type: string
+          - name: URL
+            priority: 3
+            type: string
+          - name: Width
+            priority: 3
+            type: integer
+          metadata: {}
+          rows:
+          - cells:
+            - data: CPU Usage
+            - data: http://grafana.bb.test:3005/d-solo/EscEhCynk/kubedb-mongodb-summary?from=now-3h&orgId=1&panelId=98&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo
+            - data: 12
+          - cells:
+            - data: Memory Usage
+            - data: http://grafana.bb.test:3005/d-solo/EscEhCynk/kubedb-mongodb-summary?from=now-3h&orgId=1&panelId=100&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo
+            - data: 12
+          - cells:
+            - data: Disk Usage
+            - data: http://grafana.bb.test:3005/d-solo/EscEhCynk/kubedb-mongodb-summary?from=now-3h&orgId=1&panelId=112&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo
+            - data: 6
+          - cells:
+            - data: Disk R/W Info
+            - data: http://grafana.bb.test:3005/d-solo/EscEhCynk/kubedb-mongodb-summary?from=now-3h&orgId=1&panelId=108&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo
+            - data: 6
+          - cells:
+            - data: IOPS (Reads+Writes)
+            - data: http://grafana.bb.test:3005/d-solo/EscEhCynk/kubedb-mongodb-summary?from=now-3h&orgId=1&panelId=126&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo
+            - data: 6
+          - cells:
+            - data: ThroughPut (Read+Write)
+            - data: http://grafana.bb.test:3005/d-solo/EscEhCynk/kubedb-mongodb-summary?from=now-3h&orgId=1&panelId=128&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo
+            - data: 6
+          - cells:
+            - data: Receive Bandwidth
+            - data: http://grafana.bb.test:3005/d-solo/EscEhCynk/kubedb-mongodb-summary?from=now-3h&orgId=1&panelId=132&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo
+            - data: 6
+          - cells:
+            - data: Transmit Bandwidth
+            - data: http://grafana.bb.test:3005/d-solo/EscEhCynk/kubedb-mongodb-summary?from=now-3h&orgId=1&panelId=134&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo
+            - data: 6
+      - actions:
+          create: Never
+        kind: Connection
+        name: Nodes
+        resource:
+          group: core.k8s.appscode.com
+          kind: PodView
+          name: podviews
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - format: name
+            link: true
+            name: Name
+            priority: 3
+            type: string
+          - name: Role
+            priority: 3
+            type: string
+          - name: CPU (usage/limit)
+            priority: 3
+            textAlign: center
+            type: string
+          - name: Memory (usage/limit)
+            priority: 3
+            textAlign: center
+            type: string
+          - name: Storage (usage/limit)
+            priority: 3
+            textAlign: center
+            type: string
+          - name: Status
+            priority: 3
+            type: string
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          - dashboard:
+              status: Success
+              title: KubeDB / MongoDB / Pod
+            name: Dashboard
+            priority: 4
+            textAlign: center
+            type: string
+          - exec:
+              alias: ""
+              command:
+              - bash
+              - -c
+              - mongo admin -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD"
+              container: mongodb
+              help: |
+                show dbs;
+              resource: pods
+            name: Exec
+            priority: 4
+            textAlign: center
+            type: string
+          metadata: {}
+          rows:
+          - cells:
+            - data: mg-alert-0
+              link: /${username}/${clustername}/core/v1/pods/mg-alert-0?namespace=demo
+            - data: '-'
+            - data: 143m / 700m
+            - data: 522Mi / 2Gi
+            - data: 4Gi / 10Gi
+            - color: success is-light
+              data: Running
+            - data: 31d
+              sort: 1656073686
+            - data: http://grafana.bb.test:3005/d/uqpE2Cynk/kubedb-mongodb-pod?from=now-3h&orgId=1&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo&var-pod=mg-alert-0
+            - data: mg-alert-0
+            namespace: demo
+      info:
+        actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: appcatalog.appscode.com
+          kind: AppBinding
+          name: appbindings
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Name
+            priority: 3
+            type: string
+          - name: Namespace
+            priority: 3
+            type: string
+          - name: Labels
+            priority: 3
+            type: object
+          - name: Annotations
+            priority: 1
+            type: object
+          - name: Type
+            priority: 3
+            type: string
+          - name: Version
+            priority: 3
+            type: string
+          - name: Service
+            priority: 3
+            type: string
+          - name: Secret
+            priority: 3
+            type: string
+          - name: Backup Task
+            priority: 1
+            type: string
+          - name: Restore Task
+            priority: 1
+            type: string
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          metadata: {}
+          rows:
+          - cells:
+            - data: mg-alert
+            - data: demo
+            - data:
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: mg-alert
+                app.kubernetes.io/managed-by: kubedb.com
+                app.kubernetes.io/name: mongodbs.kubedb.com
+            - data:
+                kubectl.kubernetes.io/last-applied-configuration: |
+                  {"apiVersion":"kubedb.com/v1alpha2","kind":"MongoDB","metadata":{"annotations":{"meta.helm.sh/release-name":"mg-alert","meta.helm.sh/release-namespace":"demo"},"labels":{"app.kubernetes.io/instance":"mg-alert","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"mongodbs.kubedb.com"},"name":"mg-alert","namespace":"demo"},"spec":{"clusterAuthMode":"keyFile","monitor":{"agent":"prometheus.io/operator","prometheus":{"exporter":{"resources":{"requests":{"cpu":"100m","memory":"128Mi"}}},"serviceMonitor":{"interval":"30s","labels":{"release":"kube-prometheus-stack"}}}},"podTemplate":{"spec":{"resources":{"limits":{"cpu":".5","memory":"1024Mi"}}}},"replicas":1,"sslMode":"disabled","storage":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"10Gi"}},"storageClassName":"linode-block-storage-retain"},"storageType":"Durable","terminationPolicy":"WipeOut","version":"4.4.6"}}
+                meta.helm.sh/release-name: mg-alert
+                meta.helm.sh/release-namespace: demo
+            - data: kubedb.com/mongodb
+            - data: 5.0.2
+            - data: mg-alert
+            - data: mg-alert-auth
+            - data: mongodb-backup-5.0.3
+            - data: mongodb-restore-5.0.3
+            - data: 60d
+              sort: 1653560482
+            namespace: demo
+      insight:
+        actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: ui.kubedb.com
+          kind: MongoDBInsight
+          name: mongodbinsights
+          scope: Namespaced
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - name: Current Connections
+            priority: 3
+            type: integer
+          - name: Total Connections
+            priority: 3
+            type: integer
+          - name: Available Connections
+            priority: 3
+            type: integer
+          - name: Active Connections
+            priority: 3
+            type: integer
+          - name: Total Collections
+            priority: 3
+            type: integer
+          - name: Data Size
+            priority: 3
+            type: integer
+          - name: Total Indexes
+            priority: 3
+            type: integer
+          - name: Index Size
+            priority: 3
+            type: integer
+          - name: Number Of Shards
+            priority: 3
+            type: integer
+          - name: Replicas Per Shards
+            priority: 3
+            type: integer
+          - name: Number Of Chunks
+            priority: 3
+            type: integer
+          - name: Balancer Enabled
+            priority: 3
+            type: boolean
+          - name: Chunks Balanced
+            priority: 3
+            type: boolean
+          - name: Replicas
+            priority: 3
+            type: integer
+          metadata: {}
+          rows:
+          - cells:
+            - data: 1487
+            - data: 1272080
+            - data: 837373
+            - data: 496
+            - data: 5
+            - data: 1061972
+            - data: 6
+            - data: 172032
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+            - data: <unknown>
+            namespace: demo
+      name: Overview
+    resource:
+      group: kubedb.com
+      kind: MongoDB
+      name: mongodbs
+      scope: Namespaced
+      version: v1alpha2
+    tabBar:
+      actions:
+        create: Never
+      kind: Connection
+      resource:
+        group: core.k8s.appscode.com
+        kind: GenericResourceService
+        name: genericresourceservices
+        scope: Namespaced
+        version: v1alpha1
+      result:
+        status: Success
+      table:
+        columns:
+        - name: Exposed
+          priority: 3
+          type: string
+        - name: TLS
+          priority: 3
+          type: string
+        - name: Backup
+          priority: 3
+          type: string
+        - name: Monitoring
+          priority: 3
+          type: string
+        - name: Exec
+          priority: 4
+          type: object
+        metadata: {}
+        rows:
+        - cells:
+          - color: success
+            data: Unused
+          - color: danger
+            data: Unused
+          - color: danger
+            data: Unused
+          - color: success
+            data: Used
+          - data:
+            - alias: Primary
+              command:
+              - bash
+              - -c
+              - mongo admin -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD"
+              container: mongodb
+              help: |
+                show dbs;
+              kubectlCommand: kubectl exec -it -n demo service/mg-alert  -c mongodb
+                -- bash -c 'mongo admin -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD"'
+              ref:
+                name: mg-alert
+                namespace: demo
+              resource: services
+          namespace: demo
+    ui:
+      editor:
+        name: kubedbcom-mongodb-editor
+        url: https://bundles.byte.builders/ui/
+        version: v0.4.8
+      options:
+        name: kubedbcom-mongodb-editor-options
+        url: https://bundles.byte.builders/ui/
+        version: v0.4.8
