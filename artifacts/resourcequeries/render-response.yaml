@@ -203,7 +203,7 @@ response:
               link: /${username}/${clustername}/core/v1/pods/mg-alert-0?namespace=demo
             - data: '-'
             - data: 125m / 700m
-            - data: 552Mi / 2Gi
+            - data: 553Mi / 2Gi
             - data: 4Gi / 10Gi
             - color: success is-light
               data: Running
@@ -346,11 +346,11 @@ response:
           rows:
           - cells:
             - data: 1510
-            - data: 1314928
+            - data: 1315028
             - data: 837350
             - data: 503
             - data: 5
-            - data: 1062431
+            - data: 1062452
             - data: 6
             - data: 172032
             - data: <unknown>
