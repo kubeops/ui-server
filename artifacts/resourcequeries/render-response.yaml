@@ -184,7 +184,6 @@ response:
             textAlign: center
             type: string
           - exec:
-              alias: ""
               command:
               - bash
               - -c
@@ -203,12 +202,12 @@ response:
             - data: mg-alert-0
               link: /${username}/${clustername}/core/v1/pods/mg-alert-0?namespace=demo
             - data: '-'
-            - data: 143m / 700m
-            - data: 522Mi / 2Gi
+            - data: 125m / 700m
+            - data: 552Mi / 2Gi
             - data: 4Gi / 10Gi
             - color: success is-light
               data: Running
-            - data: 31d
+            - data: 32d
               sort: 1656073686
             - data: http://grafana.bb.test:3005/d/uqpE2Cynk/kubedb-mongodb-pod?from=now-3h&orgId=1&refresh=30s&to=now&var-db=mg-alert&var-namespace=demo&var-pod=mg-alert-0
             - data: mg-alert-0
@@ -284,7 +283,7 @@ response:
             - data: mg-alert-auth
             - data: mongodb-backup-5.0.3
             - data: mongodb-restore-5.0.3
-            - data: 60d
+            - data: 61d
               sort: 1653560482
             namespace: demo
       insight:
@@ -346,12 +345,12 @@ response:
           metadata: {}
           rows:
           - cells:
-            - data: 1487
-            - data: 1272080
-            - data: 837373
-            - data: 496
+            - data: 1510
+            - data: 1314928
+            - data: 837350
+            - data: 503
             - data: 5
-            - data: 1061972
+            - data: 1062431
             - data: 6
             - data: 172032
             - data: <unknown>
@@ -394,7 +393,8 @@ response:
         - name: Monitoring
           priority: 3
           type: string
-        - name: Exec
+        - exec: {}
+          name: Exec
           priority: 4
           type: object
         metadata: {}
