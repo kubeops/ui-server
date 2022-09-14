@@ -119,7 +119,7 @@ func (g *ObjectGraph) Links(oid *kmapi.ObjectID, edgeLabel kmapi.EdgeLabel) (map
 	g.m.RLock()
 	defer g.m.RUnlock()
 
-	if edgeLabel == kmapi.EdgeOffshoot || edgeLabel == kmapi.EdgeView {
+	if edgeLabel.Direct() {
 		return g.links(oid, nil, edgeLabel)
 	}
 
