@@ -17,11 +17,12 @@ limitations under the License.
 package graph
 
 import (
+	"kubeops.dev/ui-server/pkg/shared"
+
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
 	"kmodules.xyz/resource-metadata/pkg/tableconvertor"
-	"kubeops.dev/ui-server/pkg/shared"
 )
 
 func RenderExec(src, target *schema.GroupVersionResource) tableconvertor.ResourceExecFunc {
