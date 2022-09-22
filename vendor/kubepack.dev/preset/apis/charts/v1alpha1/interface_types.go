@@ -23,7 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-//+kubebuilder:object:generate:=false
+// +kubebuilder:object:generate:=false
 type Preset interface {
 	GetObjectKind() schema.ObjectKind
 	GetName() string

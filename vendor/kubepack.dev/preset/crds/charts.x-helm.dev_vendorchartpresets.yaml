@@ -80,6 +80,7 @@ spec:
                       are ANDed.
                     type: object
                 type: object
+                x-kubernetes-map-type: atomic
               usePresets:
                 items:
                   description: LocalObjectReference contains enough information to
@@ -90,6 +91,7 @@ spec:
                         TODO: Add other useful fields. apiVersion, kind, uid?'
                       type: string
                   type: object
+                  x-kubernetes-map-type: atomic
                 type: array
               values:
                 type: object

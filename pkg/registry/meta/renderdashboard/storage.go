@@ -45,6 +45,7 @@ type Storage struct {
 var (
 	_ rest.GroupVersionKindProvider = &Storage{}
 	_ rest.Scoper                   = &Storage{}
+	_ rest.Storage                  = &Storage{}
 	_ rest.Creater                  = &Storage{}
 )
 
@@ -66,6 +67,8 @@ func (r *Storage) NamespaceScoped() bool {
 func (r *Storage) New() runtime.Object {
 	return &rsapi.RenderDashboard{}
 }
+
+func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	in := obj.(*rsapi.RenderDashboard)

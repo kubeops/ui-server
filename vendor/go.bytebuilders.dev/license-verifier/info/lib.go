@@ -17,11 +17,23 @@ limitations under the License.
 package info
 
 import (
+	"bytes"
+	"crypto/x509"
+	"encoding/pem"
+	"errors"
+	"io"
+	"net/http"
 	"net/url"
 	"path"
 	"strconv"
 	"strings"
 	"unicode"
+
+	"go.bytebuilders.dev/license-verifier/apis/licenses"
+
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 var (
@@ -34,9 +46,10 @@ var (
 	ProductName string // This has been renamed to Features
 	ProductUID  string
 
-	prodAddress         = "https://byte.builders"
-	qaAddress           = "https://appscode.ninja"
-	registrationAPIPath = "api/v1/register"
+	prodAddress          = "https://byte.builders"
+	qaAddress            = "https://appscode.ninja"
+	registrationAPIPath  = "api/v1/register"
+	LicenseIssuerAPIPath = "api/v1/license/issue"
 )
 
 func Features() []string {
@@ -44,9 +57,10 @@ func Features() []string {
 }
 
 func ParseFeatures(features string) []string {
-	return strings.FieldsFunc(features, func(r rune) bool {
+	out := strings.FieldsFunc(features, func(r rune) bool {
 		return unicode.IsSpace(r) || r == ',' || r == ';'
 	})
+	return sets.NewString(out...).List()
 }
 
 func SkipLicenseVerification() bool {
@@ -60,6 +74,12 @@ func RegistrationAPIEndpoint() string {
 	return u.String()
 }
 
+func LicenseIssuerAPIEndpoint() string {
+	u := APIServerAddress()
+	u.Path = path.Join(u.Path, LicenseIssuerAPIPath)
+	return u.String()
+}
+
 func APIServerAddress() *url.URL {
 	if SkipLicenseVerification() {
 		u, _ := url.Parse(qaAddress)
@@ -67,4 +87,44 @@ func APIServerAddress() *url.URL {
 	}
 	u, _ := url.Parse(prodAddress)
 	return u
+}
+
+func LoadLicenseCA() ([]byte, error) {
+	if LicenseCA != "" {
+		return []byte(LicenseCA), nil
+	}
+
+	resp, err := http.Get("https://licenses.appscode.com/certificates/ca.crt")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, apierrors.NewGenericServerResponse(
+			resp.StatusCode,
+			http.MethodPost,
+			schema.GroupResource{Group: licenses.GroupName, Resource: "License"},
+			"LicenseCA",
+			buf.String(),
+			0,
+			false,
+		)
+	}
+	return buf.Bytes(), nil
+}
+
+func ParseCertificate(data []byte) (*x509.Certificate, error) {
+	block, _ := pem.Decode(data)
+	if block == nil {
+		// This probably is a JWT token, should be check for that when ready
+		return nil, errors.New("failed to parse certificate PEM")
+	}
+	return x509.ParseCertificate(block.Bytes)
 }

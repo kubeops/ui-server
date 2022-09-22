@@ -82,6 +82,7 @@ spec:
                       are ANDed.
                     type: object
                 type: object
+                x-kubernetes-map-type: atomic
               usePresets:
                 items:
                   description: TypedLocalObjectReference contains enough information
@@ -104,6 +105,7 @@ spec:
                   - kind
                   - name
                   type: object
+                  x-kubernetes-map-type: atomic
                 type: array
               values:
                 type: object

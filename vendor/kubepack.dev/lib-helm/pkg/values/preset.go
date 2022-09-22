@@ -17,13 +17,13 @@ import (
 )
 
 func MergePresetValues(kc client.Client, chrt *chart.Chart, ref chartsapi.ChartPresetRef) (map[string]interface{}, error) {
-	vpsMap, err := LoadVendorPresets(chrt)
-	if err != nil {
-		return nil, err
-	}
-
 	var valOpts Options
 	if ref.PresetName != "" {
+		vpsMap, err := LoadVendorPresets(chrt)
+		if err != nil {
+			return nil, err
+		}
+
 		ps, err := ref.ClusterChartPreset()
 		if err != nil {
 			return nil, err

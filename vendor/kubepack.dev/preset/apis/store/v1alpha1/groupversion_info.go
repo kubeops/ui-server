@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 // Package v1alpha1 contains API Schema definitions for the store v1alpha1 API group
-//+kubebuilder:object:generate=true
-//+groupName=store.x-helm.dev
+// +kubebuilder:object:generate=true
+// +groupName=store.x-helm.dev
 package v1alpha1
 
 import (
