@@ -40,6 +40,7 @@ type AvailableStorage struct {
 
 var (
 	_ rest.GroupVersionKindProvider = &AvailableStorage{}
+	_ rest.Storage                  = &AvailableStorage{}
 	_ rest.Getter                   = &AvailableStorage{}
 )
 
@@ -58,6 +59,8 @@ func (r *AvailableStorage) GroupVersionKind(_ schema.GroupVersion) schema.GroupV
 func (r *AvailableStorage) New() runtime.Object {
 	return &rsapi.Menu{}
 }
+
+func (r *AvailableStorage) Destroy() {}
 
 func (r *AvailableStorage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
 	user, ok := apirequest.UserFrom(ctx)

@@ -63,6 +63,7 @@ type Storage struct {
 var (
 	_ rest.GroupVersionKindProvider = &Storage{}
 	_ rest.Scoper                   = &Storage{}
+	_ rest.Storage                  = &Storage{}
 	_ rest.Getter                   = &Storage{}
 	_ rest.Lister                   = &Storage{}
 )
@@ -90,6 +91,8 @@ func (r *Storage) NamespaceScoped() bool {
 func (r *Storage) New() runtime.Object {
 	return &corev1alpha1.GenericResourceService{}
 }
+
+func (r *Storage) Destroy() {}
 
 func (r *Storage) NewList() runtime.Object {
 	return &corev1alpha1.GenericResourceServiceList{}
@@ -264,10 +267,10 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 	genres := corev1alpha1.GenericResourceService{
 		// TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:                       corev1alpha1.GetGenericResourceName(&item),
-			GenerateName:               item.GetGenerateName(),
-			Namespace:                  item.GetNamespace(),
-			SelfLink:                   "",
+			Name:         corev1alpha1.GetGenericResourceName(&item),
+			GenerateName: item.GetGenerateName(),
+			Namespace:    item.GetNamespace(),
+			// SelfLink:                   "",
 			UID:                        "gsvc-" + item.GetUID(),
 			ResourceVersion:            item.GetResourceVersion(),
 			Generation:                 item.GetGeneration(),
@@ -278,7 +281,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			Annotations:                map[string]string{},
 			// OwnerReferences:            item.GetOwnerReferences(),
 			// Finalizers:                 item.GetFinalizers(),
-			ZZZ_DeprecatedClusterName: item.GetZZZ_DeprecatedClusterName(),
+			// ZZZ_DeprecatedClusterName: item.GetZZZ_DeprecatedClusterName(),
 			// ManagedFields:              nil,
 		},
 		Spec: corev1alpha1.GenericResourceServiceSpec{

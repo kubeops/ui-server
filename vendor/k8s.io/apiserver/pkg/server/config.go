@@ -30,7 +30,7 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/google/uuid"
-	"go.opentelemetry.io/otel/trace"
+	oteltrace "go.opentelemetry.io/otel/trace"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -52,7 +52,6 @@ import (
 	genericapifilters "k8s.io/apiserver/pkg/endpoints/filters"
 	apiopenapi "k8s.io/apiserver/pkg/endpoints/openapi"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
-	"k8s.io/apiserver/pkg/features"
 	genericfeatures "k8s.io/apiserver/pkg/features"
 	genericregistry "k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/server/dynamiccertificates"
@@ -62,12 +61,12 @@ import (
 	"k8s.io/apiserver/pkg/server/routes"
 	serverstore "k8s.io/apiserver/pkg/server/storage"
 	"k8s.io/apiserver/pkg/storageversion"
-	"k8s.io/apiserver/pkg/util/feature"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	utilflowcontrol "k8s.io/apiserver/pkg/util/flowcontrol"
 	flowcontrolrequest "k8s.io/apiserver/pkg/util/flowcontrol/request"
 	"k8s.io/client-go/informers"
 	restclient "k8s.io/client-go/rest"
+	"k8s.io/component-base/logs"
 	"k8s.io/klog/v2"
 	openapicommon "k8s.io/kube-openapi/pkg/common"
 	"k8s.io/kube-openapi/pkg/validation/spec"
@@ -140,7 +139,7 @@ type Config struct {
 	ExternalAddress string
 
 	// TracerProvider can provide a tracer, which records spans for distributed tracing.
-	TracerProvider *trace.TracerProvider
+	TracerProvider oteltrace.TracerProvider
 
 	//===========================================================================
 	// Fields you probably don't care about changing
@@ -282,9 +281,6 @@ type SecureServingInfo struct {
 	// allowed to be in SNICerts.
 	Cert dynamiccertificates.CertKeyContentProvider
 
-	// CertFile is the file containing the main server cert.
-	CertFile string
-
 	// SNICerts are the TLS certificates used for SNI.
 	SNICerts []dynamiccertificates.SNICertKeyContentProvider
 
@@ -325,7 +321,7 @@ type AuthorizationInfo struct {
 func NewConfig(codecs serializer.CodecFactory) *Config {
 	defaultHealthChecks := []healthz.HealthChecker{healthz.PingHealthz, healthz.LogHealthz}
 	var id string
-	if feature.DefaultFeatureGate.Enabled(features.APIServerIdentity) {
+	if utilfeature.DefaultFeatureGate.Enabled(genericfeatures.APIServerIdentity) {
 		id = "kube-apiserver-" + uuid.New().String()
 	}
 	lifecycleSignals := newLifecycleSignals()
@@ -372,10 +368,11 @@ func NewConfig(codecs serializer.CodecFactory) *Config {
 		// Generic API servers have no inherent long-running subresources
 		LongRunningFunc:           genericfilters.BasicLongRunningRequestCheck(sets.NewString("watch"), sets.NewString()),
 		lifecycleSignals:          lifecycleSignals,
-		StorageObjectCountTracker: flowcontrolrequest.NewStorageObjectCountTracker(lifecycleSignals.ShutdownInitiated.Signaled()),
+		StorageObjectCountTracker: flowcontrolrequest.NewStorageObjectCountTracker(),
 
 		APIServerID:           id,
 		StorageVersionManager: storageversion.NewDefaultManager(),
+		TracerProvider:        oteltrace.NewNoopTracerProvider(),
 	}
 }
 
@@ -454,11 +451,15 @@ type CompletedConfig struct {
 // of our configured apiserver. We should prefer this to adding healthChecks directly to
 // the config unless we explicitly want to add a healthcheck only to a specific health endpoint.
 func (c *Config) AddHealthChecks(healthChecks ...healthz.HealthChecker) {
-	for _, check := range healthChecks {
-		c.HealthzChecks = append(c.HealthzChecks, check)
-		c.LivezChecks = append(c.LivezChecks, check)
-		c.ReadyzChecks = append(c.ReadyzChecks, check)
-	}
+	c.HealthzChecks = append(c.HealthzChecks, healthChecks...)
+	c.LivezChecks = append(c.LivezChecks, healthChecks...)
+	c.ReadyzChecks = append(c.ReadyzChecks, healthChecks...)
+}
+
+// AddReadyzChecks adds a health check to our config to be exposed by the readyz endpoint
+// of our configured apiserver.
+func (c *Config) AddReadyzChecks(healthChecks ...healthz.HealthChecker) {
+	c.ReadyzChecks = append(c.ReadyzChecks, healthChecks...)
 }
 
 // AddPostStartHook allows you to add a PostStartHook that will later be added to the server itself in a New call.
@@ -530,6 +531,11 @@ func completeOpenAPI(config *openapicommon.Config, version *version.Info) {
 	}
 }
 
+// DrainedNotify returns a lifecycle signal of genericapiserver already drained while shutting down.
+func (c *Config) DrainedNotify() <-chan struct{} {
+	return c.lifecycleSignals.InFlightRequestsDrained.Signaled()
+}
+
 // Complete fills in any fields not set that are required to have valid data and can be derived
 // from other fields. If you're going to `ApplyOptions`, do that first. It's mutating the receiver.
 func (c *Config) Complete(informers informers.SharedInformerFactory) CompletedConfig {
@@ -575,14 +581,6 @@ func (c *Config) Complete(informers informers.SharedInformerFactory) CompletedCo
 				return ""
 			})
 		}
-	}
-
-	if c.SecureServing != nil && c.SecureServing.CertFile != "" {
-		certChecker, err := healthz.NewCertHealthz(c.SecureServing.CertFile)
-		if err != nil {
-			klog.Fatalf("failed to create certificate checker. Reason: %v", err)
-		}
-		c.HealthzChecks = append(c.HealthzChecks, certChecker)
 	}
 
 	return CompletedConfig{&completedConfig{c, informers}}
@@ -722,7 +720,6 @@ func (c completedConfig) New(name string, delegationTarget DelegationTarget) (*G
 	if s.isPostStartHookRegistered(priorityAndFairnessConfigConsumerHookName) {
 	} else if c.FlowControl != nil {
 		err := s.AddPostStartHook(priorityAndFairnessConfigConsumerHookName, func(context PostStartHookContext) error {
-			go c.FlowControl.MaintainObservations(context.StopCh)
 			go c.FlowControl.Run(context.StopCh)
 			return nil
 		})
@@ -754,6 +751,19 @@ func (c completedConfig) New(name string, delegationTarget DelegationTarget) (*G
 				return nil
 			})
 			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	// Add PostStartHook for maintenaing the object count tracker.
+	if c.StorageObjectCountTracker != nil {
+		const storageObjectCountTrackerHookName = "storage-object-count-tracker-hook"
+		if !s.isPostStartHookRegistered(storageObjectCountTrackerHookName) {
+			if err := s.AddPostStartHook(storageObjectCountTrackerHookName, func(context PostStartHookContext) error {
+				go c.StorageObjectCountTracker.RunUntil(context.StopCh)
+				return nil
+			}); err != nil {
 				return nil, err
 			}
 		}
@@ -801,7 +811,9 @@ func DefaultBuildHandlerChain(apiHandler http.Handler, c *Config) http.Handler {
 	handler = filterlatency.TrackStarted(handler, "authorization")
 
 	if c.FlowControl != nil {
-		requestWorkEstimator := flowcontrolrequest.NewWorkEstimator(c.StorageObjectCountTracker.Get, c.FlowControl.GetInterestedWatchCount)
+		workEstimatorCfg := flowcontrolrequest.DefaultWorkEstimatorConfig()
+		requestWorkEstimator := flowcontrolrequest.NewWorkEstimator(
+			c.StorageObjectCountTracker.Get, c.FlowControl.GetInterestedWatchCount, workEstimatorCfg)
 		handler = filterlatency.TrackCompleted(handler)
 		handler = genericfilters.WithPriorityAndFairness(handler, c.LongRunningFunc, c.FlowControl, requestWorkEstimator)
 		handler = filterlatency.TrackStarted(handler, "priorityandfairness")
@@ -842,7 +854,7 @@ func DefaultBuildHandlerChain(apiHandler http.Handler, c *Config) http.Handler {
 	handler = genericapifilters.WithCacheControl(handler)
 	handler = genericfilters.WithHSTS(handler, c.HSTSDirectives)
 	if c.ShutdownSendRetryAfter {
-		handler = genericfilters.WithRetryAfter(handler, c.lifecycleSignals.AfterShutdownDelayDuration.Signaled())
+		handler = genericfilters.WithRetryAfter(handler, c.lifecycleSignals.NotAcceptingNewRequest.Signaled())
 	}
 	handler = genericfilters.WithHTTPLogging(handler)
 	if utilfeature.DefaultFeatureGate.Enabled(genericfeatures.APIServerTracing) {
@@ -867,7 +879,7 @@ func installAPI(s *GenericAPIServer, c *Config) {
 			goruntime.SetBlockProfileRate(1)
 		}
 		// so far, only logging related endpoints are considered valid to add for these debug flags.
-		routes.DebugFlags{}.Install(s.Handler.NonGoRestfulMux, "v", routes.StringFlagPutHandler(glogSetter))
+		routes.DebugFlags{}.Install(s.Handler.NonGoRestfulMux, "v", routes.StringFlagPutHandler(logs.GlogSetter))
 	}
 	if c.EnableMetrics {
 		if c.EnableProfiling {
@@ -882,7 +894,7 @@ func installAPI(s *GenericAPIServer, c *Config) {
 	if c.EnableDiscovery {
 		s.Handler.GoRestfulContainer.Add(s.DiscoveryGroupManager.WebService())
 	}
-	if c.FlowControl != nil && feature.DefaultFeatureGate.Enabled(features.APIPriorityAndFairness) {
+	if c.FlowControl != nil && utilfeature.DefaultFeatureGate.Enabled(genericfeatures.APIPriorityAndFairness) {
 		c.FlowControl.Install(s.Handler.NonGoRestfulMux)
 	}
 }
@@ -948,13 +960,4 @@ func AuthorizeClientBearerToken(loopback *restclient.Config, authn *Authenticati
 
 	tokenAuthorizer := authorizerfactory.NewPrivilegedGroups(user.SystemPrivilegedGroup)
 	authz.Authorizer = authorizerunion.New(tokenAuthorizer, authz.Authorizer)
-}
-
-// glogSetter is a setter to set glog level.
-func glogSetter(val string) (string, error) {
-	var level klog.Level
-	if err := level.Set(val); err != nil {
-		return "", fmt.Errorf("failed set klog.logging.verbosity %s: %v", val, err)
-	}
-	return fmt.Sprintf("successfully set klog.logging.verbosity to %s", val), nil
 }

@@ -43,6 +43,7 @@ type Storage struct {
 var (
 	_ rest.GroupVersionKindProvider = &Storage{}
 	_ rest.Scoper                   = &Storage{}
+	_ rest.Storage                  = &Storage{}
 	_ rest.Lister                   = &Storage{}
 	_ rest.Getter                   = &Storage{}
 	_ rest.CreaterUpdater           = &Storage{}
@@ -72,6 +73,8 @@ func (r *Storage) NamespaceScoped() bool {
 func (r *Storage) New() runtime.Object {
 	return &rsapi.Menu{}
 }
+
+func (r *Storage) Destroy() {}
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
 	user, ok := apirequest.UserFrom(ctx)

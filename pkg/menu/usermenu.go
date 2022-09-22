@@ -65,7 +65,7 @@ func hashUser(user string) uint64 {
 	return h.Sum64()
 }
 
-//nolint
+// nolint
 func getMenuName(user string, cmName string) (string, error) {
 	str := strings.TrimSuffix(cmName, fmt.Sprintf(".%d", hashUser(user)))
 	idx := strings.LastIndexByte(str, '.')

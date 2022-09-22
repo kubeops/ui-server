@@ -53,6 +53,7 @@ type Storage struct {
 var (
 	_ rest.GroupVersionKindProvider = &Storage{}
 	_ rest.Scoper                   = &Storage{}
+	_ rest.Storage                  = &Storage{}
 	_ rest.Lister                   = &Storage{}
 )
 
@@ -79,6 +80,8 @@ func (r *Storage) NamespaceScoped() bool {
 func (r *Storage) New() runtime.Object {
 	return &corev1alpha1.ResourceSummary{}
 }
+
+func (r *Storage) Destroy() {}
 
 func (r *Storage) NewList() runtime.Object {
 	return &corev1alpha1.ResourceSummaryList{}
