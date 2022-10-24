@@ -1056,33 +1056,17 @@ spec:
               ui:
                 properties:
                   editor:
-                    description: ChartRepoRef references to a single version of a
-                      Chart
+                    description: ExpandedChartRepoRef references to a single version
+                      of a Chart
                     properties:
                       name:
                         type: string
-                      sourceRef:
-                        description: TypedObjectReference represents an typed namespaced
-                          object.
-                        properties:
-                          apiGroup:
-                            type: string
-                          kind:
-                            type: string
-                          name:
-                            description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
-                            type: string
-                          namespace:
-                            description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
-                            type: string
-                        required:
-                        - name
-                        type: object
+                      url:
+                        type: string
                       version:
                         type: string
                     required:
                     - name
-                    - sourceRef
                     - version
                     type: object
                   instanceLabelPaths:
@@ -1092,33 +1076,17 @@ spec:
                       type: string
                     type: array
                   options:
-                    description: ChartRepoRef references to a single version of a
-                      Chart
+                    description: ExpandedChartRepoRef references to a single version
+                      of a Chart
                     properties:
                       name:
                         type: string
-                      sourceRef:
-                        description: TypedObjectReference represents an typed namespaced
-                          object.
-                        properties:
-                          apiGroup:
-                            type: string
-                          kind:
-                            type: string
-                          name:
-                            description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
-                            type: string
-                          namespace:
-                            description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
-                            type: string
-                        required:
-                        - name
-                        type: object
+                      url:
+                        type: string
                       version:
                         type: string
                     required:
                     - name
-                    - sourceRef
                     - version
                     type: object
                 type: object

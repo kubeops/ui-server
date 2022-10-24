@@ -1351,7 +1351,7 @@ kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.14.0
+# kmodules.xyz/resource-metadata v0.14.1-0.20221024132838-c97e928f4d41
 ## explicit; go 1.18
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -1387,7 +1387,7 @@ kmodules.xyz/resource-metrics/kubedb.com/v1alpha2
 # kmodules.xyz/sets v0.24.0
 ## explicit; go 1.17
 kmodules.xyz/sets
-# kubepack.dev/lib-helm v0.5.6
+# kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b
 ## explicit; go 1.18
 kubepack.dev/lib-helm/pkg/chart/loader
 kubepack.dev/lib-helm/pkg/downloader
