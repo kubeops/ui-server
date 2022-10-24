@@ -28,11 +28,13 @@ import (
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
-	"kubepack.dev/kubepack/pkg/lib"
+	"kubepack.dev/lib-helm/pkg/repo"
 	"kubepack.dev/lib-helm/pkg/values"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+var HelmRegistry repo.IRegistry
 
 func GetGalleryMenu(driver *UserMenuDriver, opts *rsapi.RenderMenuRequest) (*rsapi.Menu, error) {
 	menu, err := driver.Get(opts.Menu)
@@ -90,9 +92,14 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 				}
 
 				chartRef := ed.Spec.UI.Options
-				chrt, err := lib.DefaultRegistry.GetChart(chartRef.URL, chartRef.Name, chartRef.Version)
+				chartURL, err := HelmRegistry.Register(chartRef.SourceRef)
 				if err != nil {
-					return nil, errors.Wrapf(err, "failed to get chart %s/%s@%s", chartRef.URL, chartRef.Name, chartRef.Version)
+					return nil, errors.Wrapf(err, "failed to register repository for chart %+v", chartRef)
+				}
+
+				chrt, err := HelmRegistry.GetChart(chartURL, chartRef.Name, chartRef.Version)
+				if err != nil {
+					return nil, errors.Wrapf(err, "failed to get chart %s/%s@%s", chartURL, chartRef.Name, chartRef.Version)
 				}
 
 				vpsMap, err := values.LoadVendorPresets(chrt.Chart)
