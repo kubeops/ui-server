@@ -49,14 +49,22 @@ type ResourceEditor struct {
 }
 
 type ResourceEditorSpec struct {
-	Resource kmapi.ResourceID     `json:"resource"`
-	UI       *shared.UIParameters `json:"ui,omitempty"`
+	Resource kmapi.ResourceID `json:"resource"`
+	UI       *UIParameters    `json:"ui,omitempty"`
 	// Icons is an optional list of icons for an application. Icon information includes the source, size,
 	// and mime type.
 	Icons []shared.ImageSpec `json:"icons,omitempty"`
 	// Kind == VendorChartPreset | ClusterChartPreset
 	Variants  []VariantRef                 `json:"variants,omitempty"`
 	Installer *shared.DeploymentParameters `json:"installer,omitempty"`
+}
+
+type UIParameters struct {
+	Options *shared.ChartRepoRef `json:"options,omitempty"`
+	Editor  *shared.ChartRepoRef `json:"editor,omitempty"`
+	// app.kubernetes.io/instance label must be updated at these paths when refilling metadata
+	// +optional
+	InstanceLabelPaths []string `json:"instanceLabelPaths,omitempty"`
 }
 
 type VariantRef struct {

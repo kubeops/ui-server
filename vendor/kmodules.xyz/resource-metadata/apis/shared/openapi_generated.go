@@ -34,6 +34,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/resource-metadata/apis/shared.Dashboard":            schema_kmodulesxyz_resource_metadata_apis_shared_Dashboard(ref),
 		"kmodules.xyz/resource-metadata/apis/shared.DashboardVar":         schema_kmodulesxyz_resource_metadata_apis_shared_DashboardVar(ref),
 		"kmodules.xyz/resource-metadata/apis/shared.DeploymentParameters": schema_kmodulesxyz_resource_metadata_apis_shared_DeploymentParameters(ref),
+		"kmodules.xyz/resource-metadata/apis/shared.ExpandedChartRepoRef": schema_kmodulesxyz_resource_metadata_apis_shared_ExpandedChartRepoRef(ref),
 		"kmodules.xyz/resource-metadata/apis/shared.If":                   schema_kmodulesxyz_resource_metadata_apis_shared_If(ref),
 		"kmodules.xyz/resource-metadata/apis/shared.ImageSpec":            schema_kmodulesxyz_resource_metadata_apis_shared_ImageSpec(ref),
 		"kmodules.xyz/resource-metadata/apis/shared.ResourceLocator":      schema_kmodulesxyz_resource_metadata_apis_shared_ResourceLocator(ref),
@@ -194,6 +195,40 @@ func schema_kmodulesxyz_resource_metadata_apis_shared_DeploymentParameters(ref c
 	}
 }
 
+func schema_kmodulesxyz_resource_metadata_apis_shared_ExpandedChartRepoRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ExpandedChartRepoRef references to a single version of a Chart",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"url": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"version": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+				},
+				Required: []string{"name", "version"},
+			},
+		},
+	}
+}
+
 func schema_kmodulesxyz_resource_metadata_apis_shared_If(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -322,12 +357,12 @@ func schema_kmodulesxyz_resource_metadata_apis_shared_UIParameters(ref common.Re
 				Properties: map[string]spec.Schema{
 					"options": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/resource-metadata/apis/shared.ChartRepoRef"),
+							Ref: ref("kmodules.xyz/resource-metadata/apis/shared.ExpandedChartRepoRef"),
 						},
 					},
 					"editor": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/resource-metadata/apis/shared.ChartRepoRef"),
+							Ref: ref("kmodules.xyz/resource-metadata/apis/shared.ExpandedChartRepoRef"),
 						},
 					},
 					"instanceLabelPaths": {
@@ -349,6 +384,6 @@ func schema_kmodulesxyz_resource_metadata_apis_shared_UIParameters(ref common.Re
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/resource-metadata/apis/shared.ChartRepoRef"},
+			"kmodules.xyz/resource-metadata/apis/shared.ExpandedChartRepoRef"},
 	}
 }

@@ -26,7 +26,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
+	"kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"kubepack.dev/lib-helm/pkg/repo"
 	"kubepack.dev/lib-helm/pkg/values"
@@ -170,7 +170,7 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 
 func GetPresetName(
 	kc client.Client,
-	chartRef *sharedapi.ChartRepoRef,
+	chartRef *shared.ChartRepoRef,
 	vpsMap map[string]*chartsapi.VendorChartPreset,
 	ref core.TypedLocalObjectReference,
 ) (string, error) {
