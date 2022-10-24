@@ -24,6 +24,7 @@ import (
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
+	"kubeops.dev/ui-server/pkg/menu"
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/core/genericresource"
@@ -45,6 +46,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
 
+	fluxsrc "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/graphql-go/handler"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
@@ -76,6 +78,7 @@ import (
 	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
+	"kubepack.dev/lib-helm/pkg/repo"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -101,6 +104,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
 	utilruntime.Must(appcatalogapi.AddToScheme(Scheme))
 	utilruntime.Must(openvizapi.AddToScheme(Scheme))
+	utilruntime.Must(fluxsrc.AddToScheme(Scheme))
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
@@ -196,6 +200,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
 	}
+
+	menu.HelmRegistry = repo.NewCachedRegistry(mgr.GetAPIReader(), repo.DefaultDiskCache())
 
 	cid, err := cu.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
