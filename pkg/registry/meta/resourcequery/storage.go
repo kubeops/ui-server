@@ -162,13 +162,13 @@ func (r *Storage) toOutput(rid *kmapi.ResourceID, src runtime.Object, f rsapi.Ou
 				return nil, err
 			}
 
-			table, err := tableconvertor.TableForList(r.kc, rid.GroupVersionResource(), items.([]unstructured.Unstructured), nil, graph.RenderExec(nil, &gvr))
+			table, err := tableconvertor.TableForList(r.kc, rid.GroupVersionResource(), items.([]unstructured.Unstructured), "", nil, graph.RenderExec(nil, &gvr))
 			if err != nil {
 				return nil, err
 			}
 			return &runtime.RawExtension{Object: table}, nil
 		}
-		table, err := tableconvertor.TableForObject(r.kc, src, nil, graph.RenderExec(nil, &gvr))
+		table, err := tableconvertor.TableForObject(r.kc, src, "", nil, graph.RenderExec(nil, &gvr))
 		if err != nil {
 			return nil, err
 		}
