@@ -201,7 +201,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
 	}
 
-	menu.HelmRegistry = repo.NewCachedRegistry(mgr.GetAPIReader(), repo.DefaultDiskCache())
+	menu.HelmRegistry = repo.NewCachedRegistry(ctrlClient, repo.DefaultDiskCache())
 
 	cid, err := cu.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
