@@ -25,6 +25,7 @@ import (
 	"gomodules.xyz/pointer"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"kmodules.xyz/client-go/meta"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
@@ -92,6 +93,9 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 				}
 
 				chartRef := ed.Spec.UI.Options
+				if chartRef.SourceRef.Namespace == "" {
+					chartRef.SourceRef.Namespace = meta.PodNamespace()
+				}
 				chartURL, err := HelmRegistry.Register(chartRef.SourceRef)
 				if err != nil {
 					return nil, errors.Wrapf(err, "failed to register repository for chart %+v", chartRef)
