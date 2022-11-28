@@ -79,7 +79,6 @@ func RenderLayout(
 		out.UI = &sharedapi.UIParameters{
 			Options:            layout.Spec.UI.Options,
 			Editor:             layout.Spec.UI.Editor,
-			Actions:            nil,
 			InstanceLabelPaths: layout.Spec.UI.InstanceLabelPaths,
 		}
 		out.UI.Actions = make([]*sharedapi.ActionGroup, 0, len(layout.Spec.UI.Actions))
@@ -94,6 +93,7 @@ func RenderLayout(
 					Icons:       a.Icons,
 					OperationID: a.OperationID,
 					Flow:        a.Flow,
+					Editor:      a.Editor,
 				}
 				tpl := strings.TrimSpace(a.DisabledTemplate)
 				if tpl != "" {
