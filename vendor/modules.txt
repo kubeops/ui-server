@@ -166,7 +166,7 @@ github.com/google/shlex
 # github.com/google/uuid v1.3.0
 ## explicit
 github.com/google/uuid
-# github.com/graphql-go/graphql v0.8.0
+# github.com/graphql-go/graphql v0.8.0 => github.com/jamesdphillips/graphql-go v0.7.4-0.20220810211622-efd2a06de890
 ## explicit; go 1.13
 github.com/graphql-go/graphql
 github.com/graphql-go/graphql/gqlerrors
@@ -1556,6 +1556,7 @@ sigs.k8s.io/structured-merge-diff/v4/value
 # sigs.k8s.io/yaml v1.3.0
 ## explicit; go 1.12
 sigs.k8s.io/yaml
+# github.com/graphql-go/graphql => github.com/jamesdphillips/graphql-go v0.7.4-0.20220810211622-efd2a06de890
 # github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8
 # helm.sh/helm/v3 => github.com/kubepack/helm/v3 v3.10.1-0.20220922170417-3a8110bacfda
 # sigs.k8s.io/application => github.com/kmodules/application v0.8.4-0.20220917032906-876dc58b7366
