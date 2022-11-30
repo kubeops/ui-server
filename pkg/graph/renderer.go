@@ -17,8 +17,12 @@ limitations under the License.
 package graph
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"strings"
+
+	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/pkg/errors"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
@@ -71,7 +75,44 @@ func RenderLayout(
 	var out rsapi.ResourceView
 	out.Resource = layout.Spec.Resource
 	out.LayoutName = layout.Name
-	out.UI = layout.Spec.UI
+	if layout.Spec.UI != nil {
+		out.UI = &sharedapi.UIParameters{
+			Options:            layout.Spec.UI.Options,
+			Editor:             layout.Spec.UI.Editor,
+			InstanceLabelPaths: layout.Spec.UI.InstanceLabelPaths,
+		}
+		out.UI.Actions = make([]*sharedapi.ActionGroup, 0, len(layout.Spec.UI.Actions))
+		for _, g := range layout.Spec.UI.Actions {
+			g2 := sharedapi.ActionGroup{
+				ActionInfo: g.ActionInfo,
+				Items:      make([]sharedapi.Action, 0, len(g.Items)),
+			}
+			for _, a := range g.Items {
+				a2 := sharedapi.Action{
+					ActionInfo:  a.ActionInfo,
+					Icons:       a.Icons,
+					OperationID: a.OperationID,
+					Flow:        a.Flow,
+					Editor:      a.Editor,
+				}
+				tpl := strings.TrimSpace(a.DisabledTemplate)
+				if tpl != "" {
+					buf := shared.BufferPool.Get().(*bytes.Buffer)
+					defer shared.BufferPool.Put(buf)
+
+					result, err := shared.RenderTemplate(tpl, srcObj.UnstructuredContent(), buf)
+					if err != nil {
+						return nil, errors.Wrapf(err, "failed to test disabledTemplate for action %s", a.Name)
+					}
+					result = strings.TrimSpace(result)
+					a2.Disabled = strings.EqualFold(result, "true")
+				}
+
+				g2.Items = append(g2.Items, a2)
+			}
+			out.UI.Actions = append(out.UI.Actions, &g2)
+		}
+	}
 
 	if layout.Spec.Header != nil && okToRender(layout.Spec.Header.Kind, renderBlocks) {
 		if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, layout.Spec.Header, convertToTable); err != nil {

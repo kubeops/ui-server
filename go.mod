@@ -30,10 +30,10 @@ require (
 	k8s.io/kube-openapi v0.0.0-20220803164354-a70c9af30aea
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.0
-	kmodules.xyz/client-go v0.25.6
+	kmodules.xyz/client-go v0.25.10
 	kmodules.xyz/custom-resources v0.25.0
 	kmodules.xyz/monitoring-agent-api v0.25.0
-	kmodules.xyz/resource-metadata v0.14.1-0.20221026061352-d80461714483
+	kmodules.xyz/resource-metadata v0.14.1-0.20221130133259-37fa284c9e50
 	kmodules.xyz/resource-metrics v0.25.0
 	kmodules.xyz/sets v0.24.0
 	kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b
