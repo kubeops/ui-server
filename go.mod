@@ -33,7 +33,7 @@ require (
 	kmodules.xyz/client-go v0.25.10
 	kmodules.xyz/custom-resources v0.25.0
 	kmodules.xyz/monitoring-agent-api v0.25.0
-	kmodules.xyz/resource-metadata v0.14.3
+	kmodules.xyz/resource-metadata v0.14.4
 	kmodules.xyz/resource-metrics v0.25.0
 	kmodules.xyz/sets v0.24.0
 	kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b
