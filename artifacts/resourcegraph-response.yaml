@@ -2,150 +2,338 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: ResourceGraph
 request:
   source:
-    resource:
-      group: apps
-      kind: Deployment
     ref:
-      name: coredns
-      namespace: kube-system
+      name: proxy-kubedb-ui
+      namespace: demo
+    resource:
+      group: kubedb.com
+      kind: ProxySQL
+      name: ""
+      scope: ""
+      version: ""
 response:
   connections:
   - labels:
     - offshoot
     source:
-      name: coredns
-      namespace: kube-system
+      name: proxy-kubedb-ui-2
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 5
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-stats
+      namespace: demo
+      resourceID: 3
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 7
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-2
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui-stats
+      namespace: demo
+      resourceID: 3
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-0
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 3
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-0
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui-pods
+      namespace: demo
+      resourceID: 3
+  - labels:
+    - config
+    source:
+      name: proxy-kubedb-ui-2
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui-configuration
+      namespace: demo
+      resourceID: 2
+  - labels:
+    - offshoot
+    source:
+      name: proxy-kubedb-ui-1
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 5
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 3
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 7
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-pods
+      namespace: demo
+      resourceID: 3
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 7
+  - labels:
+    - located_on
+    source:
+      name: lke76218-118421-6348feaeba7a
+      namespace: ""
+      resourceID: 0
+    target:
+      name: proxy-kubedb-ui-1
+      namespace: demo
+      resourceID: 1
+  - labels:
+    - config
+    source:
+      name: proxy-kubedb-ui-1
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui-configuration
+      namespace: demo
+      resourceID: 2
+  - labels:
+    - id
+    source:
+      name: proxy-kubedb-ui-0
+      namespace: demo
+      resourceID: 1
+    target:
+      name: default
+      namespace: demo
+      resourceID: 4
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-1
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui-stats
+      namespace: demo
+      resourceID: 3
+  - labels:
+    - offshoot
+    source:
+      name: proxy-kubedb-ui
+      namespace: demo
       resourceID: 5
     target:
-      name: coredns-64897985d
-      namespace: kube-system
-      resourceID: 6
-  - labels:
-    - offshoot
-    source:
-      name: coredns-64897985d-8hsxf
-      namespace: kube-system
-      resourceID: 2
-    target:
-      name: coredns-64897985d
-      namespace: kube-system
-      resourceID: 6
-  - labels:
-    - offshoot
-    source:
-      name: coredns-64897985d-cs7zq
-      namespace: kube-system
-      resourceID: 2
-    target:
-      name: coredns-64897985d
-      namespace: kube-system
-      resourceID: 6
-  - labels:
-    - offshoot
-    source:
-      name: coredns
-      namespace: kube-system
-      resourceID: 0
-    target:
-      name: coredns-64897985d-8hsxf
-      namespace: kube-system
-      resourceID: 2
-  - labels:
-    - offshoot
-    source:
-      name: coredns-64897985d-8hsxf
-      namespace: kube-system
-      resourceID: 2
-    target:
-      name: coredns
-      namespace: kube-system
-      resourceID: 4
-  - labels:
-    - offshoot
-    source:
-      name: coredns
-      namespace: kube-system
-      resourceID: 0
-    target:
-      name: coredns-64897985d-cs7zq
-      namespace: kube-system
-      resourceID: 2
-  - labels:
-    - located_on
-    source:
-      name: kind-control-plane
-      namespace: ""
-      resourceID: 1
-    target:
-      name: coredns-64897985d-cs7zq
-      namespace: kube-system
-      resourceID: 2
-  - labels:
-    - located_on
-    source:
-      name: kind-control-plane
-      namespace: ""
-      resourceID: 1
-    target:
-      name: coredns-64897985d-8hsxf
-      namespace: kube-system
-      resourceID: 2
-  - labels:
-    - offshoot
-    source:
-      name: coredns-64897985d-8hsxf
-      namespace: kube-system
-      resourceID: 2
-    target:
-      name: kube-dns
-      namespace: kube-system
-      resourceID: 3
-  - labels:
-    - offshoot
-    source:
-      name: coredns-64897985d-cs7zq
-      namespace: kube-system
-      resourceID: 2
-    target:
-      name: coredns
-      namespace: kube-system
-      resourceID: 4
-  - labels:
-    - offshoot
-    source:
-      name: coredns-64897985d-cs7zq
-      namespace: kube-system
-      resourceID: 2
-    target:
-      name: kube-dns
-      namespace: kube-system
-      resourceID: 3
-  - labels:
-    - offshoot
-    source:
-      name: coredns
-      namespace: kube-system
-      resourceID: 4
-    target:
-      name: system:coredns
-      namespace: ""
-      resourceID: 8
-  - labels:
-    - offshoot
-    source:
-      name: system:coredns
-      namespace: ""
+      name: proxy-kubedb-ui
+      namespace: demo
       resourceID: 7
+  - labels:
+    - config
+    source:
+      name: proxy-kubedb-ui-2
+      namespace: demo
+      resourceID: 1
     target:
-      name: system:coredns
+      name: demo-mysql-server-cert
+      namespace: demo
+      resourceID: 2
+  - labels:
+    - config
+    source:
+      name: proxy-kubedb-ui-0
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui-configuration
+      namespace: demo
+      resourceID: 2
+  - labels:
+    - id
+    source:
+      name: proxy-kubedb-ui-1
+      namespace: demo
+      resourceID: 1
+    target:
+      name: default
+      namespace: demo
+      resourceID: 4
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-2
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 3
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-0
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui-stats
+      namespace: demo
+      resourceID: 3
+  - labels:
+    - located_on
+    source:
+      name: lke76218-118421-6348fead7fd5
       namespace: ""
-      resourceID: 8
+      resourceID: 0
+    target:
+      name: proxy-kubedb-ui-0
+      namespace: demo
+      resourceID: 1
+  - labels:
+    - config
+    source:
+      name: proxy-kubedb-ui-0
+      namespace: demo
+      resourceID: 1
+    target:
+      name: demo-mysql-auth
+      namespace: demo
+      resourceID: 2
+  - labels:
+    - config
+    source:
+      name: proxy-kubedb-ui-0
+      namespace: demo
+      resourceID: 1
+    target:
+      name: demo-mysql-server-cert
+      namespace: demo
+      resourceID: 2
+  - labels:
+    - config
+    source:
+      name: proxy-kubedb-ui-1
+      namespace: demo
+      resourceID: 1
+    target:
+      name: demo-mysql-server-cert
+      namespace: demo
+      resourceID: 2
+  - labels:
+    - catalog
+    source:
+      name: 2.3.2-debian
+      namespace: ""
+      resourceID: 6
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 7
+  - labels:
+    - id
+    source:
+      name: proxy-kubedb-ui-2
+      namespace: demo
+      resourceID: 1
+    target:
+      name: default
+      namespace: demo
+      resourceID: 4
+  - labels:
+    - offshoot
+    source:
+      name: proxy-kubedb-ui-0
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 5
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-1
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui
+      namespace: demo
+      resourceID: 3
+  - labels:
+    - config
+    source:
+      name: proxy-kubedb-ui-2
+      namespace: demo
+      resourceID: 1
+    target:
+      name: demo-mysql-auth
+      namespace: demo
+      resourceID: 2
+  - labels:
+    - config
+    source:
+      name: proxy-kubedb-ui-1
+      namespace: demo
+      resourceID: 1
+    target:
+      name: demo-mysql-auth
+      namespace: demo
+      resourceID: 2
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-2
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui-pods
+      namespace: demo
+      resourceID: 3
+  - labels:
+    - exposed_by
+    source:
+      name: proxy-kubedb-ui-1
+      namespace: demo
+      resourceID: 1
+    target:
+      name: proxy-kubedb-ui-pods
+      namespace: demo
+      resourceID: 3
+  - labels:
+    - located_on
+    source:
+      name: lke76218-118421-6348feace251
+      namespace: ""
+      resourceID: 0
+    target:
+      name: proxy-kubedb-ui-2
+      namespace: demo
+      resourceID: 1
   resources:
-  - group: ""
-    kind: ConfigMap
-    name: configmaps
-    scope: Namespaced
-    version: v1
   - group: ""
     kind: Node
     name: nodes
@@ -154,6 +342,11 @@ response:
   - group: ""
     kind: Pod
     name: pods
+    scope: Namespaced
+    version: v1
+  - group: ""
+    kind: Secret
+    name: secrets
     scope: Namespaced
     version: v1
   - group: ""
@@ -167,22 +360,17 @@ response:
     scope: Namespaced
     version: v1
   - group: apps
-    kind: Deployment
-    name: deployments
+    kind: StatefulSet
+    name: statefulsets
     scope: Namespaced
     version: v1
-  - group: apps
-    kind: ReplicaSet
-    name: replicasets
+  - group: catalog.kubedb.com
+    kind: ProxySQLVersion
+    name: proxysqlversions
+    scope: Cluster
+    version: v1alpha1
+  - group: kubedb.com
+    kind: ProxySQL
+    name: proxysqls
     scope: Namespaced
-    version: v1
-  - group: rbac.authorization.k8s.io
-    kind: ClusterRole
-    name: clusterroles
-    scope: Cluster
-    version: v1
-  - group: rbac.authorization.k8s.io
-    kind: ClusterRoleBinding
-    name: clusterrolebindings
-    scope: Cluster
-    version: v1
+    version: v1alpha2

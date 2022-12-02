@@ -2,40 +2,177 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: Render
 request:
   convertToTable: true
-  layoutName: core-v1-pods
-  pageName: Basic
+  layoutName: kubedb.com-v1alpha2-proxysqls-kubedb
+  pageName: Overview
   renderBlocks:
-  - Self
+  - Connection
   source:
     ref:
-      name: mg-rs-0
-      namespace: default
+      name: proxy-kubedb-ui
+      namespace: demo
     resource:
-      group: core
+      group: kubedb.com
       kind: ""
-      name: pods
+      name: proxysqls
       scope: ""
-      version: v1
+      version: v1alpha2
 response:
   view:
-    layoutName: core-v1-pods
+    header:
+      actions:
+        create: Never
+      kind: Connection
+      resource:
+        group: core.k8s.appscode.com
+        kind: GenericResource
+        name: genericresources
+        scope: Namespaced
+        version: v1alpha1
+      result:
+        status: Success
+      table:
+        columns:
+        - name: Namespace
+          priority: 3
+          type: string
+        - name: Version
+          priority: 3
+          type: string
+        - name: Mode
+          priority: 3
+          type: string
+        - format: resource-map
+          name: CPU
+          priority: 3
+          type: object
+        - format: resource-map
+          name: Memory
+          priority: 3
+          type: object
+        - format: resource-map
+          name: Storage
+          priority: 3
+          type: object
+        - name: Status
+          priority: 3
+          type: string
+        metadata: {}
+        rows: []
+    layoutName: kubedb.com-v1alpha2-proxysqls-kubedb
     pages:
-    - info:
-        kind: Self
+    - blocks:
+      - actions:
+          create: Never
+        kind: Connection
         resource:
-          group: ""
-          kind: Pod
-          name: pods
+          group: ui.openviz.dev
+          kind: DashboardGroup
+          name: dashboardgroups
+          scope: Cluster
+          version: v1alpha1
+        result:
+          message: GrafanaDashboard.openviz.dev "No dashboard with title KubeDB /
+            ProxySQL / Summary uses the default Grafana" not found
+          status: Error
+      - actions:
+          create: Never
+        kind: Connection
+        name: Nodes
+        resource:
+          group: core.k8s.appscode.com
+          kind: PodView
+          name: podviews
           scope: Namespaced
-          version: v1
+          version: v1alpha1
+        result:
+          status: Success
+        table:
+          columns:
+          - format: name
+            link: true
+            name: Name
+            priority: 3
+            type: string
+          - name: CPU (usage/limit)
+            priority: 3
+            textAlign: center
+            type: string
+          - name: Memory (usage/limit)
+            priority: 3
+            textAlign: center
+            type: string
+          - name: Status
+            priority: 3
+            type: string
+          - name: Age
+            priority: 3
+            sort:
+              enable: true
+              type: integer
+            type: date
+          - name: Dashboard
+            priority: 4
+            textAlign: center
+            type: string
+          - exec: {}
+            name: Exec
+            priority: 4
+            textAlign: center
+            type: string
+          metadata: {}
+          rows:
+          - cells:
+            - data: proxy-kubedb-ui-0
+              link: /${username}/${clustername}/core/v1/pods/proxy-kubedb-ui-0?namespace=demo
+            - data: 8m / 500m
+            - data: 185Mi / 1Gi
+            - color: success is-light
+              data: Running
+            - data: 9h
+              sort: 1669976732
+            - data: null
+            - data: proxy-kubedb-ui-0
+            namespace: demo
+          - cells:
+            - data: proxy-kubedb-ui-1
+              link: /${username}/${clustername}/core/v1/pods/proxy-kubedb-ui-1?namespace=demo
+            - data: 9m / 500m
+            - data: 184Mi / 1Gi
+            - color: success is-light
+              data: Running
+            - data: 9h
+              sort: 1669976742
+            - data: null
+            - data: proxy-kubedb-ui-1
+            namespace: demo
+          - cells:
+            - data: proxy-kubedb-ui-2
+              link: /${username}/${clustername}/core/v1/pods/proxy-kubedb-ui-2?namespace=demo
+            - data: 8m / 500m
+            - data: 88Mi / 1Gi
+            - color: success is-light
+              data: Running
+            - data: 9h
+              sort: 1669976745
+            - data: null
+            - data: proxy-kubedb-ui-2
+            namespace: demo
+      info:
+        actions:
+          create: Never
+        kind: Connection
+        resource:
+          group: appcatalog.appscode.com
+          kind: AppBinding
+          name: appbindings
+          scope: Namespaced
+          version: v1alpha1
         result:
           status: Success
         table:
           columns:
           - name: Name
             priority: 3
-            sort:
-              enable: true
             type: string
           - name: Namespace
             priority: 3
@@ -44,42 +181,90 @@ response:
             priority: 3
             type: object
           - name: Annotations
-            priority: 3
+            priority: 1
             type: object
+          - name: Type
+            priority: 3
+            type: string
+          - name: Version
+            priority: 3
+            type: string
+          - name: Service
+            priority: 3
+            type: string
+          - name: Secret
+            priority: 3
+            type: string
+          - name: Backup Task
+            priority: 1
+            type: string
+          - name: Restore Task
+            priority: 1
+            type: string
           - name: Age
             priority: 3
             sort:
               enable: true
               type: integer
             type: date
-          metadata:
-            resourceVersion: "128935"
-          rows:
-          - cells:
-            - data: mg-rs-0
-            - data: default
-            - data:
-                app.kubernetes.io/component: database
-                app.kubernetes.io/instance: mg-rs
-                app.kubernetes.io/managed-by: kubedb.com
-                app.kubernetes.io/name: mongodbs.kubedb.com
-                controller-revision-hash: mg-rs-7d7d5b6fc7
-                kubedb.com/role: primary
-                statefulset.kubernetes.io/pod-name: mg-rs-0
-            - data:
-                cni.projectcalico.org/podIP: 10.2.3.5/32
-                cni.projectcalico.org/podIPs: 10.2.3.5/32
-            - data: 13d
-              sort: 1646039114
-      name: Basic
+          metadata: {}
+          rows: []
+      name: Overview
     resource:
-      group: ""
-      kind: Pod
-      name: pods
+      group: kubedb.com
+      kind: ProxySQL
+      name: proxysqls
       scope: Namespaced
-      version: v1
+      version: v1alpha2
+    tabBar:
+      actions:
+        create: Never
+      kind: Connection
+      resource:
+        group: core.k8s.appscode.com
+        kind: GenericResourceService
+        name: genericresourceservices
+        scope: Namespaced
+        version: v1alpha1
+      result:
+        status: Success
+      table:
+        columns:
+        - name: Exposed
+          priority: 3
+          type: string
+        - name: TLS
+          priority: 3
+          type: string
+        - name: Backup
+          priority: 3
+          type: string
+        - name: Monitoring
+          priority: 3
+          type: string
+        - exec: {}
+          name: Exec
+          priority: 4
+          type: object
+        metadata: {}
+        rows:
+        - cells:
+          - color: success
+            data: Unused
+          - color: danger
+            data: Unused
+          - color: danger
+            data: Unused
+          - color: success
+            data: Used
+          - data: {}
+          namespace: demo
     ui:
       editor:
-        name: core-pod-editor
+        name: kubedbcom-proxysql-editor
         url: https://bundles.byte.builders/ui/
-        version: v0.4.0
+        version: v0.4.12
+      options:
+        name: kubedbcom-proxysql-editor-options
+        url: https://bundles.byte.builders/ui/
+        version: v0.4.12
