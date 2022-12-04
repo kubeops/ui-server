@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	"net"
 
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
@@ -136,6 +137,8 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceRenderMenus),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceMenus),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, "usermenus"),
+
+		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceImages),
 
 		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
 	}

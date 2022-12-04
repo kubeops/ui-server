@@ -21,6 +21,9 @@ import (
 	"fmt"
 	"os"
 
+	scannerreports "kubeops.dev/scanner/apis/reports"
+	scannerreportsinstall "kubeops.dev/scanner/apis/reports/install"
+	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
@@ -45,12 +48,12 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcetabledefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
+	imagestorage "kubeops.dev/ui-server/pkg/registry/scanner/image"
 
 	fluxsrc "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/graphql-go/handler"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
-	core "k8s.io/api/core/v1"
 	crdinstall "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -80,7 +83,6 @@ import (
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
 	"kubepack.dev/lib-helm/pkg/repo"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -100,6 +102,7 @@ func init() {
 	uiinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
+	scannerreportsinstall.Install(Scheme)
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
 	utilruntime.Must(appcatalogapi.AddToScheme(Scheme))
@@ -183,9 +186,9 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		HealthProbeBindAddress: "",
 		LeaderElection:         false,
 		LeaderElectionID:       "5b87adeb.ui-server.kubeops.dev",
-		ClientDisableCacheFor: []client.Object{
-			&core.Pod{},
-		},
+		//ClientDisableCacheFor: []client.Object{
+		//	&core.Pod{},
+		//},
 		NewClient: cu.NewClient,
 	})
 	if err != nil {
@@ -308,6 +311,16 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 			return nil, err
 		}
 	}
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(scannerreports.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[scannerreportsapi.ResourceImages] = imagestorage.NewStorage(ctrlClient)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
 	return s, nil
 }
