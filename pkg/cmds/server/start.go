@@ -139,6 +139,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, "usermenus"),
 
 		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceImages),
+		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceCVEReports),
 
 		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
 	}

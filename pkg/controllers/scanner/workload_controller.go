@@ -103,7 +103,8 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
 				return ctrl.Result{}, err
 			}
-			if err := apiutil.CollectPullSecrets(&pod, refs); err != nil {
+			refs, err = apiutil.CollectPullSecrets(&pod, refs)
+			if err != nil {
 				return ctrl.Result{}, err
 			}
 		}

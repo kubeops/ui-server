@@ -20,12 +20,15 @@ import (
 	"context"
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
+	"kubeops.dev/ui-server/pkg/graph"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
+	kmapi "kmodules.xyz/client-go/api/v1"
+	"kmodules.xyz/client-go/client/apiutil"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -62,8 +65,26 @@ func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	in := obj.(*reportsapi.CVEReport)
-	if in.Request == nil {
-		return nil, apierrors.NewBadRequest("missing apirequest")
+
+	var oi *kmapi.ObjectInfo
+	if in.Request != nil {
+		oi = &in.Request.ObjectInfo
+	}
+	pods, err := graph.LocatePods(ctx, r.kc, oi)
+	if err != nil {
+		return nil, err
+	}
+
+	images := map[string]kmapi.ImageInfo{}
+	for _, p := range pods {
+		var pod core.Pod
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
+			return nil, err
+		}
+		images, err = apiutil.CollectImageInfo(r.kc, &pod, images)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return in, nil

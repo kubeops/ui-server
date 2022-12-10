@@ -13,13 +13,3 @@
 
 apiVersion: reports.scanner.appscode.com/v1alpha1
 kind: Image
-request:
-  ref:
-    name: coredns
-    namespace: kube-system
-  resource:
-    group: apps
-    kind: ""
-    name: deployments
-    scope: ""
-    version: ""
