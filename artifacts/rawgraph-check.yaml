@@ -1,0 +1,13 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderRawGraph
+request:
+  source:
+    ref:
+      name: proxysql-demo-07-12-11-09
+      namespace: demo
+    resource:
+      group: kubedb.com
+      kind: ""
+      name: proxysqls
+      scope: ""
+      version: v1alpha2
