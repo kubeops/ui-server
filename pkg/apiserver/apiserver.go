@@ -52,9 +52,9 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
 	imagestorage "kubeops.dev/ui-server/pkg/registry/scanner/image"
 	reportstorage "kubeops.dev/ui-server/pkg/registry/scanner/reports"
+	"kubeops.dev/ui-server/pkg/shared"
 
 	fluxsrc "github.com/fluxcd/source-controller/api/v1beta2"
-	cache "github.com/go-pkgz/expirable-cache/v2"
 	"github.com/graphql-go/handler"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
@@ -239,14 +239,12 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		os.Exit(1)
 	}
 
+	if !c.ExtraConfig.DisableImageCache {
+		shared.InitImageCache(c.ExtraConfig.CacheSize, c.ExtraConfig.CacheTTL)
+	}
+
 	if err = (&scannercontrollers.WorkloadReconciler{
 		Client: mgr.GetClient(),
-		Cache: func() cache.Cache[string, string] {
-			if c.ExtraConfig.DisableImageCache {
-				return nil
-			}
-			return cache.NewCache[string, string]().WithMaxKeys(c.ExtraConfig.CacheSize).WithTTL(c.ExtraConfig.CacheTTL)
-		}(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Workload")
 		os.Exit(1)

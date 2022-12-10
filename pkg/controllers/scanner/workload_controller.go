@@ -18,13 +18,11 @@ package scanner
 
 import (
 	"context"
-	"hash/fnv"
-	"strconv"
 
 	api "kubeops.dev/scanner/apis/reports/v1alpha1"
-	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
+	"kubeops.dev/ui-server/pkg/shared"
 
-	cache "github.com/go-pkgz/expirable-cache/v2"
+	"github.com/pkg/errors"
 	apps "k8s.io/api/apps/v1"
 	batch "k8s.io/api/batch/v1"
 	core "k8s.io/api/core/v1"
@@ -35,7 +33,6 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/client/apiutil"
 	"kmodules.xyz/client-go/client/duck"
-	"kmodules.xyz/client-go/meta"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -44,7 +41,6 @@ import (
 // WorkloadReconciler reconciles a Workload object
 type WorkloadReconciler struct {
 	client.Client
-	Cache cache.Cache[string, string]
 }
 
 var _ duck.Reconciler = &WorkloadReconciler{}
@@ -111,23 +107,10 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	for ref, info := range refs {
-		if hash, ok := r.shouldScan(ref, info); ok {
-			obj := scannerapi.ImageScanRequest{
-				TypeMeta: metav1.TypeMeta{},
-				ObjectMeta: metav1.ObjectMeta{
-					GenerateName: GenerateName(ref),
-				},
-				Spec: scannerapi.ImageScanRequestSpec{
-					ImageRef:    ref,
-					Namespace:   info.Namespace,
-					PullSecrets: info.Refs,
-				},
-			}
-			if err := r.Client.Create(ctx, &obj); err != nil {
-				if r.Cache != nil {
-					r.Cache.Set(ref, hash, 0)
-				}
-				return ctrl.Result{}, err
+		if r.shouldScan(ref, info) {
+			err := shared.SendScanRequest(ctx, r.Client, ref, info)
+			if err != nil {
+				return ctrl.Result{}, errors.Wrapf(err, "failed to send scan request for image=%s", ref)
 			}
 		} else {
 			log.V(5).Info("skipped sending scan request", "image", ref)
@@ -137,28 +120,12 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	return ctrl.Result{}, nil
 }
 
-func (r *WorkloadReconciler) shouldScan(ref string, info kmapi.PullSecrets) (string, bool) {
-	if r.Cache == nil {
-		return "", true
+func (r *WorkloadReconciler) shouldScan(ref string, info kmapi.PullSecrets) bool {
+	if shared.Cache == nil {
+		return true
 	}
-
-	h := fnv.New64a()
-	meta.DeepHashObject(h, info)
-	newHash := strconv.FormatUint(h.Sum64(), 10)
-
-	curHash, found := r.Cache.Get(ref)
-	if !found {
-		return newHash, true
-	}
-	return newHash, curHash != newHash
-}
-
-func GenerateName(s string) string {
-	const max = 64 - 8
-	if len(s) < max {
-		return s + "-"
-	}
-	return s[max:] + "-"
+	curHash, found := shared.Cache.Get(ref)
+	return !found || curHash != shared.PullSecretsHash(info)
 }
 
 func (r *WorkloadReconciler) InjectClient(c client.Client) error {
