@@ -20,12 +20,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	scannerreports "kubeops.dev/scanner/apis/reports"
 	scannerreportsinstall "kubeops.dev/scanner/apis/reports/install"
 	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	scannercontrollers "kubeops.dev/ui-server/pkg/controllers/scanner"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/menu"
 	"kubeops.dev/ui-server/pkg/registry"
@@ -49,8 +51,10 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
 	imagestorage "kubeops.dev/ui-server/pkg/registry/scanner/image"
+	reportstorage "kubeops.dev/ui-server/pkg/registry/scanner/reports"
 
 	fluxsrc "github.com/fluxcd/source-controller/api/v1beta2"
+	cache "github.com/go-pkgz/expirable-cache/v2"
 	"github.com/graphql-go/handler"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
@@ -128,6 +132,10 @@ func init() {
 type ExtraConfig struct {
 	ClientConfig *restclient.Config
 	PromConfig   promclient.Config
+
+	DisableImageCache bool
+	CacheSize         int
+	CacheTTL          time.Duration
 }
 
 // Config defines the config for the apiserver
@@ -231,6 +239,19 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		os.Exit(1)
 	}
 
+	if err = (&scannercontrollers.WorkloadReconciler{
+		Client: mgr.GetClient(),
+		Cache: func() cache.Cache[string, string] {
+			if c.ExtraConfig.DisableImageCache {
+				return nil
+			}
+			return cache.NewCache[string, string]().WithMaxKeys(c.ExtraConfig.CacheSize).WithTTL(c.ExtraConfig.CacheTTL)
+		}(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Workload")
+		os.Exit(1)
+	}
+
 	s := &UIServer{
 		GenericAPIServer: genericServer,
 		Manager:          mgr,
@@ -316,6 +337,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[scannerreportsapi.ResourceImages] = imagestorage.NewStorage(ctrlClient)
+		v1alpha1storage[scannerreportsapi.ResourceCVEReports] = reportstorage.NewStorage(ctrlClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

@@ -185,6 +185,8 @@ github.com/go-openapi/jsonreference v0.20.0/go.mod h1:Ag74Ico3lPc+zR+qjn4XBUmXym
 github.com/go-openapi/swag v0.19.5/go.mod h1:POnQmlKehdgb5mhVOsnJFsivZCEZ/vjK9gh66Z9tfKk=
 github.com/go-openapi/swag v0.22.3 h1:yMBqmnQ0gyZvEb/+KzuWZOXgllrXT4SADYbvDaXHv/g=
 github.com/go-openapi/swag v0.22.3/go.mod h1:UzaqsxGiab7freDnrUUra0MwWfN/q7tE4j+VcZ0yl14=
+github.com/go-pkgz/expirable-cache/v2 v2.0.0 h1:ae5i8016xg7MqPoZ7diS/DtaZXa5V5Nngr/WVWEyWP0=
+github.com/go-pkgz/expirable-cache/v2 v2.0.0/go.mod h1:pZnYQ5KbJ0p+fJeBjukndxwsMZ1uxXq7IbfVcDODY84=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/gobuffalo/flect v0.3.0 h1:erfPWM+K1rFNIQeRPdeEXxo8yFr/PO17lhRnS8FUrtk=
 github.com/gobuffalo/flect v0.3.0/go.mod h1:5pf3aGnsvqvCj50AVni7mJJF8ICxGZ8HomberC3pXLE=
@@ -835,6 +837,7 @@ gomodules.xyz/sets v0.0.0-20210218105342-2efe2fb519a2/go.mod h1:jKgNp01/iDs+svOW
 gomodules.xyz/sets v0.2.0/go.mod h1:jKgNp01/iDs+svOWXaPk5cKP3VXy0mWUoTF/ore+aMc=
 gomodules.xyz/sets v0.2.1 h1:vK3oUWoGVrZKLDKO/bzEo/ucHFdCE7+DxWPeWxK72KQ=
 gomodules.xyz/sets v0.2.1/go.mod h1:jKgNp01/iDs+svOWXaPk5cKP3VXy0mWUoTF/ore+aMc=
+gomodules.xyz/testing v0.0.4 h1:XGKt4B64mBe7P9kPR0Rz1nCQpWoSpBEFdTGkfU1RLe4=
 gomodules.xyz/wait v0.2.0 h1:HnRIh+cvIrrKIFaXoYznCVVirv2/2xu3KzjSzsQmYAY=
 gomodules.xyz/wait v0.2.0/go.mod h1:g/epKzZQuCqgvhzhaoG4cSBNGHqnOrhFR4Q7szDJ1JM=
 gomodules.xyz/x v0.0.14 h1:eD1+3YjTEt46dhErbuPEr1Vw+7xbFBNx6T26E7nCRwM=
@@ -995,8 +998,8 @@ kmodules.xyz/apiversion v0.2.0 h1:vAQYqZFm4xu4pbB1cAdHbFEPES6EQkcR4wc06xdTOWk=
 kmodules.xyz/apiversion v0.2.0/go.mod h1:oPX8g8LvlPdPX3Yc5YvCzJHQnw3YF/X4/jdW0b1am80=
 kmodules.xyz/authorizer v0.25.0 h1:yRrLtMOdlU1p4mLzaSz5pmSLpBLsVXLQHkUfiME12iQ=
 kmodules.xyz/authorizer v0.25.0/go.mod h1:Jb99YsLRJE4R4d8F5fFtlxEaxk0prdSk2LApZl4JdyI=
-kmodules.xyz/client-go v0.25.13-0.20221210212653-88109c960838 h1:m0QdyN1BZr7WAAHtotyAqNBfZlMEuePjdFby3Y9Hxsc=
-kmodules.xyz/client-go v0.25.13-0.20221210212653-88109c960838/go.mod h1:PG0s5FqmCvIKXudUhaJELBVbKbX6ESoefVR1cibkl+0=
+kmodules.xyz/client-go v0.25.13-0.20221210214406-f54d1bbc9c6d h1:GC81l7dFy6dfXhS5rPPv+bHCK2b42zKoHpgWc1JdEng=
+kmodules.xyz/client-go v0.25.13-0.20221210214406-f54d1bbc9c6d/go.mod h1:PG0s5FqmCvIKXudUhaJELBVbKbX6ESoefVR1cibkl+0=
 kmodules.xyz/crd-schema-fuzz v0.25.0 h1:c5ZxNRqJak1bkGhECmyrKpzKGThFMB4088Kynyvngbc=
 kmodules.xyz/custom-resources v0.25.1 h1:0qHPTxbT/q0afl2GCOnwPFaoxKziRIPXgVu77YwrCa4=
 kmodules.xyz/custom-resources v0.25.1/go.mod h1:ULwzvLmOqZJcPSXKI7iLclYL5eYRlKx8Nbex28Ht19E=

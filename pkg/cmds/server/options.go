@@ -17,30 +17,48 @@ limitations under the License.
 package server
 
 import (
+	"time"
+
+	"kubeops.dev/ui-server/pkg/apiserver"
+
 	"github.com/spf13/pflag"
-	restclient "k8s.io/client-go/rest"
 )
 
 type ExtraOptions struct {
 	QPS   float64
 	Burst int
+
+	DisableImageCache bool
+	CacheSize         int
+	CacheTTL          time.Duration
 }
 
 func NewExtraOptions() *ExtraOptions {
 	return &ExtraOptions{
-		QPS:   1e6,
-		Burst: 1e6,
+		QPS:               1e6,
+		Burst:             1e6,
+		DisableImageCache: false,
+		CacheSize:         1024,
+		CacheTTL:          time.Hour * 4,
 	}
 }
 
 func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")
 	fs.IntVar(&s.Burst, "burst", s.Burst, "The maximum burst for throttle")
+
+	fs.BoolVar(&s.DisableImageCache, "disable-image-cache", s.DisableImageCache, "If true, disables image cache")
+	fs.IntVar(&s.CacheSize, "image-cache-size", s.CacheSize, "Size of image cache")
+	fs.DurationVar(&s.CacheTTL, "image-cache-ttl", s.CacheTTL, "TTL for sending image scan request for a given image")
 }
 
-func (s *ExtraOptions) ApplyTo(clientConfig *restclient.Config) error {
-	clientConfig.QPS = float32(s.QPS)
-	clientConfig.Burst = s.Burst
+func (s *ExtraOptions) ApplyTo(cfg apiserver.ExtraConfig) error {
+	cfg.ClientConfig.QPS = float32(s.QPS)
+	cfg.ClientConfig.Burst = s.Burst
+
+	cfg.DisableImageCache = s.DisableImageCache
+	cfg.CacheSize = s.CacheSize
+	cfg.CacheTTL = s.CacheTTL
 
 	return nil
 }

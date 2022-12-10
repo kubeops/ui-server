@@ -5,8 +5,8 @@ go 1.18
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/fluxcd/source-controller/api v0.31.0
+	github.com/go-pkgz/expirable-cache/v2 v2.0.0
 	github.com/gobuffalo/flect v0.3.0
-	github.com/google/go-containerregistry v0.12.1
 	github.com/google/gofuzz v1.2.0
 	github.com/google/uuid v1.3.0
 	github.com/graphql-go/graphql v0.8.0
@@ -31,7 +31,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20220928191237-829ce0c27909
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.0
-	kmodules.xyz/client-go v0.25.13-0.20221210212653-88109c960838
+	kmodules.xyz/client-go v0.25.13-0.20221210214406-f54d1bbc9c6d
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/monitoring-agent-api v0.25.0
 	kmodules.xyz/resource-metadata v0.14.5-0.20221208211134-8a0f64d6a5c0
@@ -87,6 +87,7 @@ require (
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/gnostic v0.6.9 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/google/go-containerregistry v0.12.1 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect

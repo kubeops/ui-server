@@ -18,22 +18,20 @@ package image
 
 import (
 	"context"
-	"fmt"
 	"sort"
-	"strings"
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
 
-	"github.com/google/go-containerregistry/pkg/name"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	"kmodules.xyz/client-go/client/apiutil"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -77,9 +75,11 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 
 	rid := in.Request.Resource
 
-	var pods []core.Pod
+	var pods []unstructured.Unstructured
 	if rid.Group == "" && (rid.Kind == "Pod" || rid.Name == "pods") {
-		var pod core.Pod
+		var pod unstructured.Unstructured
+		pod.SetAPIVersion("v1")
+		pod.SetKind("Pod")
 		if err := r.kc.Get(ctx, in.Request.Ref.ObjectKey(), &pod); err != nil {
 			return nil, err
 		}
@@ -115,9 +115,11 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			return nil, err
 		}
 
-		pods = make([]core.Pod, 0, len(refs))
+		pods = make([]unstructured.Unstructured, 0, len(refs))
 		for _, ref := range refs {
-			var pod core.Pod
+			var pod unstructured.Unstructured
+			pod.SetAPIVersion("v1")
+			pod.SetKind("Pod")
 			if err := r.kc.Get(ctx, ref.ObjectKey(), &pod); err != nil {
 				return nil, err
 			}
@@ -125,75 +127,26 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		}
 	}
 
-	type info struct {
-		containers sets.String
-		pods       sets.String
-	}
-	stats := map[string]info{}
-
-	for _, pod := range pods {
-		fn := func(pod string, containers []core.Container, c core.ContainerStatus) error {
-			var img string
-			if strings.ContainsRune(c.Image, '@') {
-				img = c.Image
-			} else if strings.HasPrefix(c.ImageID, "sha256:") {
-				for _, container := range containers {
-					if container.Name == c.Name {
-						img = container.Image
-						break
-					}
-				}
-			} else if strings.HasPrefix(c.ImageID, "docker-pullable://") {
-				img = c.ImageID[len("docker-pullable://"):] // Linode
-			} else {
-				_, digest, ok := strings.Cut(c.ImageID, "@")
-				if !ok {
-					return fmt.Errorf("missing digest in pod %s container %s imageID %s", pod, c.Name, c.ImageID)
-				}
-				img = c.Image + "@" + digest
-			}
-			ref, err := name.ParseReference(img)
-			if err != nil {
-				return err
-			}
-			processed := ref.Name()
-			inf, ok := stats[processed]
-			if !ok {
-				inf = info{
-					containers: sets.NewString(),
-					pods:       sets.NewString(),
-				}
-				stats[processed] = inf
-			}
-			inf.containers.Insert(c.Name)
-			inf.pods.Insert(pod)
-			return nil
+	images := map[string]kmapi.ImageInfo{}
+	for _, p := range pods {
+		var pod core.Pod
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
+			return nil, err
 		}
-
-		for _, c := range pod.Status.ContainerStatuses {
-			if err := fn(pod.Name, pod.Spec.Containers, c); err != nil {
-				return nil, err
-			}
-		}
-		for _, c := range pod.Status.InitContainerStatuses {
-			if err := fn(pod.Name, pod.Spec.InitContainers, c); err != nil {
-				return nil, err
-			}
+		if err := apiutil.CollectImageInfo(r.kc, &pod, images); err != nil {
+			return nil, err
 		}
 	}
 
 	in.Response = &reportsapi.ImageResponse{
-		Images: make([]reportsapi.ImageInfo, 0, len(stats)),
+		Images: make([]kmapi.ImageInfo, 0, len(images)),
 	}
-	for img, info := range stats {
-		in.Response.Images = append(in.Response.Images, reportsapi.ImageInfo{
-			Image:      img,
-			Containers: info.containers.List(),
-			Pods:       info.pods.List(),
-		})
+	for _, info := range images {
+		in.Response.Images = append(in.Response.Images, info)
 	}
 	sort.Slice(in.Response.Images, func(i, j int) bool {
 		return in.Response.Images[i].Image < in.Response.Images[j].Image
 	})
+
 	return in, nil
 }
