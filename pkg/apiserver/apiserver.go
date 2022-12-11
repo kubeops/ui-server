@@ -23,8 +23,8 @@ import (
 	"time"
 
 	scannerreports "kubeops.dev/scanner/apis/reports"
-	scannerreportsinstall "kubeops.dev/scanner/apis/reports/install"
 	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
+	scannerscheme "kubeops.dev/scanner/client/clientset/versioned/scheme"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	scannercontrollers "kubeops.dev/ui-server/pkg/controllers/scanner"
@@ -106,7 +106,7 @@ func init() {
 	uiinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
-	scannerreportsinstall.Install(Scheme)
+	utilruntime.Must(scannerscheme.AddToScheme(Scheme))
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
 	utilruntime.Must(appcatalogapi.AddToScheme(Scheme))

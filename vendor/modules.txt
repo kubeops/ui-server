@@ -1407,11 +1407,11 @@ kmodules.xyz/sets
 # kubeops.dev/scanner v0.0.2-0.20221211100950-d9b21a17aa26
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
-kubeops.dev/scanner/apis/reports/install
 kubeops.dev/scanner/apis/reports/v1alpha1
 kubeops.dev/scanner/apis/scanner
 kubeops.dev/scanner/apis/scanner/v1alpha1
 kubeops.dev/scanner/apis/shared
+kubeops.dev/scanner/client/clientset/versioned/scheme
 # kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b
 ## explicit; go 1.18
 kubepack.dev/lib-helm/pkg/chart/loader
