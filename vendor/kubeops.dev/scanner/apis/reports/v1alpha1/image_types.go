@@ -33,10 +33,12 @@ const (
 // +kubebuilder:resource:path=images,singular=image,scope=Cluster
 type Image struct {
 	metav1.TypeMeta `json:",inline"`
-	// Request describes the attributes for the graph request.
+	// 1. Request equals nil means, we want the report in cluster scope
+	// 2. Group is set to ""(core) & Kind to Namespace means, we want the report in particular namespaced scope
+	// 3. For general cases, all the fields need to be set.
 	// +optional
 	Request *ImageRequest `json:"request,omitempty"`
-	// Response describes the attributes for the graph response.
+	// Response lists the images used by the request object
 	// +optional
 	Response *ImageResponse `json:"response,omitempty"`
 }

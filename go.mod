@@ -32,13 +32,13 @@ require (
 	k8s.io/kube-openapi v0.0.0-20220928191237-829ce0c27909
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.0
-	kmodules.xyz/client-go v0.25.13-0.20221210214406-f54d1bbc9c6d
+	kmodules.xyz/client-go v0.25.13-0.20221211100237-2c990599fc9e
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/monitoring-agent-api v0.25.0
 	kmodules.xyz/resource-metadata v0.14.5-0.20221208211134-8a0f64d6a5c0
 	kmodules.xyz/resource-metrics v0.25.0
 	kmodules.xyz/sets v0.24.0
-	kubeops.dev/scanner v0.0.2-0.20221210125802-3b08deb4a45d
+	kubeops.dev/scanner v0.0.2-0.20221211100950-d9b21a17aa26
 	kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b
 	kubepack.dev/preset v0.0.3
 	sigs.k8s.io/cli-utils v0.33.0
@@ -151,11 +151,11 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.1.0 // indirect
-	golang.org/x/net v0.1.0 // indirect
+	golang.org/x/net v0.4.1-0.20221210045730-e1ec361d0b39 // indirect
 	golang.org/x/oauth2 v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
-	golang.org/x/term v0.1.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/term v0.3.0 // indirect
+	golang.org/x/text v0.5.1-0.20221206182405-ec5565b1b747 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	gomodules.xyz/atomic-writer v0.0.2 // indirect
 	gomodules.xyz/clock v0.0.0-20200817085942-06523dba733f // indirect
