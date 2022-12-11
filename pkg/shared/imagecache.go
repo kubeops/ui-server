@@ -19,7 +19,9 @@ package shared
 import (
 	"context"
 	"hash/fnv"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
@@ -70,10 +72,15 @@ func SendScanRequest(ctx context.Context, kc client.Client, ref string, info kma
 	return nil
 }
 
+var unsafeNameChars = regexp.MustCompile(`[^a-zA-Z0-9_.-]`)
+
 func GenerateName(s string) string {
+	s = unsafeNameChars.ReplaceAllLiteralString(s, "-")
+	s = strings.Trim(s, "-")
+
 	const max = 64 - 8
 	if len(s) < max {
 		return s + "-"
 	}
-	return s[max:] + "-"
+	return strings.Trim(s[max:], "-") + "-"
 }
