@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1alpha1
-
-import "kubeops.dev/scanner/apis/shared"
+package trivy
 
 type SingleReport struct {
 	SchemaVersion int           `json:"SchemaVersion"`
@@ -44,7 +42,7 @@ type ImageConfig struct {
 	Architecture  string             `json:"architecture"`
 	Author        string             `json:"author,omitempty"`
 	Container     string             `json:"container,omitempty"`
-	Created       shared.Time        `json:"created"`
+	Created       Time               `json:"created"`
 	DockerVersion string             `json:"docker_version,omitempty"`
 	History       []ImageHistory     `json:"history"`
 	Os            string             `json:"os"`
@@ -53,10 +51,10 @@ type ImageConfig struct {
 }
 
 type ImageHistory struct {
-	Created    shared.Time `json:"created"`
-	CreatedBy  string      `json:"created_by"`
-	EmptyLayer bool        `json:"empty_layer,omitempty"`
-	Comment    string      `json:"comment,omitempty"`
+	Created    Time   `json:"created"`
+	CreatedBy  string `json:"created_by"`
+	EmptyLayer bool   `json:"empty_layer,omitempty"`
+	Comment    string `json:"comment,omitempty"`
 }
 
 type ImageRootfs struct {
@@ -85,14 +83,7 @@ type VulnerabilityDataSource struct {
 	URL  string `json:"URL"`
 }
 
-type CVSSNvd struct {
-	V2Vector string  `json:"V2Vector,omitempty"`
-	V3Vector string  `json:"V3Vector,omitempty"`
-	V2Score  float64 `json:"V2Score,omitempty"`
-	V3Score  float64 `json:"V3Score,omitempty"`
-}
-
-type CVSSRedhat struct {
+type CVSSScore struct {
 	V2Vector string  `json:"V2Vector,omitempty"`
 	V3Vector string  `json:"V3Vector,omitempty"`
 	V2Score  float64 `json:"V2Score,omitempty"`
@@ -100,8 +91,8 @@ type CVSSRedhat struct {
 }
 
 type CVSS struct {
-	Nvd    *CVSSNvd    `json:"nvd,omitempty"`
-	Redhat *CVSSRedhat `json:"redhat,omitempty"`
+	Nvd    *CVSSScore `json:"nvd,omitempty"`
+	Redhat *CVSSScore `json:"redhat,omitempty"`
 }
 
 type Vulnerability struct {
@@ -119,8 +110,8 @@ type Vulnerability struct {
 	CweIDs           []string                `json:"CweIDs,omitempty"`
 	Cvss             CVSS                    `json:"CVSS,omitempty"`
 	References       []string                `json:"References"`
-	PublishedDate    *shared.Time            `json:"PublishedDate,omitempty"`
-	LastModifiedDate *shared.Time            `json:"LastModifiedDate,omitempty"`
+	PublishedDate    *Time                   `json:"PublishedDate,omitempty"`
+	LastModifiedDate *Time                   `json:"LastModifiedDate,omitempty"`
 	FixedVersion     string                  `json:"FixedVersion,omitempty"`
 }
 
@@ -130,18 +121,3 @@ type Result struct {
 	Type            string          `json:"Type"`
 	Vulnerabilities []Vulnerability `json:"Vulnerabilities,omitempty"`
 }
-
-//type Summary struct {
-//	SchemaVersion int             `json:"SchemaVersion"`
-//	ArtifactName  string          `json:"ArtifactName"`
-//	ArtifactType  string          `json:"ArtifactType"`
-//	Metadata      ImageMetadata   `json:"Metadata"`
-//	Results       []SummaryResult `json:"Results"`
-//}
-//
-//type SummaryResult struct {
-//	Target          string         `json:"Target"`
-//	Class           string         `json:"Class"`
-//	Type            string         `json:"Type"`
-//	Vulnerabilities map[string]int `json:"Vulnerabilities,omitempty"`
-//}

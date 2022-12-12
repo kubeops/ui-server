@@ -28,8 +28,6 @@ import (
 )
 
 func (dst *Workload) Duckify(srcRaw runtime.Object) error {
-	gvk := srcRaw.GetObjectKind().GroupVersionKind()
-
 	switch src := srcRaw.(type) {
 	case *core.ReplicationController:
 		dst.TypeMeta = metav1.TypeMeta{
@@ -88,6 +86,7 @@ func (dst *Workload) Duckify(srcRaw runtime.Object) error {
 		dst.Spec.Template = src.Spec.JobTemplate.Spec.Template
 		return nil
 	case *unstructured.Unstructured:
+		gvk := srcRaw.GetObjectKind().GroupVersionKind()
 		switch gvk {
 		case apps.SchemeGroupVersion.WithKind("Deployment"),
 			apps.SchemeGroupVersion.WithKind("StatefulSet"),
@@ -99,10 +98,7 @@ func (dst *Workload) Duckify(srcRaw runtime.Object) error {
 			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(src.UnstructuredContent(), &obj); err != nil {
 				return err
 			}
-			dst.TypeMeta = metav1.TypeMeta{
-				Kind:       "ReplicationController",
-				APIVersion: core.SchemeGroupVersion.String(),
-			}
+			dst.SetGroupVersionKind(gvk)
 			dst.ObjectMeta = obj.ObjectMeta
 			dst.Spec.Selector = &metav1.LabelSelector{
 				MatchLabels: obj.Spec.Selector,
@@ -114,10 +110,7 @@ func (dst *Workload) Duckify(srcRaw runtime.Object) error {
 			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(src.UnstructuredContent(), &obj); err != nil {
 				return err
 			}
-			dst.TypeMeta = metav1.TypeMeta{
-				Kind:       "CronJob",
-				APIVersion: batch.SchemeGroupVersion.String(),
-			}
+			dst.SetGroupVersionKind(gvk)
 			dst.ObjectMeta = obj.ObjectMeta
 			dst.Spec.Selector = obj.Spec.JobTemplate.Spec.Selector
 			dst.Spec.Template = obj.Spec.JobTemplate.Spec.Template

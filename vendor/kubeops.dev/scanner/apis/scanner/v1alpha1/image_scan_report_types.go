@@ -17,7 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"kubeops.dev/scanner/apis/shared"
+	"kubeops.dev/scanner/apis/trivy"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -59,7 +59,7 @@ type ImageScanReportSpec struct {
 type ImageScanReportStatus struct {
 	// When the referred image was checked for the last time
 	// +optional
-	LastChecked shared.Time `json:"lastChecked,omitempty"`
+	LastChecked trivy.Time `json:"lastChecked,omitempty"`
 
 	// which TrivyDBVersion was used when the last check
 	// +optional
@@ -67,7 +67,7 @@ type ImageScanReportStatus struct {
 
 	// This is the actual trivy Report
 	// +optional
-	Report SingleReport `json:"report,omitempty"`
+	Report trivy.SingleReport `json:"report,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

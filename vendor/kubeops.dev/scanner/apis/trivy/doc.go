@@ -14,20 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1alpha1
+// +k8s:deepcopy-gen=package
 
-import (
-	"kubeops.dev/scanner/apis/trivy"
-)
-
-type TrivyVersion struct {
-	Version         string                `json:"Version"`
-	VulnerabilityDB VulnerabilityDBStruct `json:"VulnerabilityDB"`
-}
-
-type VulnerabilityDBStruct struct {
-	Version      int32      `json:"Version"`
-	UpdatedAt    trivy.Time `json:"UpdatedAt"`
-	DownloadedAt trivy.Time `json:"DownloadedAt"`
-	NextUpdate   trivy.Time `json:"NextUpdate"`
-}
+// Package trivy contains API Schema definitions for the Trivy scanner
+package trivy // import "kubeops.dev/scanner/apis/trivy"

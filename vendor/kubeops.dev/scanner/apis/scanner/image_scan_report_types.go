@@ -17,7 +17,7 @@ limitations under the License.
 package scanner
 
 import (
-	"kubeops.dev/scanner/apis/shared"
+	"kubeops.dev/scanner/apis/trivy"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -41,9 +41,9 @@ type ImageScanReportSpec struct {
 }
 
 type ImageScanReportStatus struct {
-	LastChecked    shared.Time
+	LastChecked    trivy.Time
 	TrivyDBVersion string
-	Report         SingleReport
+	Report         trivy.SingleReport
 }
 
 // +genclient:nonNamespaced

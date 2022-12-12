@@ -25,7 +25,6 @@ import (
 	unsafe "unsafe"
 
 	scanner "kubeops.dev/scanner/apis/scanner"
-	shared "kubeops.dev/scanner/apis/shared"
 
 	v1 "k8s.io/api/core/v1"
 	conversion "k8s.io/apimachinery/pkg/conversion"
@@ -39,46 +38,6 @@ func init() {
 // RegisterConversions adds conversion functions to the given scheme.
 // Public to allow building arbitrary schemes.
 func RegisterConversions(s *runtime.Scheme) error {
-	if err := s.AddGeneratedConversionFunc((*CVSS)(nil), (*scanner.CVSS)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_CVSS_To_scanner_CVSS(a.(*CVSS), b.(*scanner.CVSS), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.CVSS)(nil), (*CVSS)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_CVSS_To_v1alpha1_CVSS(a.(*scanner.CVSS), b.(*CVSS), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*CVSSNvd)(nil), (*scanner.CVSSNvd)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_CVSSNvd_To_scanner_CVSSNvd(a.(*CVSSNvd), b.(*scanner.CVSSNvd), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.CVSSNvd)(nil), (*CVSSNvd)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_CVSSNvd_To_v1alpha1_CVSSNvd(a.(*scanner.CVSSNvd), b.(*CVSSNvd), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*CVSSRedhat)(nil), (*scanner.CVSSRedhat)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_CVSSRedhat_To_scanner_CVSSRedhat(a.(*CVSSRedhat), b.(*scanner.CVSSRedhat), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.CVSSRedhat)(nil), (*CVSSRedhat)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_CVSSRedhat_To_v1alpha1_CVSSRedhat(a.(*scanner.CVSSRedhat), b.(*CVSSRedhat), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*ImageConfig)(nil), (*scanner.ImageConfig)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_ImageConfig_To_scanner_ImageConfig(a.(*ImageConfig), b.(*scanner.ImageConfig), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.ImageConfig)(nil), (*ImageConfig)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_ImageConfig_To_v1alpha1_ImageConfig(a.(*scanner.ImageConfig), b.(*ImageConfig), scope)
-	}); err != nil {
-		return err
-	}
 	if err := s.AddGeneratedConversionFunc((*ImageDetails)(nil), (*scanner.ImageDetails)(nil), func(a, b interface{}, scope conversion.Scope) error {
 		return Convert_v1alpha1_ImageDetails_To_scanner_ImageDetails(a.(*ImageDetails), b.(*scanner.ImageDetails), scope)
 	}); err != nil {
@@ -86,56 +45,6 @@ func RegisterConversions(s *runtime.Scheme) error {
 	}
 	if err := s.AddGeneratedConversionFunc((*scanner.ImageDetails)(nil), (*ImageDetails)(nil), func(a, b interface{}, scope conversion.Scope) error {
 		return Convert_scanner_ImageDetails_To_v1alpha1_ImageDetails(a.(*scanner.ImageDetails), b.(*ImageDetails), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*ImageHistory)(nil), (*scanner.ImageHistory)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_ImageHistory_To_scanner_ImageHistory(a.(*ImageHistory), b.(*scanner.ImageHistory), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.ImageHistory)(nil), (*ImageHistory)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_ImageHistory_To_v1alpha1_ImageHistory(a.(*scanner.ImageHistory), b.(*ImageHistory), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*ImageMetadata)(nil), (*scanner.ImageMetadata)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_ImageMetadata_To_scanner_ImageMetadata(a.(*ImageMetadata), b.(*scanner.ImageMetadata), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.ImageMetadata)(nil), (*ImageMetadata)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_ImageMetadata_To_v1alpha1_ImageMetadata(a.(*scanner.ImageMetadata), b.(*ImageMetadata), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*ImageOS)(nil), (*scanner.ImageOS)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_ImageOS_To_scanner_ImageOS(a.(*ImageOS), b.(*scanner.ImageOS), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.ImageOS)(nil), (*ImageOS)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_ImageOS_To_v1alpha1_ImageOS(a.(*scanner.ImageOS), b.(*ImageOS), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*ImageRootfs)(nil), (*scanner.ImageRootfs)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_ImageRootfs_To_scanner_ImageRootfs(a.(*ImageRootfs), b.(*scanner.ImageRootfs), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.ImageRootfs)(nil), (*ImageRootfs)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_ImageRootfs_To_v1alpha1_ImageRootfs(a.(*scanner.ImageRootfs), b.(*ImageRootfs), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*ImageRuntimeConfig)(nil), (*scanner.ImageRuntimeConfig)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_ImageRuntimeConfig_To_scanner_ImageRuntimeConfig(a.(*ImageRuntimeConfig), b.(*scanner.ImageRuntimeConfig), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.ImageRuntimeConfig)(nil), (*ImageRuntimeConfig)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_ImageRuntimeConfig_To_v1alpha1_ImageRuntimeConfig(a.(*scanner.ImageRuntimeConfig), b.(*ImageRuntimeConfig), scope)
 	}); err != nil {
 		return err
 	}
@@ -219,16 +128,6 @@ func RegisterConversions(s *runtime.Scheme) error {
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*Result)(nil), (*scanner.Result)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_Result_To_scanner_Result(a.(*Result), b.(*scanner.Result), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.Result)(nil), (*Result)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_Result_To_v1alpha1_Result(a.(*scanner.Result), b.(*Result), scope)
-	}); err != nil {
-		return err
-	}
 	if err := s.AddGeneratedConversionFunc((*ScanReportRef)(nil), (*scanner.ScanReportRef)(nil), func(a, b interface{}, scope conversion.Scope) error {
 		return Convert_v1alpha1_ScanReportRef_To_scanner_ScanReportRef(a.(*ScanReportRef), b.(*scanner.ScanReportRef), scope)
 	}); err != nil {
@@ -239,165 +138,7 @@ func RegisterConversions(s *runtime.Scheme) error {
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*SingleReport)(nil), (*scanner.SingleReport)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_SingleReport_To_scanner_SingleReport(a.(*SingleReport), b.(*scanner.SingleReport), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.SingleReport)(nil), (*SingleReport)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_SingleReport_To_v1alpha1_SingleReport(a.(*scanner.SingleReport), b.(*SingleReport), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*Vulnerability)(nil), (*scanner.Vulnerability)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_Vulnerability_To_scanner_Vulnerability(a.(*Vulnerability), b.(*scanner.Vulnerability), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.Vulnerability)(nil), (*Vulnerability)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_Vulnerability_To_v1alpha1_Vulnerability(a.(*scanner.Vulnerability), b.(*Vulnerability), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*VulnerabilityDataSource)(nil), (*scanner.VulnerabilityDataSource)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_VulnerabilityDataSource_To_scanner_VulnerabilityDataSource(a.(*VulnerabilityDataSource), b.(*scanner.VulnerabilityDataSource), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.VulnerabilityDataSource)(nil), (*VulnerabilityDataSource)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_VulnerabilityDataSource_To_v1alpha1_VulnerabilityDataSource(a.(*scanner.VulnerabilityDataSource), b.(*VulnerabilityDataSource), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*VulnerabilityLayer)(nil), (*scanner.VulnerabilityLayer)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1alpha1_VulnerabilityLayer_To_scanner_VulnerabilityLayer(a.(*VulnerabilityLayer), b.(*scanner.VulnerabilityLayer), scope)
-	}); err != nil {
-		return err
-	}
-	if err := s.AddGeneratedConversionFunc((*scanner.VulnerabilityLayer)(nil), (*VulnerabilityLayer)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_scanner_VulnerabilityLayer_To_v1alpha1_VulnerabilityLayer(a.(*scanner.VulnerabilityLayer), b.(*VulnerabilityLayer), scope)
-	}); err != nil {
-		return err
-	}
 	return nil
-}
-
-func autoConvert_v1alpha1_CVSS_To_scanner_CVSS(in *CVSS, out *scanner.CVSS, s conversion.Scope) error {
-	out.Nvd = (*scanner.CVSSNvd)(unsafe.Pointer(in.Nvd))
-	out.Redhat = (*scanner.CVSSRedhat)(unsafe.Pointer(in.Redhat))
-	return nil
-}
-
-// Convert_v1alpha1_CVSS_To_scanner_CVSS is an autogenerated conversion function.
-func Convert_v1alpha1_CVSS_To_scanner_CVSS(in *CVSS, out *scanner.CVSS, s conversion.Scope) error {
-	return autoConvert_v1alpha1_CVSS_To_scanner_CVSS(in, out, s)
-}
-
-func autoConvert_scanner_CVSS_To_v1alpha1_CVSS(in *scanner.CVSS, out *CVSS, s conversion.Scope) error {
-	out.Nvd = (*CVSSNvd)(unsafe.Pointer(in.Nvd))
-	out.Redhat = (*CVSSRedhat)(unsafe.Pointer(in.Redhat))
-	return nil
-}
-
-// Convert_scanner_CVSS_To_v1alpha1_CVSS is an autogenerated conversion function.
-func Convert_scanner_CVSS_To_v1alpha1_CVSS(in *scanner.CVSS, out *CVSS, s conversion.Scope) error {
-	return autoConvert_scanner_CVSS_To_v1alpha1_CVSS(in, out, s)
-}
-
-func autoConvert_v1alpha1_CVSSNvd_To_scanner_CVSSNvd(in *CVSSNvd, out *scanner.CVSSNvd, s conversion.Scope) error {
-	out.V2Vector = in.V2Vector
-	out.V3Vector = in.V3Vector
-	out.V2Score = in.V2Score
-	out.V3Score = in.V3Score
-	return nil
-}
-
-// Convert_v1alpha1_CVSSNvd_To_scanner_CVSSNvd is an autogenerated conversion function.
-func Convert_v1alpha1_CVSSNvd_To_scanner_CVSSNvd(in *CVSSNvd, out *scanner.CVSSNvd, s conversion.Scope) error {
-	return autoConvert_v1alpha1_CVSSNvd_To_scanner_CVSSNvd(in, out, s)
-}
-
-func autoConvert_scanner_CVSSNvd_To_v1alpha1_CVSSNvd(in *scanner.CVSSNvd, out *CVSSNvd, s conversion.Scope) error {
-	out.V2Vector = in.V2Vector
-	out.V3Vector = in.V3Vector
-	out.V2Score = in.V2Score
-	out.V3Score = in.V3Score
-	return nil
-}
-
-// Convert_scanner_CVSSNvd_To_v1alpha1_CVSSNvd is an autogenerated conversion function.
-func Convert_scanner_CVSSNvd_To_v1alpha1_CVSSNvd(in *scanner.CVSSNvd, out *CVSSNvd, s conversion.Scope) error {
-	return autoConvert_scanner_CVSSNvd_To_v1alpha1_CVSSNvd(in, out, s)
-}
-
-func autoConvert_v1alpha1_CVSSRedhat_To_scanner_CVSSRedhat(in *CVSSRedhat, out *scanner.CVSSRedhat, s conversion.Scope) error {
-	out.V2Vector = in.V2Vector
-	out.V3Vector = in.V3Vector
-	out.V2Score = in.V2Score
-	out.V3Score = in.V3Score
-	return nil
-}
-
-// Convert_v1alpha1_CVSSRedhat_To_scanner_CVSSRedhat is an autogenerated conversion function.
-func Convert_v1alpha1_CVSSRedhat_To_scanner_CVSSRedhat(in *CVSSRedhat, out *scanner.CVSSRedhat, s conversion.Scope) error {
-	return autoConvert_v1alpha1_CVSSRedhat_To_scanner_CVSSRedhat(in, out, s)
-}
-
-func autoConvert_scanner_CVSSRedhat_To_v1alpha1_CVSSRedhat(in *scanner.CVSSRedhat, out *CVSSRedhat, s conversion.Scope) error {
-	out.V2Vector = in.V2Vector
-	out.V3Vector = in.V3Vector
-	out.V2Score = in.V2Score
-	out.V3Score = in.V3Score
-	return nil
-}
-
-// Convert_scanner_CVSSRedhat_To_v1alpha1_CVSSRedhat is an autogenerated conversion function.
-func Convert_scanner_CVSSRedhat_To_v1alpha1_CVSSRedhat(in *scanner.CVSSRedhat, out *CVSSRedhat, s conversion.Scope) error {
-	return autoConvert_scanner_CVSSRedhat_To_v1alpha1_CVSSRedhat(in, out, s)
-}
-
-func autoConvert_v1alpha1_ImageConfig_To_scanner_ImageConfig(in *ImageConfig, out *scanner.ImageConfig, s conversion.Scope) error {
-	out.Architecture = in.Architecture
-	out.Author = in.Author
-	out.Container = in.Container
-	out.Created = in.Created
-	out.DockerVersion = in.DockerVersion
-	out.History = *(*[]scanner.ImageHistory)(unsafe.Pointer(&in.History))
-	out.Os = in.Os
-	if err := Convert_v1alpha1_ImageRootfs_To_scanner_ImageRootfs(&in.Rootfs, &out.Rootfs, s); err != nil {
-		return err
-	}
-	if err := Convert_v1alpha1_ImageRuntimeConfig_To_scanner_ImageRuntimeConfig(&in.Config, &out.Config, s); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Convert_v1alpha1_ImageConfig_To_scanner_ImageConfig is an autogenerated conversion function.
-func Convert_v1alpha1_ImageConfig_To_scanner_ImageConfig(in *ImageConfig, out *scanner.ImageConfig, s conversion.Scope) error {
-	return autoConvert_v1alpha1_ImageConfig_To_scanner_ImageConfig(in, out, s)
-}
-
-func autoConvert_scanner_ImageConfig_To_v1alpha1_ImageConfig(in *scanner.ImageConfig, out *ImageConfig, s conversion.Scope) error {
-	out.Architecture = in.Architecture
-	out.Author = in.Author
-	out.Container = in.Container
-	out.Created = in.Created
-	out.DockerVersion = in.DockerVersion
-	out.History = *(*[]ImageHistory)(unsafe.Pointer(&in.History))
-	out.Os = in.Os
-	if err := Convert_scanner_ImageRootfs_To_v1alpha1_ImageRootfs(&in.Rootfs, &out.Rootfs, s); err != nil {
-		return err
-	}
-	if err := Convert_scanner_ImageRuntimeConfig_To_v1alpha1_ImageRuntimeConfig(&in.Config, &out.Config, s); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Convert_scanner_ImageConfig_To_v1alpha1_ImageConfig is an autogenerated conversion function.
-func Convert_scanner_ImageConfig_To_v1alpha1_ImageConfig(in *scanner.ImageConfig, out *ImageConfig, s conversion.Scope) error {
-	return autoConvert_scanner_ImageConfig_To_v1alpha1_ImageConfig(in, out, s)
 }
 
 func autoConvert_v1alpha1_ImageDetails_To_scanner_ImageDetails(in *ImageDetails, out *scanner.ImageDetails, s conversion.Scope) error {
@@ -424,146 +165,6 @@ func autoConvert_scanner_ImageDetails_To_v1alpha1_ImageDetails(in *scanner.Image
 // Convert_scanner_ImageDetails_To_v1alpha1_ImageDetails is an autogenerated conversion function.
 func Convert_scanner_ImageDetails_To_v1alpha1_ImageDetails(in *scanner.ImageDetails, out *ImageDetails, s conversion.Scope) error {
 	return autoConvert_scanner_ImageDetails_To_v1alpha1_ImageDetails(in, out, s)
-}
-
-func autoConvert_v1alpha1_ImageHistory_To_scanner_ImageHistory(in *ImageHistory, out *scanner.ImageHistory, s conversion.Scope) error {
-	out.Created = in.Created
-	out.CreatedBy = in.CreatedBy
-	out.EmptyLayer = in.EmptyLayer
-	out.Comment = in.Comment
-	return nil
-}
-
-// Convert_v1alpha1_ImageHistory_To_scanner_ImageHistory is an autogenerated conversion function.
-func Convert_v1alpha1_ImageHistory_To_scanner_ImageHistory(in *ImageHistory, out *scanner.ImageHistory, s conversion.Scope) error {
-	return autoConvert_v1alpha1_ImageHistory_To_scanner_ImageHistory(in, out, s)
-}
-
-func autoConvert_scanner_ImageHistory_To_v1alpha1_ImageHistory(in *scanner.ImageHistory, out *ImageHistory, s conversion.Scope) error {
-	out.Created = in.Created
-	out.CreatedBy = in.CreatedBy
-	out.EmptyLayer = in.EmptyLayer
-	out.Comment = in.Comment
-	return nil
-}
-
-// Convert_scanner_ImageHistory_To_v1alpha1_ImageHistory is an autogenerated conversion function.
-func Convert_scanner_ImageHistory_To_v1alpha1_ImageHistory(in *scanner.ImageHistory, out *ImageHistory, s conversion.Scope) error {
-	return autoConvert_scanner_ImageHistory_To_v1alpha1_ImageHistory(in, out, s)
-}
-
-func autoConvert_v1alpha1_ImageMetadata_To_scanner_ImageMetadata(in *ImageMetadata, out *scanner.ImageMetadata, s conversion.Scope) error {
-	if err := Convert_v1alpha1_ImageOS_To_scanner_ImageOS(&in.Os, &out.Os, s); err != nil {
-		return err
-	}
-	out.ImageID = in.ImageID
-	out.DiffIDs = *(*[]string)(unsafe.Pointer(&in.DiffIDs))
-	out.RepoTags = *(*[]string)(unsafe.Pointer(&in.RepoTags))
-	out.RepoDigests = *(*[]string)(unsafe.Pointer(&in.RepoDigests))
-	if err := Convert_v1alpha1_ImageConfig_To_scanner_ImageConfig(&in.ImageConfig, &out.ImageConfig, s); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Convert_v1alpha1_ImageMetadata_To_scanner_ImageMetadata is an autogenerated conversion function.
-func Convert_v1alpha1_ImageMetadata_To_scanner_ImageMetadata(in *ImageMetadata, out *scanner.ImageMetadata, s conversion.Scope) error {
-	return autoConvert_v1alpha1_ImageMetadata_To_scanner_ImageMetadata(in, out, s)
-}
-
-func autoConvert_scanner_ImageMetadata_To_v1alpha1_ImageMetadata(in *scanner.ImageMetadata, out *ImageMetadata, s conversion.Scope) error {
-	if err := Convert_scanner_ImageOS_To_v1alpha1_ImageOS(&in.Os, &out.Os, s); err != nil {
-		return err
-	}
-	out.ImageID = in.ImageID
-	out.DiffIDs = *(*[]string)(unsafe.Pointer(&in.DiffIDs))
-	out.RepoTags = *(*[]string)(unsafe.Pointer(&in.RepoTags))
-	out.RepoDigests = *(*[]string)(unsafe.Pointer(&in.RepoDigests))
-	if err := Convert_scanner_ImageConfig_To_v1alpha1_ImageConfig(&in.ImageConfig, &out.ImageConfig, s); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Convert_scanner_ImageMetadata_To_v1alpha1_ImageMetadata is an autogenerated conversion function.
-func Convert_scanner_ImageMetadata_To_v1alpha1_ImageMetadata(in *scanner.ImageMetadata, out *ImageMetadata, s conversion.Scope) error {
-	return autoConvert_scanner_ImageMetadata_To_v1alpha1_ImageMetadata(in, out, s)
-}
-
-func autoConvert_v1alpha1_ImageOS_To_scanner_ImageOS(in *ImageOS, out *scanner.ImageOS, s conversion.Scope) error {
-	out.Family = in.Family
-	out.Name = in.Name
-	return nil
-}
-
-// Convert_v1alpha1_ImageOS_To_scanner_ImageOS is an autogenerated conversion function.
-func Convert_v1alpha1_ImageOS_To_scanner_ImageOS(in *ImageOS, out *scanner.ImageOS, s conversion.Scope) error {
-	return autoConvert_v1alpha1_ImageOS_To_scanner_ImageOS(in, out, s)
-}
-
-func autoConvert_scanner_ImageOS_To_v1alpha1_ImageOS(in *scanner.ImageOS, out *ImageOS, s conversion.Scope) error {
-	out.Family = in.Family
-	out.Name = in.Name
-	return nil
-}
-
-// Convert_scanner_ImageOS_To_v1alpha1_ImageOS is an autogenerated conversion function.
-func Convert_scanner_ImageOS_To_v1alpha1_ImageOS(in *scanner.ImageOS, out *ImageOS, s conversion.Scope) error {
-	return autoConvert_scanner_ImageOS_To_v1alpha1_ImageOS(in, out, s)
-}
-
-func autoConvert_v1alpha1_ImageRootfs_To_scanner_ImageRootfs(in *ImageRootfs, out *scanner.ImageRootfs, s conversion.Scope) error {
-	out.Type = in.Type
-	out.DiffIds = *(*[]string)(unsafe.Pointer(&in.DiffIds))
-	return nil
-}
-
-// Convert_v1alpha1_ImageRootfs_To_scanner_ImageRootfs is an autogenerated conversion function.
-func Convert_v1alpha1_ImageRootfs_To_scanner_ImageRootfs(in *ImageRootfs, out *scanner.ImageRootfs, s conversion.Scope) error {
-	return autoConvert_v1alpha1_ImageRootfs_To_scanner_ImageRootfs(in, out, s)
-}
-
-func autoConvert_scanner_ImageRootfs_To_v1alpha1_ImageRootfs(in *scanner.ImageRootfs, out *ImageRootfs, s conversion.Scope) error {
-	out.Type = in.Type
-	out.DiffIds = *(*[]string)(unsafe.Pointer(&in.DiffIds))
-	return nil
-}
-
-// Convert_scanner_ImageRootfs_To_v1alpha1_ImageRootfs is an autogenerated conversion function.
-func Convert_scanner_ImageRootfs_To_v1alpha1_ImageRootfs(in *scanner.ImageRootfs, out *ImageRootfs, s conversion.Scope) error {
-	return autoConvert_scanner_ImageRootfs_To_v1alpha1_ImageRootfs(in, out, s)
-}
-
-func autoConvert_v1alpha1_ImageRuntimeConfig_To_scanner_ImageRuntimeConfig(in *ImageRuntimeConfig, out *scanner.ImageRuntimeConfig, s conversion.Scope) error {
-	out.Cmd = *(*[]string)(unsafe.Pointer(&in.Cmd))
-	out.Env = *(*[]string)(unsafe.Pointer(&in.Env))
-	out.Image = in.Image
-	out.Entrypoint = *(*[]string)(unsafe.Pointer(&in.Entrypoint))
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
-	out.ArgsEscaped = in.ArgsEscaped
-	out.StopSignal = in.StopSignal
-	return nil
-}
-
-// Convert_v1alpha1_ImageRuntimeConfig_To_scanner_ImageRuntimeConfig is an autogenerated conversion function.
-func Convert_v1alpha1_ImageRuntimeConfig_To_scanner_ImageRuntimeConfig(in *ImageRuntimeConfig, out *scanner.ImageRuntimeConfig, s conversion.Scope) error {
-	return autoConvert_v1alpha1_ImageRuntimeConfig_To_scanner_ImageRuntimeConfig(in, out, s)
-}
-
-func autoConvert_scanner_ImageRuntimeConfig_To_v1alpha1_ImageRuntimeConfig(in *scanner.ImageRuntimeConfig, out *ImageRuntimeConfig, s conversion.Scope) error {
-	out.Cmd = *(*[]string)(unsafe.Pointer(&in.Cmd))
-	out.Env = *(*[]string)(unsafe.Pointer(&in.Env))
-	out.Image = in.Image
-	out.Entrypoint = *(*[]string)(unsafe.Pointer(&in.Entrypoint))
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
-	out.ArgsEscaped = in.ArgsEscaped
-	out.StopSignal = in.StopSignal
-	return nil
-}
-
-// Convert_scanner_ImageRuntimeConfig_To_v1alpha1_ImageRuntimeConfig is an autogenerated conversion function.
-func Convert_scanner_ImageRuntimeConfig_To_v1alpha1_ImageRuntimeConfig(in *scanner.ImageRuntimeConfig, out *ImageRuntimeConfig, s conversion.Scope) error {
-	return autoConvert_scanner_ImageRuntimeConfig_To_v1alpha1_ImageRuntimeConfig(in, out, s)
 }
 
 func autoConvert_v1alpha1_ImageScanReport_To_scanner_ImageScanReport(in *ImageScanReport, out *scanner.ImageScanReport, s conversion.Scope) error {
@@ -647,9 +248,7 @@ func Convert_scanner_ImageScanReportSpec_To_v1alpha1_ImageScanReportSpec(in *sca
 func autoConvert_v1alpha1_ImageScanReportStatus_To_scanner_ImageScanReportStatus(in *ImageScanReportStatus, out *scanner.ImageScanReportStatus, s conversion.Scope) error {
 	out.LastChecked = in.LastChecked
 	out.TrivyDBVersion = in.TrivyDBVersion
-	if err := Convert_v1alpha1_SingleReport_To_scanner_SingleReport(&in.Report, &out.Report, s); err != nil {
-		return err
-	}
+	out.Report = in.Report
 	return nil
 }
 
@@ -661,9 +260,7 @@ func Convert_v1alpha1_ImageScanReportStatus_To_scanner_ImageScanReportStatus(in 
 func autoConvert_scanner_ImageScanReportStatus_To_v1alpha1_ImageScanReportStatus(in *scanner.ImageScanReportStatus, out *ImageScanReportStatus, s conversion.Scope) error {
 	out.LastChecked = in.LastChecked
 	out.TrivyDBVersion = in.TrivyDBVersion
-	if err := Convert_scanner_SingleReport_To_v1alpha1_SingleReport(&in.Report, &out.Report, s); err != nil {
-		return err
-	}
+	out.Report = in.Report
 	return nil
 }
 
@@ -778,32 +375,6 @@ func Convert_scanner_ImageScanRequestStatus_To_v1alpha1_ImageScanRequestStatus(i
 	return autoConvert_scanner_ImageScanRequestStatus_To_v1alpha1_ImageScanRequestStatus(in, out, s)
 }
 
-func autoConvert_v1alpha1_Result_To_scanner_Result(in *Result, out *scanner.Result, s conversion.Scope) error {
-	out.Target = in.Target
-	out.Class = in.Class
-	out.Type = in.Type
-	out.Vulnerabilities = *(*[]scanner.Vulnerability)(unsafe.Pointer(&in.Vulnerabilities))
-	return nil
-}
-
-// Convert_v1alpha1_Result_To_scanner_Result is an autogenerated conversion function.
-func Convert_v1alpha1_Result_To_scanner_Result(in *Result, out *scanner.Result, s conversion.Scope) error {
-	return autoConvert_v1alpha1_Result_To_scanner_Result(in, out, s)
-}
-
-func autoConvert_scanner_Result_To_v1alpha1_Result(in *scanner.Result, out *Result, s conversion.Scope) error {
-	out.Target = in.Target
-	out.Class = in.Class
-	out.Type = in.Type
-	out.Vulnerabilities = *(*[]Vulnerability)(unsafe.Pointer(&in.Vulnerabilities))
-	return nil
-}
-
-// Convert_scanner_Result_To_v1alpha1_Result is an autogenerated conversion function.
-func Convert_scanner_Result_To_v1alpha1_Result(in *scanner.Result, out *Result, s conversion.Scope) error {
-	return autoConvert_scanner_Result_To_v1alpha1_Result(in, out, s)
-}
-
 func autoConvert_v1alpha1_ScanReportRef_To_scanner_ScanReportRef(in *ScanReportRef, out *scanner.ScanReportRef, s conversion.Scope) error {
 	out.Name = in.Name
 	out.LastChecked = in.LastChecked
@@ -824,146 +395,4 @@ func autoConvert_scanner_ScanReportRef_To_v1alpha1_ScanReportRef(in *scanner.Sca
 // Convert_scanner_ScanReportRef_To_v1alpha1_ScanReportRef is an autogenerated conversion function.
 func Convert_scanner_ScanReportRef_To_v1alpha1_ScanReportRef(in *scanner.ScanReportRef, out *ScanReportRef, s conversion.Scope) error {
 	return autoConvert_scanner_ScanReportRef_To_v1alpha1_ScanReportRef(in, out, s)
-}
-
-func autoConvert_v1alpha1_SingleReport_To_scanner_SingleReport(in *SingleReport, out *scanner.SingleReport, s conversion.Scope) error {
-	out.SchemaVersion = in.SchemaVersion
-	out.ArtifactName = in.ArtifactName
-	out.ArtifactType = in.ArtifactType
-	if err := Convert_v1alpha1_ImageMetadata_To_scanner_ImageMetadata(&in.Metadata, &out.Metadata, s); err != nil {
-		return err
-	}
-	out.Results = *(*[]scanner.Result)(unsafe.Pointer(&in.Results))
-	return nil
-}
-
-// Convert_v1alpha1_SingleReport_To_scanner_SingleReport is an autogenerated conversion function.
-func Convert_v1alpha1_SingleReport_To_scanner_SingleReport(in *SingleReport, out *scanner.SingleReport, s conversion.Scope) error {
-	return autoConvert_v1alpha1_SingleReport_To_scanner_SingleReport(in, out, s)
-}
-
-func autoConvert_scanner_SingleReport_To_v1alpha1_SingleReport(in *scanner.SingleReport, out *SingleReport, s conversion.Scope) error {
-	out.SchemaVersion = in.SchemaVersion
-	out.ArtifactName = in.ArtifactName
-	out.ArtifactType = in.ArtifactType
-	if err := Convert_scanner_ImageMetadata_To_v1alpha1_ImageMetadata(&in.Metadata, &out.Metadata, s); err != nil {
-		return err
-	}
-	out.Results = *(*[]Result)(unsafe.Pointer(&in.Results))
-	return nil
-}
-
-// Convert_scanner_SingleReport_To_v1alpha1_SingleReport is an autogenerated conversion function.
-func Convert_scanner_SingleReport_To_v1alpha1_SingleReport(in *scanner.SingleReport, out *SingleReport, s conversion.Scope) error {
-	return autoConvert_scanner_SingleReport_To_v1alpha1_SingleReport(in, out, s)
-}
-
-func autoConvert_v1alpha1_Vulnerability_To_scanner_Vulnerability(in *Vulnerability, out *scanner.Vulnerability, s conversion.Scope) error {
-	out.VulnerabilityID = in.VulnerabilityID
-	out.PkgName = in.PkgName
-	out.PkgID = in.PkgID
-	out.InstalledVersion = in.InstalledVersion
-	if err := Convert_v1alpha1_VulnerabilityLayer_To_scanner_VulnerabilityLayer(&in.Layer, &out.Layer, s); err != nil {
-		return err
-	}
-	out.SeveritySource = in.SeveritySource
-	out.PrimaryURL = in.PrimaryURL
-	if err := Convert_v1alpha1_VulnerabilityDataSource_To_scanner_VulnerabilityDataSource(&in.DataSource, &out.DataSource, s); err != nil {
-		return err
-	}
-	out.Title = in.Title
-	out.Description = in.Description
-	out.Severity = in.Severity
-	out.CweIDs = *(*[]string)(unsafe.Pointer(&in.CweIDs))
-	if err := Convert_v1alpha1_CVSS_To_scanner_CVSS(&in.Cvss, &out.Cvss, s); err != nil {
-		return err
-	}
-	out.References = *(*[]string)(unsafe.Pointer(&in.References))
-	out.PublishedDate = (*shared.Time)(unsafe.Pointer(in.PublishedDate))
-	out.LastModifiedDate = (*shared.Time)(unsafe.Pointer(in.LastModifiedDate))
-	out.FixedVersion = in.FixedVersion
-	return nil
-}
-
-// Convert_v1alpha1_Vulnerability_To_scanner_Vulnerability is an autogenerated conversion function.
-func Convert_v1alpha1_Vulnerability_To_scanner_Vulnerability(in *Vulnerability, out *scanner.Vulnerability, s conversion.Scope) error {
-	return autoConvert_v1alpha1_Vulnerability_To_scanner_Vulnerability(in, out, s)
-}
-
-func autoConvert_scanner_Vulnerability_To_v1alpha1_Vulnerability(in *scanner.Vulnerability, out *Vulnerability, s conversion.Scope) error {
-	out.VulnerabilityID = in.VulnerabilityID
-	out.PkgName = in.PkgName
-	out.PkgID = in.PkgID
-	out.InstalledVersion = in.InstalledVersion
-	if err := Convert_scanner_VulnerabilityLayer_To_v1alpha1_VulnerabilityLayer(&in.Layer, &out.Layer, s); err != nil {
-		return err
-	}
-	out.SeveritySource = in.SeveritySource
-	out.PrimaryURL = in.PrimaryURL
-	if err := Convert_scanner_VulnerabilityDataSource_To_v1alpha1_VulnerabilityDataSource(&in.DataSource, &out.DataSource, s); err != nil {
-		return err
-	}
-	out.Title = in.Title
-	out.Description = in.Description
-	out.Severity = in.Severity
-	out.CweIDs = *(*[]string)(unsafe.Pointer(&in.CweIDs))
-	if err := Convert_scanner_CVSS_To_v1alpha1_CVSS(&in.Cvss, &out.Cvss, s); err != nil {
-		return err
-	}
-	out.References = *(*[]string)(unsafe.Pointer(&in.References))
-	out.PublishedDate = (*shared.Time)(unsafe.Pointer(in.PublishedDate))
-	out.LastModifiedDate = (*shared.Time)(unsafe.Pointer(in.LastModifiedDate))
-	out.FixedVersion = in.FixedVersion
-	return nil
-}
-
-// Convert_scanner_Vulnerability_To_v1alpha1_Vulnerability is an autogenerated conversion function.
-func Convert_scanner_Vulnerability_To_v1alpha1_Vulnerability(in *scanner.Vulnerability, out *Vulnerability, s conversion.Scope) error {
-	return autoConvert_scanner_Vulnerability_To_v1alpha1_Vulnerability(in, out, s)
-}
-
-func autoConvert_v1alpha1_VulnerabilityDataSource_To_scanner_VulnerabilityDataSource(in *VulnerabilityDataSource, out *scanner.VulnerabilityDataSource, s conversion.Scope) error {
-	out.ID = in.ID
-	out.Name = in.Name
-	out.URL = in.URL
-	return nil
-}
-
-// Convert_v1alpha1_VulnerabilityDataSource_To_scanner_VulnerabilityDataSource is an autogenerated conversion function.
-func Convert_v1alpha1_VulnerabilityDataSource_To_scanner_VulnerabilityDataSource(in *VulnerabilityDataSource, out *scanner.VulnerabilityDataSource, s conversion.Scope) error {
-	return autoConvert_v1alpha1_VulnerabilityDataSource_To_scanner_VulnerabilityDataSource(in, out, s)
-}
-
-func autoConvert_scanner_VulnerabilityDataSource_To_v1alpha1_VulnerabilityDataSource(in *scanner.VulnerabilityDataSource, out *VulnerabilityDataSource, s conversion.Scope) error {
-	out.ID = in.ID
-	out.Name = in.Name
-	out.URL = in.URL
-	return nil
-}
-
-// Convert_scanner_VulnerabilityDataSource_To_v1alpha1_VulnerabilityDataSource is an autogenerated conversion function.
-func Convert_scanner_VulnerabilityDataSource_To_v1alpha1_VulnerabilityDataSource(in *scanner.VulnerabilityDataSource, out *VulnerabilityDataSource, s conversion.Scope) error {
-	return autoConvert_scanner_VulnerabilityDataSource_To_v1alpha1_VulnerabilityDataSource(in, out, s)
-}
-
-func autoConvert_v1alpha1_VulnerabilityLayer_To_scanner_VulnerabilityLayer(in *VulnerabilityLayer, out *scanner.VulnerabilityLayer, s conversion.Scope) error {
-	out.Digest = in.Digest
-	out.DiffID = in.DiffID
-	return nil
-}
-
-// Convert_v1alpha1_VulnerabilityLayer_To_scanner_VulnerabilityLayer is an autogenerated conversion function.
-func Convert_v1alpha1_VulnerabilityLayer_To_scanner_VulnerabilityLayer(in *VulnerabilityLayer, out *scanner.VulnerabilityLayer, s conversion.Scope) error {
-	return autoConvert_v1alpha1_VulnerabilityLayer_To_scanner_VulnerabilityLayer(in, out, s)
-}
-
-func autoConvert_scanner_VulnerabilityLayer_To_v1alpha1_VulnerabilityLayer(in *scanner.VulnerabilityLayer, out *VulnerabilityLayer, s conversion.Scope) error {
-	out.Digest = in.Digest
-	out.DiffID = in.DiffID
-	return nil
-}
-
-// Convert_scanner_VulnerabilityLayer_To_v1alpha1_VulnerabilityLayer is an autogenerated conversion function.
-func Convert_scanner_VulnerabilityLayer_To_v1alpha1_VulnerabilityLayer(in *scanner.VulnerabilityLayer, out *VulnerabilityLayer, s conversion.Scope) error {
-	return autoConvert_scanner_VulnerabilityLayer_To_v1alpha1_VulnerabilityLayer(in, out, s)
 }

@@ -17,7 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"kubeops.dev/scanner/apis/shared"
+	"kubeops.dev/scanner/apis/trivy"
 
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -104,7 +104,7 @@ type ScanReportRef struct {
 	Name string `json:"name"`
 	// When the referred image was checked for the last time
 	// +optional
-	LastChecked shared.Time `json:"lastChecked,omitempty"`
+	LastChecked trivy.Time `json:"lastChecked,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

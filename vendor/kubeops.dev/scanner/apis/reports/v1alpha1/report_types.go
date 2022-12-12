@@ -17,6 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"kubeops.dev/scanner/apis/trivy"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
 )
@@ -47,25 +49,97 @@ type CVEReportRequest struct {
 }
 
 type CVEReportResponse struct {
-	Images []ImageReport `json:"images"`
-	// Aggregated for all the images under this ref. ex HIGH: 3, MEDIUM: 7, LOW: 4
-	Vulnerabilities map[string]int `json:"vulnerabilities,omitempty"`
-}
-
-type ImageReport struct {
-	Name               string                    `json:"name"` // Name + (Tag if any)
-	Digest             string                    `json:"digest"`
-	VulnerabilityInfos []VulnerabilityInfo       `json:"vulnerabilityInfos,omitempty"`
-	Pods               []string                  `json:"pods"`
-	Containers         []string                  `json:"containers"`
-	Lineage            [][]metav1.OwnerReference `json:"lineage,omitempty"`
+	Images          []ImageInfo       `json:"Images"`
+	Vulnerabilities VulnerabilityInfo `json:"Vulnerabilities"`
 }
 
 type VulnerabilityInfo struct {
-	PkgName          string `json:"PkgName"`
-	InstalledVersion string `json:"InstalledVersion"`
-	Title            string `json:"Title"`
-	Severity         string `json:"Severity"`
-	URL              string `json:"URL"`
-	FixedVersion     string `json:"FixedVersion"`
+	Count      map[string]int  `json:"Count"`
+	Occurrence map[string]int  `json:"Occurrence"`
+	CVEs       []Vulnerability `json:"CVEs"`
+}
+
+type ImageInfo struct {
+	Name       ImageName       `json:"Name"`
+	Metadata   ImageMetadata   `json:"Metadata"`
+	Lineages   []kmapi.Lineage `json:"lineages"`
+	ScanStatus ImageScanStatus `json:"ScanStatus"`
+}
+
+type ScanResult string
+
+const (
+	ScanResultPending  ScanResult = "Pending"
+	ScanResultFound    ScanResult = "Found"
+	ScanResultNotFound ScanResult = "NotFound"
+	ScanResultError    ScanResult = "Error"
+)
+
+type ImageScanStatus struct {
+	Result ScanResult `json:"result"`
+	// A human readable message indicating details about scan result.
+	// +optional
+	Message string `json:"message,omitempty"`
+
+	// When the referred image was checked for the last time
+	// +optional
+	LastChecked trivy.Time `json:"lastChecked,omitempty"`
+
+	// which TrivyDBVersion was used when the last check
+	// +optional
+	TrivyDBVersion string `json:"trivyDBVersion,omitempty"`
+}
+
+type ImageName struct {
+	Ref    string `json:"Ref"`
+	Tag    string `json:"Tag"`
+	Digest string `json:"Digest"`
+}
+
+type ImageMetadata struct {
+	Os          trivy.ImageOS `json:"OS"`
+	ImageConfig ImageConfig   `json:"ImageConfig"`
+}
+
+type ImageConfig struct {
+	Architecture string `json:"architecture"`
+	Author       string `json:"author,omitempty"`
+	Container    string `json:"container,omitempty"`
+	Os           string `json:"os"`
+}
+
+type Vulnerability struct {
+	VulnerabilityID  string                        `json:"VulnerabilityID"`
+	PkgName          string                        `json:"PkgName"`
+	PkgID            string                        `json:"PkgID,omitempty"`
+	SeveritySource   string                        `json:"SeveritySource"`
+	PrimaryURL       string                        `json:"PrimaryURL"`
+	DataSource       trivy.VulnerabilityDataSource `json:"DataSource"`
+	Title            string                        `json:"Title,omitempty"`
+	Description      string                        `json:"Description"`
+	Severity         string                        `json:"Severity"`
+	CweIDs           []string                      `json:"CweIDs,omitempty"`
+	Cvss             trivy.CVSS                    `json:"CVSS,omitempty"`
+	References       []string                      `json:"References"`
+	PublishedDate    *trivy.Time                   `json:"PublishedDate,omitempty"`
+	LastModifiedDate *trivy.Time                   `json:"LastModifiedDate,omitempty"`
+	FixedVersion     string                        `json:"FixedVersion,omitempty"`
+
+	Results []ImageResult `json:"Results"`
+
+	// InstalledVersion string `json:"InstalledVersion"`
+	// Layer            VulnerabilityLayer      `json:"Layer"`
+}
+
+type ImageResult struct {
+	ImageRef string   `json:"ImageRef,omitempty"`
+	Targets  []Target `json:"Targets,omitempty"`
+}
+
+type Target struct {
+	Layer            trivy.VulnerabilityLayer `json:"Layer"`
+	InstalledVersion string                   `json:"InstalledVersion"`
+	Target           string                   `json:"Target"`
+	Class            string                   `json:"Class"`
+	Type             string                   `json:"Type"`
 }

@@ -1336,7 +1336,7 @@ kmodules.xyz/apiversion
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.25.13-0.20221211100237-2c990599fc9e
+# kmodules.xyz/client-go v0.25.13-0.20221212052448-8473996e442e
 ## explicit; go 1.18
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
@@ -1404,13 +1404,13 @@ kmodules.xyz/resource-metrics/kubedb.com/v1alpha2
 # kmodules.xyz/sets v0.24.0
 ## explicit; go 1.17
 kmodules.xyz/sets
-# kubeops.dev/scanner v0.0.2-0.20221211100950-d9b21a17aa26
+# kubeops.dev/scanner v0.0.2-0.20221212052612-b3be214d7f90
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
 kubeops.dev/scanner/apis/reports/v1alpha1
 kubeops.dev/scanner/apis/scanner
 kubeops.dev/scanner/apis/scanner/v1alpha1
-kubeops.dev/scanner/apis/shared
+kubeops.dev/scanner/apis/trivy
 kubeops.dev/scanner/client/clientset/versioned/scheme
 # kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b
 ## explicit; go 1.18
