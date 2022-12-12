@@ -32,7 +32,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20220928191237-829ce0c27909
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.0
-	kmodules.xyz/client-go v0.25.13-0.20221212052448-8473996e442e
+	kmodules.xyz/client-go v0.25.13-0.20221212055955-24deb482a8e2
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/monitoring-agent-api v0.25.0
 	kmodules.xyz/resource-metadata v0.14.5-0.20221208211134-8a0f64d6a5c0

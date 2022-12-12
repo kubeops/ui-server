@@ -21,8 +21,6 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
-	"sync/atomic"
-
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
@@ -146,14 +144,13 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 	// Start a fixed number of goroutines to read reports.
 	c := make(chan result)
 	const maxConcurrency = 5
-	var total atomic.Int32
 	for i := 0; i < maxConcurrency; i++ {
 		g.Go(func() error {
 			for req := range requests {
 				var report scannerapi.ImageScanRequest
 				err := kc.Get(ctx, client.ObjectKey{Name: fmt.Sprintf("%x", md5.Sum([]byte(req.ImageRef)))}, &report)
 				if client.IgnoreNotFound(err) != nil {
-					return err // handle not found error
+					return err
 				} else if apierrors.IsNotFound(err) {
 					_ = shared.SendScanRequest(ctx, kc, req.ImageRef, kmapi.PullSecrets{
 						Namespace: req.Namespace,
@@ -166,7 +163,6 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 					report:  report,
 					missing: apierrors.IsNotFound(err),
 				}:
-					total.Add(1)
 				case <-ctx.Done():
 					return ctx.Err()
 				}
@@ -179,7 +175,7 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 		close(c)
 	}()
 
-	m := make(map[string]result, total.Load())
+	m := make(map[string]result)
 	for r := range c {
 		m[r.ref] = r
 	}
