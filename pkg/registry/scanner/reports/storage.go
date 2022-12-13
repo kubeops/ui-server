@@ -21,6 +21,7 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
+
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"

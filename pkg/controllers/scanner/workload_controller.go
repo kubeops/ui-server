@@ -48,8 +48,8 @@ var _ duck.Reconciler = &WorkloadReconciler{}
 func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 
-	var mypod api.Workload
-	if err := r.Get(ctx, req.NamespacedName, &mypod); err != nil {
+	var wl api.Workload
+	if err := r.Get(ctx, req.NamespacedName, &wl); err != nil {
 		log.Error(err, "unable to fetch Workload")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
@@ -57,52 +57,35 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	sel, err := metav1.LabelSelectorAsSelector(wl.Spec.Selector)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// list pods with selector
+	var pods unstructured.UnstructuredList
+	pods.SetAPIVersion("v1")
+	pods.SetKind("Pod")
+	err = r.List(context.TODO(), &pods,
+		client.InNamespace(wl.Namespace),
+		client.MatchingLabelsSelector{Selector: sel})
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// get all the images into map
 	refs := map[string]kmapi.PullSecrets{}
-
-	if mypod.Kind == "Job" || mypod.Kind == "CronJob" {
-		for _, c := range mypod.Spec.Template.Spec.Containers {
-			refs[c.Image] = kmapi.PullSecrets{
-				Namespace: mypod.Namespace,
-				Refs:      mypod.Spec.Template.Spec.ImagePullSecrets,
-			}
-		}
-		for _, c := range mypod.Spec.Template.Spec.InitContainers {
-			refs[c.Image] = kmapi.PullSecrets{
-				Namespace: mypod.Namespace,
-				Refs:      mypod.Spec.Template.Spec.ImagePullSecrets,
-			}
-		}
-		for _, c := range mypod.Spec.Template.Spec.EphemeralContainers {
-			refs[c.Image] = kmapi.PullSecrets{
-				Namespace: mypod.Namespace,
-				Refs:      mypod.Spec.Template.Spec.ImagePullSecrets,
-			}
-		}
-	} else {
-		sel, err := metav1.LabelSelectorAsSelector(mypod.Spec.Selector)
-		if err != nil {
+	for _, p := range pods.Items {
+		var pod core.Pod
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
 			return ctrl.Result{}, err
 		}
-
-		var pods unstructured.UnstructuredList
-		pods.SetAPIVersion("v1")
-		pods.SetKind("Pod")
-		err = r.List(context.TODO(), &pods,
-			client.InNamespace(mypod.Namespace),
-			client.MatchingLabelsSelector{Selector: sel})
+		if pod.Status.Phase != core.PodRunning && pod.Status.Phase != core.PodSucceeded && pod.Status.Phase != "Completed" {
+			return ctrl.Result{}, nil
+		}
+		refs, err = apiutil.CollectPullSecrets(&pod, refs)
 		if err != nil {
 			return ctrl.Result{}, err
-		}
-
-		for _, p := range pods.Items {
-			var pod core.Pod
-			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
-				return ctrl.Result{}, err
-			}
-			refs, err = apiutil.CollectPullSecrets(&pod, refs)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
 		}
 	}
 
