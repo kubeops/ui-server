@@ -19,8 +19,8 @@ package reports
 import (
 	"context"
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
+	"sort"
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
@@ -99,19 +99,13 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, err
 	}
 
-	// TODO: combine report
-	data, err := json.Marshal(results)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(string(data))
-
-	return in, nil
+	in.Response, err = GenerateReports(images, results)
+	return in, err
 }
 
 type result struct {
 	ref     string
-	report  scannerapi.ImageScanRequest
+	report  scannerapi.ImageScanReport
 	missing bool
 }
 
@@ -148,7 +142,7 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 	for i := 0; i < maxConcurrency; i++ {
 		g.Go(func() error {
 			for req := range requests {
-				var report scannerapi.ImageScanRequest
+				var report scannerapi.ImageScanReport
 				err := kc.Get(ctx, client.ObjectKey{Name: fmt.Sprintf("%x", md5.Sum([]byte(req.ImageRef)))}, &report)
 				if client.IgnoreNotFound(err) != nil {
 					return err
@@ -187,4 +181,143 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 		return nil, err
 	}
 	return m, nil
+}
+
+func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]result) (*reportsapi.CVEReportResponse, error) {
+	// count := map[string]string{}  // CVE -> risk level
+	occurence := map[string]int{} // risk level -> int
+
+	imginfos := map[string]reportsapi.ImageInfo{}
+	vuls := map[string]reportsapi.Vulnerability{}
+
+	for ref, r := range results {
+		iis, ok := imginfos[ref]
+		if !ok {
+			iis = reportsapi.ImageInfo{}
+		}
+		iis.Name.Ref = ref
+		iis.Name.Tag = r.report.Spec.Tag
+		iis.Name.Digest = r.report.Spec.Digest
+
+		if r.missing {
+			iis.ScanStatus.Result = reportsapi.ScanResultNotFound
+		} else {
+			iis.ScanStatus.ReportRef = &core.LocalObjectReference{
+				Name: r.report.Name,
+			}
+			iis.ScanStatus.LastChecked = r.report.Status.LastChecked
+			iis.ScanStatus.TrivyDBVersion = r.report.Status.TrivyDBVersion
+
+			md := r.report.Status.Report.Metadata
+			iis.Metadata = reportsapi.ImageMetadata{
+				Os: md.Os,
+				ImageConfig: reportsapi.ImageConfig{
+					Architecture: md.ImageConfig.Architecture,
+					Author:       md.ImageConfig.Author,
+					Container:    md.ImageConfig.Container,
+					Os:           md.ImageConfig.Os,
+				},
+			}
+			iis.Lineages = images[ref].Lineages
+
+			for _, rpt := range r.report.Status.Report.Results {
+				for _, tv := range rpt.Vulnerabilities {
+					av, ok := vuls[tv.VulnerabilityID]
+					if !ok {
+						av = reportsapi.Vulnerability{
+							VulnerabilityID:  tv.VulnerabilityID,
+							PkgName:          tv.PkgName,
+							PkgID:            tv.PkgID,
+							SeveritySource:   tv.SeveritySource,
+							PrimaryURL:       tv.PrimaryURL,
+							DataSource:       tv.DataSource,
+							Title:            tv.Title,
+							Description:      tv.Description,
+							Severity:         tv.Severity,
+							CweIDs:           tv.CweIDs,
+							Cvss:             tv.Cvss,
+							References:       tv.References,
+							PublishedDate:    tv.PublishedDate,
+							LastModifiedDate: tv.LastModifiedDate,
+							FixedVersion:     tv.FixedVersion,
+							// Results:          tv.Results,
+							R: map[string]reportsapi.ImageResult{},
+						}
+					}
+					occurence[tv.VulnerabilityID]++
+
+					ir, ok := av.R[ref]
+					if !ok {
+						ir = reportsapi.ImageResult{
+							ImageRef: ref,
+							Targets:  nil,
+						}
+					}
+					ir.Targets = append(ir.Targets, reportsapi.Target{
+						Layer:            tv.Layer,
+						InstalledVersion: tv.InstalledVersion,
+						Target:           rpt.Target,
+						Class:            rpt.Class,
+						Type:             rpt.Type,
+					})
+					av.R[ref] = ir
+
+					vuls[av.VulnerabilityID] = av
+				}
+			}
+		}
+		imginfos[ref] = iis
+	}
+
+	count := map[string]int{} // Risk_level -> num_uniq_cves
+	for _, vul := range vuls {
+		count[vul.Severity]++
+	}
+
+	riskRank := map[string]int{
+		"CRITICAL": 0,
+		"HIGH":     1,
+	}
+
+	resp := reportsapi.CVEReportResponse{
+		Images: make([]reportsapi.ImageInfo, 0, len(imginfos)),
+		Vulnerabilities: reportsapi.VulnerabilityInfo{
+			Count:      count,
+			Occurrence: occurence,
+			CVEs:       make([]reportsapi.Vulnerability, 0, len(vuls)),
+		},
+	}
+	for _, ii := range imginfos {
+		resp.Images = append(resp.Images, ii)
+	}
+	sort.Slice(resp.Images, func(i, j int) bool {
+		return resp.Images[i].Name.Ref < resp.Images[j].Name.Ref
+	})
+
+	for _, vul := range vuls {
+		vul.Results = make([]reportsapi.ImageResult, 0, len(vul.R))
+		for _, r := range vul.R {
+			sort.Slice(r.Targets, func(i, j int) bool {
+				if r.Targets[i].Type != r.Targets[j].Type {
+					return r.Targets[i].Type < r.Targets[j].Type
+				}
+				return r.Targets[i].Target != r.Targets[j].Target
+			})
+			vul.Results = append(vul.Results, r)
+		}
+		sort.Slice(vul.Results, func(i, j int) bool {
+			return vul.Results[i].ImageRef < vul.Results[j].ImageRef
+		})
+		resp.Vulnerabilities.CVEs = append(resp.Vulnerabilities.CVEs, vul)
+	}
+	sort.Slice(resp.Vulnerabilities.CVEs, func(i, j int) bool {
+		ci, cj := resp.Vulnerabilities.CVEs[i], resp.Vulnerabilities.CVEs[j]
+
+		if riskRank[ci.Severity] != riskRank[cj.Severity] {
+			return riskRank[ci.Severity] < riskRank[cj.Severity]
+		}
+		return ci.VulnerabilityID < cj.VulnerabilityID
+	})
+
+	return &resp, nil
 }

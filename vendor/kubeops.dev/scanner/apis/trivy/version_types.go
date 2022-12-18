@@ -14,20 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1alpha1
+package trivy
 
-import (
-	"kubeops.dev/scanner/apis/trivy"
-)
-
-type TrivyVersion struct {
+type Version struct {
 	Version         string                `json:"Version"`
 	VulnerabilityDB VulnerabilityDBStruct `json:"VulnerabilityDB"`
 }
 
 type VulnerabilityDBStruct struct {
-	Version      int32      `json:"Version"`
-	UpdatedAt    trivy.Time `json:"UpdatedAt"`
-	DownloadedAt trivy.Time `json:"DownloadedAt"`
-	NextUpdate   trivy.Time `json:"NextUpdate"`
+	Version      int32 `json:"Version"`
+	UpdatedAt    Time  `json:"UpdatedAt"`
+	DownloadedAt Time  `json:"DownloadedAt"`
+	NextUpdate   Time  `json:"NextUpdate"`
 }

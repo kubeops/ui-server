@@ -62,6 +62,7 @@ type ImageScanRequestStatus struct {
 	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
 	// Specifies the current phase of the database
 	// +optional
+	// +kubebuilder:default="Pending"
 	Phase     ImageScanRequestPhase `json:"phase,omitempty"`
 	Image     *ImageDetails         `json:"image,omitempty"`
 	ReportRef *ScanReportRef        `json:"reportRef,omitempty"`

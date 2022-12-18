@@ -367,8 +367,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubeops.dev/scanner/apis/scanner/v1alpha1.ImageScanRequestSpec":     schema_scanner_apis_scanner_v1alpha1_ImageScanRequestSpec(ref),
 		"kubeops.dev/scanner/apis/scanner/v1alpha1.ImageScanRequestStatus":   schema_scanner_apis_scanner_v1alpha1_ImageScanRequestStatus(ref),
 		"kubeops.dev/scanner/apis/scanner/v1alpha1.ScanReportRef":            schema_scanner_apis_scanner_v1alpha1_ScanReportRef(ref),
-		"kubeops.dev/scanner/apis/scanner/v1alpha1.TrivyVersion":             schema_scanner_apis_scanner_v1alpha1_TrivyVersion(ref),
-		"kubeops.dev/scanner/apis/scanner/v1alpha1.VulnerabilityDBStruct":    schema_scanner_apis_scanner_v1alpha1_VulnerabilityDBStruct(ref),
 	}
 }
 
@@ -18005,74 +18003,6 @@ func schema_scanner_apis_scanner_v1alpha1_ScanReportRef(ref common.ReferenceCall
 					},
 				},
 				Required: []string{"name"},
-			},
-		},
-		Dependencies: []string{
-			"kubeops.dev/scanner/apis/trivy.Time"},
-	}
-}
-
-func schema_scanner_apis_scanner_v1alpha1_TrivyVersion(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"Version": {
-						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
-						},
-					},
-					"VulnerabilityDB": {
-						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("kubeops.dev/scanner/apis/scanner/v1alpha1.VulnerabilityDBStruct"),
-						},
-					},
-				},
-				Required: []string{"Version", "VulnerabilityDB"},
-			},
-		},
-		Dependencies: []string{
-			"kubeops.dev/scanner/apis/scanner/v1alpha1.VulnerabilityDBStruct"},
-	}
-}
-
-func schema_scanner_apis_scanner_v1alpha1_VulnerabilityDBStruct(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"Version": {
-						SchemaProps: spec.SchemaProps{
-							Default: 0,
-							Type:    []string{"integer"},
-							Format:  "int32",
-						},
-					},
-					"UpdatedAt": {
-						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("kubeops.dev/scanner/apis/trivy.Time"),
-						},
-					},
-					"DownloadedAt": {
-						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("kubeops.dev/scanner/apis/trivy.Time"),
-						},
-					},
-					"NextUpdate": {
-						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("kubeops.dev/scanner/apis/trivy.Time"),
-						},
-					},
-				},
-				Required: []string{"Version", "UpdatedAt", "DownloadedAt", "NextUpdate"},
 			},
 		},
 		Dependencies: []string{

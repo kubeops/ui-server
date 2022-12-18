@@ -17997,6 +17997,11 @@ func schema_scanner_apis_reports_v1alpha1_ImageScanStatus(ref common.ReferenceCa
 							Format:      "",
 						},
 					},
+					"reportRef": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
 					"lastChecked": {
 						SchemaProps: spec.SchemaProps{
 							Description: "When the referred image was checked for the last time",
@@ -18016,7 +18021,7 @@ func schema_scanner_apis_reports_v1alpha1_ImageScanStatus(ref common.ReferenceCa
 			},
 		},
 		Dependencies: []string{
-			"kubeops.dev/scanner/apis/trivy.Time"},
+			"k8s.io/api/core/v1.LocalObjectReference", "kubeops.dev/scanner/apis/trivy.Time"},
 	}
 }
 

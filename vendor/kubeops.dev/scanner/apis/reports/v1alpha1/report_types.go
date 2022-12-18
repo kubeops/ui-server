@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	"kubeops.dev/scanner/apis/trivy"
 
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
 )
@@ -81,6 +82,8 @@ type ImageScanStatus struct {
 	// +optional
 	Message string `json:"message,omitempty"`
 
+	ReportRef *core.LocalObjectReference `json:"reportRef,omitempty"`
+
 	// When the referred image was checked for the last time
 	// +optional
 	LastChecked trivy.Time `json:"lastChecked,omitempty"`
@@ -125,7 +128,8 @@ type Vulnerability struct {
 	LastModifiedDate *trivy.Time                   `json:"LastModifiedDate,omitempty"`
 	FixedVersion     string                        `json:"FixedVersion,omitempty"`
 
-	Results []ImageResult `json:"Results"`
+	Results []ImageResult          `json:"Results"`
+	R       map[string]ImageResult `json:"-"`
 
 	// InstalledVersion string `json:"InstalledVersion"`
 	// Layer            VulnerabilityLayer      `json:"Layer"`

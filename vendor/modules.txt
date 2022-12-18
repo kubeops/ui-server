@@ -1404,7 +1404,7 @@ kmodules.xyz/resource-metrics/kubedb.com/v1alpha2
 # kmodules.xyz/sets v0.24.0
 ## explicit; go 1.17
 kmodules.xyz/sets
-# kubeops.dev/scanner v0.0.2-0.20221212052612-b3be214d7f90
+# kubeops.dev/scanner v0.0.2-0.20221214022953-3f15dde7b3bd
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
 kubeops.dev/scanner/apis/reports/v1alpha1
