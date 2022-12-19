@@ -1,0 +1,2 @@
+apiVersion: reports.scanner.appscode.com/v1alpha1
+kind: CVEReport

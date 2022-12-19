@@ -17,64 +17,64 @@ limitations under the License.
 package trivy
 
 type SingleReport struct {
-	SchemaVersion int           `json:"SchemaVersion"`
-	ArtifactName  string        `json:"ArtifactName"`
-	ArtifactType  string        `json:"ArtifactType"`
-	Metadata      ImageMetadata `json:"Metadata"`
-	Results       []Result      `json:"Results"`
+	SchemaVersion int           `json:"schemaVersion" tv:"SchemaVersion"`
+	ArtifactName  string        `json:"artifactName" tv:"ArtifactName"`
+	ArtifactType  string        `json:"artifactType" tv:"ArtifactType"`
+	Metadata      ImageMetadata `json:"metadata" tv:"Metadata"`
+	Results       []Result      `json:"results" tv:"Results"`
 }
 
 type ImageMetadata struct {
-	Os          ImageOS     `json:"OS"`
-	ImageID     string      `json:"ImageID"`
-	DiffIDs     []string    `json:"DiffIDs"`
-	RepoTags    []string    `json:"RepoTags"`
-	RepoDigests []string    `json:"RepoDigests"`
-	ImageConfig ImageConfig `json:"ImageConfig"`
+	Os          ImageOS     `json:"os" tv:"OS"`
+	ImageID     string      `json:"imageID" tv:"ImageID"`
+	DiffIDs     []string    `json:"diffIDs" tv:"DiffIDs"`
+	RepoTags    []string    `json:"repoTags" tv:"RepoTags"`
+	RepoDigests []string    `json:"repoDigests" tv:"RepoDigests"`
+	ImageConfig ImageConfig `json:"imageConfig" tv:"ImageConfig"`
 }
 
 type ImageOS struct {
-	Family string `json:"Family"`
-	Name   string `json:"Name"`
+	Family string `json:"family" tv:"Family"`
+	Name   string `json:"name" tv:"Name"`
 }
 
 type ImageConfig struct {
-	Architecture  string             `json:"architecture"`
-	Author        string             `json:"author,omitempty"`
-	Container     string             `json:"container,omitempty"`
-	Created       Time               `json:"created"`
-	DockerVersion string             `json:"docker_version,omitempty"`
-	History       []ImageHistory     `json:"history"`
-	Os            string             `json:"os"`
-	Rootfs        ImageRootfs        `json:"rootfs"`
-	Config        ImageRuntimeConfig `json:"config"`
+	Architecture  string             `json:"architecture" tv:"architecture"`
+	Author        string             `json:"author,omitempty" tv:"author,omitempty"`
+	Container     string             `json:"container,omitempty" tv:"container,omitempty"`
+	Created       Time               `json:"created" tv:"created"`
+	DockerVersion string             `json:"dockerVersion,omitempty" tv:"docker_version,omitempty"`
+	History       []ImageHistory     `json:"history" tv:"history"`
+	Os            string             `json:"os" tv:"os"`
+	Rootfs        ImageRootfs        `json:"rootfs" tv:"rootfs"`
+	Config        ImageRuntimeConfig `json:"config" tv:"config"`
 }
 
 type ImageHistory struct {
-	Created    Time   `json:"created"`
-	CreatedBy  string `json:"created_by"`
-	EmptyLayer bool   `json:"empty_layer,omitempty"`
-	Comment    string `json:"comment,omitempty"`
+	Created    Time   `json:"created" tv:"created"`
+	CreatedBy  string `json:"createdBy" tv:"created_by"`
+	EmptyLayer bool   `json:"emptyLayer,omitempty" tv:"empty_layer,omitempty"`
+	Comment    string `json:"comment,omitempty" tv:"comment,omitempty"`
 }
 
 type ImageRootfs struct {
-	Type    string   `json:"type"`
-	DiffIds []string `json:"diff_ids"`
+	Type    string   `json:"type" tv:"type"`
+	DiffIds []string `json:"diffIDs" tv:"diff_ids"`
 }
 
 type ImageRuntimeConfig struct {
-	Cmd         []string          `json:"Cmd"`
-	Env         []string          `json:"Env,omitempty"`
-	Image       string            `json:"Image,omitempty"`
-	Entrypoint  []string          `json:"Entrypoint,omitempty"`
-	Labels      map[string]string `json:"Labels,omitempty"`
-	ArgsEscaped bool              `json:"ArgsEscaped,omitempty"`
-	StopSignal  string            `json:"StopSignal,omitempty"`
+	Cmd         []string          `json:"cmd" tv:"Cmd"`
+	Env         []string          `json:"env,omitempty" tv:"Env,omitempty"`
+	Image       string            `json:"image,omitempty" tv:"Image,omitempty"`
+	Entrypoint  []string          `json:"entrypoint,omitempty" tv:"Entrypoint,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty" tv:"Labels,omitempty"`
+	ArgsEscaped bool              `json:"argsEscaped,omitempty" tv:"ArgsEscaped,omitempty"`
+	StopSignal  string            `json:"stopSignal,omitempty" tv:"StopSignal,omitempty"`
 }
 
 type VulnerabilityLayer struct {
-	Digest string `json:"Digest,omitempty"`
-	DiffID string `json:"DiffID"`
+	Digest string `json:"digest,omitempty" tv:"Digest,omitempty"`
+	DiffID string `json:"diffID" tv:"DiffID"`
 }
 
 type VulnerabilityDataSource struct {
@@ -84,40 +84,56 @@ type VulnerabilityDataSource struct {
 }
 
 type CVSSScore struct {
-	V2Vector string  `json:"V2Vector,omitempty"`
-	V3Vector string  `json:"V3Vector,omitempty"`
-	V2Score  float64 `json:"V2Score,omitempty"`
-	V3Score  float64 `json:"V3Score,omitempty"`
+	V2Vector string  `json:"v2Vector,omitempty" tv:"V2Vector,omitempty"`
+	V3Vector string  `json:"v3Vector,omitempty" tv:"V3Vector,omitempty"`
+	V2Score  float64 `json:"v2Score,omitempty" tv:"V2Score,omitempty"`
+	V3Score  float64 `json:"v3Score,omitempty" tv:"V3Score,omitempty"`
 }
 
 type CVSS struct {
-	Nvd    *CVSSScore `json:"nvd,omitempty"`
-	Redhat *CVSSScore `json:"redhat,omitempty"`
+	Nvd    *CVSSScore `json:"nvd,omitempty" tv:"nvd,omitempty"`
+	Redhat *CVSSScore `json:"redhat,omitempty" tv:"redhat,omitempty"`
 }
 
 type Vulnerability struct {
-	VulnerabilityID  string                  `json:"VulnerabilityID"`
-	PkgName          string                  `json:"PkgName"`
-	PkgID            string                  `json:"PkgID,omitempty"`
-	InstalledVersion string                  `json:"InstalledVersion"`
-	Layer            VulnerabilityLayer      `json:"Layer"`
-	SeveritySource   string                  `json:"SeveritySource"`
-	PrimaryURL       string                  `json:"PrimaryURL"`
-	DataSource       VulnerabilityDataSource `json:"DataSource"`
-	Title            string                  `json:"Title,omitempty"`
-	Description      string                  `json:"Description"`
-	Severity         string                  `json:"Severity"`
-	CweIDs           []string                `json:"CweIDs,omitempty"`
-	Cvss             CVSS                    `json:"CVSS,omitempty"`
-	References       []string                `json:"References"`
-	PublishedDate    *Time                   `json:"PublishedDate,omitempty"`
-	LastModifiedDate *Time                   `json:"LastModifiedDate,omitempty"`
-	FixedVersion     string                  `json:"FixedVersion,omitempty"`
+	VulnerabilityID  string                  `json:"vulnerabilityID" tv:"VulnerabilityID"`
+	PkgName          string                  `json:"pkgName" tv:"PkgName"`
+	PkgID            string                  `json:"pkgID,omitempty" tv:"PkgID,omitempty"`
+	InstalledVersion string                  `json:"-" tv:"InstalledVersion"`
+	Layer            VulnerabilityLayer      `json:"-" tv:"Layer"`
+	SeveritySource   string                  `json:"severitySource" tv:"SeveritySource"`
+	PrimaryURL       string                  `json:"primaryURL" tv:"PrimaryURL"`
+	DataSource       VulnerabilityDataSource `json:"dataSource" tv:"DataSource"`
+	Title            string                  `json:"title,omitempty" tv:"Title,omitempty"`
+	Description      string                  `json:"description" tv:"Description"`
+	Severity         string                  `json:"severity" tv:"Severity"`
+	CweIDs           []string                `json:"cweIDs,omitempty" tv:"CweIDs,omitempty"`
+	Cvss             CVSS                    `json:"cvss,omitempty" tv:"CVSS,omitempty"`
+	References       []string                `json:"references" tv:"References"`
+	PublishedDate    *Time                   `json:"publishedDate,omitempty" tv:"PublishedDate,omitempty"`
+	LastModifiedDate *Time                   `json:"lastModifiedDate,omitempty" tv:"LastModifiedDate,omitempty"`
+	FixedVersion     string                  `json:"fixedVersion,omitempty" tv:"FixedVersion,omitempty"`
+
+	Results []ImageResult          `json:"results"  tv:"-"`
+	R       map[string]ImageResult `json:"-" tv:"-"`
+}
+
+type ImageResult struct {
+	Image   string   `json:"image,omitempty"`
+	Targets []Target `json:"targets,omitempty"`
+}
+
+type Target struct {
+	Layer            *VulnerabilityLayer `json:"layer,omitempty"`
+	InstalledVersion string              `json:"installedVersion,omitempty"`
+	Target           string              `json:"target"`
+	Class            string              `json:"class"`
+	Type             string              `json:"type"`
 }
 
 type Result struct {
-	Target          string          `json:"Target"`
-	Class           string          `json:"Class"`
-	Type            string          `json:"Type"`
-	Vulnerabilities []Vulnerability `json:"Vulnerabilities,omitempty"`
+	Target          string          `json:"target" tv:"Target"`
+	Class           string          `json:"class" tv:"Class"`
+	Type            string          `json:"type" tv:"Type"`
+	Vulnerabilities []Vulnerability `json:"vulnerabilities,omitempty" tv:"Vulnerabilities,omitempty"`
 }

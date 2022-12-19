@@ -57,7 +57,7 @@ func SendScanRequest(ctx context.Context, kc client.Client, ref string, info kma
 			GenerateName: GenerateName(ref),
 		},
 		Spec: scannerapi.ImageScanRequestSpec{
-			ImageRef:    ref,
+			Image:       ref,
 			Namespace:   info.Namespace,
 			PullSecrets: info.Refs,
 		},

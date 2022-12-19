@@ -35,7 +35,11 @@ type ImageScanReport struct {
 }
 
 type ImageScanReportSpec struct {
-	Image  string
+	Image ImageReference
+}
+
+type ImageReference struct {
+	Name   string
 	Tag    string
 	Digest string
 }

@@ -358,6 +358,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/client-go/api/v1.X509Subject":                          schema_kmodulesxyz_client_go_api_v1_X509Subject(ref),
 		"kmodules.xyz/client-go/api/v1.stringSetMerger":                      schema_kmodulesxyz_client_go_api_v1_stringSetMerger(ref),
 		"kubeops.dev/scanner/apis/scanner/v1alpha1.ImageDetails":             schema_scanner_apis_scanner_v1alpha1_ImageDetails(ref),
+		"kubeops.dev/scanner/apis/scanner/v1alpha1.ImageReference":           schema_scanner_apis_scanner_v1alpha1_ImageReference(ref),
 		"kubeops.dev/scanner/apis/scanner/v1alpha1.ImageScanReport":          schema_scanner_apis_scanner_v1alpha1_ImageScanReport(ref),
 		"kubeops.dev/scanner/apis/scanner/v1alpha1.ImageScanReportList":      schema_scanner_apis_scanner_v1alpha1_ImageScanReportList(ref),
 		"kubeops.dev/scanner/apis/scanner/v1alpha1.ImageScanReportSpec":      schema_scanner_apis_scanner_v1alpha1_ImageScanReportSpec(ref),
@@ -17633,6 +17634,38 @@ func schema_scanner_apis_scanner_v1alpha1_ImageDetails(ref common.ReferenceCallb
 	}
 }
 
+func schema_scanner_apis_scanner_v1alpha1_ImageReference(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"tag": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"digest": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"name"},
+			},
+		},
+	}
+}
+
 func schema_scanner_apis_scanner_v1alpha1_ImageScanReport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -17738,26 +17771,16 @@ func schema_scanner_apis_scanner_v1alpha1_ImageScanReportSpec(ref common.Referen
 				Properties: map[string]spec.Schema{
 					"image": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"tag": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Tag & Digest is optional field. One of these fields may not present",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"digest": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/scanner/v1alpha1.ImageReference"),
 						},
 					},
 				},
+				Required: []string{"image"},
 			},
 		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/scanner/v1alpha1.ImageReference"},
 	}
 }
 
@@ -17899,7 +17922,7 @@ func schema_scanner_apis_scanner_v1alpha1_ImageScanRequestSpec(ref common.Refere
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"imageRef": {
+					"image": {
 						SchemaProps: spec.SchemaProps{
 							Default: "",
 							Type:    []string{"string"},
@@ -17908,7 +17931,7 @@ func schema_scanner_apis_scanner_v1alpha1_ImageScanRequestSpec(ref common.Refere
 					},
 					"pullSecrets": {
 						SchemaProps: spec.SchemaProps{
-							Description: "If some private image is referred in ImageRef, this field will contain the ImagePullSecrets from the pod template.",
+							Description: "If some private image is referred in Image, this field will contain the ImagePullSecrets from the pod template.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -17928,7 +17951,7 @@ func schema_scanner_apis_scanner_v1alpha1_ImageScanRequestSpec(ref common.Refere
 						},
 					},
 				},
-				Required: []string{"imageRef"},
+				Required: []string{"image"},
 			},
 		},
 		Dependencies: []string{

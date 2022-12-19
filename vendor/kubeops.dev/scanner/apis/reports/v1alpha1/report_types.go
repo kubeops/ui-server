@@ -50,21 +50,21 @@ type CVEReportRequest struct {
 }
 
 type CVEReportResponse struct {
-	Images          []ImageInfo       `json:"Images"`
-	Vulnerabilities VulnerabilityInfo `json:"Vulnerabilities"`
+	Images          []ImageInfo       `json:"images"`
+	Vulnerabilities VulnerabilityInfo `json:"vulnerabilities"`
 }
 
 type VulnerabilityInfo struct {
-	Count      map[string]int  `json:"Count"`
-	Occurrence map[string]int  `json:"Occurrence"`
-	CVEs       []Vulnerability `json:"CVEs"`
+	Count      map[string]int        `json:"count"`
+	Occurrence map[string]int        `json:"occurrence"`
+	CVEs       []trivy.Vulnerability `json:"cves"`
 }
 
 type ImageInfo struct {
-	Name       ImageName       `json:"Name"`
-	Metadata   ImageMetadata   `json:"Metadata"`
-	Lineages   []kmapi.Lineage `json:"lineages"`
-	ScanStatus ImageScanStatus `json:"ScanStatus"`
+	Image      ImageReference  `json:"image"`
+	Metadata   *ImageMetadata  `json:"metadata,omitempty"`
+	Lineages   []kmapi.Lineage `json:"lineages,omitempty"`
+	ScanStatus ImageScanStatus `json:"scanStatus"`
 }
 
 type ScanResult string
@@ -78,7 +78,7 @@ const (
 
 type ImageScanStatus struct {
 	Result ScanResult `json:"result"`
-	// A human readable message indicating details about scan result.
+	// A human-readable message indicating details about scan result.
 	// +optional
 	Message string `json:"message,omitempty"`
 
@@ -86,64 +86,27 @@ type ImageScanStatus struct {
 
 	// When the referred image was checked for the last time
 	// +optional
-	LastChecked trivy.Time `json:"lastChecked,omitempty"`
+	LastChecked *trivy.Time `json:"lastChecked,omitempty"`
 
 	// which TrivyDBVersion was used when the last check
 	// +optional
 	TrivyDBVersion string `json:"trivyDBVersion,omitempty"`
 }
 
-type ImageName struct {
-	Ref    string `json:"Ref"`
-	Tag    string `json:"Tag"`
-	Digest string `json:"Digest"`
+type ImageReference struct {
+	Name   string `json:"name"`
+	Tag    string `json:"tag,omitempty"`
+	Digest string `json:"digest,omitempty"`
 }
 
 type ImageMetadata struct {
-	Os          trivy.ImageOS `json:"OS"`
-	ImageConfig ImageConfig   `json:"ImageConfig"`
+	Os          *trivy.ImageOS `json:"os,omitempty"`
+	ImageConfig *ImageConfig   `json:"imageConfig,omitempty"`
 }
 
 type ImageConfig struct {
-	Architecture string `json:"architecture"`
+	Architecture string `json:"architecture,omitempty"`
 	Author       string `json:"author,omitempty"`
 	Container    string `json:"container,omitempty"`
-	Os           string `json:"os"`
-}
-
-type Vulnerability struct {
-	VulnerabilityID  string                        `json:"VulnerabilityID"`
-	PkgName          string                        `json:"PkgName"`
-	PkgID            string                        `json:"PkgID,omitempty"`
-	SeveritySource   string                        `json:"SeveritySource"`
-	PrimaryURL       string                        `json:"PrimaryURL"`
-	DataSource       trivy.VulnerabilityDataSource `json:"DataSource"`
-	Title            string                        `json:"Title,omitempty"`
-	Description      string                        `json:"Description"`
-	Severity         string                        `json:"Severity"`
-	CweIDs           []string                      `json:"CweIDs,omitempty"`
-	Cvss             trivy.CVSS                    `json:"CVSS,omitempty"`
-	References       []string                      `json:"References"`
-	PublishedDate    *trivy.Time                   `json:"PublishedDate,omitempty"`
-	LastModifiedDate *trivy.Time                   `json:"LastModifiedDate,omitempty"`
-	FixedVersion     string                        `json:"FixedVersion,omitempty"`
-
-	Results []ImageResult          `json:"Results"`
-	R       map[string]ImageResult `json:"-"`
-
-	// InstalledVersion string `json:"InstalledVersion"`
-	// Layer            VulnerabilityLayer      `json:"Layer"`
-}
-
-type ImageResult struct {
-	ImageRef string   `json:"ImageRef,omitempty"`
-	Targets  []Target `json:"Targets,omitempty"`
-}
-
-type Target struct {
-	Layer            trivy.VulnerabilityLayer `json:"Layer"`
-	InstalledVersion string                   `json:"InstalledVersion"`
-	Target           string                   `json:"Target"`
-	Class            string                   `json:"Class"`
-	Type             string                   `json:"Type"`
+	Os           string `json:"os,omitempty"`
 }

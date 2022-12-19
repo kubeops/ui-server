@@ -34,7 +34,7 @@ type ImageScanRequest struct {
 }
 
 type ImageScanRequestSpec struct {
-	ImageRef    string
+	Image       string
 	PullSecrets []core.LocalObjectReference
 	Namespace   string
 }

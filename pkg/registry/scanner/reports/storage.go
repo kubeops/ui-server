@@ -24,6 +24,7 @@ import (
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
+	"kubeops.dev/scanner/apis/trivy"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/shared"
 
@@ -121,7 +122,7 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 		defer close(requests)
 		for ref, info := range images {
 			req := scannerapi.ImageScanRequestSpec{
-				ImageRef: ref,
+				Image: ref,
 			}
 			if info.PullSecrets != nil {
 				req.Namespace = info.PullSecrets.Namespace
@@ -143,18 +144,18 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 		g.Go(func() error {
 			for req := range requests {
 				var report scannerapi.ImageScanReport
-				err := kc.Get(ctx, client.ObjectKey{Name: fmt.Sprintf("%x", md5.Sum([]byte(req.ImageRef)))}, &report)
+				err := kc.Get(ctx, client.ObjectKey{Name: fmt.Sprintf("%x", md5.Sum([]byte(req.Image)))}, &report)
 				if client.IgnoreNotFound(err) != nil {
 					return err
 				} else if apierrors.IsNotFound(err) {
-					_ = shared.SendScanRequest(ctx, kc, req.ImageRef, kmapi.PullSecrets{
+					_ = shared.SendScanRequest(ctx, kc, req.Image, kmapi.PullSecrets{
 						Namespace: req.Namespace,
 						Refs:      req.PullSecrets,
 					})
 				}
 				select {
 				case c <- result{
-					ref:     req.ImageRef,
+					ref:     req.Image,
 					report:  report,
 					missing: apierrors.IsNotFound(err),
 				}:
@@ -188,35 +189,43 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 	occurence := map[string]int{} // risk level -> int
 
 	imginfos := map[string]reportsapi.ImageInfo{}
-	vuls := map[string]reportsapi.Vulnerability{}
+	vuls := map[string]trivy.Vulnerability{}
 
 	for ref, r := range results {
 		iis, ok := imginfos[ref]
 		if !ok {
 			iis = reportsapi.ImageInfo{}
 		}
-		iis.Name.Ref = ref
-		iis.Name.Tag = r.report.Spec.Tag
-		iis.Name.Digest = r.report.Spec.Digest
+		iis.Image.Name = ref
+		iis.Image.Tag = r.report.Spec.Image.Tag
+		iis.Image.Digest = r.report.Spec.Image.Digest
 
 		if r.missing {
 			iis.ScanStatus.Result = reportsapi.ScanResultNotFound
 		} else {
+			iis.ScanStatus.Result = reportsapi.ScanResultFound
 			iis.ScanStatus.ReportRef = &core.LocalObjectReference{
 				Name: r.report.Name,
 			}
-			iis.ScanStatus.LastChecked = r.report.Status.LastChecked
+			iis.ScanStatus.LastChecked = &r.report.Status.LastChecked
 			iis.ScanStatus.TrivyDBVersion = r.report.Status.TrivyDBVersion
 
 			md := r.report.Status.Report.Metadata
-			iis.Metadata = reportsapi.ImageMetadata{
-				Os: md.Os,
-				ImageConfig: reportsapi.ImageConfig{
-					Architecture: md.ImageConfig.Architecture,
-					Author:       md.ImageConfig.Author,
-					Container:    md.ImageConfig.Container,
-					Os:           md.ImageConfig.Os,
-				},
+			var m2 reportsapi.ImageMetadata
+			if md.Os.Name != "" || md.Os.Family != "" {
+				m2.Os = &md.Os
+			}
+			cfg := reportsapi.ImageConfig{
+				Architecture: md.ImageConfig.Architecture,
+				Author:       md.ImageConfig.Author,
+				Container:    md.ImageConfig.Container,
+				Os:           md.ImageConfig.Os,
+			}
+			if cfg != (reportsapi.ImageConfig{}) {
+				m2.ImageConfig = &cfg
+			}
+			if m2.Os != nil || m2.ImageConfig != nil {
+				iis.Metadata = &m2
 			}
 			iis.Lineages = images[ref].Lineages
 
@@ -224,42 +233,28 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 				for _, tv := range rpt.Vulnerabilities {
 					av, ok := vuls[tv.VulnerabilityID]
 					if !ok {
-						av = reportsapi.Vulnerability{
-							VulnerabilityID:  tv.VulnerabilityID,
-							PkgName:          tv.PkgName,
-							PkgID:            tv.PkgID,
-							SeveritySource:   tv.SeveritySource,
-							PrimaryURL:       tv.PrimaryURL,
-							DataSource:       tv.DataSource,
-							Title:            tv.Title,
-							Description:      tv.Description,
-							Severity:         tv.Severity,
-							CweIDs:           tv.CweIDs,
-							Cvss:             tv.Cvss,
-							References:       tv.References,
-							PublishedDate:    tv.PublishedDate,
-							LastModifiedDate: tv.LastModifiedDate,
-							FixedVersion:     tv.FixedVersion,
-							// Results:          tv.Results,
-							R: map[string]reportsapi.ImageResult{},
-						}
+						av = tv
+						av.R = map[string]trivy.ImageResult{}
 					}
-					occurence[tv.VulnerabilityID]++
+					occurence[tv.Severity]++
 
 					ir, ok := av.R[ref]
 					if !ok {
-						ir = reportsapi.ImageResult{
-							ImageRef: ref,
-							Targets:  nil,
+						ir = trivy.ImageResult{
+							Image:   ref,
+							Targets: nil,
 						}
 					}
-					ir.Targets = append(ir.Targets, reportsapi.Target{
-						Layer:            tv.Layer,
+					tgt := trivy.Target{
 						InstalledVersion: tv.InstalledVersion,
 						Target:           rpt.Target,
 						Class:            rpt.Class,
 						Type:             rpt.Type,
-					})
+					}
+					if tv.Layer.Digest != "" {
+						tgt.Layer = &tv.Layer
+					}
+					ir.Targets = append(ir.Targets, tgt)
 					av.R[ref] = ir
 
 					vuls[av.VulnerabilityID] = av
@@ -284,18 +279,18 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 		Vulnerabilities: reportsapi.VulnerabilityInfo{
 			Count:      count,
 			Occurrence: occurence,
-			CVEs:       make([]reportsapi.Vulnerability, 0, len(vuls)),
+			CVEs:       make([]trivy.Vulnerability, 0, len(vuls)),
 		},
 	}
 	for _, ii := range imginfos {
 		resp.Images = append(resp.Images, ii)
 	}
 	sort.Slice(resp.Images, func(i, j int) bool {
-		return resp.Images[i].Name.Ref < resp.Images[j].Name.Ref
+		return resp.Images[i].Image.Name < resp.Images[j].Image.Name
 	})
 
 	for _, vul := range vuls {
-		vul.Results = make([]reportsapi.ImageResult, 0, len(vul.R))
+		vul.Results = make([]trivy.ImageResult, 0, len(vul.R))
 		for _, r := range vul.R {
 			sort.Slice(r.Targets, func(i, j int) bool {
 				if r.Targets[i].Type != r.Targets[j].Type {
@@ -306,7 +301,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 			vul.Results = append(vul.Results, r)
 		}
 		sort.Slice(vul.Results, func(i, j int) bool {
-			return vul.Results[i].ImageRef < vul.Results[j].ImageRef
+			return vul.Results[i].Image < vul.Results[j].Image
 		})
 		resp.Vulnerabilities.CVEs = append(resp.Vulnerabilities.CVEs, vul)
 	}

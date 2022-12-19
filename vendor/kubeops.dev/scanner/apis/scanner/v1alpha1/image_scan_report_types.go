@@ -47,12 +47,12 @@ type ImageScanReport struct {
 }
 
 type ImageScanReportSpec struct {
-	Image string `json:"image,omitempty"`
+	Image ImageReference `json:"image"`
+}
 
-	// Tag & Digest is optional field. One of these fields may not present
-	// +optional
-	Tag string `json:"tag,omitempty"`
-	// +optional
+type ImageReference struct {
+	Name   string `json:"name"`
+	Tag    string `json:"tag,omitempty"`
 	Digest string `json:"digest,omitempty"`
 }
 

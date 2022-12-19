@@ -17,13 +17,13 @@ limitations under the License.
 package trivy
 
 type Version struct {
-	Version         string                `json:"Version"`
-	VulnerabilityDB VulnerabilityDBStruct `json:"VulnerabilityDB"`
+	Version         string                `json:"version" tv:"Version"`
+	VulnerabilityDB VulnerabilityDBStruct `json:"vulnerabilityDB" tv:"VulnerabilityDB"`
 }
 
 type VulnerabilityDBStruct struct {
-	Version      int32 `json:"Version"`
-	UpdatedAt    Time  `json:"UpdatedAt"`
-	DownloadedAt Time  `json:"DownloadedAt"`
-	NextUpdate   Time  `json:"NextUpdate"`
+	Version      int32 `json:"version" tv:"Version"`
+	UpdatedAt    Time  `json:"updatedAt" tv:"UpdatedAt"`
+	DownloadedAt Time  `json:"downloadedAt" tv:"DownloadedAt"`
+	NextUpdate   Time  `json:"nextUpdate" tv:"NextUpdate"`
 }
