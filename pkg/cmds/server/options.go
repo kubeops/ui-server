@@ -39,7 +39,7 @@ func NewExtraOptions() *ExtraOptions {
 		Burst:             1e6,
 		DisableImageCache: false,
 		CacheSize:         1024,
-		CacheTTL:          time.Hour * 4,
+		CacheTTL:          time.Hour * 6,
 	}
 }
 
@@ -52,7 +52,7 @@ func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.DurationVar(&s.CacheTTL, "image-cache-ttl", s.CacheTTL, "TTL for sending image scan request for a given image")
 }
 
-func (s *ExtraOptions) ApplyTo(cfg apiserver.ExtraConfig) error {
+func (s *ExtraOptions) ApplyTo(cfg *apiserver.ExtraConfig) error {
 	cfg.ClientConfig.QPS = float32(s.QPS)
 	cfg.ClientConfig.Burst = s.Burst
 

@@ -148,7 +148,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		ClientConfig: serverConfig.ClientConfig,
 		PromConfig:   *o.PrometheusOptions,
 	}
-	if err := o.ExtraOptions.ApplyTo(extraConfig); err != nil {
+	if err := o.ExtraOptions.ApplyTo(&extraConfig); err != nil {
 		return nil, err
 	}
 

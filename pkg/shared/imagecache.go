@@ -40,7 +40,7 @@ var (
 
 func InitImageCache(size int, ttl time.Duration) {
 	close(onlyOneInitImageCache) // panics when called twice
-	Cache = cache.NewCache[string, string]().WithMaxKeys(size).WithTTL(ttl)
+	Cache = cache.NewCache[string, string]().WithMaxKeys(size).WithTTL(ttl).WithLRU()
 }
 
 func PullSecretsHash(info kmapi.PullSecrets) string {
