@@ -1,0 +1,15 @@
+# apiVersion: reports.scanner.appscode.com/v1alpha1
+# kind: Image
+# request:
+#   ref:
+#     name: mariadb-demo-02-12-01-57
+#     namespace: demo
+#   resource:
+#     group: kubedb.com
+#     kind: ""
+#     name: mariadbs
+#     scope: ""
+#     version: ""
+
+apiVersion: reports.scanner.appscode.com/v1alpha1
+kind: Image

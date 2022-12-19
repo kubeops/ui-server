@@ -22,6 +22,7 @@ import (
 	"io"
 	"net"
 
+	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
 
@@ -137,19 +138,23 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceMenus),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, "usermenus"),
 
+		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceImages),
+		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceCVEReports),
+
 		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
 	}
 
-	if err := o.ExtraOptions.ApplyTo(serverConfig.ClientConfig); err != nil {
+	extraConfig := apiserver.ExtraConfig{
+		ClientConfig: serverConfig.ClientConfig,
+		PromConfig:   *o.PrometheusOptions,
+	}
+	if err := o.ExtraOptions.ApplyTo(&extraConfig); err != nil {
 		return nil, err
 	}
 
 	config := &apiserver.Config{
 		GenericConfig: serverConfig,
-		ExtraConfig: apiserver.ExtraConfig{
-			ClientConfig: serverConfig.ClientConfig,
-			PromConfig:   *o.PrometheusOptions,
-		},
+		ExtraConfig:   extraConfig,
 	}
 	return config, nil
 }

@@ -30,11 +30,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-type Container struct {
-	Name  string
-	Image string
-}
-
 func CollectImageInfo(kc client.Client, pod *core.Pod, images map[string]kmapi.ImageInfo) (map[string]kmapi.ImageInfo, error) {
 	lineage, err := DetectLineage(context.TODO(), kc, pod)
 	if err != nil {
@@ -43,21 +38,24 @@ func CollectImageInfo(kc client.Client, pod *core.Pod, images map[string]kmapi.I
 
 	refs := map[string][]string{}
 	for _, c := range pod.Spec.Containers {
-		ref, err := GetImageRef(Container{Name: c.Name, Image: c.Image}, FindContainerStatus(c.Name, pod.Status.ContainerStatuses))
+		si, sid := findContainerStatus(c.Name, pod.Status.ContainerStatuses)
+		ref, err := GetImageRef(c.Image, si, sid)
 		if err != nil {
 			return images, err
 		}
 		refs[ref] = append(refs[ref], c.Name)
 	}
 	for _, c := range pod.Spec.InitContainers {
-		ref, err := GetImageRef(Container{Name: c.Name, Image: c.Image}, FindContainerStatus(c.Name, pod.Status.InitContainerStatuses))
+		si, sid := findContainerStatus(c.Name, pod.Status.InitContainerStatuses)
+		ref, err := GetImageRef(c.Image, si, sid)
 		if err != nil {
 			return images, err
 		}
 		refs[ref] = append(refs[ref], c.Name)
 	}
 	for _, c := range pod.Spec.EphemeralContainers {
-		ref, err := GetImageRef(Container{Name: c.Name, Image: c.Image}, nil)
+		si, sid := findContainerStatus(c.Name, pod.Status.EphemeralContainerStatuses)
+		ref, err := GetImageRef(c.Image, si, sid)
 		if err != nil {
 			return images, err
 		}
@@ -87,8 +85,9 @@ func CollectImageInfo(kc client.Client, pod *core.Pod, images map[string]kmapi.I
 }
 
 func CollectPullSecrets(pod *core.Pod, refs map[string]kmapi.PullSecrets) (map[string]kmapi.PullSecrets, error) {
-	for _, c := range pod.Status.ContainerStatuses {
-		ref, err := GetImageRef(Container{Name: c.Name, Image: c.ImageID}, FindContainerStatus(c.Name, pod.Status.ContainerStatuses))
+	for _, c := range pod.Spec.Containers {
+		si, sid := findContainerStatus(c.Name, pod.Status.ContainerStatuses)
+		ref, err := GetImageRef(c.Image, si, sid)
 		if err != nil {
 			return refs, err
 		}
@@ -97,8 +96,9 @@ func CollectPullSecrets(pod *core.Pod, refs map[string]kmapi.PullSecrets) (map[s
 			Refs:      pod.Spec.ImagePullSecrets,
 		}
 	}
-	for _, c := range pod.Status.InitContainerStatuses {
-		ref, err := GetImageRef(Container{Name: c.Name, Image: c.ImageID}, FindContainerStatus(c.Name, pod.Status.InitContainerStatuses))
+	for _, c := range pod.Spec.InitContainers {
+		si, sid := findContainerStatus(c.Name, pod.Status.InitContainerStatuses)
+		ref, err := GetImageRef(c.Image, si, sid)
 		if err != nil {
 			return refs, err
 		}
@@ -107,8 +107,9 @@ func CollectPullSecrets(pod *core.Pod, refs map[string]kmapi.PullSecrets) (map[s
 			Refs:      pod.Spec.ImagePullSecrets,
 		}
 	}
-	for _, c := range pod.Status.EphemeralContainerStatuses {
-		ref, err := GetImageRef(Container{Name: c.Name, Image: c.ImageID}, nil)
+	for _, c := range pod.Spec.EphemeralContainers {
+		si, sid := findContainerStatus(c.Name, pod.Status.EphemeralContainerStatuses)
+		ref, err := GetImageRef(c.Image, si, sid)
 		if err != nil {
 			return refs, err
 		}
@@ -121,25 +122,40 @@ func CollectPullSecrets(pod *core.Pod, refs map[string]kmapi.PullSecrets) (map[s
 	return refs, nil
 }
 
-func GetImageRef(c Container, status *core.ContainerStatus) (string, error) {
+func GetImageRef(containerImage, statusImage, statusImageID string) (string, error) {
 	var img string
 
-	if strings.ContainsRune(c.Image, '@') {
-		img = c.Image
-	} else if strings.ContainsRune(status.Image, '@') {
-		img = status.Image
+	if strings.ContainsRune(containerImage, '@') {
+		img = containerImage
+	} else if strings.ContainsRune(statusImage, '@') {
+		img = statusImage
 	} else {
 		// take the hash from status.ImageID and add to c.Image
-		imageID := status.ImageID
-		if strings.Contains(imageID, "://") {
-			imageID = imageID[strings.Index(imageID, "://")+3:] // remove docker-pullable://
+		if strings.Contains(statusImageID, "://") {
+			statusImageID = statusImageID[strings.Index(statusImageID, "://")+3:] // remove docker-pullable://
 		}
-		_, digest, ok := strings.Cut(imageID, "@")
-		if !ok {
-			img = c.Image
-			// return "", fmt.Errorf("missing digest in pod %s container %s imageID %s", pod, status.Name, status.ImageID)
+
+		// Now check imageID is using same repo as the contianerImage
+		// This will not be same for images loaded into a KIND cluster
+
+		isSameContext := func(img1, img2 string) bool {
+			ref1, err := name.ParseReference(img1)
+			if err != nil {
+				return false
+			}
+			ref2, err := name.ParseReference(img2)
+			if err != nil {
+				return false
+			}
+			return ref1.Context().String() == ref2.Context().String()
+		}
+
+		_, digest, ok := strings.Cut(statusImageID, "@")
+		if isSameContext(containerImage, statusImageID) && ok {
+			img = containerImage + "@" + digest
 		} else {
-			img = c.Image + "@" + digest
+			img = containerImage
+			// return "", fmt.Errorf("missing digest in pod %s container %s imageID %s", pod, status.Name, status.ImageID)
 		}
 	}
 
@@ -147,20 +163,16 @@ func GetImageRef(c Container, status *core.ContainerStatus) (string, error) {
 	if err != nil {
 		return "", errors.Wrapf(err, "ref=%s", img)
 	}
-	id := ref.Identifier()
-	if strings.HasPrefix(id, "sha256:") {
-		return ref.Context().String() + "@" + id, nil
-	}
 	return ref.Name(), nil
 }
 
-func FindContainerStatus(name string, statuses []core.ContainerStatus) *core.ContainerStatus {
-	for i := range statuses {
-		if statuses[i].Name == name {
-			return &statuses[i]
+func findContainerStatus(name string, statuses []core.ContainerStatus) (string, string) {
+	for _, s := range statuses {
+		if s.Name == name {
+			return s.Image, s.ImageID
 		}
 	}
-	return nil
+	return "", ""
 }
 
 func DetectLineage(ctx context.Context, kc client.Client, obj client.Object) ([]kmapi.ObjectInfo, error) {

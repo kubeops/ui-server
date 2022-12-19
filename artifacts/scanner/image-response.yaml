@@ -1,0 +1,530 @@
+apiVersion: reports.scanner.appscode.com/v1alpha1
+kind: Image
+response:
+  images:
+  - image: index.docker.io/appscode/kube-ui-server@sha256:86b3443d7f4b1d600a0df6ff09efd3053b7a6ad4402003726756bf8896ff2d99
+    lineages:
+    - chain:
+      - ref:
+          name: kube-ui-server
+          namespace: kubeops
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: kube-ui-server-8446c77664
+          namespace: kubeops
+        resource:
+          group: apps
+          kind: ReplicaSet
+          name: replicasets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: kube-ui-server-8446c77664-cl5jp
+          namespace: kubeops
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - server
+    pullSecrets:
+      namespace: kubeops
+  - image: index.docker.io/appscode/scanner:extend_linux_amd64
+    lineages:
+    - chain:
+      - ref:
+          name: scan-image
+          namespace: default
+        resource:
+          group: batch
+          kind: Job
+          name: jobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: scan-image-jshpg
+          namespace: default
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - uploader
+    pullSecrets:
+      namespace: default
+      refs:
+      - name: pull-secret
+  - image: index.docker.io/appscode/scanner@sha256:db4f9bac834b176ef833bdd8a8cc1e214b4db1a835b84effb5e6616727cbf83b
+    lineages:
+    - chain:
+      - ref:
+          name: scanner
+          namespace: kubeops
+        resource:
+          group: apps
+          kind: StatefulSet
+          name: statefulsets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: scanner-0
+          namespace: kubeops
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - app
+    pullSecrets:
+      namespace: kubeops
+  - image: index.docker.io/aquasec/trivy@sha256:9ff19e5b6cc17b5dd1e5e7ce46023d98ec03f80c4906024e7e23f5aad0606475
+    lineages:
+    - chain:
+      - ref:
+          name: scan-image
+          namespace: default
+        resource:
+          group: batch
+          kind: Job
+          name: jobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: scan-image-jshpg
+          namespace: default
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - trivy
+    pullSecrets:
+      namespace: default
+      refs:
+      - name: pull-secret
+  - image: index.docker.io/arnobkumarsaha/natscli@sha256:8b0233abae4c5c9bf2ed56c2156ce462bd805fcbe9fce1aacc680ddcb98c9b93
+    lineages:
+    - chain:
+      - ref:
+          name: scan-image
+          namespace: default
+        resource:
+          group: batch
+          kind: Job
+          name: jobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: scan-image-jshpg
+          namespace: default
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - trivydb
+    - chain:
+      - ref:
+          name: refersh-trivydb
+          namespace: default
+        resource:
+          group: batch
+          kind: CronJob
+          name: cronjobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: refersh-trivydb-27844619
+          namespace: default
+        resource:
+          group: batch
+          kind: Job
+          name: jobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: refersh-trivydb-27844619-26trs
+          namespace: default
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - trivydb
+    - chain:
+      - ref:
+          name: refersh-trivydb
+          namespace: default
+        resource:
+          group: batch
+          kind: CronJob
+          name: cronjobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: refersh-trivydb-27844619
+          namespace: default
+        resource:
+          group: batch
+          kind: Job
+          name: jobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: refersh-trivydb-27844619-rtgf2
+          namespace: default
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - trivydb
+    - chain:
+      - ref:
+          name: refersh-trivydb
+          namespace: default
+        resource:
+          group: batch
+          kind: CronJob
+          name: cronjobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: refersh-trivydb-27844619
+          namespace: default
+        resource:
+          group: batch
+          kind: Job
+          name: jobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: refersh-trivydb-27844619-j5rdw
+          namespace: default
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - trivydb
+    pullSecrets:
+      namespace: default
+      refs:
+      - name: pull-secret
+  - image: index.docker.io/arnobkumarsaha/private-test:01
+    lineages:
+    - chain:
+      - ref:
+          name: scan-image
+          namespace: default
+        resource:
+          group: batch
+          kind: Job
+          name: jobs
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: scan-image-jshpg
+          namespace: default
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - scanner
+    pullSecrets:
+      namespace: default
+      refs:
+      - name: pull-secret
+  - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+    lineages:
+    - chain:
+      - ref:
+          name: kindnet
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: DaemonSet
+          name: daemonsets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: kindnet-4pch5
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - kindnet-cni
+    pullSecrets:
+      namespace: kube-system
+  - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+    lineages:
+    - chain:
+      - ref:
+          name: local-path-provisioner
+          namespace: local-path-storage
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: local-path-provisioner-684f458cdd
+          namespace: local-path-storage
+        resource:
+          group: apps
+          kind: ReplicaSet
+          name: replicasets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: local-path-provisioner-684f458cdd-t7xxg
+          namespace: local-path-storage
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - local-path-provisioner
+    pullSecrets:
+      namespace: local-path-storage
+  - image: registry.k8s.io/coredns/coredns:v1.9.3
+    lineages:
+    - chain:
+      - ref:
+          name: coredns
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: coredns-565d847f94
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: ReplicaSet
+          name: replicasets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: coredns-565d847f94-gmt9g
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - coredns
+    - chain:
+      - ref:
+          name: coredns
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: coredns-565d847f94
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: ReplicaSet
+          name: replicasets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: coredns-565d847f94-mb87d
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - coredns
+    pullSecrets:
+      namespace: kube-system
+  - image: registry.k8s.io/etcd:3.5.4-0
+    lineages:
+    - chain:
+      - ref:
+          name: kind-control-plane
+        resource:
+          group: ""
+          kind: Node
+          name: nodes
+          scope: Cluster
+          version: v1
+      - ref:
+          name: etcd-kind-control-plane
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - etcd
+    pullSecrets:
+      namespace: kube-system
+  - image: registry.k8s.io/etcd@sha256:dd75ec974b0a2a6f6bb47001ba09207976e625db898d1b16735528c009cb171c
+    lineages:
+    - chain:
+      - ref:
+          name: scanner
+          namespace: kubeops
+        resource:
+          group: apps
+          kind: StatefulSet
+          name: statefulsets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: scanner-0
+          namespace: kubeops
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - etcd
+    pullSecrets:
+      namespace: kubeops
+  - image: registry.k8s.io/kube-apiserver@sha256:c666c2ddbc056f8aba649a2647a26d3f6224bce857613b91be6075c88ca963a1
+    lineages:
+    - chain:
+      - ref:
+          name: kind-control-plane
+        resource:
+          group: ""
+          kind: Node
+          name: nodes
+          scope: Cluster
+          version: v1
+      - ref:
+          name: kube-apiserver-kind-control-plane
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - kube-apiserver
+    pullSecrets:
+      namespace: kube-system
+  - image: registry.k8s.io/kube-controller-manager@sha256:8584d5d11885180c547784653a575ab8f6a983b6557bc77ddf577a4a0b4b6dec
+    lineages:
+    - chain:
+      - ref:
+          name: kind-control-plane
+        resource:
+          group: ""
+          kind: Node
+          name: nodes
+          scope: Cluster
+          version: v1
+      - ref:
+          name: kube-controller-manager-kind-control-plane
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - kube-controller-manager
+    pullSecrets:
+      namespace: kube-system
+  - image: registry.k8s.io/kube-proxy@sha256:2f5536b3e12d9862d10103b10756684ac451b11eda25b62b9ceff71fdc3fd657
+    lineages:
+    - chain:
+      - ref:
+          name: kube-proxy
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: DaemonSet
+          name: daemonsets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: kube-proxy-hmkfv
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - kube-proxy
+    pullSecrets:
+      namespace: kube-system
+  - image: registry.k8s.io/kube-scheduler@sha256:f935a2ebcacd3788ccd8e8e800fbdf1fc5b80892db99d037797cddf4089273ed
+    lineages:
+    - chain:
+      - ref:
+          name: kind-control-plane
+        resource:
+          group: ""
+          kind: Node
+          name: nodes
+          scope: Cluster
+          version: v1
+      - ref:
+          name: kube-scheduler-kind-control-plane
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - kube-scheduler
+    pullSecrets:
+      namespace: kube-system

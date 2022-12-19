@@ -20,9 +20,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
+	scannerreports "kubeops.dev/scanner/apis/reports"
+	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
+	scannerscheme "kubeops.dev/scanner/client/clientset/versioned/scheme"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	scannercontrollers "kubeops.dev/ui-server/pkg/controllers/scanner"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/menu"
 	"kubeops.dev/ui-server/pkg/registry"
@@ -45,12 +50,14 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcetabledefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
+	imagestorage "kubeops.dev/ui-server/pkg/registry/scanner/image"
+	reportstorage "kubeops.dev/ui-server/pkg/registry/scanner/reports"
+	"kubeops.dev/ui-server/pkg/shared"
 
 	fluxsrc "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/graphql-go/handler"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
-	core "k8s.io/api/core/v1"
 	crdinstall "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -80,7 +87,6 @@ import (
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
 	"kubepack.dev/lib-helm/pkg/repo"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -100,6 +106,7 @@ func init() {
 	uiinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
+	utilruntime.Must(scannerscheme.AddToScheme(Scheme))
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
 	utilruntime.Must(appcatalogapi.AddToScheme(Scheme))
@@ -125,6 +132,10 @@ func init() {
 type ExtraConfig struct {
 	ClientConfig *restclient.Config
 	PromConfig   promclient.Config
+
+	DisableImageCache bool
+	CacheSize         int
+	CacheTTL          time.Duration
 }
 
 // Config defines the config for the apiserver
@@ -183,9 +194,9 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		HealthProbeBindAddress: "",
 		LeaderElection:         false,
 		LeaderElectionID:       "5b87adeb.ui-server.kubeops.dev",
-		ClientDisableCacheFor: []client.Object{
-			&core.Pod{},
-		},
+		//ClientDisableCacheFor: []client.Object{
+		//	&core.Pod{},
+		//},
 		NewClient: cu.NewClient,
 	})
 	if err != nil {
@@ -225,6 +236,17 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 	if err := mgr.Add(manager.RunnableFunc(graph.SetupGraphReconciler(mgr))); err != nil {
 		setupLog.Error(err, "unable to set up resource reconciler configurator")
+		os.Exit(1)
+	}
+
+	if !c.ExtraConfig.DisableImageCache {
+		shared.InitImageCache(c.ExtraConfig.CacheSize, c.ExtraConfig.CacheTTL)
+	}
+
+	if err = (&scannercontrollers.WorkloadReconciler{
+		Client: mgr.GetClient(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Workload")
 		os.Exit(1)
 	}
 
@@ -308,6 +330,17 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 			return nil, err
 		}
 	}
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(scannerreports.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[scannerreportsapi.ResourceImages] = imagestorage.NewStorage(ctrlClient)
+		v1alpha1storage[scannerreportsapi.ResourceCVEReports] = reportstorage.NewStorage(ctrlClient)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
 	return s, nil
 }

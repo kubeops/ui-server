@@ -1,0 +1,441 @@
+apiVersion: reports.scanner.appscode.com/v1alpha1
+kind: CVEReport
+request:
+  ref:
+    name: coredns
+    namespace: kube-system
+  resource:
+    group: apps
+    kind: Deployment
+response:
+  images:
+  - image:
+      name: registry.k8s.io/coredns/coredns:v1.9.3
+      tag: v1.9.3
+    lineages:
+    - chain:
+      - ref:
+          name: coredns
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: coredns-787d4945fb
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: ReplicaSet
+          name: replicasets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: coredns-787d4945fb-c6844
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - coredns
+    - chain:
+      - ref:
+          name: coredns
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: Deployment
+          name: deployments
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: coredns-787d4945fb
+          namespace: kube-system
+        resource:
+          group: apps
+          kind: ReplicaSet
+          name: replicasets
+          scope: Namespaced
+          version: v1
+      - ref:
+          name: coredns-787d4945fb-tgfzv
+          namespace: kube-system
+        resource:
+          group: ""
+          kind: Pod
+          name: pods
+          scope: Namespaced
+          version: v1
+      containers:
+      - coredns
+    metadata:
+      imageConfig:
+        architecture: amd64
+        container: c8f53535d48b29f8830a6009bc197ff3799e6aa0f354e2c203beacf454d80017
+        os: linux
+    scanStatus:
+      lastChecked: "2022-12-19T21:13:51.260744969Z"
+      reportRef:
+        name: 78bc9859e425c8bef69b1d22f67c5766
+      result: Found
+  vulnerabilities:
+    count:
+      CRITICAL: 1
+      HIGH: 2
+      LOW: 1
+      MEDIUM: 1
+      UNKNOWN: 4
+    cves:
+    - cvss:
+        nvd:
+          v2Score: 2.1
+          v2Vector: AV:L/AC:L/Au:N/C:P/I:N/A:N
+          v3Score: 5.6
+          v3Vector: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:C/C:H/I:N/A:N
+        redhat:
+          v3Score: 5.6
+          v3Vector: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:C/C:H/I:N/A:N
+      cweIDs:
+      - CWE-327
+      dataSource:
+        ID: go-vulndb
+        Name: The Go Vulnerability Database
+        URL: https://github.com/golang/vulndb
+      description: A padding oracle vulnerability exists in the AWS S3 Crypto SDK
+        for GoLang versions prior to V2. The SDK allows users to encrypt files with
+        AES-CBC without computing a Message Authentication Code (MAC), which then
+        allows an attacker who has write access to the target's S3 bucket and can
+        observe whether or not an endpoint with access to the key can decrypt a file,
+        they can reconstruct the plaintext with (on average) 128*length (plaintext)
+        queries to the endpoint, by exploiting CBC's ability to manipulate the bytes
+        of the next block and PKCS5 padding errors. It is recommended to update your
+        SDK to V2 or later, and re-encrypt your files.
+      lastModifiedDate: "2020-08-18T13:37:00Z"
+      pkgName: github.com/aws/aws-sdk-go
+      primaryURL: https://avd.aquasec.com/nvd/cve-2020-8911
+      publishedDate: "2020-08-11T20:15:00Z"
+      references:
+      - https://access.redhat.com/security/cve/CVE-2020-8911
+      - https://aws.amazon.com/blogs/developer/updates-to-the-amazon-s3-encryption-client/?s=09
+      - https://bugzilla.redhat.com/show_bug.cgi?id=1869800
+      - https://github.com/advisories/GHSA-f5pg-7wfw-84q9
+      - https://github.com/aws/aws-sdk-go/commit/1e84382fa1c0086362b5a4b68e068d4f8518d40e
+      - https://github.com/aws/aws-sdk-go/commit/ae9b9fd92af132cfd8d879809d8611825ba135f4
+      - https://github.com/aws/aws-sdk-go/pull/3403
+      - https://github.com/google/security-research/security/advisories/GHSA-f5pg-7wfw-84q9
+      - https://github.com/sophieschmieg/exploits/tree/master/aws_s3_crypto_poc
+      - https://nvd.nist.gov/vuln/detail/CVE-2020-8911
+      - https://pkg.go.dev/vuln/GO-2022-0646
+      results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: MEDIUM
+      severitySource: nvd
+      title: 'aws/aws-sdk-go: CBC padding oracle issue in AWS S3 Crypto SDK for golang'
+      vulnerabilityID: CVE-2020-8911
+    - cvss:
+        nvd:
+          v2Score: 2.1
+          v2Vector: AV:L/AC:L/Au:N/C:P/I:N/A:N
+          v3Score: 2.5
+          v3Vector: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:L/I:N/A:N
+        redhat:
+          v3Score: 2.5
+          v3Vector: CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:L/I:N/A:N
+      cweIDs:
+      - CWE-327
+      dataSource:
+        ID: go-vulndb
+        Name: The Go Vulnerability Database
+        URL: https://github.com/golang/vulndb
+      description: A vulnerability in the in-band key negotiation exists in the AWS
+        S3 Crypto SDK for GoLang versions prior to V2. An attacker with write access
+        to the targeted bucket can change the encryption algorithm of an object in
+        the bucket, which can then allow them to change AES-GCM to AES-CTR. Using
+        this in combination with a decryption oracle can reveal the authentication
+        key used by AES-GCM as decrypting the GMAC tag leaves the authentication key
+        recoverable as an algebraic equation. It is recommended to update your SDK
+        to V2 or later, and re-encrypt your files.
+      lastModifiedDate: "2020-08-17T19:31:00Z"
+      pkgName: github.com/aws/aws-sdk-go
+      primaryURL: https://avd.aquasec.com/nvd/cve-2020-8912
+      publishedDate: "2020-08-11T20:15:00Z"
+      references:
+      - https://access.redhat.com/security/cve/CVE-2020-8912
+      - https://aws.amazon.com/blogs/developer/updates-to-the-amazon-s3-encryption-client/?s=09
+      - https://bugzilla.redhat.com/show_bug.cgi?id=1869801
+      - https://github.com/advisories/GHSA-7f33-f4f5-xwgw
+      - https://github.com/aws/aws-sdk-go/commit/1e84382fa1c0086362b5a4b68e068d4f8518d40e
+      - https://github.com/aws/aws-sdk-go/commit/ae9b9fd92af132cfd8d879809d8611825ba135f4
+      - https://github.com/aws/aws-sdk-go/pull/3403
+      - https://github.com/google/security-research/security/advisories/GHSA-7f33-f4f5-xwgw
+      - https://github.com/sophieschmieg/exploits/tree/master/aws_s3_crypto_poc
+      - https://nvd.nist.gov/vuln/detail/CVE-2020-8912
+      - https://pkg.go.dev/vuln/GO-2022-0646
+      results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: LOW
+      severitySource: nvd
+      title: 'aws-sdk-go: In-band key negotiation issue in AWS S3 Crypto SDK for golang'
+      vulnerabilityID: CVE-2020-8912
+    - cvss:
+        nvd:
+          v2Score: 6.4
+          v2Vector: AV:N/AC:L/Au:N/C:P/I:P/A:N
+          v3Score: 9.1
+          v3Vector: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N
+        redhat:
+          v3Score: 9.1
+          v3Vector: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N
+      cweIDs:
+      - CWE-639
+      dataSource:
+        ID: go-vulndb
+        Name: The Go Vulnerability Database
+        URL: https://github.com/golang/vulndb
+      description: Authorization Bypass Through User-Controlled Key in GitHub repository
+        emicklei/go-restful prior to v3.8.0.
+      fixedVersion: 2.16.0
+      lastModifiedDate: "2022-09-23T15:15:00Z"
+      pkgName: github.com/emicklei/go-restful
+      primaryURL: https://avd.aquasec.com/nvd/cve-2022-1996
+      publishedDate: "2022-06-08T13:15:00Z"
+      references:
+      - https://access.redhat.com/security/cve/CVE-2022-1996
+      - https://github.com/advisories/GHSA-r48q-9g5r-8q2h
+      - https://github.com/emicklei/go-restful/commit/f292efff46ae17e9d104f865a60a39a2ae9402f1
+      - https://github.com/emicklei/go-restful/commit/fd3c327a379ce08c68ef18765bdc925f5d9bad10
+      - https://github.com/emicklei/go-restful/issues/489
+      - https://huntr.dev/bounties/be837427-415c-4d8c-808b-62ce20aa84f1
+      - https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/575BLJ3Y2EQBRNTFR2OSQQ6L2W6UCST3/
+      - https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/OBDD3Q23RCGAGHIXUCWBU6N3S4RNAKXB/
+      - https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/RQXU752ALW53OJAF5MG3WMR5CCZVLWW6/
+      - https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/Z55VUVGO7E5PJFXIOVAY373NZRHBNCI5/
+      - https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/ZY2SLWOQR4ZURQ7UBRZ7JIX6H6F5JHJR/
+      - https://nvd.nist.gov/vuln/detail/CVE-2022-1996
+      - https://pkg.go.dev/vuln/GO-2022-0619
+      - https://security.netapp.com/advisory/ntap-20220923-0005/
+      results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: CRITICAL
+      severitySource: nvd
+      title: 'go-restful: Authorization Bypass Through User-Controlled Key'
+      vulnerabilityID: CVE-2022-1996
+    - cvss: {}
+      dataSource:
+        ID: go-vulndb
+        Name: The Go Vulnerability Database
+        URL: https://github.com/golang/vulndb
+      description: |-
+        The Go AWS S3 Crypto SDK contains vulnerabilities that can permit an attacker
+        with write access to a bucket to decrypt files in that bucket.
+
+        Files encrypted by the V1 EncryptionClient using either the AES-CBC
+        content cipher or the KMS key wrap algorithm are vulnerable. Users should
+        migrate to the V1 EncryptionClientV2 API, which will not create vulnerable
+        files. Old files will remain vulnerable until reencrypted with the new
+        client.
+      pkgName: github.com/aws/aws-sdk-go
+      primaryURL: https://github.com/advisories/GHSA-7f33-f4f5-xwgw
+      references:
+      - https://aws.amazon.com/blogs/developer/updates-to-the-amazon-s3-encryption-client/?s=09
+      - https://github.com/aws/aws-sdk-go/commit/ae9b9fd92af132cfd8d879809d8611825ba135f4
+      - https://github.com/aws/aws-sdk-go/pull/3403
+      - https://pkg.go.dev/vuln/GO-2022-0646
+      results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: UNKNOWN
+      severitySource: ""
+      vulnerabilityID: GHSA-7f33-f4f5-xwgw
+    - cvss: {}
+      dataSource:
+        ID: go-vulndb
+        Name: The Go Vulnerability Database
+        URL: https://github.com/golang/vulndb
+      description: |-
+        The Go AWS S3 Crypto SDK contains vulnerabilities that can permit an attacker
+        with write access to a bucket to decrypt files in that bucket.
+
+        Files encrypted by the V1 EncryptionClient using either the AES-CBC
+        content cipher or the KMS key wrap algorithm are vulnerable. Users should
+        migrate to the V1 EncryptionClientV2 API, which will not create vulnerable
+        files. Old files will remain vulnerable until reencrypted with the new
+        client.
+      pkgName: github.com/aws/aws-sdk-go
+      primaryURL: https://github.com/advisories/GHSA-f5pg-7wfw-84q9
+      references:
+      - https://aws.amazon.com/blogs/developer/updates-to-the-amazon-s3-encryption-client/?s=09
+      - https://github.com/aws/aws-sdk-go/commit/ae9b9fd92af132cfd8d879809d8611825ba135f4
+      - https://github.com/aws/aws-sdk-go/pull/3403
+      - https://pkg.go.dev/vuln/GO-2022-0646
+      results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: UNKNOWN
+      severitySource: ""
+      vulnerabilityID: GHSA-f5pg-7wfw-84q9
+    - cvss: {}
+      dataSource:
+        ID: go-vulndb
+        Name: The Go Vulnerability Database
+        URL: https://github.com/golang/vulndb
+      description: |
+        An issue in the Unmarshal function can cause a program to
+        panic when attempting to deserialize invalid input.
+      fixedVersion: 3.0.1
+      pkgName: gopkg.in/yaml.v3
+      primaryURL: https://github.com/advisories/GHSA-hp87-p4gw-j4gq
+      references:
+      - https://github.com/go-yaml/yaml/commit/8f96da9f5d5eff988554c1aae1784627c4bf6754
+      - https://github.com/go-yaml/yaml/issues/666
+      - https://pkg.go.dev/vuln/GO-2022-0603
+      results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: UNKNOWN
+      severitySource: ""
+      vulnerabilityID: GHSA-hp87-p4gw-j4gq
+    - cvss: {}
+      dataSource:
+        ID: go-vulndb
+        Name: The Go Vulnerability Database
+        URL: https://github.com/golang/vulndb
+      description: |
+        CORS filters that use an AllowedDomains configuration parameter
+        can match domains outside the specified set, permitting an attacker
+        to avoid the CORS policy.
+
+        The AllowedDomains configuration parameter is documented as a list of
+        allowed origin domains, but values in this list are applied as regular
+        expression matches. For example, an allowed domain of "example.com" will
+        match the Origin header "example.com.malicious.domain".
+      fixedVersion: 2.16.0
+      pkgName: github.com/emicklei/go-restful
+      primaryURL: https://github.com/advisories/GHSA-r48q-9g5r-8q2h
+      references:
+      - https://github.com/emicklei/go-restful/commit/f292efff46ae17e9d104f865a60a39a2ae9402f1
+      - https://github.com/emicklei/go-restful/issues/489
+      - https://pkg.go.dev/vuln/GO-2022-0619
+      results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: UNKNOWN
+      severitySource: ""
+      vulnerabilityID: GHSA-r48q-9g5r-8q2h
+    - cvss:
+        nvd:
+          v3Score: 7.5
+          v3Vector: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+        redhat:
+          v3Score: 7.5
+          v3Vector: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      dataSource:
+        ID: go-vulndb
+        Name: The Go Vulnerability Database
+        URL: https://github.com/golang/vulndb
+      description: In net/http in Go before 1.18.6 and 1.19.x before 1.19.1, attackers
+        can cause a denial of service because an HTTP/2 connection can hang during
+        closing if shutdown were preempted by a fatal error.
+      fixedVersion: 0.0.0-20220906165146-f3363e06e74c
+      lastModifiedDate: "2022-09-29T17:15:00Z"
+      pkgName: golang.org/x/net
+      primaryURL: https://avd.aquasec.com/nvd/cve-2022-27664
+      publishedDate: "2022-09-06T18:15:00Z"
+      references:
+      - https://access.redhat.com/security/cve/CVE-2022-27664
+      - https://go.dev/cl/428735
+      - https://go.dev/issue/54658
+      - https://groups.google.com/g/golang-announce
+      - https://groups.google.com/g/golang-announce/c/x49AQzIVX-s
+      - https://groups.google.com/g/golang-announce/c/x49AQzIVX-s/m/0tgO0pjiBQAJ
+      - https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/JXKTHIGE5F576MAPFYCIJXNRGBSPISUF/
+      - https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/TXS2OQ57KZC5XZKK5UW4SYKPVQAHIOJX/
+      - https://nvd.nist.gov/vuln/detail/CVE-2022-27664
+      - https://pkg.go.dev/vuln/GO-2022-0969
+      - https://security.gentoo.org/glsa/202209-26
+      - https://security.netapp.com/advisory/ntap-20220923-0004/
+      results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: HIGH
+      severitySource: nvd
+      title: 'golang: net/http: handle server errors after sending GOAWAY'
+      vulnerabilityID: CVE-2022-27664
+    - cvss:
+        nvd:
+          v2Score: 5
+          v2Vector: AV:N/AC:L/Au:N/C:N/I:N/A:P
+          v3Score: 7.5
+          v3Vector: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+        redhat:
+          v3Score: 7.5
+          v3Vector: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+      cweIDs:
+      - CWE-502
+      dataSource:
+        ID: go-vulndb
+        Name: The Go Vulnerability Database
+        URL: https://github.com/golang/vulndb
+      description: An issue in the Unmarshal function in Go-Yaml v3 causes the program
+        to crash when attempting to deserialize invalid input.
+      fixedVersion: 3.0.1
+      lastModifiedDate: "2022-09-23T15:15:00Z"
+      pkgName: gopkg.in/yaml.v3
+      primaryURL: https://avd.aquasec.com/nvd/cve-2022-28948
+      publishedDate: "2022-05-19T20:15:00Z"
+      references:
+      - https://access.redhat.com/security/cve/CVE-2022-28948
+      - https://github.com/advisories/GHSA-hp87-p4gw-j4gq
+      - https://github.com/go-yaml/yaml/commit/8f96da9f5d5eff988554c1aae1784627c4bf6754
+      - https://github.com/go-yaml/yaml/issues/666
+      - https://nvd.nist.gov/vuln/detail/CVE-2022-28948
+      - https://pkg.go.dev/vuln/GO-2022-0603
+      - https://security.netapp.com/advisory/ntap-20220923-0006/
+      results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: HIGH
+      severitySource: nvd
+      title: 'golang-gopkg-yaml: crash when attempting to deserialize invalid input'
+      vulnerabilityID: CVE-2022-28948
+    occurrence:
+      CRITICAL: 1
+      HIGH: 2
+      LOW: 1
+      MEDIUM: 1
+      UNKNOWN: 4

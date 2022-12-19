@@ -1,0 +1,9 @@
+apiVersion: reports.scanner.appscode.com/v1alpha1
+kind: CVEReport
+request:
+  resource:
+    group: apps
+    kind: Deployment
+  ref:
+    name: coredns
+    namespace: kube-system
