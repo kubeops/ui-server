@@ -25,10 +25,13 @@ import (
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
+	"kubeops.dev/ui-server/pkg/controllers"
 
+	fluxcd "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/spf13/pflag"
 	v "gomodules.xyz/x/version"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -40,6 +43,7 @@ import (
 	promclient "kmodules.xyz/monitoring-agent-api/client"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	ui "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -142,6 +146,8 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceCVEReports),
 
 		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
+
+		fmt.Sprintf("/apis/%s/%s", ui.SchemeGroupVersion, ui.ResourceFeatures),
 	}
 
 	extraConfig := apiserver.ExtraConfig{
@@ -180,6 +186,16 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 		return server.GenericAPIServer.PrepareRun().Run(ctx.Done())
 	}))
 	if err != nil {
+		return err
+	}
+
+	utilruntime.Must(ui.AddToScheme(server.Manager.GetScheme()))
+	utilruntime.Must(fluxcd.AddToScheme(server.Manager.GetScheme()))
+	fr := &controllers.FeatureReconciler{
+		Client: server.Manager.GetClient(),
+		Scheme: server.Manager.GetScheme(),
+	}
+	if err := fr.SetupWithManager(server.Manager); err != nil {
 		return err
 	}
 
