@@ -4,7 +4,9 @@ go 1.18
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
+	github.com/fluxcd/helm-controller/api v0.26.0
 	github.com/fluxcd/source-controller/api v0.31.0
+	github.com/go-logr/logr v1.2.3
 	github.com/go-pkgz/expirable-cache/v2 v2.0.0
 	github.com/gobuffalo/flect v0.3.0
 	github.com/google/gofuzz v1.2.0
@@ -14,6 +16,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
+	github.com/stretchr/testify v1.8.0
 	github.com/zeebo/xxh3 v1.0.2
 	go.bytebuilders.dev/license-verifier v0.12.0
 	go.openviz.dev/apimachinery v0.0.4
@@ -35,7 +38,7 @@ require (
 	kmodules.xyz/client-go v0.25.14-0.20221219094723-dff3eed54bac
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/monitoring-agent-api v0.25.0
-	kmodules.xyz/resource-metadata v0.14.5-0.20221208211134-8a0f64d6a5c0
+	kmodules.xyz/resource-metadata v0.14.5-0.20221219121310-b7c7c41e1390
 	kmodules.xyz/resource-metrics v0.25.0
 	kmodules.xyz/sets v0.24.0
 	kubeops.dev/scanner v0.0.2
@@ -73,11 +76,11 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/fluxcd/pkg/apis/acl v0.1.0 // indirect
+	github.com/fluxcd/pkg/apis/kustomize v0.6.0 // indirect
 	github.com/fluxcd/pkg/apis/meta v0.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.1 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
-	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/swag v0.22.3 // indirect
@@ -118,6 +121,7 @@ require (
 	github.com/onsi/gomega v1.20.2 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.59.1 // indirect
 	github.com/prometheus/client_golang v1.13.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect

@@ -145,8 +145,12 @@ github.com/felixge/httpsnoop v1.0.1/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSw
 github.com/felixge/httpsnoop v1.0.3 h1:s/nj+GCswXYzN5v2DpNMuMQYe+0DDwt5WVCU6CWBdXk=
 github.com/felixge/httpsnoop v1.0.3/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/flowstack/go-jsonschema v0.1.1/go.mod h1:yL7fNggx1o8rm9RlgXv7hTBWxdBM0rVwpMwimd3F3N0=
+github.com/fluxcd/helm-controller/api v0.26.0 h1:UCod+R1Oct2jg5cXHlVBC57Jy01lMdpl9MA+8UPogvY=
+github.com/fluxcd/helm-controller/api v0.26.0/go.mod h1:Ef7OnSHwMub7Z3F+UNe8p/mblOQ2aSQjCWSRfAqG2FA=
 github.com/fluxcd/pkg/apis/acl v0.1.0 h1:EoAl377hDQYL3WqanWCdifauXqXbMyFuK82NnX6pH4Q=
 github.com/fluxcd/pkg/apis/acl v0.1.0/go.mod h1:zfEZzz169Oap034EsDhmCAGgnWlcWmIObZjYMusoXS8=
+github.com/fluxcd/pkg/apis/kustomize v0.6.0 h1:Afxv3Uv+xiuettzqm3sP0ceWikDZTfHdHtLv6u2nFM8=
+github.com/fluxcd/pkg/apis/kustomize v0.6.0/go.mod h1:iY0zSpK6eUiPfNt/yR6g0q/wQP+wH+Ax/L7KBOx5x2M=
 github.com/fluxcd/pkg/apis/meta v0.17.0 h1:Y2dfo1syHZDb9Mexjr2SWdcj1FnxnRXm015hEnhl6wU=
 github.com/fluxcd/pkg/apis/meta v0.17.0/go.mod h1:GrOVzWXiu22XjLNgLLe2EBYhQPqZetes5SIADb4bmHE=
 github.com/fluxcd/source-controller/api v0.31.0 h1:4PZQt2XILTUZ/2JOVGzAIpNDXjx8n10skAhuBHa9tVw=
@@ -1003,8 +1007,8 @@ kmodules.xyz/monitoring-agent-api v0.25.0 h1:RU9RBeCqQdoS381xXy8cM1aqT+7qmtuPI3K
 kmodules.xyz/monitoring-agent-api v0.25.0/go.mod h1:RH5f/W9eCiW+KTblBIh8MZkjCWdtMQ8MuzCBMfgkynM=
 kmodules.xyz/offshoot-api v0.25.0 h1:Svq9da/+sg5afOjpgo9vx2J/Lu90Mo0aFxkdQmgKnGI=
 kmodules.xyz/offshoot-api v0.25.0/go.mod h1:ysEBn7LJuT3+s8ynAQA/OG0BSsJugXa6KGtDLMRjlKo=
-kmodules.xyz/resource-metadata v0.14.5-0.20221208211134-8a0f64d6a5c0 h1:j5nL1g9k86dfP3n8Vw4SqWAqVNx3GLrJyLHHhJf1CrU=
-kmodules.xyz/resource-metadata v0.14.5-0.20221208211134-8a0f64d6a5c0/go.mod h1:X9XDoZHM0ExYgZ2VGt82E94x2YfU3yaiCpE3a0R7PTk=
+kmodules.xyz/resource-metadata v0.14.5-0.20221219121310-b7c7c41e1390 h1:jdPDccbOwOuSeq6fK4jQ9z2+u0xX6k7q10rYG2sjdII=
+kmodules.xyz/resource-metadata v0.14.5-0.20221219121310-b7c7c41e1390/go.mod h1:X9XDoZHM0ExYgZ2VGt82E94x2YfU3yaiCpE3a0R7PTk=
 kmodules.xyz/resource-metrics v0.25.0 h1:wj3npVZZQr+Yysg/XdGn4LdT5kQizWeO0zq7QlSVx50=
 kmodules.xyz/resource-metrics v0.25.0/go.mod h1:4a49npnu73c9LGDWHWQsPWoXWXU9rpCcknoH1+HHesI=
 kmodules.xyz/sets v0.24.0 h1:GbltLEPVnURjcmWyf8eFstgJBpm9o151wsrABkByGrc=
