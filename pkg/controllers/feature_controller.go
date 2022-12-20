@@ -385,17 +385,17 @@ func (r *FeatureReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&uiapi.Feature{}).
 		Watches(
 			&source.Kind{Type: &uiapi.FeatureSet{}},
-			handler.EnqueueRequestsFromMapFunc(r.findFeatures),
+			handler.EnqueueRequestsFromMapFunc(r.findFeaturesForFeatureSet),
 			builder.WithPredicates(predicate.GenerationChangedPredicate{}),
 		).
 		Watches(
 			&source.Kind{Type: &fluxcd.HelmRelease{}},
-			handler.EnqueueRequestsFromMapFunc(r.findHelmRelease),
+			handler.EnqueueRequestsFromMapFunc(r.findFeatureForHelmRelease),
 		).
 		Complete(r)
 }
 
-func (r *FeatureReconciler) findFeatures(featureSet client.Object) []reconcile.Request {
+func (r *FeatureReconciler) findFeaturesForFeatureSet(featureSet client.Object) []reconcile.Request {
 	featureList := &uiapi.FeatureList{}
 	err := r.List(context.Background(), featureList, &client.ListOptions{
 		FieldSelector: fields.OneTermEqualSelector(featureSetReferencePath, featureSet.GetName()),
@@ -414,7 +414,7 @@ func (r *FeatureReconciler) findFeatures(featureSet client.Object) []reconcile.R
 	return requests
 }
 
-func (r *FeatureReconciler) findHelmRelease(release client.Object) []reconcile.Request {
+func (r *FeatureReconciler) findFeatureForHelmRelease(release client.Object) []reconcile.Request {
 	manager, err := meta_util.GetStringValueForKeys(release.GetLabels(), meta_util.ManagedByLabelKey)
 	if err != nil || manager != FeatureManager {
 		return []reconcile.Request{}
