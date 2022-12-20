@@ -51,7 +51,8 @@ import (
 // FeatureReconciler reconciles a Feature object
 type FeatureReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme    *runtime.Scheme
+	APIReader client.Reader
 }
 
 const (
@@ -61,9 +62,10 @@ const (
 )
 
 type frReconciler struct {
-	client  client.Client
-	logger  logr.Logger
-	feature *uiapi.Feature
+	client    client.Client
+	apiReader client.Reader
+	logger    logr.Logger
+	feature   *uiapi.Feature
 }
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -81,9 +83,10 @@ func (r *FeatureReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	fr := frReconciler{
-		client:  r.Client,
-		logger:  logger,
-		feature: f,
+		client:    r.Client,
+		apiReader: r.APIReader,
+		logger:    logger,
+		feature:   f,
 	}
 
 	if fr.feature.DeletionTimestamp != nil {
@@ -218,7 +221,7 @@ func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (boo
 			Version: gvk.Version,
 			Kind:    gvk.Kind,
 		})
-		if err := r.client.List(ctx, &objList, &client.ListOptions{Limit: 1}); err != nil {
+		if err := r.apiReader.List(ctx, &objList, &client.ListOptions{Limit: 1}); err != nil {
 			if meta.IsNoMatchError(err) {
 				return false, fmt.Sprintf("Required resource %q is not registered.", gvk.String()), err
 			}

@@ -63,6 +63,8 @@ func TestFeatureShouldBeDisabledIfRequirementsNotSatisfied(t *testing.T) {
 				logger:  dummyLogger(),
 				feature: tt.feature,
 			}
+			r.apiReader = r.client
+
 			err := r.reconcile(context.Background())
 			assert.Nil(t, err)
 			assert.NotEmpty(t, r.feature.Status.Note)

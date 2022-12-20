@@ -192,8 +192,9 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 	utilruntime.Must(ui.AddToScheme(server.Manager.GetScheme()))
 	utilruntime.Must(fluxcd.AddToScheme(server.Manager.GetScheme()))
 	fr := &controllers.FeatureReconciler{
-		Client: server.Manager.GetClient(),
-		Scheme: server.Manager.GetScheme(),
+		Client:    server.Manager.GetClient(),
+		Scheme:    server.Manager.GetScheme(),
+		APIReader: server.Manager.GetAPIReader(),
 	}
 	if err := fr.SetupWithManager(server.Manager); err != nil {
 		return err
