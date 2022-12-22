@@ -55,9 +55,13 @@ type CVEReportResponse struct {
 }
 
 type VulnerabilityInfo struct {
-	Count      map[string]int        `json:"count"`
-	Occurrence map[string]int        `json:"occurrence"`
-	CVEs       []trivy.Vulnerability `json:"cves"`
+	Stats map[string]RiskStats  `json:"stats"`
+	CVEs  []trivy.Vulnerability `json:"cves"`
+}
+
+type RiskStats struct {
+	Count      int `json:"count"`
+	Occurrence int `json:"occurrence"`
 }
 
 type ImageInfo struct {

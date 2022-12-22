@@ -1375,6 +1375,9 @@ kmodules.xyz/custom-resources/apis/auditor/install
 kmodules.xyz/custom-resources/apis/auditor/v1alpha1
 kmodules.xyz/custom-resources/crds
 kmodules.xyz/custom-resources/util/siteinfo
+# kmodules.xyz/go-containerregistry v0.0.3
+## explicit; go 1.18
+kmodules.xyz/go-containerregistry/name
 # kmodules.xyz/monitoring-agent-api v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/monitoring-agent-api/api/v1
@@ -1418,7 +1421,7 @@ kmodules.xyz/resource-metrics/kubedb.com/v1alpha2
 # kmodules.xyz/sets v0.24.0
 ## explicit; go 1.17
 kmodules.xyz/sets
-# kubeops.dev/scanner v0.0.2
+# kubeops.dev/scanner v0.0.3-0.20221222190810-4626d07d0e20
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
 kubeops.dev/scanner/apis/reports/v1alpha1
