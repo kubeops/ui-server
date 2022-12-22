@@ -1003,6 +1003,8 @@ kmodules.xyz/client-go v0.25.14-0.20221219094723-dff3eed54bac/go.mod h1:PG0s5Fqm
 kmodules.xyz/crd-schema-fuzz v0.25.0 h1:c5ZxNRqJak1bkGhECmyrKpzKGThFMB4088Kynyvngbc=
 kmodules.xyz/custom-resources v0.25.1 h1:0qHPTxbT/q0afl2GCOnwPFaoxKziRIPXgVu77YwrCa4=
 kmodules.xyz/custom-resources v0.25.1/go.mod h1:ULwzvLmOqZJcPSXKI7iLclYL5eYRlKx8Nbex28Ht19E=
+kmodules.xyz/go-containerregistry v0.0.3 h1:0MzOIRxsbNYFaPZpkzbmmwclBQhYlSg17uli6Do0LkA=
+kmodules.xyz/go-containerregistry v0.0.3/go.mod h1:UIW9gnoDGbMfLDdPf8enLXyGeWIq6PQHozgkNCzg2nc=
 kmodules.xyz/monitoring-agent-api v0.25.0 h1:RU9RBeCqQdoS381xXy8cM1aqT+7qmtuPI3KxNQoX16Y=
 kmodules.xyz/monitoring-agent-api v0.25.0/go.mod h1:RH5f/W9eCiW+KTblBIh8MZkjCWdtMQ8MuzCBMfgkynM=
 kmodules.xyz/offshoot-api v0.25.0 h1:Svq9da/+sg5afOjpgo9vx2J/Lu90Mo0aFxkdQmgKnGI=
@@ -1013,8 +1015,8 @@ kmodules.xyz/resource-metrics v0.25.0 h1:wj3npVZZQr+Yysg/XdGn4LdT5kQizWeO0zq7QlS
 kmodules.xyz/resource-metrics v0.25.0/go.mod h1:4a49npnu73c9LGDWHWQsPWoXWXU9rpCcknoH1+HHesI=
 kmodules.xyz/sets v0.24.0 h1:GbltLEPVnURjcmWyf8eFstgJBpm9o151wsrABkByGrc=
 kmodules.xyz/sets v0.24.0/go.mod h1:V+RRt2RqZfwYpVe9/rAodFiUARLPhz995GArdBhL8vU=
-kubeops.dev/scanner v0.0.2 h1:y92BS/N663VWal3lmNLLpo3t8hPw4WehT/HWUY99zXM=
-kubeops.dev/scanner v0.0.2/go.mod h1:Aq5yaFogJr4TenfBHBnaTFqVena/KDxRvPawhgkUvCA=
+kubeops.dev/scanner v0.0.3-0.20221222190810-4626d07d0e20 h1:/EKg2/fgqs1F1LM/llAlWP4bPx9hbTtH3p2kFQ4O0xE=
+kubeops.dev/scanner v0.0.3-0.20221222190810-4626d07d0e20/go.mod h1:Aq5yaFogJr4TenfBHBnaTFqVena/KDxRvPawhgkUvCA=
 kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b h1:y7h7zsp4GrIN2HUXDxhaoW2xNzF8FyCRwI4/iMCBQZs=
 kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b/go.mod h1:vwev7FSz032jTbXPONI3mVB7MOXYXNkj5uo4VVMR7Y8=
 kubepack.dev/preset v0.0.3 h1:JkDeCodeWn2VYGxnXSgjlWvpxzF4HgbIggrqU+6g0Zw=

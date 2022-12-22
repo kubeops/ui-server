@@ -19,6 +19,8 @@ package graph
 import (
 	"context"
 
+	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -27,7 +29,9 @@ import (
 )
 
 func LocatePods(ctx context.Context, kc client.Client, req *kmapi.ObjectInfo) ([]unstructured.Unstructured, error) {
-	if req == nil || (req.Resource.Group == "" && req.Resource.Kind == "" && req.Resource.Name == "") {
+	if req == nil ||
+		(req.Resource.Group == "" && req.Resource.Kind == "" && req.Resource.Name == "") ||
+		(req.Resource.Group == reportsapi.SchemeGroupVersion.Group && (req.Resource.Kind == "Image" || req.Resource.Name == "images")) {
 		var list unstructured.UnstructuredList
 		list.SetAPIVersion("v1")
 		list.SetKind("Pod")

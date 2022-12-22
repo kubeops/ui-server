@@ -37,6 +37,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/client/apiutil"
+	"kmodules.xyz/go-containerregistry/name"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -92,6 +93,26 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		images, err = apiutil.CollectImageInfo(r.kc, &pod, images)
 		if err != nil {
 			return nil, err
+		}
+	}
+
+	// For image, keep ImageInfo if found in any pods or just try as a image name
+	if oi != nil &&
+		(oi.Resource.Group == reportsapi.SchemeGroupVersion.Group && (oi.Resource.Kind == "Image" || oi.Resource.Name == "images")) {
+		ref, err := name.ParseReference(in.Request.Ref.Name)
+		if err != nil {
+			return nil, err
+		}
+		if ii, ok := images[ref.Name]; ok {
+			images = map[string]kmapi.ImageInfo{
+				ref.Name: ii,
+			}
+		} else {
+			images = map[string]kmapi.ImageInfo{
+				ref.Name: {
+					Image: ref.Name,
+				},
+			}
 		}
 	}
 
@@ -264,22 +285,24 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 		imginfos[ref] = iis
 	}
 
-	count := map[string]int{} // Risk_level -> num_uniq_cves
-	for _, vul := range vuls {
-		count[vul.Severity]++
+	stats := map[string]reportsapi.RiskStats{}
+	for risk, n := range occurence {
+		rs := stats[risk]
+		rs.Occurrence = n
+		stats[risk] = rs
 	}
-
-	riskRank := map[string]int{
-		"CRITICAL": 0,
-		"HIGH":     1,
+	// Risk_level -> num_uniq_cves
+	for _, vul := range vuls {
+		rs := stats[vul.Severity]
+		rs.Count++
+		stats[vul.Severity] = rs
 	}
 
 	resp := reportsapi.CVEReportResponse{
 		Images: make([]reportsapi.ImageInfo, 0, len(imginfos)),
 		Vulnerabilities: reportsapi.VulnerabilityInfo{
-			Count:      count,
-			Occurrence: occurence,
-			CVEs:       make([]trivy.Vulnerability, 0, len(vuls)),
+			Stats: stats,
+			CVEs:  make([]trivy.Vulnerability, 0, len(vuls)),
 		},
 	}
 	for _, ii := range imginfos {
@@ -304,6 +327,14 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 			return vul.Results[i].Image < vul.Results[j].Image
 		})
 		resp.Vulnerabilities.CVEs = append(resp.Vulnerabilities.CVEs, vul)
+	}
+
+	riskRank := map[string]int{
+		"CRITICAL": 0,
+		"HIGH":     1,
+		"MEDIUM":   2,
+		"LOW":      3,
+		"UNKNOWN":  4,
 	}
 	sort.Slice(resp.Vulnerabilities.CVEs, func(i, j int) bool {
 		ci, cj := resp.Vulnerabilities.CVEs[i], resp.Vulnerabilities.CVEs[j]

@@ -368,6 +368,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubeops.dev/scanner/apis/reports/v1alpha1.ImageRequest":             schema_scanner_apis_reports_v1alpha1_ImageRequest(ref),
 		"kubeops.dev/scanner/apis/reports/v1alpha1.ImageResponse":            schema_scanner_apis_reports_v1alpha1_ImageResponse(ref),
 		"kubeops.dev/scanner/apis/reports/v1alpha1.ImageScanStatus":          schema_scanner_apis_reports_v1alpha1_ImageScanStatus(ref),
+		"kubeops.dev/scanner/apis/reports/v1alpha1.RiskStats":                schema_scanner_apis_reports_v1alpha1_RiskStats(ref),
 		"kubeops.dev/scanner/apis/reports/v1alpha1.VulnerabilityInfo":        schema_scanner_apis_reports_v1alpha1_VulnerabilityInfo(ref),
 		"kubeops.dev/scanner/apis/reports/v1alpha1.Workload":                 schema_scanner_apis_reports_v1alpha1_Workload(ref),
 		"kubeops.dev/scanner/apis/reports/v1alpha1.WorkloadList":             schema_scanner_apis_reports_v1alpha1_WorkloadList(ref),
@@ -17979,7 +17980,7 @@ func schema_scanner_apis_reports_v1alpha1_ImageScanStatus(ref common.ReferenceCa
 	}
 }
 
-func schema_scanner_apis_reports_v1alpha1_VulnerabilityInfo(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_scanner_apis_reports_v1alpha1_RiskStats(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -17987,29 +17988,40 @@ func schema_scanner_apis_reports_v1alpha1_VulnerabilityInfo(ref common.Reference
 				Properties: map[string]spec.Schema{
 					"count": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"object"},
-							AdditionalProperties: &spec.SchemaOrBool{
-								Allows: true,
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: 0,
-										Type:    []string{"integer"},
-										Format:  "int32",
-									},
-								},
-							},
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
 						},
 					},
 					"occurrence": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+				},
+				Required: []string{"count", "occurrence"},
+			},
+		},
+	}
+}
+
+func schema_scanner_apis_reports_v1alpha1_VulnerabilityInfo(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"stats": {
 						SchemaProps: spec.SchemaProps{
 							Type: []string{"object"},
 							AdditionalProperties: &spec.SchemaOrBool{
 								Allows: true,
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Default: 0,
-										Type:    []string{"integer"},
-										Format:  "int32",
+										Default: map[string]interface{}{},
+										Ref:     ref("kubeops.dev/scanner/apis/reports/v1alpha1.RiskStats"),
 									},
 								},
 							},
@@ -18029,11 +18041,11 @@ func schema_scanner_apis_reports_v1alpha1_VulnerabilityInfo(ref common.Reference
 						},
 					},
 				},
-				Required: []string{"count", "occurrence", "cves"},
+				Required: []string{"stats", "cves"},
 			},
 		},
 		Dependencies: []string{
-			"kubeops.dev/scanner/apis/trivy.Vulnerability"},
+			"kubeops.dev/scanner/apis/reports/v1alpha1.RiskStats", "kubeops.dev/scanner/apis/trivy.Vulnerability"},
 	}
 }
 
