@@ -21,13 +21,18 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
+	"strconv"
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
 	"kubeops.dev/ui-server/pkg/controllers"
+	"kubeops.dev/ui-server/pkg/metricshandler"
 
 	fluxcd "github.com/fluxcd/helm-controller/api/v2beta1"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	v "gomodules.xyz/x/version"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -37,6 +42,8 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	"k8s.io/apiserver/pkg/util/feature"
+	"k8s.io/component-base/metrics/legacyregistry"
+	"k8s.io/klog/v2"
 	ou "kmodules.xyz/client-go/openapi"
 	"kmodules.xyz/client-go/tools/clientcmd"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
@@ -172,6 +179,20 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 		return err
 	}
 
+	{
+		metricshandler.RegisterSelfMetrics()
+		telemetryMux := buildTelemetryServer(legacyregistry.DefaultGatherer)
+		telemetryListenAddress := net.JoinHostPort(o.ExtraOptions.TelemetryHost, strconv.Itoa(o.ExtraOptions.TelemetryPort))
+		telemetryServer := http.Server{Handler: telemetryMux, Addr: telemetryListenAddress}
+
+		go func() {
+			klog.Infof("Starting self metrics server: %s", telemetryListenAddress)
+			if err := telemetryServer.ListenAndServe(); err != nil {
+				klog.Errorln(err)
+			}
+		}()
+	}
+
 	server, err := config.Complete().New(ctx)
 	if err != nil {
 		return err
@@ -203,4 +224,37 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 	setupLog := log.Log.WithName("setup")
 	setupLog.Info("starting manager")
 	return server.Manager.Start(ctx)
+}
+
+func buildTelemetryServer(registry prometheus.Gatherer) *http.ServeMux {
+	mux := http.NewServeMux()
+
+	// Add metricsPath
+	mux.Handle(metricshandler.MetricsPath, promhttp.HandlerFor(registry, promhttp.HandlerOpts{ErrorLog: promLogger{}}))
+	// Add index
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`<html>
+             <head><title>Metrics for kube-ui-server by AppsCode</title></head>
+             <body>
+             <h1>Metrics</h1>
+			 <ul>
+             <li><a href='` + metricshandler.MetricsPath + `'>metrics</a></li>
+			 </ul>
+             </body>
+             </html>`))
+	})
+	return mux
+}
+
+// promLogger implements promhttp.Logger
+type promLogger struct{}
+
+func (pl promLogger) Println(v ...interface{}) {
+	klog.Error(v...)
+}
+
+// promLogger implements the Logger interface
+func (pl promLogger) Log(v ...interface{}) error {
+	klog.Info(v...)
+	return nil
 }
