@@ -116,6 +116,9 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	}
 
 	serverConfig := genericapiserver.NewRecommendedConfig(apiserver.Codecs)
+	// Disable installing the default apiserver /metrics handler
+	// ref: https://github.com/kubernetes/apiserver/blob/v0.21.0/pkg/server/config.go#L785-L791
+	serverConfig.EnableMetrics = false
 	if err := o.RecommendedOptions.ApplyTo(serverConfig); err != nil {
 		return nil, err
 	}
