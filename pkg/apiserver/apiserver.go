@@ -30,6 +30,7 @@ import (
 	scannercontrollers "kubeops.dev/ui-server/pkg/controllers/scanner"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/menu"
+	"kubeops.dev/ui-server/pkg/metricshandler"
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/core/genericresource"
@@ -341,6 +342,14 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
 			return nil, err
 		}
+	}
+	{
+		// Create metrics handler and fill the stores with metrics store
+		// containing Help and Type headers of metrics
+		m := metricshandler.MetricsHandler{
+			Client: mgr.GetClient(),
+		}
+		m.Install(genericServer.Handler.NonGoRestfulMux)
 	}
 	return s, nil
 }

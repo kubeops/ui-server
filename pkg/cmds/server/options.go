@@ -31,6 +31,9 @@ type ExtraOptions struct {
 	DisableImageCache bool
 	CacheSize         int
 	CacheTTL          time.Duration
+
+	TelemetryHost string
+	TelemetryPort int
 }
 
 func NewExtraOptions() *ExtraOptions {
@@ -40,6 +43,8 @@ func NewExtraOptions() *ExtraOptions {
 		DisableImageCache: false,
 		CacheSize:         1024,
 		CacheTTL:          time.Hour * 6,
+		TelemetryHost:     "::",
+		TelemetryPort:     8081,
 	}
 }
 
@@ -50,6 +55,9 @@ func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.BoolVar(&s.DisableImageCache, "disable-image-cache", s.DisableImageCache, "If true, disables image cache")
 	fs.IntVar(&s.CacheSize, "image-cache-size", s.CacheSize, "Size of image cache")
 	fs.DurationVar(&s.CacheTTL, "image-cache-ttl", s.CacheTTL, "TTL for sending image scan request for a given image")
+
+	fs.StringVar(&s.TelemetryHost, "telemetry-host", s.TelemetryHost, `Host to expose self metrics on.`)
+	fs.IntVar(&s.TelemetryPort, "telemetry-port", s.TelemetryPort, `Port to expose self metrics on.`)
 }
 
 func (s *ExtraOptions) ApplyTo(cfg *apiserver.ExtraConfig) error {
