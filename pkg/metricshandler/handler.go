@@ -95,11 +95,10 @@ func collectMetrics(kc client.Client, w io.Writer) error {
 	headers := generator.ExtractMetricFamilyHeaders(generators)
 	store := metricsstore.NewMetricsStore(headers)
 
-	store.Add(collectCVEOccurrence(results, generators[0]))
-	store.Add(collectClusterCVEMetrics(results, generators[1], generators[2]))
-	store.Add(collectNamespaceCVEMetrics(images, results, generators[3], generators[4]))
-	store.Add(collectImageCVEMetrics(results, generators[5], generators[6]))
-	store.Add(collectLineageMetrics(images, generators[7]))
+	store.Add(collectClusterCVEMetrics(results, generators[0], generators[1], generators[2]))
+	store.Add(collectNamespaceCVEMetrics(images, results, generators[3], generators[4], generators[5]))
+	store.Add(collectImageCVEMetrics(results, generators[6], generators[7]))
+	store.Add(collectLineageMetrics(images, generators[8]))
 
 	return store.WriteAll(w)
 }
@@ -115,66 +114,10 @@ func (m *MetricsHandler) Install(c *mux.PathRecorderMux) {
 	c.Handle(MetricsPath, next)
 }
 
-func getFamilyGenerators() []generator.FamilyGenerator {
-	fn := func(obj interface{}) *metric.Family { return new(metric.Family) }
-	generators := make([]generator.FamilyGenerator, 0, 8)
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              metricPrefix + "cve_occurrence",
-		Help:              "CVE occurrence statistics",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              metricPrefix + "cluster_cve_occurrence",
-		Help:              "Cluster CVE occurrence",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              metricPrefix + "cluster_cve_count",
-		Help:              "Cluster unique CVE count",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              metricPrefix + "namespace_cve_occurrence",
-		Help:              "Namespace CVE occurrence",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              metricPrefix + "namespace_cve_count",
-		Help:              "Namespace unique CVE count",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              metricPrefix + "image_cve_occurrence",
-		Help:              "Image CVE occurrence",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              metricPrefix + "image_cve_count",
-		Help:              "Image unique CVE count",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              metricPrefix + "image_lineage",
-		Help:              "Image Lineage",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	return generators
+type result struct {
+	ref     string
+	report  scannerapi.ImageScanReport
+	missing bool
 }
 
 var severities = []string{
@@ -183,12 +126,6 @@ var severities = []string{
 	"MEDIUM",
 	"LOW",
 	"UNKNOWN",
-}
-
-type result struct {
-	ref     string
-	report  scannerapi.ImageScanReport
-	missing bool
 }
 
 // Based on https://pkg.go.dev/golang.org/x/sync@v0.1.0/errgroup#example-Group-Pipeline
@@ -265,21 +202,99 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 	return m, nil
 }
 
-func collectCVEOccurrence(results map[string]result, gen generator.FamilyGenerator) *metric.Family {
-	f := gen.Generate(nil)
+func getFamilyGenerators() []generator.FamilyGenerator {
+	fn := func(obj interface{}) *metric.Family { return new(metric.Family) }
+	generators := make([]generator.FamilyGenerator, 0, 8)
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              metricPrefix + "cluster_cve_occurrence",
+		Help:              "CVE occurrence statistics",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              metricPrefix + "cluster_cve_occurrence_total",
+		Help:              "Cluster total CVE occurrence",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              metricPrefix + "cluster_cve_count_total",
+		Help:              "Cluster total unique CVE count",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              metricPrefix + "namespace_cve_occurrence",
+		Help:              "Namespace CVE occurrence statistics",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              metricPrefix + "namespace_cve_occurrence_total",
+		Help:              "Namespace total CVE occurrence",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              metricPrefix + "namespace_cve_count_total",
+		Help:              "Namespace total unique CVE count",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
 
-	occurrence := map[string]int{}
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              metricPrefix + "image_cve_occurrence_total",
+		Help:              "Image total CVE occurrence",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              metricPrefix + "image_cve_count_total",
+		Help:              "Image total unique CVE count",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              metricPrefix + "image_lineage",
+		Help:              "Image Lineage",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
+
+	return generators
+}
+
+func collectClusterCVEMetrics(results map[string]result, gen, genO, genC generator.FamilyGenerator) (*metric.Family, *metric.Family, *metric.Family) {
+	f := gen.Generate(nil)
+	fO := genO.Generate(nil)
+	fC := genC.Generate(nil)
+
+	riskOccurrence := map[string]int{} // risk -> occurrence
+	riskByCVE := map[string]string{}   // cve -> risk
+	vulOccurrence := map[string]int{}  // cve -> occurrence
+
 	for _, r := range results {
 		if !r.missing {
 			for _, rpt := range r.report.Status.Report.Results {
 				for _, tv := range rpt.Vulnerabilities {
-					occurrence[tv.VulnerabilityID]++
+					riskOccurrence[tv.Severity]++
+					riskByCVE[tv.VulnerabilityID] = tv.Severity
+					vulOccurrence[tv.VulnerabilityID]++
 				}
 			}
 		}
 	}
 
-	for cve, n := range occurrence {
+	for cve, n := range vulOccurrence {
 		m := metric.Metric{
 			LabelKeys: []string{
 				"cve",
@@ -291,30 +306,10 @@ func collectCVEOccurrence(results map[string]result, gen generator.FamilyGenerat
 		}
 		f.Metrics = append(f.Metrics, &m)
 	}
-	return f
-}
 
-func collectClusterCVEMetrics(results map[string]result, genO, genC generator.FamilyGenerator) (*metric.Family, *metric.Family) {
-	fO := genO.Generate(nil)
-	fC := genC.Generate(nil)
-
-	occurrence := map[string]int{}   // risk -> occurrence
-	riskByCVE := map[string]string{} // cve -> risk
-
-	for _, r := range results {
-		if !r.missing {
-			for _, rpt := range r.report.Status.Report.Results {
-				for _, tv := range rpt.Vulnerabilities {
-					occurrence[tv.Severity]++
-					riskByCVE[tv.VulnerabilityID] = tv.Severity
-				}
-			}
-		}
-	}
-
-	count := map[string]int{}
+	riskCount := map[string]int{} // risk -> count
 	for _, risk := range riskByCVE {
-		count[risk]++
+		riskCount[risk]++
 	}
 
 	for _, risk := range severities {
@@ -325,7 +320,7 @@ func collectClusterCVEMetrics(results map[string]result, genO, genC generator.Fa
 			LabelValues: []string{
 				risk,
 			},
-			Value: float64(occurrence[risk]),
+			Value: float64(riskOccurrence[risk]),
 		}
 		fO.Metrics = append(fO.Metrics, &mO)
 
@@ -336,20 +331,22 @@ func collectClusterCVEMetrics(results map[string]result, genO, genC generator.Fa
 			LabelValues: []string{
 				risk,
 			},
-			Value: float64(count[risk]),
+			Value: float64(riskCount[risk]),
 		}
 		fC.Metrics = append(fC.Metrics, &mC)
 	}
 
-	return fO, fC
+	return f, fO, fC
 }
 
-func collectNamespaceCVEMetrics(images map[string]kmapi.ImageInfo, results map[string]result, genO, genC generator.FamilyGenerator) (*metric.Family, *metric.Family) {
+func collectNamespaceCVEMetrics(images map[string]kmapi.ImageInfo, results map[string]result, gen, genO, genC generator.FamilyGenerator) (*metric.Family, *metric.Family, *metric.Family) {
+	f := gen.Generate(nil)
 	fO := genO.Generate(nil)
 	fC := genC.Generate(nil)
 
-	occurrenceNS := map[string]map[string]int{}   // ns -> risk -> occurrence
-	riskByCVENS := map[string]map[string]string{} // ns -> cve -> risk
+	riskOccurrenceNS := map[string]map[string]int{} // ns -> risk -> occurrence
+	riskByCVENS := map[string]map[string]string{}   // ns -> cve -> risk
+	vulOccurrenceNS := map[string]map[string]int{}  // ns -> cve -> occurrence
 
 	for ref, ii := range images {
 		namespaces := sets.NewString()
@@ -359,22 +356,24 @@ func collectNamespaceCVEMetrics(images map[string]kmapi.ImageInfo, results map[s
 		}
 		r, ok := results[ref]
 		if ok && !r.missing {
-			occurrence := map[string]int{}   // risk -> occurrence
-			riskByCVE := map[string]string{} // cve -> risk
+			riskOccurrence := map[string]int{} // risk -> occurrence
+			riskByCVE := map[string]string{}   // cve -> risk
+			vulOccurrence := map[string]int{}  // cve -> occurrence
 
 			for _, rpt := range r.report.Status.Report.Results {
 				for _, tv := range rpt.Vulnerabilities {
-					occurrence[tv.Severity]++
+					riskOccurrence[tv.Severity]++
 					riskByCVE[tv.VulnerabilityID] = tv.Severity
+					vulOccurrence[tv.VulnerabilityID]++
 				}
 			}
 
 			for ns := range namespaces {
-				if _, ok := occurrenceNS[ns]; !ok {
-					occurrenceNS[ns] = map[string]int{}
+				if _, ok := riskOccurrenceNS[ns]; !ok {
+					riskOccurrenceNS[ns] = map[string]int{}
 				}
-				for risk, n := range occurrence {
-					occurrenceNS[ns][risk] += n
+				for risk, n := range riskOccurrence {
+					riskOccurrenceNS[ns][risk] += n
 				}
 
 				if _, ok := riskByCVENS[ns]; !ok {
@@ -383,17 +382,39 @@ func collectNamespaceCVEMetrics(images map[string]kmapi.ImageInfo, results map[s
 				for cve, risk := range riskByCVE {
 					riskByCVENS[ns][cve] = risk
 				}
+
+				if _, ok := vulOccurrenceNS[ns]; !ok {
+					vulOccurrenceNS[ns] = map[string]int{}
+				}
+				for cve, n := range vulOccurrence {
+					vulOccurrenceNS[ns][cve] += n
+				}
 			}
 		}
 	}
 
-	for ns := range occurrenceNS {
-		occurrence := occurrenceNS[ns] // risk -> occurrence
-		riskByCVE := riskByCVENS[ns]   // cve -> risk
+	for ns := range riskOccurrenceNS {
+		for cve, n := range vulOccurrenceNS[ns] {
+			m := metric.Metric{
+				LabelKeys: []string{
+					"cve",
+					"namespace",
+				},
+				LabelValues: []string{
+					cve,
+					ns,
+				},
+				Value: float64(n),
+			}
+			f.Metrics = append(f.Metrics, &m)
+		}
 
-		count := map[string]int{}
+		riskOccurrence := riskOccurrenceNS[ns] // risk -> occurrence
+		riskByCVE := riskByCVENS[ns]           // cve -> risk
+
+		riskCount := map[string]int{} // risk -> count
 		for _, risk := range riskByCVE {
-			count[risk]++
+			riskCount[risk]++
 		}
 
 		for _, risk := range severities {
@@ -406,7 +427,7 @@ func collectNamespaceCVEMetrics(images map[string]kmapi.ImageInfo, results map[s
 					ns,
 					risk,
 				},
-				Value: float64(occurrence[risk]),
+				Value: float64(riskOccurrence[risk]),
 			}
 			fO.Metrics = append(fO.Metrics, &mO)
 
@@ -419,12 +440,12 @@ func collectNamespaceCVEMetrics(images map[string]kmapi.ImageInfo, results map[s
 					ns,
 					risk,
 				},
-				Value: float64(count[risk]),
+				Value: float64(riskCount[risk]),
 			}
 			fC.Metrics = append(fC.Metrics, &mC)
 		}
 	}
-	return fO, fC
+	return f, fO, fC
 }
 
 func collectImageCVEMetrics(results map[string]result, genO, genC generator.FamilyGenerator) (*metric.Family, *metric.Family) {
