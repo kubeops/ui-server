@@ -97,8 +97,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 
 	// For image, keep ImageInfo if found in any pods or just try as a image name
-	if oi != nil &&
-		(oi.Resource.Group == reportsapi.SchemeGroupVersion.Group && (oi.Resource.Kind == "Image" || oi.Resource.Name == "images")) {
+	if shared.IsImageRequest(oi) {
 		ref, err := name.ParseReference(in.Request.Ref.Name)
 		if err != nil {
 			return nil, err
@@ -121,7 +120,12 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, err
 	}
 
-	in.Response, err = GenerateReports(images, results)
+	if shared.IsCVERequest(oi) {
+		in.Response, err = GenerateReports(images, results, relevantCVE{cve: oi.Ref.Name})
+	} else {
+		in.Response, err = GenerateReports(images, results, everything{})
+	}
+
 	return in, err
 }
 
@@ -205,7 +209,48 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 	return m, nil
 }
 
-func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]result) (*reportsapi.CVEReportResponse, error) {
+type IsRelevant interface {
+	Result(r result) bool
+	CVE(v trivy.Vulnerability) bool
+}
+
+type everything struct{}
+
+var _ IsRelevant = everything{}
+
+func (a everything) Result(r result) bool {
+	return true
+}
+
+func (a everything) CVE(v trivy.Vulnerability) bool {
+	return true
+}
+
+type relevantCVE struct {
+	cve string
+}
+
+var _ IsRelevant = relevantCVE{}
+
+func (a relevantCVE) Result(r result) bool {
+	if r.missing {
+		return false
+	}
+	for _, rpt := range r.report.Status.Report.Results {
+		for _, tv := range rpt.Vulnerabilities {
+			if tv.VulnerabilityID == a.cve {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (a relevantCVE) CVE(v trivy.Vulnerability) bool {
+	return v.VulnerabilityID == a.cve
+}
+
+func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]result, isRelevant IsRelevant) (*reportsapi.CVEReportResponse, error) {
 	// count := map[string]string{}  // CVE -> risk level
 	occurence := map[string]int{} // risk level -> int
 
@@ -213,6 +258,10 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 	vuls := map[string]trivy.Vulnerability{}
 
 	for ref, r := range results {
+		if !isRelevant.Result(r) {
+			continue
+		}
+
 		iis, ok := imginfos[ref]
 		if !ok {
 			iis = reportsapi.ImageInfo{}
@@ -252,6 +301,10 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 
 			for _, rpt := range r.report.Status.Report.Results {
 				for _, tv := range rpt.Vulnerabilities {
+					if !isRelevant.CVE(tv) {
+						continue
+					}
+
 					av, ok := vuls[tv.VulnerabilityID]
 					if !ok {
 						av = tv

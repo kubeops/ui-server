@@ -19,7 +19,7 @@ package graph
 import (
 	"context"
 
-	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
+	"kubeops.dev/ui-server/pkg/shared"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -29,9 +29,7 @@ import (
 )
 
 func LocatePods(ctx context.Context, kc client.Client, req *kmapi.ObjectInfo) ([]unstructured.Unstructured, error) {
-	if req == nil ||
-		(req.Resource.Group == "" && req.Resource.Kind == "" && req.Resource.Name == "") ||
-		(req.Resource.Group == reportsapi.SchemeGroupVersion.Group && (req.Resource.Kind == "Image" || req.Resource.Name == "images")) {
+	if shared.IsClusterRequest(req) || shared.IsImageRequest(req) || shared.IsClusterCVERequest(req) {
 		var list unstructured.UnstructuredList
 		list.SetAPIVersion("v1")
 		list.SetKind("Pod")
@@ -43,7 +41,7 @@ func LocatePods(ctx context.Context, kc client.Client, req *kmapi.ObjectInfo) ([
 
 	rid := req.Resource
 
-	if rid.Group == "" && (rid.Kind == "Namespace" || rid.Name == "namespaces") {
+	if shared.IsNamespaceRequest(req) {
 		var list unstructured.UnstructuredList
 		list.SetAPIVersion("v1")
 		list.SetKind("Pod")
@@ -51,7 +49,15 @@ func LocatePods(ctx context.Context, kc client.Client, req *kmapi.ObjectInfo) ([
 			return nil, err
 		}
 		return list.Items, nil
-	} else if rid.Group == "" && (rid.Kind == "Pod" || rid.Name == "pods") {
+	} else if shared.IsNamespaceCVERequest(req) {
+		var list unstructured.UnstructuredList
+		list.SetAPIVersion("v1")
+		list.SetKind("Pod")
+		if err := kc.List(ctx, &list, client.InNamespace(req.Ref.Namespace)); err != nil {
+			return nil, err
+		}
+		return list.Items, nil
+	} else if shared.IsPodRequest(req) {
 		var pod unstructured.Unstructured
 		pod.SetAPIVersion("v1")
 		pod.SetKind("Pod")

@@ -18,19 +18,14 @@ package shared
 
 import (
 	"bytes"
-	"net"
-	"strings"
 	"sync"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
+
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/selection"
-	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	meta_util "kmodules.xyz/client-go/meta"
-	"kmodules.xyz/client-go/tools/clusterid"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 )
 
@@ -99,82 +94,6 @@ func (s GroupKindSelector) Matches(gk schema.GroupKind) bool {
 	return ok
 }
 
-func GetKubernetesInfo(cfg *rest.Config, kc kubernetes.Interface) (*corev1alpha1.KubernetesInfo, error) {
-	var si corev1alpha1.KubernetesInfo
-
-	var err error
-	si.ClusterName = clusterid.ClusterName()
-	si.ClusterUID, err = clusterid.ClusterUID(kc.CoreV1().Namespaces())
-	if err != nil {
-		return nil, err
-	}
-	si.Version, err = kc.Discovery().ServerVersion()
-	if err != nil {
-		return nil, err
-	}
-
-	cert, err := meta_util.APIServerCertificate(cfg)
-	if err != nil {
-		return nil, err
-	} else {
-		si.ControlPlane = &corev1alpha1.ControlPlaneInfo{
-			NotBefore: metav1.NewTime(cert.NotBefore),
-			NotAfter:  metav1.NewTime(cert.NotAfter),
-			// DNSNames:       cert.DNSNames,
-			EmailAddresses: cert.EmailAddresses,
-			// IPAddresses:    cert.IPAddresses,
-			// URIs:           cert.URIs,
-		}
-
-		dnsNames := sets.NewString(cert.DNSNames...)
-		ips := sets.NewString()
-		if len(cert.Subject.CommonName) > 0 {
-			if ip := net.ParseIP(cert.Subject.CommonName); ip != nil {
-				if !skipIP(ip) {
-					ips.Insert(ip.String())
-				}
-			} else {
-				dnsNames.Insert(cert.Subject.CommonName)
-			}
-		}
-
-		for _, host := range dnsNames.UnsortedList() {
-			if host == "kubernetes" ||
-				host == "kubernetes.default" ||
-				host == "kubernetes.default.svc" ||
-				strings.HasSuffix(host, ".svc.cluster.local") ||
-				host == "localhost" ||
-				!strings.ContainsRune(host, '.') {
-				dnsNames.Delete(host)
-			}
-		}
-		si.ControlPlane.DNSNames = dnsNames.List()
-
-		for _, ip := range cert.IPAddresses {
-			if !skipIP(ip) {
-				ips.Insert(ip.String())
-			}
-		}
-		si.ControlPlane.IPAddresses = ips.List()
-
-		uris := make([]string, 0, len(cert.URIs))
-		for _, u := range cert.URIs {
-			uris = append(uris, u.String())
-		}
-		si.ControlPlane.URIs = uris
-	}
-	return &si, nil
-}
-
-func skipIP(ip net.IP) bool {
-	return ip.IsLoopback() ||
-		ip.IsMulticast() ||
-		ip.IsGlobalUnicast() ||
-		ip.IsInterfaceLocalMulticast() ||
-		ip.IsLinkLocalMulticast() ||
-		ip.IsLinkLocalUnicast()
-}
-
 var (
 	podGVR     = schema.GroupVersionResource{Version: "v1", Resource: "Pods"}
 	podviewGVR = corev1alpha1.GroupVersion.WithResource(corev1alpha1.ResourcePodViews)
@@ -182,4 +101,41 @@ var (
 
 func IsPod(gvr schema.GroupVersionResource) bool {
 	return gvr == podGVR || gvr == podviewGVR
+}
+
+func IsClusterRequest(req *kmapi.ObjectInfo) bool {
+	return req == nil ||
+		(req.Resource.Group == "" && req.Resource.Kind == "" && req.Resource.Name == "")
+}
+
+func IsImageRequest(req *kmapi.ObjectInfo) bool {
+	return req != nil &&
+		req.Resource.Group == reportsapi.SchemeGroupVersion.Group &&
+		(req.Resource.Kind == "Image" || req.Resource.Name == "images")
+}
+
+func IsCVERequest(req *kmapi.ObjectInfo) bool {
+	return req != nil &&
+		req.Resource.Group == reportsapi.SchemeGroupVersion.Group &&
+		(req.Resource.Kind == "CVE" || req.Resource.Name == "cves")
+}
+
+func IsClusterCVERequest(req *kmapi.ObjectInfo) bool {
+	return IsCVERequest(req) && req.Ref.Namespace == ""
+}
+
+func IsNamespaceCVERequest(req *kmapi.ObjectInfo) bool {
+	return IsCVERequest(req) && req.Ref.Namespace != ""
+}
+
+func IsNamespaceRequest(req *kmapi.ObjectInfo) bool {
+	return req != nil &&
+		req.Resource.Group == "" &&
+		(req.Resource.Kind == "Namespace" || req.Resource.Name == "namespaces")
+}
+
+func IsPodRequest(req *kmapi.ObjectInfo) bool {
+	return req != nil &&
+		req.Resource.Group == "" &&
+		(req.Resource.Kind == "Pod" || req.Resource.Name == "pods")
 }
