@@ -17950,6 +17950,13 @@ func schema_scanner_apis_scanner_v1alpha1_ImageScanRequestSpec(ref common.Refere
 							Format:      "",
 						},
 					},
+					"serviceAccountName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ServiceAccountName is the name of SA used on the pod where this image has been used",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"image"},
 			},

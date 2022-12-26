@@ -43,23 +43,24 @@ func InitImageCache(size int, ttl time.Duration) {
 	Cache = cache.NewCache[string, string]().WithMaxKeys(size).WithTTL(ttl).WithLRU()
 }
 
-func PullSecretsHash(info kmapi.PullSecrets) string {
+func PullSecretsHash(info kmapi.PullCredentials) string {
 	h := fnv.New64a()
 	meta.DeepHashObject(h, info)
 	newHash := strconv.FormatUint(h.Sum64(), 10)
 	return newHash
 }
 
-func SendScanRequest(ctx context.Context, kc client.Client, ref string, info kmapi.PullSecrets) error {
+func SendScanRequest(ctx context.Context, kc client.Client, ref string, info kmapi.PullCredentials) error {
 	obj := scannerapi.ImageScanRequest{
 		TypeMeta: metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: GenerateName(ref),
 		},
 		Spec: scannerapi.ImageScanRequestSpec{
-			Image:       ref,
-			Namespace:   info.Namespace,
-			PullSecrets: info.Refs,
+			Image:              ref,
+			Namespace:          info.Namespace,
+			PullSecrets:        info.SecretRefs,
+			ServiceAccountName: info.ServiceAccountName,
 		},
 	}
 	if err := kc.Create(ctx, &obj); err != nil {
