@@ -361,6 +361,7 @@ func autoConvert_v1alpha1_ImageScanRequestSpec_To_scanner_ImageScanRequestSpec(i
 	out.Image = in.Image
 	out.PullSecrets = *(*[]v1.LocalObjectReference)(unsafe.Pointer(&in.PullSecrets))
 	out.Namespace = in.Namespace
+	out.ServiceAccountName = in.ServiceAccountName
 	return nil
 }
 
@@ -373,6 +374,7 @@ func autoConvert_scanner_ImageScanRequestSpec_To_v1alpha1_ImageScanRequestSpec(i
 	out.Image = in.Image
 	out.PullSecrets = *(*[]v1.LocalObjectReference)(unsafe.Pointer(&in.PullSecrets))
 	out.Namespace = in.Namespace
+	out.ServiceAccountName = in.ServiceAccountName
 	return nil
 }
 

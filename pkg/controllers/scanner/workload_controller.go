@@ -74,7 +74,7 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	// get all the images into map
-	refs := map[string]kmapi.PullSecrets{}
+	refs := map[string]kmapi.PullCredentials{}
 	for _, p := range pods.Items {
 		var pod core.Pod
 		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
@@ -83,7 +83,7 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		if pod.Status.Phase != core.PodRunning && pod.Status.Phase != core.PodSucceeded && pod.Status.Phase != "Completed" {
 			return ctrl.Result{}, nil
 		}
-		refs, err = apiutil.CollectPullSecrets(&pod, refs)
+		refs, err = apiutil.CollectPullCredentials(&pod, refs)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -103,7 +103,7 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	return ctrl.Result{}, nil
 }
 
-func (r *WorkloadReconciler) shouldScan(ref string, info kmapi.PullSecrets) bool {
+func (r *WorkloadReconciler) shouldScan(ref string, info kmapi.PullCredentials) bool {
 	if shared.Cache == nil {
 		return true
 	}

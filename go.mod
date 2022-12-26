@@ -19,7 +19,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
 	github.com/zeebo/xxh3 v1.0.2
-	go.bytebuilders.dev/license-verifier v0.12.0
+	go.bytebuilders.dev/license-verifier v0.12.1
 	go.openviz.dev/apimachinery v0.0.4
 	golang.org/x/sync v0.1.0
 	gomodules.xyz/jsonpath v0.0.2
@@ -38,14 +38,14 @@ require (
 	k8s.io/kube-state-metrics/v2 v2.7.0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.0
-	kmodules.xyz/client-go v0.25.14-0.20221219094723-dff3eed54bac
+	kmodules.xyz/client-go v0.25.15-0.20221226124734-a3032dc6917c
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/go-containerregistry v0.0.3
 	kmodules.xyz/monitoring-agent-api v0.25.0
-	kmodules.xyz/resource-metadata v0.14.5-0.20221219121310-b7c7c41e1390
+	kmodules.xyz/resource-metadata v0.15.0
 	kmodules.xyz/resource-metrics v0.25.0
 	kmodules.xyz/sets v0.24.0
-	kubeops.dev/scanner v0.0.3-0.20221222190810-4626d07d0e20
+	kubeops.dev/scanner v0.0.4
 	kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b
 	kubepack.dev/preset v0.0.3
 	sigs.k8s.io/cli-utils v0.33.0

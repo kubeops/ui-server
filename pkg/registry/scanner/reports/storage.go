@@ -149,9 +149,10 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 			req := scannerapi.ImageScanRequestSpec{
 				Image: ref,
 			}
-			if info.PullSecrets != nil {
-				req.Namespace = info.PullSecrets.Namespace
-				req.PullSecrets = info.PullSecrets.Refs
+			if info.PullCredentials != nil {
+				req.Namespace = info.PullCredentials.Namespace
+				req.PullSecrets = info.PullCredentials.SecretRefs
+				req.ServiceAccountName = info.PullCredentials.ServiceAccountName
 			}
 			select {
 			case requests <- req:
@@ -173,9 +174,10 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 				if client.IgnoreNotFound(err) != nil {
 					return err
 				} else if apierrors.IsNotFound(err) {
-					_ = shared.SendScanRequest(ctx, kc, req.Image, kmapi.PullSecrets{
-						Namespace: req.Namespace,
-						Refs:      req.PullSecrets,
+					_ = shared.SendScanRequest(ctx, kc, req.Image, kmapi.PullCredentials{
+						Namespace:          req.Namespace,
+						SecretRefs:         req.PullSecrets,
+						ServiceAccountName: req.ServiceAccountName,
 					})
 				}
 				select {

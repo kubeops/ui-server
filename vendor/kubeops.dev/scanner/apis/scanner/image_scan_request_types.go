@@ -34,9 +34,10 @@ type ImageScanRequest struct {
 }
 
 type ImageScanRequestSpec struct {
-	Image       string
-	PullSecrets []core.LocalObjectReference
-	Namespace   string
+	Image              string
+	PullSecrets        []core.LocalObjectReference
+	Namespace          string
+	ServiceAccountName string
 }
 
 type ImageScanRequestStatus struct {

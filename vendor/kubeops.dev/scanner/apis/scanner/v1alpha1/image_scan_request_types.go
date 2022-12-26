@@ -53,6 +53,9 @@ type ImageScanRequestSpec struct {
 	// Namespace tells where to look for the image pull secrets.
 	// +optional
 	Namespace string `json:"namespace,omitempty"`
+	// ServiceAccountName is the name of SA used on the pod where this image has been used
+	// +optional
+	ServiceAccountName string `json:"serviceAccountName,omitempty"`
 }
 
 type ImageScanRequestStatus struct {
