@@ -53,6 +53,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&ImageScanRequestList{},
 		&ImageScanReport{},
 		&ImageScanReportList{},
+		&Vulnerability{},
+		&VulnerabilityList{},
 	)
 
 	scheme.AddKnownTypes(SchemeGroupVersion,

@@ -79,7 +79,7 @@ func collectMetrics(kc client.Client, w io.Writer) error {
 		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
 			return err
 		}
-		images, err = au.CollectImageInfo(kc, &pod, images)
+		images, err = au.CollectImageInfo(kc, &pod, images, true)
 		if err != nil {
 			return err
 		}
@@ -455,48 +455,49 @@ func collectImageCVEMetrics(results map[string]result, genO, genC generator.Fami
 	fC := genC.Generate(nil)
 
 	for _, r := range results {
-		if !r.missing {
-			occurrence := map[string]int{}   // risk -> occurrence
-			riskByCVE := map[string]string{} // cve -> risk
+		if r.missing {
+			continue
+		}
+		occurrence := map[string]int{}   // risk -> occurrence
+		riskByCVE := map[string]string{} // cve -> risk
 
-			for _, rpt := range r.report.Status.Report.Results {
-				for _, tv := range rpt.Vulnerabilities {
-					occurrence[tv.Severity]++
-					riskByCVE[tv.VulnerabilityID] = tv.Severity
-				}
+		for _, rpt := range r.report.Status.Report.Results {
+			for _, tv := range rpt.Vulnerabilities {
+				occurrence[tv.Severity]++
+				riskByCVE[tv.VulnerabilityID] = tv.Severity
 			}
-			count := map[string]int{}
-			for _, risk := range riskByCVE {
-				count[risk]++
-			}
+		}
+		count := map[string]int{}
+		for _, risk := range riskByCVE {
+			count[risk]++
+		}
 
-			for _, risk := range severities {
-				mO := metric.Metric{
-					LabelKeys: []string{
-						"image",
-						"severity",
-					},
-					LabelValues: []string{
-						r.ref,
-						risk,
-					},
-					Value: float64(occurrence[risk]),
-				}
-				fO.Metrics = append(fO.Metrics, &mO)
-
-				mC := metric.Metric{
-					LabelKeys: []string{
-						"image",
-						"severity",
-					},
-					LabelValues: []string{
-						r.ref,
-						risk,
-					},
-					Value: float64(count[risk]),
-				}
-				fC.Metrics = append(fC.Metrics, &mC)
+		for _, risk := range severities {
+			mO := metric.Metric{
+				LabelKeys: []string{
+					"image",
+					"severity",
+				},
+				LabelValues: []string{
+					r.ref,
+					risk,
+				},
+				Value: float64(occurrence[risk]),
 			}
+			fO.Metrics = append(fO.Metrics, &mO)
+
+			mC := metric.Metric{
+				LabelKeys: []string{
+					"image",
+					"severity",
+				},
+				LabelValues: []string{
+					r.ref,
+					risk,
+				},
+				Value: float64(count[risk]),
+			}
+			fC.Metrics = append(fC.Metrics, &mC)
 		}
 	}
 

@@ -55,8 +55,8 @@ type CVEReportResponse struct {
 }
 
 type VulnerabilityInfo struct {
-	Stats map[string]RiskStats  `json:"stats"`
-	CVEs  []trivy.Vulnerability `json:"cves"`
+	Stats map[string]RiskStats      `json:"stats"`
+	CVEs  []trivy.VulnerabilityInfo `json:"cves"`
 }
 
 type RiskStats struct {
@@ -65,10 +65,10 @@ type RiskStats struct {
 }
 
 type ImageInfo struct {
-	Image      ImageReference  `json:"image"`
-	Metadata   *ImageMetadata  `json:"metadata,omitempty"`
-	Lineages   []kmapi.Lineage `json:"lineages,omitempty"`
-	ScanStatus ImageScanStatus `json:"scanStatus"`
+	Image      ImageReference       `json:"image"`
+	Metadata   *ImageMetadata       `json:"metadata,omitempty"`
+	Stats      map[string]RiskStats `json:"stats"`
+	ScanStatus ImageScanStatus      `json:"scanStatus"`
 }
 
 type ScanResult string

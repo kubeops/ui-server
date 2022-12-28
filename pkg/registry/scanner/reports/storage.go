@@ -90,7 +90,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
 			return nil, err
 		}
-		images, err = apiutil.CollectImageInfo(r.kc, &pod, images)
+		images, err = apiutil.CollectImageInfo(r.kc, &pod, images, false)
 		if err != nil {
 			return nil, err
 		}
@@ -253,16 +253,18 @@ func (a relevantCVE) CVE(v trivy.Vulnerability) bool {
 }
 
 func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]result, isRelevant IsRelevant) (*reportsapi.CVEReportResponse, error) {
-	// count := map[string]string{}  // CVE -> risk level
-	occurence := map[string]int{} // risk level -> int
+	totalOccurence := map[string]int{} // risk level -> int
 
 	imginfos := map[string]reportsapi.ImageInfo{}
-	vuls := map[string]trivy.Vulnerability{}
+	vuls := map[string]trivy.VulnerabilityInfo{}
 
 	for ref, r := range results {
 		if !isRelevant.Result(r) {
 			continue
 		}
+
+		occurrence := map[string]int{}   // risk -> occurrence
+		riskByCVE := map[string]string{} // cve -> risk
 
 		iis, ok := imginfos[ref]
 		if !ok {
@@ -299,8 +301,6 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 			if m2.Os != nil || m2.ImageConfig != nil {
 				iis.Metadata = &m2
 			}
-			iis.Lineages = images[ref].Lineages
-
 			for _, rpt := range r.report.Status.Report.Results {
 				for _, tv := range rpt.Vulnerabilities {
 					if !isRelevant.CVE(tv) {
@@ -309,10 +309,17 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 
 					av, ok := vuls[tv.VulnerabilityID]
 					if !ok {
-						av = tv
-						av.R = map[string]trivy.ImageResult{}
+						av = trivy.VulnerabilityInfo{
+							VulnerabilityID: tv.VulnerabilityID,
+							Title:           tv.Title,
+							Severity:        tv.Severity,
+							Results:         nil,
+							R:               map[string]trivy.ImageResult{},
+						}
 					}
-					occurence[tv.Severity]++
+					totalOccurence[tv.Severity]++
+					occurrence[tv.Severity]++
+					riskByCVE[tv.VulnerabilityID] = tv.Severity
 
 					ir, ok := av.R[ref]
 					if !ok {
@@ -337,11 +344,25 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 				}
 			}
 		}
+
+		stats := map[string]reportsapi.RiskStats{}
+		for risk, n := range occurrence {
+			rs := stats[risk]
+			rs.Occurrence = n
+			stats[risk] = rs
+		}
+		for _, risk := range riskByCVE {
+			rs := stats[risk]
+			rs.Count++
+			stats[risk] = rs
+		}
+		iis.Stats = stats
+
 		imginfos[ref] = iis
 	}
 
 	stats := map[string]reportsapi.RiskStats{}
-	for risk, n := range occurence {
+	for risk, n := range totalOccurence {
 		rs := stats[risk]
 		rs.Occurrence = n
 		stats[risk] = rs
@@ -357,7 +378,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 		Images: make([]reportsapi.ImageInfo, 0, len(imginfos)),
 		Vulnerabilities: reportsapi.VulnerabilityInfo{
 			Stats: stats,
-			CVEs:  make([]trivy.Vulnerability, 0, len(vuls)),
+			CVEs:  make([]trivy.VulnerabilityInfo, 0, len(vuls)),
 		},
 	}
 	for _, ii := range imginfos {

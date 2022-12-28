@@ -90,11 +90,6 @@ type CVSSScore struct {
 	V3Score  float64 `json:"v3Score,omitempty" tv:"V3Score,omitempty"`
 }
 
-type CVSS struct {
-	Nvd    *CVSSScore `json:"nvd,omitempty" tv:"nvd,omitempty"`
-	Redhat *CVSSScore `json:"redhat,omitempty" tv:"redhat,omitempty"`
-}
-
 type Vulnerability struct {
 	VulnerabilityID  string                  `json:"vulnerabilityID" tv:"VulnerabilityID"`
 	PkgName          string                  `json:"pkgName" tv:"PkgName"`
@@ -108,13 +103,20 @@ type Vulnerability struct {
 	Description      string                  `json:"description" tv:"Description"`
 	Severity         string                  `json:"severity" tv:"Severity"`
 	CweIDs           []string                `json:"cweIDs,omitempty" tv:"CweIDs,omitempty"`
-	Cvss             CVSS                    `json:"cvss,omitempty" tv:"CVSS,omitempty"`
+	Cvss             map[string]CVSSScore    `json:"cvss,omitempty" tv:"CVSS,omitempty"`
 	References       []string                `json:"references" tv:"References"`
 	PublishedDate    *Time                   `json:"publishedDate,omitempty" tv:"PublishedDate,omitempty"`
 	LastModifiedDate *Time                   `json:"lastModifiedDate,omitempty" tv:"LastModifiedDate,omitempty"`
 	FixedVersion     string                  `json:"fixedVersion,omitempty" tv:"FixedVersion,omitempty"`
+}
 
-	Results []ImageResult          `json:"results"  tv:"-"`
+type VulnerabilityInfo struct {
+	VulnerabilityID string `json:"vulnerabilityID" tv:"VulnerabilityID"`
+	Title           string `json:"title,omitempty" tv:"Title,omitempty"`
+	Severity        string `json:"severity" tv:"Severity"`
+
+	// +optional
+	Results []ImageResult          `json:"results,omitempty"  tv:"-"`
 	R       map[string]ImageResult `json:"-" tv:"-"`
 }
 

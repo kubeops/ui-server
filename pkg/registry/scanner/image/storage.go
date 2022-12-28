@@ -22,6 +22,7 @@ import (
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
+	"kubeops.dev/ui-server/pkg/shared"
 
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,6 +31,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/client/apiutil"
+	"kmodules.xyz/go-containerregistry/name"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -82,21 +84,40 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
 			return nil, err
 		}
-		images, err = apiutil.CollectImageInfo(r.kc, &pod, images)
+		images, err = apiutil.CollectImageInfo(r.kc, &pod, images, true)
 		if err != nil {
 			return nil, err
 		}
 	}
+	// For image, keep ImageInfo if found in any pods or just try as a image name
+	if shared.IsImageRequest(oi) {
+		ref, err := name.ParseReference(in.Request.Ref.Name)
+		if err != nil {
+			return nil, err
+		}
+		if info, ok := images[ref.Name]; ok {
+			images = map[string]kmapi.ImageInfo{
+				ref.Name: info,
+			}
+		} else {
+			images = map[string]kmapi.ImageInfo{
+				ref.Name: {
+					Image: ref.Name,
+				},
+			}
+		}
+	}
 
-	in.Response = &reportsapi.ImageResponse{
-		Images: make([]kmapi.ImageInfo, 0, len(images)),
-	}
+	out := make([]kmapi.ImageInfo, 0, len(images))
 	for _, info := range images {
-		in.Response.Images = append(in.Response.Images, info)
+		out = append(out, info)
 	}
-	sort.Slice(in.Response.Images, func(i, j int) bool {
-		return in.Response.Images[i].Image < in.Response.Images[j].Image
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].Image < out[j].Image
 	})
 
+	in.Response = &reportsapi.ImageResponse{
+		Images: out,
+	}
 	return in, nil
 }
