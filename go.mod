@@ -24,6 +24,7 @@ require (
 	golang.org/x/sync v0.1.0
 	gomodules.xyz/jsonpath v0.0.2
 	gomodules.xyz/logs v0.0.6
+	gomodules.xyz/password-generator v0.2.9
 	gomodules.xyz/pointer v0.1.0
 	gomodules.xyz/sets v0.2.1
 	gomodules.xyz/x v0.0.14
