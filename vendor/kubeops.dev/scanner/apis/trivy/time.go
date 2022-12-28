@@ -20,7 +20,9 @@ import (
 	"encoding/json"
 	"time"
 
+	apiequality "k8s.io/apimachinery/pkg/api/equality"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )
 
 type Time metav1.Time
@@ -75,4 +77,12 @@ func (t Time) MarshalJSON() ([]byte, error) {
 	buf = t.UTC().AppendFormat(buf, time.RFC3339Nano)
 	buf = append(buf, '"')
 	return buf, nil
+}
+
+func init() {
+	utilruntime.Must(
+		apiequality.Semantic.AddFunc(func(a, b Time) bool {
+			return a.UTC() == b.UTC()
+		}),
+	)
 }

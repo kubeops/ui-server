@@ -349,7 +349,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/client-go/api/v1.ObjectID":                             schema_kmodulesxyz_client_go_api_v1_ObjectID(ref),
 		"kmodules.xyz/client-go/api/v1.ObjectInfo":                           schema_kmodulesxyz_client_go_api_v1_ObjectInfo(ref),
 		"kmodules.xyz/client-go/api/v1.ObjectReference":                      schema_kmodulesxyz_client_go_api_v1_ObjectReference(ref),
-		"kmodules.xyz/client-go/api/v1.PullSecrets":                          schema_kmodulesxyz_client_go_api_v1_PullSecrets(ref),
+		"kmodules.xyz/client-go/api/v1.PullCredentials":                      schema_kmodulesxyz_client_go_api_v1_PullCredentials(ref),
 		"kmodules.xyz/client-go/api/v1.ReadonlyHealthCheckSpec":              schema_kmodulesxyz_client_go_api_v1_ReadonlyHealthCheckSpec(ref),
 		"kmodules.xyz/client-go/api/v1.ResourceID":                           schema_kmodulesxyz_client_go_api_v1_ResourceID(ref),
 		"kmodules.xyz/client-go/api/v1.TLSConfig":                            schema_kmodulesxyz_client_go_api_v1_TLSConfig(ref),
@@ -373,6 +373,24 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubeops.dev/scanner/apis/reports/v1alpha1.Workload":                 schema_scanner_apis_reports_v1alpha1_Workload(ref),
 		"kubeops.dev/scanner/apis/reports/v1alpha1.WorkloadList":             schema_scanner_apis_reports_v1alpha1_WorkloadList(ref),
 		"kubeops.dev/scanner/apis/reports/v1alpha1.WorkloadSpec":             schema_scanner_apis_reports_v1alpha1_WorkloadSpec(ref),
+		"kubeops.dev/scanner/apis/trivy.CVSSScore":                           schema_kubeopsdev_scanner_apis_trivy_CVSSScore(ref),
+		"kubeops.dev/scanner/apis/trivy.ImageConfig":                         schema_kubeopsdev_scanner_apis_trivy_ImageConfig(ref),
+		"kubeops.dev/scanner/apis/trivy.ImageHistory":                        schema_kubeopsdev_scanner_apis_trivy_ImageHistory(ref),
+		"kubeops.dev/scanner/apis/trivy.ImageMetadata":                       schema_kubeopsdev_scanner_apis_trivy_ImageMetadata(ref),
+		"kubeops.dev/scanner/apis/trivy.ImageOS":                             schema_kubeopsdev_scanner_apis_trivy_ImageOS(ref),
+		"kubeops.dev/scanner/apis/trivy.ImageResult":                         schema_kubeopsdev_scanner_apis_trivy_ImageResult(ref),
+		"kubeops.dev/scanner/apis/trivy.ImageRootfs":                         schema_kubeopsdev_scanner_apis_trivy_ImageRootfs(ref),
+		"kubeops.dev/scanner/apis/trivy.ImageRuntimeConfig":                  schema_kubeopsdev_scanner_apis_trivy_ImageRuntimeConfig(ref),
+		"kubeops.dev/scanner/apis/trivy.Result":                              schema_kubeopsdev_scanner_apis_trivy_Result(ref),
+		"kubeops.dev/scanner/apis/trivy.SingleReport":                        schema_kubeopsdev_scanner_apis_trivy_SingleReport(ref),
+		"kubeops.dev/scanner/apis/trivy.Target":                              schema_kubeopsdev_scanner_apis_trivy_Target(ref),
+		"kubeops.dev/scanner/apis/trivy.Time":                                schema_kubeopsdev_scanner_apis_trivy_Time(ref),
+		"kubeops.dev/scanner/apis/trivy.Version":                             schema_kubeopsdev_scanner_apis_trivy_Version(ref),
+		"kubeops.dev/scanner/apis/trivy.Vulnerability":                       schema_kubeopsdev_scanner_apis_trivy_Vulnerability(ref),
+		"kubeops.dev/scanner/apis/trivy.VulnerabilityDBStruct":               schema_kubeopsdev_scanner_apis_trivy_VulnerabilityDBStruct(ref),
+		"kubeops.dev/scanner/apis/trivy.VulnerabilityDataSource":             schema_kubeopsdev_scanner_apis_trivy_VulnerabilityDataSource(ref),
+		"kubeops.dev/scanner/apis/trivy.VulnerabilityInfo":                   schema_kubeopsdev_scanner_apis_trivy_VulnerabilityInfo(ref),
+		"kubeops.dev/scanner/apis/trivy.VulnerabilityLayer":                  schema_kubeopsdev_scanner_apis_trivy_VulnerabilityLayer(ref),
 	}
 }
 
@@ -17102,8 +17120,9 @@ func schema_kmodulesxyz_client_go_api_v1_ImageInfo(ref common.ReferenceCallback)
 				Properties: map[string]spec.Schema{
 					"image": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
 						},
 					},
 					"lineages": {
@@ -17119,17 +17138,17 @@ func schema_kmodulesxyz_client_go_api_v1_ImageInfo(ref common.ReferenceCallback)
 							},
 						},
 					},
-					"pullSecrets": {
+					"pullCredentials": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/client-go/api/v1.PullSecrets"),
+							Ref: ref("kmodules.xyz/client-go/api/v1.PullCredentials"),
 						},
 					},
 				},
-				Required: []string{"pullSecrets"},
+				Required: []string{"image"},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/client-go/api/v1.Lineage", "kmodules.xyz/client-go/api/v1.PullSecrets"},
+			"kmodules.xyz/client-go/api/v1.Lineage", "kmodules.xyz/client-go/api/v1.PullCredentials"},
 	}
 }
 
@@ -17266,7 +17285,7 @@ func schema_kmodulesxyz_client_go_api_v1_ObjectReference(ref common.ReferenceCal
 	}
 }
 
-func schema_kmodulesxyz_client_go_api_v1_PullSecrets(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kmodulesxyz_client_go_api_v1_PullCredentials(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -17274,11 +17293,18 @@ func schema_kmodulesxyz_client_go_api_v1_PullSecrets(ref common.ReferenceCallbac
 				Properties: map[string]spec.Schema{
 					"namespace": {
 						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"serviceAccountName": {
+						SchemaProps: spec.SchemaProps{
 							Type:   []string{"string"},
 							Format: "",
 						},
 					},
-					"refs": {
+					"secretRefs": {
 						SchemaProps: spec.SchemaProps{
 							Type: []string{"array"},
 							Items: &spec.SchemaOrArray{
@@ -17292,6 +17318,7 @@ func schema_kmodulesxyz_client_go_api_v1_PullSecrets(ref common.ReferenceCallbac
 						},
 					},
 				},
+				Required: []string{"namespace"},
 			},
 		},
 		Dependencies: []string{
@@ -17795,14 +17822,15 @@ func schema_scanner_apis_reports_v1alpha1_ImageInfo(ref common.ReferenceCallback
 							Ref: ref("kubeops.dev/scanner/apis/reports/v1alpha1.ImageMetadata"),
 						},
 					},
-					"lineages": {
+					"stats": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
-							Items: &spec.SchemaOrArray{
+							Type: []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("kmodules.xyz/client-go/api/v1.Lineage"),
+										Ref:     ref("kubeops.dev/scanner/apis/reports/v1alpha1.RiskStats"),
 									},
 								},
 							},
@@ -17815,11 +17843,11 @@ func schema_scanner_apis_reports_v1alpha1_ImageInfo(ref common.ReferenceCallback
 						},
 					},
 				},
-				Required: []string{"image", "scanStatus"},
+				Required: []string{"image", "stats", "scanStatus"},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/client-go/api/v1.Lineage", "kubeops.dev/scanner/apis/reports/v1alpha1.ImageMetadata", "kubeops.dev/scanner/apis/reports/v1alpha1.ImageReference", "kubeops.dev/scanner/apis/reports/v1alpha1.ImageScanStatus"},
+			"kubeops.dev/scanner/apis/reports/v1alpha1.ImageMetadata", "kubeops.dev/scanner/apis/reports/v1alpha1.ImageReference", "kubeops.dev/scanner/apis/reports/v1alpha1.ImageScanStatus", "kubeops.dev/scanner/apis/reports/v1alpha1.RiskStats"},
 	}
 }
 
@@ -18034,7 +18062,7 @@ func schema_scanner_apis_reports_v1alpha1_VulnerabilityInfo(ref common.Reference
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("kubeops.dev/scanner/apis/trivy.Vulnerability"),
+										Ref:     ref("kubeops.dev/scanner/apis/trivy.VulnerabilityInfo"),
 									},
 								},
 							},
@@ -18045,7 +18073,7 @@ func schema_scanner_apis_reports_v1alpha1_VulnerabilityInfo(ref common.Reference
 			},
 		},
 		Dependencies: []string{
-			"kubeops.dev/scanner/apis/reports/v1alpha1.RiskStats", "kubeops.dev/scanner/apis/trivy.Vulnerability"},
+			"kubeops.dev/scanner/apis/reports/v1alpha1.RiskStats", "kubeops.dev/scanner/apis/trivy.VulnerabilityInfo"},
 	}
 }
 
@@ -18162,5 +18190,897 @@ func schema_scanner_apis_reports_v1alpha1_WorkloadSpec(ref common.ReferenceCallb
 		},
 		Dependencies: []string{
 			"k8s.io/api/core/v1.PodTemplateSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_CVSSScore(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"v2Vector": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"v3Vector": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"v2Score": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"number"},
+							Format: "double",
+						},
+					},
+					"v3Score": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"number"},
+							Format: "double",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_ImageConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"architecture": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"author": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"container": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"created": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.Time"),
+						},
+					},
+					"dockerVersion": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"history": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("kubeops.dev/scanner/apis/trivy.ImageHistory"),
+									},
+								},
+							},
+						},
+					},
+					"os": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"rootfs": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.ImageRootfs"),
+						},
+					},
+					"config": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.ImageRuntimeConfig"),
+						},
+					},
+				},
+				Required: []string{"architecture", "created", "history", "os", "rootfs", "config"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.ImageHistory", "kubeops.dev/scanner/apis/trivy.ImageRootfs", "kubeops.dev/scanner/apis/trivy.ImageRuntimeConfig", "kubeops.dev/scanner/apis/trivy.Time"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_ImageHistory(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"created": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.Time"),
+						},
+					},
+					"createdBy": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"emptyLayer": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+					"comment": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"created", "createdBy"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.Time"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_ImageMetadata(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"os": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.ImageOS"),
+						},
+					},
+					"imageID": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"diffIDs": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"repoTags": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"repoDigests": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"imageConfig": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.ImageConfig"),
+						},
+					},
+				},
+				Required: []string{"os", "imageID", "diffIDs", "repoTags", "repoDigests", "imageConfig"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.ImageConfig", "kubeops.dev/scanner/apis/trivy.ImageOS"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_ImageOS(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"family": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+				},
+				Required: []string{"family", "name"},
+			},
+		},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_ImageResult(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"image": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"targets": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("kubeops.dev/scanner/apis/trivy.Target"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.Target"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_ImageRootfs(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"diffIDs": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"type", "diffIDs"},
+			},
+		},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_ImageRuntimeConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"cmd": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"env": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"image": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"entrypoint": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"labels": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"argsEscaped": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+					"stopSignal": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"cmd"},
+			},
+		},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_Result(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"target": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"class": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"vulnerabilities": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("kubeops.dev/scanner/apis/trivy.Vulnerability"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"target", "class", "type"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.Vulnerability"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_SingleReport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"schemaVersion": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+					"artifactName": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"artifactType": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.ImageMetadata"),
+						},
+					},
+					"results": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("kubeops.dev/scanner/apis/trivy.Result"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"schemaVersion", "artifactName", "artifactType", "metadata", "results"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.ImageMetadata", "kubeops.dev/scanner/apis/trivy.Result"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_Target(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"layer": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubeops.dev/scanner/apis/trivy.VulnerabilityLayer"),
+						},
+					},
+					"installedVersion": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"target": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"class": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+				},
+				Required: []string{"target", "class", "type"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.VulnerabilityLayer"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_Time(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"Time": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Type:    []string{"string"},
+							Format:  "date-time",
+						},
+					},
+				},
+				Required: []string{"Time"},
+			},
+		},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_Version(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"version": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"vulnerabilityDB": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.VulnerabilityDBStruct"),
+						},
+					},
+				},
+				Required: []string{"version", "vulnerabilityDB"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.VulnerabilityDBStruct"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_Vulnerability(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"vulnerabilityID": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"pkgName": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"pkgID": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"severitySource": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"primaryURL": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"dataSource": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.VulnerabilityDataSource"),
+						},
+					},
+					"title": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"severity": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"cweIDs": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"cvss": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("kubeops.dev/scanner/apis/trivy.CVSSScore"),
+									},
+								},
+							},
+						},
+					},
+					"references": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"publishedDate": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubeops.dev/scanner/apis/trivy.Time"),
+						},
+					},
+					"lastModifiedDate": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubeops.dev/scanner/apis/trivy.Time"),
+						},
+					},
+					"fixedVersion": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"vulnerabilityID", "pkgName", "severitySource", "primaryURL", "dataSource", "description", "severity", "references"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.CVSSScore", "kubeops.dev/scanner/apis/trivy.Time", "kubeops.dev/scanner/apis/trivy.VulnerabilityDataSource"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_VulnerabilityDBStruct(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"version": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+					"updatedAt": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.Time"),
+						},
+					},
+					"downloadedAt": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.Time"),
+						},
+					},
+					"nextUpdate": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.Time"),
+						},
+					},
+				},
+				Required: []string{"version", "updatedAt", "downloadedAt", "nextUpdate"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.Time"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_VulnerabilityDataSource(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"ID": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"Name": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"URL": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+				},
+				Required: []string{"ID", "Name", "URL"},
+			},
+		},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_VulnerabilityInfo(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"vulnerabilityID": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"title": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"severity": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"results": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("kubeops.dev/scanner/apis/trivy.ImageResult"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"vulnerabilityID", "severity"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.ImageResult"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_VulnerabilityLayer(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"digest": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"diffID": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+				},
+				Required: []string{"diffID"},
+			},
+		},
 	}
 }

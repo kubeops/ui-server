@@ -1,0 +1,1354 @@
+apiVersion: reports.scanner.appscode.com/v1alpha1
+kind: CVEReport
+response:
+  images:
+  - image:
+      name: index.docker.io/appscode/kube-ui-server:linea_linux_arm64
+      tag: linea_linux_arm64
+    metadata:
+      os:
+        family: alpine
+        name: 3.17.0
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 57276e2b6fabcf064e7bdaf2de7ea73e
+      result: Found
+      trivyDBVersion: 0.35.0
+    stats:
+      HIGH:
+        count: 3
+        occurrence: 3
+      LOW:
+        count: 1
+        occurrence: 1
+      MEDIUM:
+        count: 2
+        occurrence: 2
+  - image:
+      name: index.docker.io/appscode/scanner:linea_linux_arm64
+      tag: linea_linux_arm64
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 68f64c60cecea1c1fe67a7b5124c3d15
+      result: Found
+    stats: {}
+  - image:
+      digest: sha256:efafbecdb2e689e6d122d6c56eef899a98aae7c08424bfc85966cc9c50460c91
+      name: index.docker.io/appscode/trivydb@sha256:efafbecdb2e689e6d122d6c56eef899a98aae7c08424bfc85966cc9c50460c91
+    metadata:
+      imageConfig:
+        architecture: amd64
+        os: linux
+      os:
+        family: alpine
+        name: 3.17.0
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 095efddca316f7c44f78b708929deb53
+      result: Found
+      trivyDBVersion: 0.32.0
+    stats:
+      HIGH:
+        count: 2
+        occurrence: 2
+      MEDIUM:
+        count: 1
+        occurrence: 1
+  - image:
+      digest: sha256:9ff19e5b6cc17b5dd1e5e7ce46023d98ec03f80c4906024e7e23f5aad0606475
+      name: index.docker.io/aquasec/trivy@sha256:9ff19e5b6cc17b5dd1e5e7ce46023d98ec03f80c4906024e7e23f5aad0606475
+    metadata:
+      imageConfig:
+        architecture: amd64
+        os: linux
+      os:
+        family: alpine
+        name: 3.16.2
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: cacc704e7e192a6adb408ef63ac51fd8
+      result: Found
+    stats:
+      LOW:
+        count: 1
+        occurrence: 1
+      MEDIUM:
+        count: 1
+        occurrence: 1
+      UNKNOWN:
+        count: 2
+        occurrence: 2
+  - image:
+      name: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+      tag: v20221004-44d545d1
+    metadata:
+      imageConfig:
+        architecture: amd64
+        os: linux
+      os:
+        family: debian
+        name: "11.4"
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 7faaa30ef246edffde06cfebc8b219de
+      result: Found
+    stats:
+      CRITICAL:
+        count: 1
+        occurrence: 1
+      HIGH:
+        count: 3
+        occurrence: 3
+      LOW:
+        count: 17
+        occurrence: 22
+      MEDIUM:
+        count: 2
+        occurrence: 3
+      UNKNOWN:
+        count: 2
+        occurrence: 2
+  - image:
+      name: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+      tag: v0.0.22-kind.0
+    metadata:
+      imageConfig:
+        architecture: amd64
+        author: Bazel
+        os: linux
+      os:
+        family: debian
+        name: "11.3"
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: bb5aac05c6d159cce80b3a9f643b2d3a
+      result: Found
+    stats:
+      CRITICAL:
+        count: 2
+        occurrence: 4
+      HIGH:
+        count: 8
+        occurrence: 8
+      LOW:
+        count: 9
+        occurrence: 11
+      MEDIUM:
+        count: 5
+        occurrence: 6
+      UNKNOWN:
+        count: 4
+        occurrence: 4
+  - image:
+      name: registry.k8s.io/coredns/coredns:v1.9.3
+      tag: v1.9.3
+    metadata:
+      imageConfig:
+        architecture: amd64
+        container: c8f53535d48b29f8830a6009bc197ff3799e6aa0f354e2c203beacf454d80017
+        os: linux
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 78bc9859e425c8bef69b1d22f67c5766
+      result: Found
+    stats:
+      CRITICAL:
+        count: 1
+        occurrence: 1
+      HIGH:
+        count: 2
+        occurrence: 2
+      LOW:
+        count: 1
+        occurrence: 1
+      MEDIUM:
+        count: 1
+        occurrence: 1
+      UNKNOWN:
+        count: 4
+        occurrence: 4
+  - image:
+      name: registry.k8s.io/etcd:3.5.4-0
+      tag: 3.5.4-0
+    metadata:
+      imageConfig:
+        architecture: amd64
+        author: Bazel
+        os: linux
+      os:
+        family: debian
+        name: "11.3"
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 9e582d6829f622f6919ee4ddd2d417c4
+      result: Found
+      trivyDBVersion: 0.32.0
+    stats:
+      HIGH:
+        count: 5
+        occurrence: 20
+      MEDIUM:
+        count: 2
+        occurrence: 8
+  - image:
+      digest: sha256:dd75ec974b0a2a6f6bb47001ba09207976e625db898d1b16735528c009cb171c
+      name: registry.k8s.io/etcd@sha256:dd75ec974b0a2a6f6bb47001ba09207976e625db898d1b16735528c009cb171c
+    metadata:
+      imageConfig:
+        architecture: amd64
+        author: Bazel
+        os: linux
+      os:
+        family: debian
+        name: "11.5"
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 11b56c15b63a806534643fdd8b4c4711
+      result: Found
+    stats:
+      HIGH:
+        count: 4
+        occurrence: 16
+      MEDIUM:
+        count: 1
+        occurrence: 4
+      UNKNOWN:
+        count: 1
+        occurrence: 4
+  - image:
+      name: registry.k8s.io/kube-apiserver:v1.25.3
+      tag: v1.25.3
+    metadata:
+      imageConfig:
+        architecture: amd64
+        author: Bazel
+        os: linux
+      os:
+        family: debian
+        name: "11.5"
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 956aa6d92c28055b49d445f3661d5a48
+      result: Found
+      trivyDBVersion: 0.32.0
+    stats:
+      HIGH:
+        count: 2
+        occurrence: 2
+      LOW:
+        count: 1
+        occurrence: 1
+      MEDIUM:
+        count: 2
+        occurrence: 2
+  - image:
+      name: registry.k8s.io/kube-controller-manager:v1.25.3
+      tag: v1.25.3
+    metadata:
+      imageConfig:
+        architecture: amd64
+        author: Bazel
+        os: linux
+      os:
+        family: debian
+        name: "11.5"
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: c5b3670fbfbc01fa37e26ab6343aeefb
+      result: Found
+      trivyDBVersion: 0.32.0
+    stats:
+      HIGH:
+        count: 2
+        occurrence: 2
+      LOW:
+        count: 1
+        occurrence: 1
+      MEDIUM:
+        count: 2
+        occurrence: 2
+  - image:
+      name: registry.k8s.io/kube-proxy:v1.25.3
+      tag: v1.25.3
+    metadata:
+      imageConfig:
+        architecture: amd64
+        os: linux
+      os:
+        family: debian
+        name: "11.4"
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 8d2c35cb3839917251d1f32cf33e8ce8
+      result: Found
+    stats:
+      HIGH:
+        count: 3
+        occurrence: 3
+      LOW:
+        count: 17
+        occurrence: 22
+      MEDIUM:
+        count: 1
+        occurrence: 2
+      UNKNOWN:
+        count: 1
+        occurrence: 1
+  - image:
+      name: registry.k8s.io/kube-scheduler:v1.25.3
+      tag: v1.25.3
+    metadata:
+      imageConfig:
+        architecture: amd64
+        author: Bazel
+        os: linux
+      os:
+        family: debian
+        name: "11.5"
+    scanStatus:
+      lastChecked: "2022-12-28T15:56:32.938755962Z"
+      reportRef:
+        name: 9ba427f92a494edc47326925d56f38e1
+      result: Found
+      trivyDBVersion: 0.32.0
+    stats:
+      HIGH:
+        count: 2
+        occurrence: 2
+      MEDIUM:
+        count: 1
+        occurrence: 1
+  vulnerabilities:
+    cves:
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      severity: CRITICAL
+      title: 'openssl: c_rehash script allows command injection'
+      vulnerabilityID: CVE-2022-1292
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: lang-pkgs
+          target: bin/kindnetd
+          type: gobinary
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: CRITICAL
+      title: 'go-restful: Authorization Bypass Through User-Controlled Key'
+      vulnerabilityID: CVE-2022-1996
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      severity: CRITICAL
+      title: 'openssl: the c_rehash script allows command injection'
+      vulnerabilityID: CVE-2022-2068
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: HIGH
+      title: 'golang: x/net/html: infinite loop in ParseFragment'
+      vulnerabilityID: CVE-2021-33194
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      - image: registry.k8s.io/etcd:3.5.4-0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      - image: registry.k8s.io/etcd@sha256:dd75ec974b0a2a6f6bb47001ba09207976e625db898d1b16735528c009cb171c
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      severity: HIGH
+      title: 'golang: out-of-bounds read in golang.org/x/text/language leads to DoS'
+      vulnerabilityID: CVE-2021-38561
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: HIGH
+      title: 'glibc: Off-by-one buffer overflow/underflow in getcwd()'
+      vulnerabilityID: CVE-2021-3999
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: HIGH
+      title: 'golang.org/x/crypto: empty plaintext packet causes panic'
+      vulnerabilityID: CVE-2021-43565
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      - image: registry.k8s.io/etcd:3.5.4-0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      - image: registry.k8s.io/etcd@sha256:dd75ec974b0a2a6f6bb47001ba09207976e625db898d1b16735528c009cb171c
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      severity: HIGH
+      title: 'golang: net/http: limit growth of header canonicalization cache'
+      vulnerabilityID: CVE-2021-44716
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: HIGH
+      title: 'prometheus/client_golang: Denial of service using InstrumentHandlerCounter'
+      vulnerabilityID: CVE-2022-21698
+    - results:
+      - image: index.docker.io/appscode/kube-ui-server:linea_linux_arm64
+        targets:
+        - class: lang-pkgs
+          target: root/.cache/tv
+          type: gobinary
+      severity: HIGH
+      title: 'helm: Denial of service through string value parsing'
+      vulnerabilityID: CVE-2022-23524
+    - results:
+      - image: index.docker.io/appscode/kube-ui-server:linea_linux_arm64
+        targets:
+        - class: lang-pkgs
+          target: root/.cache/tv
+          type: gobinary
+      severity: HIGH
+      title: 'helm: Denial of service through through repository index file'
+      vulnerabilityID: CVE-2022-23525
+    - results:
+      - image: index.docker.io/appscode/kube-ui-server:linea_linux_arm64
+        targets:
+        - class: lang-pkgs
+          target: root/.cache/tv
+          type: gobinary
+      severity: HIGH
+      title: 'helm: Denial of service through schema file'
+      vulnerabilityID: CVE-2022-23526
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      - image: registry.k8s.io/etcd:3.5.4-0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      severity: HIGH
+      title: 'golang: crash in a golang.org/x/crypto/ssh server'
+      vulnerabilityID: CVE-2022-27191
+    - results:
+      - image: index.docker.io/appscode/trivydb@sha256:efafbecdb2e689e6d122d6c56eef899a98aae7c08424bfc85966cc9c50460c91
+        targets:
+        - class: lang-pkgs
+          target: usr/bin/kubectl
+          type: gobinary
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: lang-pkgs
+          target: bin/kindnetd
+          type: gobinary
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      - image: registry.k8s.io/etcd:3.5.4-0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      - image: registry.k8s.io/etcd@sha256:dd75ec974b0a2a6f6bb47001ba09207976e625db898d1b16735528c009cb171c
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      - image: registry.k8s.io/kube-apiserver:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-apiserver
+          type: gobinary
+      - image: registry.k8s.io/kube-controller-manager:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-controller-manager
+          type: gobinary
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-proxy
+          type: gobinary
+      - image: registry.k8s.io/kube-scheduler:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-scheduler
+          type: gobinary
+      severity: HIGH
+      title: 'golang: net/http: handle server errors after sending GOAWAY'
+      vulnerabilityID: CVE-2022-27664
+    - results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: HIGH
+      title: 'golang-gopkg-yaml: crash when attempting to deserialize invalid input'
+      vulnerabilityID: CVE-2022-28948
+    - results:
+      - image: index.docker.io/appscode/trivydb@sha256:efafbecdb2e689e6d122d6c56eef899a98aae7c08424bfc85966cc9c50460c91
+        targets:
+        - class: lang-pkgs
+          target: usr/bin/kubectl
+          type: gobinary
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: lang-pkgs
+          target: bin/kindnetd
+          type: gobinary
+      - image: registry.k8s.io/etcd:3.5.4-0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      - image: registry.k8s.io/etcd@sha256:dd75ec974b0a2a6f6bb47001ba09207976e625db898d1b16735528c009cb171c
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      - image: registry.k8s.io/kube-apiserver:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-apiserver
+          type: gobinary
+      - image: registry.k8s.io/kube-controller-manager:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-controller-manager
+          type: gobinary
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-proxy
+          type: gobinary
+      - image: registry.k8s.io/kube-scheduler:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-scheduler
+          type: gobinary
+      severity: HIGH
+      title: 'golang: golang.org/x/text/language: ParseAcceptLanguage takes a long
+        time to parse complex tags'
+      vulnerabilityID: CVE-2022-32149
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: MEDIUM
+      title: 'kubernetes: Denial of service in API server via crafted YAML payloads
+        by authorized users'
+      vulnerabilityID: CVE-2019-11254
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: MEDIUM
+      title: 'kubernetes: Incomplete fix for CVE-2019-11250 allows for token leak
+        in logs when logLevel >= 9'
+      vulnerabilityID: CVE-2020-8565
+    - results:
+      - image: index.docker.io/appscode/kube-ui-server:linea_linux_arm64
+        targets:
+        - class: lang-pkgs
+          target: root/.cache/tv
+          type: gobinary
+      - image: index.docker.io/aquasec/trivy@sha256:9ff19e5b6cc17b5dd1e5e7ce46023d98ec03f80c4906024e7e23f5aad0606475
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/trivy
+          type: gobinary
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      - image: registry.k8s.io/kube-apiserver:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-apiserver
+          type: gobinary
+      - image: registry.k8s.io/kube-controller-manager:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-controller-manager
+          type: gobinary
+      severity: MEDIUM
+      title: 'aws/aws-sdk-go: CBC padding oracle issue in AWS S3 Crypto SDK for golang'
+      vulnerabilityID: CVE-2020-8911
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: MEDIUM
+      title: 'golang: net/http: panic in ReadRequest and ReadResponse when reading
+        a very large header'
+      vulnerabilityID: CVE-2021-31525
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: MEDIUM
+      title: 'openssl: AES OCB fails to encrypt some bytes'
+      vulnerabilityID: CVE-2022-2097
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: lang-pkgs
+          target: bin/kindnetd
+          type: gobinary
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      - image: registry.k8s.io/etcd:3.5.4-0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      - image: registry.k8s.io/etcd@sha256:dd75ec974b0a2a6f6bb47001ba09207976e625db898d1b16735528c009cb171c
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      severity: MEDIUM
+      title: 'golang: syscall: faccessat checks wrong group'
+      vulnerabilityID: CVE-2022-29526
+    - results:
+      - image: index.docker.io/appscode/kube-ui-server:linea_linux_arm64
+        targets:
+        - class: lang-pkgs
+          target: root/.cache/tv
+          type: gobinary
+      - image: index.docker.io/appscode/trivydb@sha256:efafbecdb2e689e6d122d6c56eef899a98aae7c08424bfc85966cc9c50460c91
+        targets:
+        - class: lang-pkgs
+          target: usr/bin/kubectl
+          type: gobinary
+      - image: registry.k8s.io/etcd:3.5.4-0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.4
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      - image: registry.k8s.io/kube-apiserver:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-apiserver
+          type: gobinary
+      - image: registry.k8s.io/kube-controller-manager:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-controller-manager
+          type: gobinary
+      - image: registry.k8s.io/kube-scheduler:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-scheduler
+          type: gobinary
+      severity: MEDIUM
+      title: An attacker can cause excessive memory growth in a Go server accepting
+        ...
+      vulnerabilityID: CVE-2022-41717
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'Dual_EC_DRBG: weak pseudo random number generator'
+      vulnerabilityID: CVE-2007-6755
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'openssl: RSA authentication weakness'
+      vulnerabilityID: CVE-2010-0928
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'glibc: glob implementation can cause excessive CPU and memory consumption
+        due to crafted glob expressions'
+      vulnerabilityID: CVE-2010-4756
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'iptables: --syn flag bypass'
+      vulnerabilityID: CVE-2012-2663
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'coreutils: Non-privileged session can escape to the parent session in
+        chroot'
+      vulnerabilityID: CVE-2016-2781
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'pcre: OP_KETRMAX feature in the match function in pcre_exec.c'
+      vulnerabilityID: CVE-2017-11164
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'pcre: self-recursive call in match() in pcre_exec.c leads to denial
+        of service'
+      vulnerabilityID: CVE-2017-16231
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'coreutils: race condition vulnerability in chown and chgrp'
+      vulnerabilityID: CVE-2017-18018
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'pcre: stack-based buffer overflow write in pcre32_copy_substring'
+      vulnerabilityID: CVE-2017-7245
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'pcre: stack-based buffer overflow write in pcre32_copy_substring'
+      vulnerabilityID: CVE-2017-7246
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'glibc: uncontrolled recursion in function check_dst_limits_calc_pos_1
+        in posix/regexec.c'
+      vulnerabilityID: CVE-2018-20796
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'glibc: stack guard protection bypass'
+      vulnerabilityID: CVE-2019-1010022
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'glibc: running ldd on malicious ELF leads to code execution because
+        of wrong size computation'
+      vulnerabilityID: CVE-2019-1010023
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'glibc: ASLR bypass using cache of thread stack and heap'
+      vulnerabilityID: CVE-2019-1010024
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'glibc: information disclosure of heap addresses of pthread_created thread'
+      vulnerabilityID: CVE-2019-1010025
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'pcre: Buffer over-read in JIT when UTF is disabled and \X or \R has
+        fixed quantifier greater than 1'
+      vulnerabilityID: CVE-2019-20838
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/kindnetd:v20221004-44d545d1 (debian 11.4)
+          type: debian
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: os-pkgs
+          target: docker.io/kindest/local-path-provisioner:v0.0.22-kind.0 (debian
+            11.3)
+          type: debian
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: os-pkgs
+          target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
+          type: debian
+      severity: LOW
+      title: 'glibc: uncontrolled recursion in function check_dst_limits_calc_pos_1
+        in posix/regexec.c'
+      vulnerabilityID: CVE-2019-9192
+    - results:
+      - image: index.docker.io/appscode/kube-ui-server:linea_linux_arm64
+        targets:
+        - class: lang-pkgs
+          target: root/.cache/tv
+          type: gobinary
+      - image: index.docker.io/aquasec/trivy@sha256:9ff19e5b6cc17b5dd1e5e7ce46023d98ec03f80c4906024e7e23f5aad0606475
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/trivy
+          type: gobinary
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      - image: registry.k8s.io/kube-apiserver:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-apiserver
+          type: gobinary
+      - image: registry.k8s.io/kube-controller-manager:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-controller-manager
+          type: gobinary
+      severity: LOW
+      title: 'aws-sdk-go: In-band key negotiation issue in AWS S3 Crypto SDK for golang'
+      vulnerabilityID: CVE-2020-8912
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: lang-pkgs
+          target: bin/kindnetd
+          type: gobinary
+      - image: registry.k8s.io/etcd@sha256:dd75ec974b0a2a6f6bb47001ba09207976e625db898d1b16735528c009cb171c
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcdctl
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd-3.5.6
+          type: gobinary
+        - class: lang-pkgs
+          target: usr/local/bin/etcd
+          type: gobinary
+      - image: registry.k8s.io/kube-proxy:v1.25.3
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/kube-proxy
+          type: gobinary
+      severity: UNKNOWN
+      vulnerabilityID: GHSA-69ch-w2m2-3vjp
+    - results:
+      - image: index.docker.io/aquasec/trivy@sha256:9ff19e5b6cc17b5dd1e5e7ce46023d98ec03f80c4906024e7e23f5aad0606475
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/trivy
+          type: gobinary
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: UNKNOWN
+      vulnerabilityID: GHSA-7f33-f4f5-xwgw
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: UNKNOWN
+      vulnerabilityID: GHSA-8c26-wmh5-6g9v
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: UNKNOWN
+      vulnerabilityID: GHSA-cg3q-j54f-5p7p
+    - results:
+      - image: index.docker.io/aquasec/trivy@sha256:9ff19e5b6cc17b5dd1e5e7ce46023d98ec03f80c4906024e7e23f5aad0606475
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/trivy
+          type: gobinary
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: UNKNOWN
+      vulnerabilityID: GHSA-f5pg-7wfw-84q9
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: UNKNOWN
+      vulnerabilityID: GHSA-gwc9-m7rh-j2ww
+    - results:
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: UNKNOWN
+      vulnerabilityID: GHSA-hp87-p4gw-j4gq
+    - results:
+      - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1
+        targets:
+        - class: lang-pkgs
+          target: bin/kindnetd
+          type: gobinary
+      - image: registry.k8s.io/coredns/coredns:v1.9.3
+        targets:
+        - class: lang-pkgs
+          target: coredns
+          type: gobinary
+      severity: UNKNOWN
+      vulnerabilityID: GHSA-r48q-9g5r-8q2h
+    - results:
+      - image: index.docker.io/kindest/local-path-provisioner:v0.0.22-kind.0
+        targets:
+        - class: lang-pkgs
+          target: usr/local/bin/local-path-provisioner
+          type: gobinary
+      severity: UNKNOWN
+      vulnerabilityID: GHSA-wxc4-f4m6-wwqv
+    stats:
+      CRITICAL:
+        count: 3
+        occurrence: 6
+      HIGH:
+        count: 13
+        occurrence: 63
+      LOW:
+        count: 18
+        occurrence: 60
+      MEDIUM:
+        count: 7
+        occurrence: 33
+      UNKNOWN:
+        count: 9
+        occurrence: 17

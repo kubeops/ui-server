@@ -1,0 +1,9 @@
+apiVersion: reports.scanner.appscode.com/v1alpha1
+kind: Image
+request:
+  resource:
+    group: reports.scanner.appscode.com
+    kind: Image
+    name: images
+  ref:
+    name: 'registry.k8s.io/coredns/coredns:v1.9.3'

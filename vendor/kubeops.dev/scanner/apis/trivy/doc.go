@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package
+// +k8s:openapi-gen=true
 
 // Package trivy contains API Schema definitions for the Trivy scanner
 package trivy // import "kubeops.dev/scanner/apis/trivy"

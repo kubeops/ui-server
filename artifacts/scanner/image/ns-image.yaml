@@ -1,0 +1,8 @@
+apiVersion: reports.scanner.appscode.com/v1alpha1
+kind: Image
+request:
+  resource:
+    group: ""
+    kind: Namespace
+  ref:
+    name: kube-system

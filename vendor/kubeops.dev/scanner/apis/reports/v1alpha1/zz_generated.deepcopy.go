@@ -166,11 +166,11 @@ func (in *ImageInfo) DeepCopyInto(out *ImageInfo) {
 		*out = new(ImageMetadata)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.Lineages != nil {
-		in, out := &in.Lineages, &out.Lineages
-		*out = make([]v1.Lineage, len(*in))
-		for i := range *in {
-			(*in)[i].DeepCopyInto(&(*out)[i])
+	if in.Stats != nil {
+		in, out := &in.Stats, &out.Stats
+		*out = make(map[string]RiskStats, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
 		}
 	}
 	in.ScanStatus.DeepCopyInto(&out.ScanStatus)
@@ -322,7 +322,7 @@ func (in *VulnerabilityInfo) DeepCopyInto(out *VulnerabilityInfo) {
 	}
 	if in.CVEs != nil {
 		in, out := &in.CVEs, &out.CVEs
-		*out = make([]trivy.Vulnerability, len(*in))
+		*out = make([]trivy.VulnerabilityInfo, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
