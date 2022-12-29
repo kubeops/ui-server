@@ -1015,8 +1015,8 @@ kmodules.xyz/resource-metrics v0.25.0 h1:wj3npVZZQr+Yysg/XdGn4LdT5kQizWeO0zq7QlS
 kmodules.xyz/resource-metrics v0.25.0/go.mod h1:4a49npnu73c9LGDWHWQsPWoXWXU9rpCcknoH1+HHesI=
 kmodules.xyz/sets v0.24.0 h1:GbltLEPVnURjcmWyf8eFstgJBpm9o151wsrABkByGrc=
 kmodules.xyz/sets v0.24.0/go.mod h1:V+RRt2RqZfwYpVe9/rAodFiUARLPhz995GArdBhL8vU=
-kubeops.dev/scanner v0.0.5 h1:wmalw4ofvC5pKpvAq846vmZwXQMxU7klcdMTluyT5+Y=
-kubeops.dev/scanner v0.0.5/go.mod h1:ncptZl5zuOe3608D7fKf1Og8jQ/Ytz6rNDs6tL8Ipdw=
+kubeops.dev/scanner v0.0.6-0.20221229070833-e576a0bfa6df h1:Er95gp22VfejW8l3bJ3FdHU6q2w30vlab9vdceKi8i0=
+kubeops.dev/scanner v0.0.6-0.20221229070833-e576a0bfa6df/go.mod h1:ncptZl5zuOe3608D7fKf1Og8jQ/Ytz6rNDs6tL8Ipdw=
 kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b h1:y7h7zsp4GrIN2HUXDxhaoW2xNzF8FyCRwI4/iMCBQZs=
 kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b/go.mod h1:vwev7FSz032jTbXPONI3mVB7MOXYXNkj5uo4VVMR7Y8=
 kubepack.dev/preset v0.0.3 h1:JkDeCodeWn2VYGxnXSgjlWvpxzF4HgbIggrqU+6g0Zw=

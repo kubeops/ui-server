@@ -111,9 +111,11 @@ type Vulnerability struct {
 }
 
 type VulnerabilityInfo struct {
-	VulnerabilityID string `json:"vulnerabilityID" tv:"VulnerabilityID"`
-	Title           string `json:"title,omitempty" tv:"Title,omitempty"`
-	Severity        string `json:"severity" tv:"Severity"`
+	VulnerabilityID string `json:"vulnerabilityID"`
+	Title           string `json:"title,omitempty"`
+	Severity        string `json:"severity"`
+	PrimaryURL      string `json:"primaryURL"`
+	Occurrence      int    `json:"occurrence"`
 
 	// +optional
 	Results []ImageResult          `json:"results,omitempty"  tv:"-"`

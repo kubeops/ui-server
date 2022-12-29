@@ -263,8 +263,8 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 			continue
 		}
 
-		occurrence := map[string]int{}   // risk -> occurrence
-		riskByCVE := map[string]string{} // cve -> risk
+		riskOccurrence := map[string]int{} // risk -> occurrence
+		riskByCVE := map[string]string{}   // cve -> risk
 
 		iis, ok := imginfos[ref]
 		if !ok {
@@ -313,12 +313,13 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 							VulnerabilityID: tv.VulnerabilityID,
 							Title:           tv.Title,
 							Severity:        tv.Severity,
+							PrimaryURL:      tv.PrimaryURL,
 							Results:         nil,
 							R:               map[string]trivy.ImageResult{},
 						}
 					}
 					totalOccurence[tv.Severity]++
-					occurrence[tv.Severity]++
+					riskOccurrence[tv.Severity]++
 					riskByCVE[tv.VulnerabilityID] = tv.Severity
 
 					ir, ok := av.R[ref]
@@ -346,7 +347,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 		}
 
 		stats := map[string]reportsapi.RiskStats{}
-		for risk, n := range occurrence {
+		for risk, n := range riskOccurrence {
 			rs := stats[risk]
 			rs.Occurrence = n
 			stats[risk] = rs
@@ -389,6 +390,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 	})
 
 	for _, vul := range vuls {
+		vul.Occurrence = 0
 		vul.Results = make([]trivy.ImageResult, 0, len(vul.R))
 		for _, r := range vul.R {
 			sort.Slice(r.Targets, func(i, j int) bool {
@@ -398,6 +400,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 				return r.Targets[i].Target != r.Targets[j].Target
 			})
 			vul.Results = append(vul.Results, r)
+			vul.Occurrence += len(r.Targets)
 		}
 		sort.Slice(vul.Results, func(i, j int) bool {
 			return vul.Results[i].Image < vul.Results[j].Image

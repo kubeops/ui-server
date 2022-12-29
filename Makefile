@@ -435,7 +435,7 @@ endif
 .PHONY: install
 install:
 	@cd ../installer; \
-	helm upgrade -i kube-ui-server charts/kube-ui-server --wait \
+	helm upgrade -i kube-ui-server charts/kube-ui-server --wait --debug --force \
 		--namespace=$(KUBE_NAMESPACE) --create-namespace \
 		--set image.registry=$(REGISTRY) \
 		--set image.tag=$(TAG_PROD) \

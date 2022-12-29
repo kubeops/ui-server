@@ -18457,6 +18457,20 @@ func schema_kubeopsdev_scanner_apis_trivy_VulnerabilityInfo(ref common.Reference
 							Format:  "",
 						},
 					},
+					"primaryURL": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"occurrence": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
 					"results": {
 						SchemaProps: spec.SchemaProps{
 							Type: []string{"array"},
@@ -18471,7 +18485,7 @@ func schema_kubeopsdev_scanner_apis_trivy_VulnerabilityInfo(ref common.Reference
 						},
 					},
 				},
-				Required: []string{"vulnerabilityID", "severity"},
+				Required: []string{"vulnerabilityID", "severity", "primaryURL", "occurrence"},
 			},
 		},
 		Dependencies: []string{
