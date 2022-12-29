@@ -390,6 +390,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 	})
 
 	for _, vul := range vuls {
+		vul.Occurrence = 0
 		vul.Results = make([]trivy.ImageResult, 0, len(vul.R))
 		for _, r := range vul.R {
 			sort.Slice(r.Targets, func(i, j int) bool {
@@ -399,6 +400,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 				return r.Targets[i].Target != r.Targets[j].Target
 			})
 			vul.Results = append(vul.Results, r)
+			vul.Occurrence += len(r.Targets)
 		}
 		sort.Slice(vul.Results, func(i, j int) bool {
 			return vul.Results[i].Image < vul.Results[j].Image
