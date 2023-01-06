@@ -56,9 +56,9 @@ type FeatureReconciler struct {
 }
 
 const (
-	UIServerCleanupFinalizer = "ui-server.kubeops.dev/cleanup"
-	FeatureManager           = "kubeops.dev"
-	featureSetReferencePath  = ".spec.featureSet"
+	UIServerCleanupFinalizer       = "ui-server.kubeops.dev/cleanup"
+	ManagerAppsCodeContainerEngine = "ACE"
+	featureSetReferencePath        = ".spec.featureSet"
 )
 
 type frReconciler struct {
@@ -233,7 +233,7 @@ func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (boo
 
 func (r *frReconciler) findManagedHelmReleases(ctx context.Context) (*fluxcd.HelmReleaseList, error) {
 	selector := labels.SelectorFromSet(map[string]string{
-		meta_util.ManagedByLabelKey: FeatureManager,
+		meta_util.ManagedByLabelKey: ManagerAppsCodeContainerEngine,
 		meta_util.ComponentLabelKey: r.feature.Name,
 		meta_util.PartOfLabelKey:    r.feature.Spec.FeatureSet,
 	})
@@ -416,7 +416,7 @@ func (r *FeatureReconciler) findFeaturesForFeatureSet(featureSet client.Object) 
 
 func (r *FeatureReconciler) findFeatureForHelmRelease(release client.Object) []reconcile.Request {
 	manager, err := meta_util.GetStringValueForKeys(release.GetLabels(), meta_util.ManagedByLabelKey)
-	if err != nil || manager != FeatureManager {
+	if err != nil || manager != ManagerAppsCodeContainerEngine {
 		return []reconcile.Request{}
 	}
 	featureName, err := meta_util.GetStringValueForKeys(release.GetLabels(), meta_util.ComponentLabelKey)
