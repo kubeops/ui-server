@@ -29,7 +29,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
-	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
@@ -77,23 +76,48 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 	req := in.Request
 
-	rid := req.Resource
-	id, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), rid)
-	if client.IgnoreNotFound(err) != nil {
-		klog.V(3).InfoS(fmt.Sprintf("failed to extract resource id for %+v", rid))
-	}
-	rid = *id
+	var err error
+	var gvr schema.GroupVersionResource
+	var src *unstructured.Unstructured
 
-	var src unstructured.Unstructured
-	src.SetGroupVersionKind(rid.GroupVersionKind())
-	err = r.kc.Get(context.TODO(), req.Ref.ObjectKey(), &src)
-	if err != nil {
-		return nil, err
+	if req.Source != nil {
+		obj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(req.Source)
+		if err != nil {
+			return nil, err
+		}
+		src = &unstructured.Unstructured{
+			Object: obj,
+		}
+		gv, err := schema.ParseGroupVersion(src.GetAPIVersion())
+		if err != nil {
+			return nil, err
+		}
+		mapping, err := r.kc.RESTMapper().RESTMapping(schema.GroupKind{Group: gv.Group, Kind: src.GetKind()}, gv.Version)
+		if err != nil {
+			return nil, err
+		}
+		gvr = mapping.Resource
+	} else if req.SourceLocator != nil {
+		rid, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), req.SourceLocator.Resource)
+		if client.IgnoreNotFound(err) != nil {
+			return nil, fmt.Errorf("failed to extract resource id for %+v", req.SourceLocator.Resource)
+		}
+		gvr = rid.GroupVersionResource()
+
+		var src unstructured.Unstructured
+		src.SetGroupVersionKind(rid.GroupVersionKind())
+		err = r.kc.Get(context.TODO(), req.SourceLocator.Ref.ObjectKey(), &src)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if src == nil {
+		return nil, fmt.Errorf("failed to determine source %+v", req)
 	}
 
 	var rd *uiapi.ResourceDashboard
 	if req.Name == "" {
-		if rd, err = resourcedashboards.LoadByGVR(r.kc, rid.GroupVersionResource()); err != nil {
+		if rd, err = resourcedashboards.LoadByGVR(r.kc, gvr); err != nil {
 			return nil, err
 		}
 	} else {
@@ -102,7 +126,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		}
 	}
 
-	dg, err := graph.RenderDashboard(r.kc, r.oc, rd, &src)
+	dg, err := graph.RenderDashboard(r.kc, r.oc, rd, src)
 	if err != nil {
 		return nil, err
 	}
