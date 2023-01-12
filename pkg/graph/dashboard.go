@@ -52,7 +52,7 @@ func renderDashboard(kc client.Client, oc openvizcs.Interface, srcObj *unstructu
 		if len(rd.Spec.Dashboards) > 1 {
 			return nil, "", fmt.Errorf("multiple dashboards configured for %s", name)
 		}
-		dg, err := RenderDashboard(kc, oc, rd, srcObj)
+		dg, err := RenderDashboard(kc, oc, rd, srcObj, false)
 		if err != nil {
 			return nil, "", err
 		}
@@ -60,7 +60,7 @@ func renderDashboard(kc client.Client, oc openvizcs.Interface, srcObj *unstructu
 	}
 }
 
-func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.ResourceDashboard, src *unstructured.Unstructured) (*openvizauipi.DashboardGroup, error) {
+func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.ResourceDashboard, src *unstructured.Unstructured, embeddedLink bool) (*openvizauipi.DashboardGroup, error) {
 	if rd.Spec.Provider != uiapi.DashboardProviderGrafana {
 		return nil, fmt.Errorf("dashboard %s uses unsupported provider %q", rd.Name, rd.Spec.Provider)
 	}
@@ -70,7 +70,8 @@ func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.Resourc
 
 	dg := &openvizauipi.DashboardGroup{
 		Request: &openvizauipi.DashboardGroupRequest{
-			Dashboards: make([]openvizauipi.DashboardRequest, 0, len(rd.Spec.Dashboards)),
+			EmbeddedLink: embeddedLink,
+			Dashboards:   make([]openvizauipi.DashboardRequest, 0, len(rd.Spec.Dashboards)),
 		},
 	}
 	for _, d := range rd.Spec.Dashboards {
@@ -100,7 +101,7 @@ func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.Resourc
 				Title: d.Title,
 			},
 			Vars:   make([]openvizauipi.DashboardVar, 0, len(d.Vars)),
-			Panels: nil,
+			Panels: make([]openvizauipi.PanelLinkRequest, 0, len(d.Panels)),
 		}
 		for _, v := range d.Vars {
 			if v.Type != sharedapi.DashboardVarTypeTarget {
@@ -115,7 +116,12 @@ func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.Resourc
 				})
 			}
 		}
-
+		for _, p := range d.Panels {
+			out.Panels = append(out.Panels, openvizauipi.PanelLinkRequest{
+				Title: p.Title,
+				Width: p.Width,
+			})
+		}
 		dg.Request.Dashboards = append(dg.Request.Dashboards, out)
 	}
 	return oc.UiV1alpha1().DashboardGroups().Create(context.TODO(), dg, metav1.CreateOptions{})
