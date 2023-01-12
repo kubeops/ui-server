@@ -126,7 +126,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		}
 	}
 
-	dg, err := graph.RenderDashboard(r.kc, r.oc, rd, src)
+	dg, err := graph.RenderDashboard(r.kc, r.oc, rd, src, req.EmbeddedLink)
 	if err != nil {
 		return nil, err
 	}
