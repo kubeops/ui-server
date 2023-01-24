@@ -137,37 +137,45 @@ func RenderLayout(
 		}
 
 		page := rsapi.ResourcePageView{
-			Name:    pageLayout.Name,
-			Info:    nil,
-			Insight: nil,
-			Blocks:  nil,
+			Name:     pageLayout.Name,
+			Sections: make([]rsapi.ResourceSectionView, 0, len(pageLayout.Sections)),
 		}
-		if pageLayout.Info != nil && okToRender(pageLayout.Info.Kind, renderBlocks) {
-			if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, pageLayout.Info, convertToTable); err != nil {
-				return nil, err
-			} else {
-				page.Info = bv
+		for _, sectionLayout := range pageLayout.Sections {
+			section := rsapi.ResourceSectionView{
+				Name:    sectionLayout.Name,
+				Info:    nil,
+				Insight: nil,
+				Blocks:  nil,
 			}
-		}
-		if pageLayout.Insight != nil && okToRender(pageLayout.Insight.Kind, renderBlocks) {
-			if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, pageLayout.Insight, convertToTable); err != nil {
-				return nil, err
-			} else {
-				page.Insight = bv
-			}
-		}
-
-		blocks := make([]rsapi.PageBlockView, 0, len(pageLayout.Blocks))
-		for _, block := range pageLayout.Blocks {
-			if okToRender(block.Kind, renderBlocks) {
-				if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, &block, convertToTable); err != nil {
+			if sectionLayout.Info != nil && okToRender(sectionLayout.Info.Kind, renderBlocks) {
+				if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, sectionLayout.Info, convertToTable); err != nil {
 					return nil, err
 				} else {
-					blocks = append(blocks, *bv)
+					section.Info = bv
 				}
 			}
+			if sectionLayout.Insight != nil && okToRender(sectionLayout.Insight.Kind, renderBlocks) {
+				if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, sectionLayout.Insight, convertToTable); err != nil {
+					return nil, err
+				} else {
+					section.Insight = bv
+				}
+			}
+
+			blocks := make([]rsapi.PageBlockView, 0, len(sectionLayout.Blocks))
+			for _, block := range sectionLayout.Blocks {
+				if okToRender(block.Kind, renderBlocks) {
+					if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, &block, convertToTable); err != nil {
+						return nil, err
+					} else {
+						blocks = append(blocks, *bv)
+					}
+				}
+			}
+			section.Blocks = blocks
+
+			page.Sections = append(page.Sections, section)
 		}
-		page.Blocks = blocks
 
 		out.Pages = append(out.Pages, page)
 	}
