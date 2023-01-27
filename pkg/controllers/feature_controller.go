@@ -66,6 +66,7 @@ type frReconciler struct {
 	apiReader client.Reader
 	logger    logr.Logger
 	feature   *uiapi.Feature
+	releases  *fluxcd.HelmReleaseList
 }
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -124,55 +125,40 @@ func (r *frReconciler) reconcile(ctx context.Context) error {
 	if err := r.ensureFinalizer(ctx); err != nil {
 		return err
 	}
-
-	// let assume that the feature is enabled
 	r.resetFeatureStatus()
+
+	enabled, reason, err := r.isFeatureEnabled(ctx)
+	if err != nil {
+		r.feature.Status.Enabled = pointer.BoolP(false)
+		r.feature.Status.Note = err.Error()
+		r.logger.Error(err, "Failed to check whether Feature is enabled or not")
+		return nil
+	}
+	if !enabled {
+		r.feature.Status.Enabled = pointer.BoolP(false)
+		r.feature.Status.Note = reason
+		return nil
+	}
 	r.feature.Status.Enabled = pointer.BoolP(true)
 
-	exist, reason, err := r.checkDependencyExistence(ctx)
-	if err != nil {
-		r.feature.Status.Enabled = pointer.BoolP(false)
-		r.feature.Status.Note = err.Error()
-		r.logger.Error(err, "Failed to check dependency existence")
-		return nil
-	}
-	if !exist {
-		r.feature.Status.Enabled = pointer.BoolP(false)
-		r.feature.Status.Note = reason
-		return nil
-	}
-
-	exist, reason, err = r.checkRequiredResourcesExistence(ctx)
-	if err != nil {
-		r.feature.Status.Enabled = pointer.BoolP(false)
-		r.feature.Status.Note = err.Error()
-		r.logger.Error(err, "Failed to check required resources existence")
-		return nil
-	}
-	if !exist {
-		r.feature.Status.Enabled = pointer.BoolP(false)
-		r.feature.Status.Note = reason
-		return nil
-	}
-
-	releases, err := r.findManagedHelmReleases(ctx)
+	managed, reason, err := r.isFeatureManaged(ctx)
 	if err != nil {
 		r.feature.Status.Managed = pointer.BoolP(false)
 		r.feature.Status.Note = err.Error()
-		r.logger.Error(err, "Failed to find managed HelmReleases")
+		r.logger.Error(err, "Failed to check whether Feature is managed or not")
 		return nil
 	}
-
-	if len(releases.Items) == 0 {
+	if !managed {
 		r.feature.Status.Managed = pointer.BoolP(false)
-		r.feature.Status.Note = "Feature is not managed by this UI."
+		r.feature.Status.Note = reason
 		return nil
 	}
 	r.feature.Status.Managed = pointer.BoolP(true)
 
-	if !areReleasesReady(releases.Items) {
+	ready, reason := r.isFeatureReady()
+	if !ready {
 		r.feature.Status.Ready = pointer.BoolP(false)
-		r.feature.Status.Note = "Feature is not ready yet."
+		r.feature.Status.Note = reason
 		return nil
 	}
 	r.feature.Status.Ready = pointer.BoolP(true)
@@ -194,6 +180,57 @@ func (r *frReconciler) ensureFinalizer(ctx context.Context) error {
 
 func (r *frReconciler) resetFeatureStatus() {
 	r.feature.Status = uiapi.FeatureStatus{}
+}
+
+func (r *frReconciler) isFeatureEnabled(ctx context.Context) (bool, string, error) {
+	exist, reason, err := r.checkDependencyExistence(ctx)
+	if err != nil {
+		return false, "", err
+	}
+	if !exist {
+		return false, reason, nil
+	}
+
+	exist, reason, err = r.checkRequiredResourcesExistence(ctx)
+	if err != nil {
+		return false, "", err
+	}
+	if !exist {
+		return false, reason, err
+	}
+
+	exist, reason, err = r.checkRequiredWorkloadExistence(ctx)
+	if err != nil {
+		return false, "", err
+	}
+	if !exist {
+		return false, reason, err
+	}
+
+	return true, "", nil
+}
+
+func (r *frReconciler) isFeatureManaged(ctx context.Context) (bool, string, error) {
+	releases, err := r.findManagedHelmReleases(ctx)
+	if err != nil {
+		return false, "", err
+	}
+
+	if len(releases.Items) == 0 {
+		return false, "Respective HelmRelease does not exist", nil
+	}
+	r.releases = releases
+	return true, "", nil
+}
+
+func (r *frReconciler) isFeatureReady() (bool, string) {
+	if r.releases == nil || len(r.releases.Items) == 0 {
+		return false, "Feature is not managed by the UI"
+	}
+	if !areReleasesReady(r.releases.Items) {
+		return false, "Feature is not ready yet."
+	}
+	return true, ""
 }
 
 func (r *frReconciler) checkDependencyExistence(ctx context.Context) (bool, string, error) {
@@ -226,6 +263,28 @@ func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (boo
 				return false, fmt.Sprintf("Required resource %q is not registered.", gvk.String()), err
 			}
 			return false, "", err
+		}
+	}
+	return true, "", nil
+}
+
+func (r *frReconciler) checkRequiredWorkloadExistence(ctx context.Context) (bool, string, error) {
+	for _, w := range r.feature.Spec.Requirements.Workloads {
+		objList := unstructured.UnstructuredList{}
+		objList.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   w.Group,
+			Version: w.Version,
+			Kind:    w.Kind,
+		})
+		selector := labels.SelectorFromSet(w.Selector)
+		if err := r.apiReader.List(ctx, &objList, &client.ListOptions{Limit: 1, LabelSelector: selector}); err != nil {
+			if meta.IsNoMatchError(err) {
+				return false, fmt.Sprintf("Required resource %q is not registered.", w.String()), err
+			}
+			return false, "", err
+		}
+		if len(objList.Items) == 0 {
+			return false, "Required workload does not exist", nil
 		}
 	}
 	return true, "", nil
