@@ -292,7 +292,6 @@ func (r *frReconciler) checkRequiredWorkloadExistence(ctx context.Context) (bool
 
 func (r *frReconciler) findManagedHelmReleases(ctx context.Context) (*fluxcd.HelmReleaseList, error) {
 	selector := labels.SelectorFromSet(map[string]string{
-		meta_util.ManagedByLabelKey: ManagerAppsCodeContainerEngine,
 		meta_util.ComponentLabelKey: r.feature.Name,
 		meta_util.PartOfLabelKey:    r.feature.Spec.FeatureSet,
 	})
