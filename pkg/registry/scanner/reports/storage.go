@@ -270,98 +270,130 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 		if !ok {
 			iis = reportsapi.ImageInfo{}
 		}
-		iis.Image.Name = ref
-		iis.Image.Tag = r.report.Spec.Image.Tag
-		iis.Image.Digest = r.report.Spec.Image.Digest
+		setImageInfos(&iis, ref, r.report) // set response.images[].image
 
 		if r.missing {
 			iis.ScanStatus.Result = reportsapi.ScanResultNotFound
 		} else {
-			iis.ScanStatus.Result = reportsapi.ScanResultFound
-			iis.ScanStatus.ReportRef = &core.LocalObjectReference{
-				Name: r.report.Name,
-			}
-			iis.ScanStatus.LastChecked = &r.report.Status.LastChecked
-			iis.ScanStatus.TrivyDBVersion = r.report.Status.TrivyDBVersion
-
-			md := r.report.Status.Report.Metadata
-			var m2 reportsapi.ImageMetadata
-			if md.Os.Name != "" || md.Os.Family != "" {
-				m2.Os = &md.Os
-			}
-			cfg := reportsapi.ImageConfig{
-				Architecture: md.ImageConfig.Architecture,
-				Author:       md.ImageConfig.Author,
-				Container:    md.ImageConfig.Container,
-				Os:           md.ImageConfig.Os,
-			}
-			if cfg != (reportsapi.ImageConfig{}) {
-				m2.ImageConfig = &cfg
-			}
-			if m2.Os != nil || m2.ImageConfig != nil {
-				iis.Metadata = &m2
-			}
+			setImageMetadata(&iis, r.report.Status.Report.Metadata) // set response.images[].metadata
+			setImageScanStatus(&iis, r.report)                      // set response.images[].scanStatus
 			for _, rpt := range r.report.Status.Report.Results {
 				for _, tv := range rpt.Vulnerabilities {
 					if !isRelevant.CVE(tv) {
 						continue
 					}
 
-					av, ok := vuls[tv.VulnerabilityID]
-					if !ok {
-						av = trivy.VulnerabilityInfo{
-							VulnerabilityID: tv.VulnerabilityID,
-							Title:           tv.Title,
-							Severity:        tv.Severity,
-							PrimaryURL:      tv.PrimaryURL,
-							Results:         nil,
-							R:               map[string]trivy.ImageResult{},
-						}
-					}
 					totalOccurence[tv.Severity]++
 					riskOccurrence[tv.Severity]++
 					riskByCVE[tv.VulnerabilityID] = tv.Severity
-
-					ir, ok := av.R[ref]
-					if !ok {
-						ir = trivy.ImageResult{
-							Image:   ref,
-							Targets: nil,
-						}
-					}
-					tgt := trivy.Target{
-						InstalledVersion: tv.InstalledVersion,
-						Target:           rpt.Target,
-						Class:            rpt.Class,
-						Type:             rpt.Type,
-					}
-					if tv.Layer.Digest != "" {
-						tgt.Layer = &tv.Layer
-					}
-					ir.Targets = append(ir.Targets, tgt)
-					av.R[ref] = ir
-
-					vuls[av.VulnerabilityID] = av
+					populateVulnerabilityInfoMap(vuls, ref, tv, rpt)
 				}
 			}
 		}
-
-		stats := map[string]reportsapi.RiskStats{}
-		for risk, n := range riskOccurrence {
-			rs := stats[risk]
-			rs.Occurrence = n
-			stats[risk] = rs
-		}
-		for _, risk := range riskByCVE {
-			rs := stats[risk]
-			rs.Count++
-			stats[risk] = rs
-		}
-		iis.Stats = stats
-
+		setImageStats(&iis, riskOccurrence, riskByCVE) // set response.images[].stats
 		imginfos[ref] = iis
 	}
 
+	return &reportsapi.CVEReportResponse{
+		Images: sortImageInfosByImageName(imginfos),
+		Vulnerabilities: reportsapi.VulnerabilityInfo{
+			Stats: getVulnerabilityStats(totalOccurence, vuls),
+			CVEs:  getCVEsFromVulnerabilityInfoMap(vuls),
+		},
+	}, nil
+}
+
+func setImageInfos(ii *reportsapi.ImageInfo, ref string, report scannerapi.ImageScanReport) {
+	ii.Image = reportsapi.ImageReference{
+		Name:   ref,
+		Tag:    report.Spec.Image.Tag,
+		Digest: report.Spec.Image.Digest,
+	}
+}
+
+func setImageMetadata(ii *reportsapi.ImageInfo, md trivy.ImageMetadata) {
+	var m2 reportsapi.ImageMetadata
+	if md.Os.Name != "" || md.Os.Family != "" {
+		m2.Os = &md.Os
+	}
+	cfg := reportsapi.ImageConfig{
+		Architecture: md.ImageConfig.Architecture,
+		Author:       md.ImageConfig.Author,
+		Container:    md.ImageConfig.Container,
+		Os:           md.ImageConfig.Os,
+	}
+	if cfg != (reportsapi.ImageConfig{}) {
+		m2.ImageConfig = &cfg
+	}
+	if m2.Os != nil || m2.ImageConfig != nil {
+		ii.Metadata = &m2
+		return
+	}
+	ii.Metadata = nil
+}
+
+func setImageScanStatus(ii *reportsapi.ImageInfo, report scannerapi.ImageScanReport) {
+	ii.ScanStatus = reportsapi.ImageScanStatus{
+		Result: reportsapi.ScanResultFound,
+		ReportRef: &core.LocalObjectReference{
+			Name: report.Name,
+		},
+		LastChecked:    &report.Status.LastChecked,
+		TrivyDBVersion: report.Status.TrivyDBVersion,
+	}
+}
+
+func setImageStats(ii *reportsapi.ImageInfo, riskOccurrence map[string]int, riskByCVE map[string]string) {
+	stats := map[string]reportsapi.RiskStats{}
+	for risk, n := range riskOccurrence {
+		rs := stats[risk]
+		rs.Occurrence = n
+		stats[risk] = rs
+	}
+	for _, risk := range riskByCVE {
+		rs := stats[risk]
+		rs.Count++
+		stats[risk] = rs
+	}
+	ii.Stats = stats
+}
+
+func populateVulnerabilityInfoMap(vuls map[string]trivy.VulnerabilityInfo, ref string, tv trivy.Vulnerability, rpt trivy.Result) {
+	av, ok := vuls[tv.VulnerabilityID]
+	if !ok {
+		av = trivy.VulnerabilityInfo{
+			VulnerabilityID: tv.VulnerabilityID,
+			Title:           tv.Title,
+			Severity:        tv.Severity,
+			PrimaryURL:      tv.PrimaryURL,
+			Results:         nil,
+			R:               map[string]trivy.ImageResult{},
+		}
+	}
+
+	ir, ok := av.R[ref]
+	if !ok {
+		ir = trivy.ImageResult{
+			Image:   ref,
+			Targets: nil,
+		}
+	}
+	tgt := trivy.Target{
+		InstalledVersion: tv.InstalledVersion,
+		Target:           rpt.Target,
+		Class:            rpt.Class,
+		Type:             rpt.Type,
+	}
+	if tv.Layer.Digest != "" {
+		tgt.Layer = &tv.Layer
+	}
+	ir.Targets = append(ir.Targets, tgt)
+	av.R[ref] = ir
+
+	vuls[av.VulnerabilityID] = av
+}
+
+func getVulnerabilityStats(totalOccurence map[string]int, vuls map[string]trivy.VulnerabilityInfo) map[string]reportsapi.RiskStats {
 	stats := map[string]reportsapi.RiskStats{}
 	for risk, n := range totalOccurence {
 		rs := stats[risk]
@@ -374,61 +406,67 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 		rs.Count++
 		stats[vul.Severity] = rs
 	}
+	return stats
+}
 
-	resp := reportsapi.CVEReportResponse{
-		Images: make([]reportsapi.ImageInfo, 0, len(imginfos)),
-		Vulnerabilities: reportsapi.VulnerabilityInfo{
-			Stats: stats,
-			CVEs:  make([]trivy.VulnerabilityInfo, 0, len(vuls)),
-		},
-	}
+func sortImageInfosByImageName(imginfos map[string]reportsapi.ImageInfo) []reportsapi.ImageInfo {
+	images := make([]reportsapi.ImageInfo, 0, len(imginfos))
 	for _, ii := range imginfos {
-		resp.Images = append(resp.Images, ii)
+		images = append(images, ii)
 	}
-	sort.Slice(resp.Images, func(i, j int) bool {
-		return resp.Images[i].Image.Name < resp.Images[j].Image.Name
+	sort.Slice(images, func(i, j int) bool {
+		return images[i].Image.Name < images[j].Image.Name
 	})
+	return images
+}
 
+func getCVEsFromVulnerabilityInfoMap(vuls map[string]trivy.VulnerabilityInfo) []trivy.VulnerabilityInfo {
+	cves := make([]trivy.VulnerabilityInfo, 0, len(vuls))
 	for _, vul := range vuls {
-		vul.Occurrence = 0
-		vul.Results = make([]trivy.ImageResult, 0, len(vul.R))
-		for _, r := range vul.R {
-			sort.Slice(r.Targets, func(i, j int) bool {
-				if r.Targets[i].Type != r.Targets[j].Type {
-					return r.Targets[i].Type < r.Targets[j].Type
-				}
-				return r.Targets[i].Target != r.Targets[j].Target
-			})
-			vul.Results = append(vul.Results, r)
-			vul.Occurrence += len(r.Targets)
+		processVulnerabilityInfo(&vul)
+		cves = append(cves, vul)
+	}
+
+	sortCVEsBySeverity := func() {
+		riskRank := map[string]int{
+			"CRITICAL": 0,
+			"HIGH":     1,
+			"MEDIUM":   2,
+			"LOW":      3,
+			"UNKNOWN":  4,
 		}
-		sort.Slice(vul.Results, func(i, j int) bool {
-			return vul.Results[i].Image < vul.Results[j].Image
+		sort.Slice(cves, func(i, j int) bool {
+			ci, cj := cves[i], cves[j]
+
+			if riskRank[ci.Severity] != riskRank[cj.Severity] {
+				return riskRank[ci.Severity] < riskRank[cj.Severity]
+			}
+			return ci.VulnerabilityID < cj.VulnerabilityID
 		})
-
-		vul.Occurrence = 0
-		for _, result := range vul.Results {
-			vul.Occurrence += len(result.Targets)
-		}
-
-		resp.Vulnerabilities.CVEs = append(resp.Vulnerabilities.CVEs, vul)
 	}
+	sortCVEsBySeverity()
+	return cves
+}
 
-	riskRank := map[string]int{
-		"CRITICAL": 0,
-		"HIGH":     1,
-		"MEDIUM":   2,
-		"LOW":      3,
-		"UNKNOWN":  4,
+func processVulnerabilityInfo(vul *trivy.VulnerabilityInfo) {
+	vul.Occurrence = 0
+	vul.Results = make([]trivy.ImageResult, 0, len(vul.R))
+	for _, r := range vul.R {
+		sort.Slice(r.Targets, func(i, j int) bool {
+			if r.Targets[i].Type != r.Targets[j].Type {
+				return r.Targets[i].Type < r.Targets[j].Type
+			}
+			return r.Targets[i].Target != r.Targets[j].Target
+		})
+		vul.Results = append(vul.Results, r)
+		vul.Occurrence += len(r.Targets)
 	}
-	sort.Slice(resp.Vulnerabilities.CVEs, func(i, j int) bool {
-		ci, cj := resp.Vulnerabilities.CVEs[i], resp.Vulnerabilities.CVEs[j]
-
-		if riskRank[ci.Severity] != riskRank[cj.Severity] {
-			return riskRank[ci.Severity] < riskRank[cj.Severity]
-		}
-		return ci.VulnerabilityID < cj.VulnerabilityID
+	sort.Slice(vul.Results, func(i, j int) bool {
+		return vul.Results[i].Image < vul.Results[j].Image
 	})
 
-	return &resp, nil
+	vul.Occurrence = 0
+	for _, result := range vul.Results {
+		vul.Occurrence += len(result.Targets)
+	}
 }
