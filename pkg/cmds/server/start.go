@@ -26,6 +26,7 @@ import (
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
 	"kubeops.dev/ui-server/pkg/controllers"
 	"kubeops.dev/ui-server/pkg/metricshandler"
@@ -154,6 +155,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 
 		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceImages),
 		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceCVEReports),
+		fmt.Sprintf("/apis/%s/%s", policyapi.SchemeGroupVersion, policyapi.ResourcePolicyReports),
 
 		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
 

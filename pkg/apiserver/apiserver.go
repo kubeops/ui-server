@@ -27,6 +27,8 @@ import (
 	scannerscheme "kubeops.dev/scanner/client/clientset/versioned/scheme"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	policyinstall "kubeops.dev/ui-server/apis/policy/install"
+	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	scannercontrollers "kubeops.dev/ui-server/pkg/controllers/scanner"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/menu"
@@ -51,6 +53,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcetabledefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
+	policystorage "kubeops.dev/ui-server/pkg/registry/policy/reports"
 	imagestorage "kubeops.dev/ui-server/pkg/registry/scanner/image"
 	reportstorage "kubeops.dev/ui-server/pkg/registry/scanner/reports"
 	"kubeops.dev/ui-server/pkg/shared"
@@ -68,6 +71,7 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
@@ -103,6 +107,7 @@ var (
 func init() {
 	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
+	policyinstall.Install(Scheme)
 	rsinstall.Install(Scheme)
 	uiinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
@@ -209,6 +214,11 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, fmt.Errorf("unable to create discovery client, reason: %v", err)
 	}
 	oc, err := openvizcs.NewForConfig(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
 	}
@@ -337,6 +347,17 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[scannerreportsapi.ResourceImages] = imagestorage.NewStorage(ctrlClient)
 		v1alpha1storage[scannerreportsapi.ResourceCVEReports] = reportstorage.NewStorage(ctrlClient)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(policyapi.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[policyapi.ResourcePolicyReports] = policystorage.NewStorage(ctrlClient, dynamicClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
