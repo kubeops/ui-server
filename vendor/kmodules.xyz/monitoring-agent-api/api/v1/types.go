@@ -21,7 +21,6 @@ import (
 
 	kutil "kmodules.xyz/client-go"
 
-	promapi "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	core "k8s.io/api/core/v1"
 )
 
@@ -122,5 +121,4 @@ type StatsAccessor interface {
 	Path() string
 	// Scheme is used to determine url scheme /metrics endpoint
 	Scheme() string
-	TLSConfig() *promapi.TLSConfig
 }

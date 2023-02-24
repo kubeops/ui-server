@@ -50,10 +50,7 @@ func ParseReference(s string, opts ...name.Option) (*Image, error) {
 	case name.Digest:
 		img.Registry = u.RegistryStr()
 		img.Repository = u.RepositoryStr()
-		if tag, err := name.NewTag(
-			strings.Split(s, "@")[0],                 // skip the digest
-			append(opts, name.WithDefaultTag(""))..., // don't use defaultTag "latest"
-		); err == nil {
+		if tag, err := name.NewTag(strings.Split(s, "@")[0], append(opts, name.WithDefaultTag(""))...); err == nil {
 			img.Tag = tag.TagStr()
 		}
 		img.Digest = u.DigestStr()
