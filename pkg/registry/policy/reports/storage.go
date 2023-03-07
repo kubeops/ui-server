@@ -86,31 +86,8 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 }
 
 func (r *Storage) locateResource(ctx context.Context, resourceGraph *v1alpha1.ResourceGraphResponse) (*policyapi.PolicyReportResponse, error) {
-	listTemplates := func() (unstructured.UnstructuredList, error) {
-		var templates unstructured.UnstructuredList
-		templates.SetGroupVersionKind(schema.GroupVersionKind{
-			Group:   "templates.gatekeeper.sh",
-			Version: "v1",
-			Kind:    "ConstraintTemplate",
-		})
-		err := r.kc.List(ctx, &templates)
-		return templates, err
-	}
-
-	listConstraints := func(kind string) (unstructured.UnstructuredList, error) {
-		var constraints unstructured.UnstructuredList
-		constraints.SetGroupVersionKind(schema.GroupVersionKind{
-			Group:   "constraints.gatekeeper.sh",
-			Version: "v1beta1",
-			Kind:    kind,
-		})
-
-		err := r.kc.List(ctx, &constraints)
-		return constraints, err
-	}
-
 	var resp policyapi.PolicyReportResponse
-	templates, err := listTemplates()
+	templates, err := ListTemplates(ctx, r.kc)
 	if err != nil {
 		return nil, err
 	}
@@ -120,17 +97,21 @@ func (r *Storage) locateResource(ctx context.Context, resourceGraph *v1alpha1.Re
 		if err != nil {
 			return nil, err
 		}
-		constraints, err := listConstraints(constraintKind)
+		constraints, err := ListConstraints(ctx, r.kc, constraintKind)
 		if err != nil {
 			return nil, err
 		}
 		for _, constraint := range constraints.Items {
-			violations, err := convertUnstructuredToViolationsArray(constraint)
+			violations, err := GetViolationsOfConstraint(constraint)
 			if err != nil {
 				return nil, err
 			}
 
-			constraintName, auditTime, err := getNameAndAuditTime(constraint)
+			constraintName, err := GetNameOfConstraint(constraint)
+			if err != nil {
+				return nil, err
+			}
+			auditTime, err := GetAuditTimeOfConstraint(constraint)
 			if err != nil {
 				return nil, err
 			}
@@ -168,7 +149,30 @@ func getResourceGraph(kc client.Client, oi kmapi.ObjectInfo) (*v1alpha1.Resource
 	return graph.ResourceGraph(kc.RESTMapper(), src)
 }
 
-func convertUnstructuredToViolationsArray(constraint unstructured.Unstructured) (policyapi.Violations, error) {
+func ListTemplates(ctx context.Context, kc client.Client) (unstructured.UnstructuredList, error) {
+	var templates unstructured.UnstructuredList
+	templates.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "templates.gatekeeper.sh",
+		Version: "v1",
+		Kind:    "ConstraintTemplate",
+	})
+	err := kc.List(ctx, &templates)
+	return templates, err
+}
+
+func ListConstraints(ctx context.Context, kc client.Client, kind string) (unstructured.UnstructuredList, error) {
+	var constraints unstructured.UnstructuredList
+	constraints.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "constraints.gatekeeper.sh",
+		Version: "v1beta1",
+		Kind:    kind,
+	})
+
+	err := kc.List(ctx, &constraints)
+	return constraints, err
+}
+
+func GetViolationsOfConstraint(constraint unstructured.Unstructured) (policyapi.Violations, error) {
 	var violations policyapi.Violations
 	vs, _, err := unstructured.NestedSlice(constraint.UnstructuredContent(), "status", "violations")
 	if err != nil {
@@ -189,18 +193,21 @@ func convertUnstructuredToViolationsArray(constraint unstructured.Unstructured) 
 	return violations, nil
 }
 
-func getNameAndAuditTime(constraint unstructured.Unstructured) (string, time.Time, error) {
+func GetNameOfConstraint(constraint unstructured.Unstructured) (string, error) {
 	constraintName, _, err := unstructured.NestedString(constraint.UnstructuredContent(), "metadata", "name")
 	if err != nil {
-		return "", time.Time{}, nil
+		return "", nil
 	}
+	return constraintName, err
+}
 
+func GetAuditTimeOfConstraint(constraint unstructured.Unstructured) (time.Time, error) {
 	t, _, err := unstructured.NestedString(constraint.UnstructuredContent(), "status", "auditTimestamp")
 	if err != nil {
-		return "", time.Time{}, nil
+		return time.Time{}, nil
 	}
 	auditTime, err := time.Parse(time.RFC3339, t)
-	return constraintName, auditTime, err
+	return auditTime, err
 }
 
 /*
