@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
-	"strings"
 	"time"
 
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
@@ -33,7 +32,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
-	"k8s.io/client-go/dynamic"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -41,7 +39,6 @@ import (
 
 type Storage struct {
 	kc client.Client
-	dc dynamic.Interface
 }
 
 var (
@@ -51,10 +48,9 @@ var (
 	_ rest.Creater                  = &Storage{}
 )
 
-func NewStorage(kc client.Client, dc dynamic.Interface) *Storage {
+func NewStorage(kc client.Client) *Storage {
 	return &Storage{
 		kc: kc,
-		dc: dc,
 	}
 }
 
@@ -90,13 +86,31 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 }
 
 func (r *Storage) locateResource(ctx context.Context, resourceGraph *v1alpha1.ResourceGraphResponse) (*policyapi.PolicyReportResponse, error) {
-	var resp policyapi.PolicyReportResponse
+	listTemplates := func() (unstructured.UnstructuredList, error) {
+		var templates unstructured.UnstructuredList
+		templates.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   "templates.gatekeeper.sh",
+			Version: "v1",
+			Kind:    "ConstraintTemplate",
+		})
+		err := r.kc.List(ctx, &templates)
+		return templates, err
+	}
 
-	templates, err := r.dc.Resource(schema.GroupVersionResource{
-		Group:    "templates.gatekeeper.sh",
-		Version:  "v1",
-		Resource: "constrainttemplates",
-	}).List(ctx, metav1.ListOptions{})
+	listConstraints := func(kind string) (unstructured.UnstructuredList, error) {
+		var constraints unstructured.UnstructuredList
+		constraints.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   "constraints.gatekeeper.sh",
+			Version: "v1beta1",
+			Kind:    kind,
+		})
+
+		err := r.kc.List(ctx, &constraints)
+		return constraints, err
+	}
+
+	var resp policyapi.PolicyReportResponse
+	templates, err := listTemplates()
 	if err != nil {
 		return nil, err
 	}
@@ -106,11 +120,7 @@ func (r *Storage) locateResource(ctx context.Context, resourceGraph *v1alpha1.Re
 		if err != nil {
 			return nil, err
 		}
-		constraints, err := r.dc.Resource(schema.GroupVersionResource{
-			Group:    "constraints.gatekeeper.sh",
-			Version:  "v1beta1",
-			Resource: strings.ToLower(constraintKind),
-		}).List(ctx, metav1.ListOptions{})
+		constraints, err := listConstraints(constraintKind)
 		if err != nil {
 			return nil, err
 		}

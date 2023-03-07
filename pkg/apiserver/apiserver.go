@@ -71,7 +71,6 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
@@ -218,11 +217,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
 	}
 
-	dynamicClient, err := dynamic.NewForConfig(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
-	}
-
 	menu.HelmRegistry = repo.NewCachedRegistry(ctrlClient, repo.DefaultDiskCache())
 
 	cid, err := cu.ClusterUID(mgr.GetAPIReader())
@@ -357,7 +351,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(policyapi.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[policyapi.ResourcePolicyReports] = policystorage.NewStorage(ctrlClient, dynamicClient)
+		v1alpha1storage[policyapi.ResourcePolicyReports] = policystorage.NewStorage(ctrlClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
