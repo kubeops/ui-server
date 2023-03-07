@@ -441,6 +441,7 @@ install:
 		--set image.registry=$(REGISTRY) \
 		--set image.tag=$(TAG_PROD) \
 		--set imagePullPolicy=$(IMAGE_PULL_POLICY) \
+		--set monitoring.serviceMonitor.labels.release=prometheus \
 		$(IMAGE_PULL_SECRETS); \
 
 .PHONY: uninstall
