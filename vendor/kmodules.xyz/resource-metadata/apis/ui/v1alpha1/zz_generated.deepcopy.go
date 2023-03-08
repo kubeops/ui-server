@@ -104,6 +104,16 @@ func (in *ComponentStatus) DeepCopyInto(out *ComponentStatus) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.Ready != nil {
+		in, out := &in.Ready, &out.Ready
+		*out = new(bool)
+		**out = **in
+	}
+	if in.Managed != nil {
+		in, out := &in.Managed, &out.Managed
+		*out = new(bool)
+		**out = **in
+	}
 	return
 }
 
@@ -302,6 +312,11 @@ func (in *FeatureSetStatus) DeepCopyInto(out *FeatureSetStatus) {
 	*out = *in
 	if in.Enabled != nil {
 		in, out := &in.Enabled, &out.Enabled
+		*out = new(bool)
+		**out = **in
+	}
+	if in.Ready != nil {
+		in, out := &in.Ready, &out.Ready
 		*out = new(bool)
 		**out = **in
 	}

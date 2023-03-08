@@ -1393,7 +1393,7 @@ kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.15.1-0.20230127124135-b4b1294cdd88
+# kmodules.xyz/resource-metadata v0.15.1-0.20230308084717-95a1f1fd77e3
 ## explicit; go 1.18
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1

@@ -1009,8 +1009,8 @@ kmodules.xyz/monitoring-agent-api v0.25.0 h1:RU9RBeCqQdoS381xXy8cM1aqT+7qmtuPI3K
 kmodules.xyz/monitoring-agent-api v0.25.0/go.mod h1:RH5f/W9eCiW+KTblBIh8MZkjCWdtMQ8MuzCBMfgkynM=
 kmodules.xyz/offshoot-api v0.25.0 h1:Svq9da/+sg5afOjpgo9vx2J/Lu90Mo0aFxkdQmgKnGI=
 kmodules.xyz/offshoot-api v0.25.0/go.mod h1:ysEBn7LJuT3+s8ynAQA/OG0BSsJugXa6KGtDLMRjlKo=
-kmodules.xyz/resource-metadata v0.15.1-0.20230127124135-b4b1294cdd88 h1:p88YpAcMVUDnPDmDcX3bvPvWaLWlhWvzvRiDEcMjfQ0=
-kmodules.xyz/resource-metadata v0.15.1-0.20230127124135-b4b1294cdd88/go.mod h1:qInJw1djPR9cbhQHH5jnRxTeqXJPmJd9H/ykhUo0Rqs=
+kmodules.xyz/resource-metadata v0.15.1-0.20230308084717-95a1f1fd77e3 h1:e09hbNsAPSTwjoF14RIhjHFrpMwUD09cxDyOlkf2gDM=
+kmodules.xyz/resource-metadata v0.15.1-0.20230308084717-95a1f1fd77e3/go.mod h1:iSm8vJ95/44ZH5P5re7GLrftFlfL8u1kKmnHNt44pCc=
 kmodules.xyz/resource-metrics v0.25.0 h1:wj3npVZZQr+Yysg/XdGn4LdT5kQizWeO0zq7QlSVx50=
 kmodules.xyz/resource-metrics v0.25.0/go.mod h1:4a49npnu73c9LGDWHWQsPWoXWXU9rpCcknoH1+HHesI=
 kmodules.xyz/sets v0.24.0 h1:GbltLEPVnURjcmWyf8eFstgJBpm9o151wsrABkByGrc=
