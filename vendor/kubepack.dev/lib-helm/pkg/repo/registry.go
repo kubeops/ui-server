@@ -19,6 +19,7 @@ package repo
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,6 +31,8 @@ import (
 	"github.com/gregjones/httpcache"
 	"github.com/gregjones/httpcache/diskcache"
 	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
+	"gomodules.xyz/sets"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/helmpath"
 	core "k8s.io/api/core/v1"
@@ -226,18 +229,39 @@ func (r *Registry) addAuthInfo(key client.ObjectKey, entry *Entry) error {
 	return nil
 }
 
+var (
+	bypassChartRegistries  []string
+	once                   sync.Once
+	bypassChartRegistrySet sets.String
+)
+
+// AddBypassChartRegistriesFlag is for explicitly initializing the --bypass-chart-registries flag
+func AddBypassChartRegistriesFlag(fs *pflag.FlagSet) {
+	if fs == nil {
+		fs = pflag.CommandLine
+	}
+	fs.StringSliceVar(&bypassChartRegistries, "bypass-chart-registries", bypassChartRegistries, "List of Helm chart registries that can bypass using UI_WIZARD_CHARTS_DIR env variable")
+}
+
 // LocateChart looks for a chart and returns either the reader or an error.
 func (r *Registry) LocateChart(repository, name, version string) (loader.ChartLoader, *ChartVersion, error) {
 	repository = strings.TrimSpace(repository)
 	name = strings.TrimSpace(name)
 	version = strings.TrimSpace(version)
 
-	if dir, ok := os.LookupEnv("UI_WIZARD_CHARTS_DIR"); ok {
-		repository = filepath.Join(dir, name)
-	}
-
 	if repository == "" {
 		return nil, nil, fmt.Errorf("can't find repository for chart %s", name)
+	}
+
+	once.Do(func() {
+		bypassChartRegistrySet = sets.NewString(bypassChartRegistries...)
+		bypassChartRegistrySet.Insert("charts.appscode.com", "bundles.byte.builders")
+	})
+
+	if u, err := url.Parse(repository); err == nil && bypassChartRegistrySet.Has(u.Hostname()) {
+		if dir, ok := os.LookupEnv("UI_WIZARD_CHARTS_DIR"); ok {
+			repository = filepath.Join(dir, name)
+		}
 	}
 
 	if fi, err := os.Stat(repository); err == nil {

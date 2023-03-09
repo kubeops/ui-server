@@ -56,9 +56,8 @@ type FeatureReconciler struct {
 }
 
 const (
-	UIServerCleanupFinalizer       = "ui-server.kubeops.dev/cleanup"
-	ManagerAppsCodeContainerEngine = "ACE"
-	featureSetReferencePath        = ".spec.featureSet"
+	UIServerCleanupFinalizer = "ui-server.kubeops.dev/cleanup"
+	featureSetReferencePath  = ".spec.featureSet"
 )
 
 type frReconciler struct {
@@ -124,55 +123,34 @@ func (r *frReconciler) reconcile(ctx context.Context) error {
 	if err := r.ensureFinalizer(ctx); err != nil {
 		return err
 	}
-
-	// let assume that the feature is enabled
 	r.resetFeatureStatus()
+
+	status, err := r.evaluateStatus(ctx)
+	if err != nil {
+		r.feature.Status.Note = err.Error()
+		r.logger.Error(err, "Failed to evaluate Feature status")
+		return nil
+	}
+
+	enabled, reason := r.isFeatureEnabled(status)
+	if !enabled {
+		r.feature.Status.Enabled = pointer.BoolP(false)
+		r.feature.Status.Note = reason
+		return nil
+	}
 	r.feature.Status.Enabled = pointer.BoolP(true)
 
-	exist, reason, err := r.checkDependencyExistence(ctx)
-	if err != nil {
-		r.feature.Status.Enabled = pointer.BoolP(false)
-		r.feature.Status.Note = err.Error()
-		r.logger.Error(err, "Failed to check dependency existence")
-		return nil
-	}
-	if !exist {
-		r.feature.Status.Enabled = pointer.BoolP(false)
-		r.feature.Status.Note = reason
-		return nil
-	}
-
-	exist, reason, err = r.checkRequiredResourcesExistence(ctx)
-	if err != nil {
-		r.feature.Status.Enabled = pointer.BoolP(false)
-		r.feature.Status.Note = err.Error()
-		r.logger.Error(err, "Failed to check required resources existence")
-		return nil
-	}
-	if !exist {
-		r.feature.Status.Enabled = pointer.BoolP(false)
-		r.feature.Status.Note = reason
-		return nil
-	}
-
-	releases, err := r.findManagedHelmReleases(ctx)
-	if err != nil {
+	if !status.managed {
 		r.feature.Status.Managed = pointer.BoolP(false)
-		r.feature.Status.Note = err.Error()
-		r.logger.Error(err, "Failed to find managed HelmReleases")
-		return nil
-	}
-
-	if len(releases.Items) == 0 {
-		r.feature.Status.Managed = pointer.BoolP(false)
-		r.feature.Status.Note = "Feature is not managed by this UI."
+		r.feature.Status.Note = "Feature is not managed by the UI"
 		return nil
 	}
 	r.feature.Status.Managed = pointer.BoolP(true)
 
-	if !areReleasesReady(releases.Items) {
+	ready, reason := r.isFeatureReady(status)
+	if !ready {
 		r.feature.Status.Ready = pointer.BoolP(false)
-		r.feature.Status.Note = "Feature is not ready yet."
+		r.feature.Status.Note = reason
 		return nil
 	}
 	r.feature.Status.Ready = pointer.BoolP(true)
@@ -192,8 +170,157 @@ func (r *frReconciler) ensureFinalizer(ctx context.Context) error {
 	return nil
 }
 
+type featureStatus struct {
+	managed    bool
+	dependency *requirementStatus
+	resources  *requirementStatus
+	workload   *requirementStatus
+	release    *releaseStatus
+}
+
+type requirementStatus struct {
+	satisfied bool
+	reason    string
+}
+
+type releaseStatus struct {
+	found bool
+	ready bool
+}
+
+func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error) {
+	var status featureStatus
+	if len(r.feature.Spec.Requirements.Resources) != 0 {
+		satisfied, reason, err := r.checkRequiredResourcesExistence(ctx)
+		if err != nil {
+			return status, err
+		}
+		status.resources = &requirementStatus{
+			satisfied: satisfied,
+		}
+		if !satisfied {
+			status.resources.reason = reason
+		}
+	}
+
+	if len(r.feature.Spec.Requirements.Workloads) != 0 {
+		satisfied, reason, err := r.checkRequiredWorkloadExistence(ctx)
+		if err != nil {
+			return status, err
+		}
+		status.workload = &requirementStatus{
+			satisfied: satisfied,
+		}
+		if !satisfied {
+			status.workload.reason = reason
+		}
+	}
+
+	if len(r.feature.Spec.Requirements.Features) != 0 {
+		satisfied, reason, err := r.checkDependencyExistence(ctx)
+		if err != nil {
+			return status, err
+		}
+		status.dependency = &requirementStatus{
+			satisfied: satisfied,
+		}
+		if !satisfied {
+			status.dependency.reason = reason
+		}
+	}
+
+	release, err := r.getHelmRelease(ctx)
+	if err != nil {
+		if kerr.IsNotFound(err) {
+			status.managed = false
+			return status, nil
+		}
+		return status, err
+	}
+	status.release = &releaseStatus{
+		found: true,
+	}
+	if isReleaseReady(release.Status.Conditions) {
+		status.release.ready = true
+	}
+	if metav1.HasLabel(release.ObjectMeta, meta_util.ComponentLabelKey) && release.Labels[meta_util.ComponentLabelKey] == r.feature.Name &&
+		metav1.HasLabel(release.ObjectMeta, meta_util.PartOfLabelKey) && release.Labels[meta_util.PartOfLabelKey] == r.feature.Spec.FeatureSet {
+		status.managed = true
+	}
+	return status, nil
+}
+
 func (r *frReconciler) resetFeatureStatus() {
 	r.feature.Status = uiapi.FeatureStatus{}
+}
+
+func (r *frReconciler) getHelmRelease(ctx context.Context) (fluxcd.HelmRelease, error) {
+	selector := labels.SelectorFromSet(map[string]string{
+		meta_util.ComponentLabelKey: r.feature.Name,
+		meta_util.PartOfLabelKey:    r.feature.Spec.FeatureSet,
+	})
+
+	releases := &fluxcd.HelmReleaseList{}
+	err := r.client.List(ctx, releases, &client.ListOptions{LabelSelector: selector})
+	if err != nil {
+		return fluxcd.HelmRelease{}, err
+	}
+	if len(releases.Items) > 0 {
+		return releases.Items[0], nil
+	}
+	return fluxcd.HelmRelease{}, kerr.NewNotFound(schema.GroupResource{
+		Group:    fluxcd.GroupVersion.Group,
+		Resource: "helmreleases",
+	}, r.feature.Name)
+}
+
+func (r *frReconciler) isFeatureEnabled(status featureStatus) (bool, string) {
+	if isRequiredResourcesExist(status) &&
+		isWorkloadOrReleaseExist(status) {
+		return true, ""
+	}
+	return false, findReason(status)
+}
+
+func isRequiredResourcesExist(status featureStatus) bool {
+	if status.resources != nil && !status.resources.satisfied {
+		return false
+	}
+	return true
+}
+
+func isWorkloadOrReleaseExist(status featureStatus) bool {
+	if status.workload != nil && status.workload.satisfied {
+		return true
+	}
+	if status.release != nil && status.release.found {
+		return true
+	}
+	return false
+}
+
+func findReason(status featureStatus) string {
+	if status.resources != nil && !status.resources.satisfied {
+		return status.resources.reason
+	}
+	if status.workload != nil && !status.workload.satisfied {
+		return status.workload.reason
+	}
+	return "No relevant resources found for the Feature"
+}
+
+func (r *frReconciler) isFeatureReady(status featureStatus) (bool, string) {
+	if status.dependency != nil && !status.dependency.satisfied {
+		return false, status.dependency.reason
+	}
+	if status.workload != nil && !status.workload.satisfied {
+		return false, status.workload.reason
+	}
+
+	if status.release != nil && status.release.found && !status.release.ready {
+		return false, "Respective HelmRelease is not ready"
+	}
+	return true, ""
 }
 
 func (r *frReconciler) checkDependencyExistence(ctx context.Context) (bool, string, error) {
@@ -206,7 +333,7 @@ func (r *frReconciler) checkDependencyExistence(ctx context.Context) (bool, stri
 			return false, "", err
 		}
 
-		if f.Status.Enabled != nil && !*f.Status.Enabled {
+		if f.Status.Enabled == nil || !*f.Status.Enabled {
 			return false, fmt.Sprintf("Dependency not satisfied. Feature %q is not enabled.", d), nil
 		}
 	}
@@ -231,28 +358,26 @@ func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (boo
 	return true, "", nil
 }
 
-func (r *frReconciler) findManagedHelmReleases(ctx context.Context) (*fluxcd.HelmReleaseList, error) {
-	selector := labels.SelectorFromSet(map[string]string{
-		meta_util.ManagedByLabelKey: ManagerAppsCodeContainerEngine,
-		meta_util.ComponentLabelKey: r.feature.Name,
-		meta_util.PartOfLabelKey:    r.feature.Spec.FeatureSet,
-	})
-
-	releases := &fluxcd.HelmReleaseList{}
-	err := r.client.List(ctx, releases, &client.ListOptions{LabelSelector: selector})
-	if err != nil {
-		return nil, err
-	}
-	return releases, nil
-}
-
-func areReleasesReady(releases []fluxcd.HelmRelease) bool {
-	for _, release := range releases {
-		if !isReleaseReady(release.Status.Conditions) {
-			return false
+func (r *frReconciler) checkRequiredWorkloadExistence(ctx context.Context) (bool, string, error) {
+	for _, w := range r.feature.Spec.Requirements.Workloads {
+		objList := unstructured.UnstructuredList{}
+		objList.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   w.Group,
+			Version: w.Version,
+			Kind:    w.Kind,
+		})
+		selector := labels.SelectorFromSet(w.Selector)
+		if err := r.apiReader.List(ctx, &objList, &client.ListOptions{Limit: 1, LabelSelector: selector}); err != nil {
+			if meta.IsNoMatchError(err) {
+				return false, fmt.Sprintf("Required resource %q is not registered.", w.String()), nil
+			}
+			return false, "", err
+		}
+		if len(objList.Items) == 0 {
+			return false, "Required workload does not exist", nil
 		}
 	}
-	return true
+	return true, "", nil
 }
 
 func isReleaseReady(conditions []metav1.Condition) bool {
@@ -293,6 +418,8 @@ func (r *frReconciler) updateFeatureSetEntry(ctx context.Context) error {
 	for i, f := range fs.Status.Features {
 		if f.Name == r.feature.Name {
 			fs.Status.Features[i].Enabled = r.feature.Status.Enabled
+			fs.Status.Features[i].Ready = r.feature.Status.Ready
+			fs.Status.Features[i].Managed = r.feature.Status.Managed
 			found = true
 		}
 	}
@@ -300,6 +427,8 @@ func (r *frReconciler) updateFeatureSetEntry(ctx context.Context) error {
 		fs.Status.Features = append(fs.Status.Features, uiapi.ComponentStatus{
 			Name:    r.feature.Name,
 			Enabled: r.feature.Status.Enabled,
+			Ready:   r.feature.Status.Ready,
+			Managed: r.feature.Status.Managed,
 		})
 	}
 	return r.updateFeatureSetStatus(ctx, fs)
@@ -307,16 +436,18 @@ func (r *frReconciler) updateFeatureSetEntry(ctx context.Context) error {
 
 func (r *frReconciler) updateFeatureSetStatus(ctx context.Context, fs *uiapi.FeatureSet) error {
 	fs.Status.Enabled = pointer.BoolP(true)
+	fs.Status.Ready = pointer.BoolP(true)
 	fs.Status.Note = ""
-	enabled, reason := allRequireFeaturesEnabled(fs)
-	if !enabled {
-		fs.Status.Enabled = pointer.BoolP(false)
-		fs.Status.Note = reason
-	}
 
-	if !atLeastOneFeatureEnabled(fs.Status.Features) {
+	if !atLeastOneFeatureManaged(fs.Status.Features) {
 		fs.Status.Enabled = pointer.BoolP(false)
+		fs.Status.Ready = nil
 		fs.Status.Note = "No feature enabled yet for this feature set."
+	}
+	ready, reason := allRequireFeaturesReady(fs)
+	if !ready {
+		fs.Status.Ready = pointer.BoolP(false)
+		fs.Status.Note = reason
 	}
 	_, _, err := kmc.PatchStatus(
 		ctx,
@@ -331,27 +462,28 @@ func (r *frReconciler) updateFeatureSetStatus(ctx context.Context, fs *uiapi.Fea
 	return client.IgnoreNotFound(err)
 }
 
-func allRequireFeaturesEnabled(fs *uiapi.FeatureSet) (enabled bool, reason string) {
+func allRequireFeaturesReady(fs *uiapi.FeatureSet) (enabled bool, reason string) {
 	for _, f := range fs.Spec.RequiredFeatures {
-		if !isEnabled(f, fs.Status.Features) {
-			return false, fmt.Sprintf("Required feature '%s' is not enabled.", f)
+		if !isFeatureReady(f, fs.Status.Features) {
+			return false, fmt.Sprintf("Required feature '%s' is not ready.", f)
 		}
 	}
 	return true, ""
 }
 
-func isEnabled(featureName string, status []uiapi.ComponentStatus) bool {
+func isFeatureReady(featureName string, status []uiapi.ComponentStatus) bool {
 	for i := range status {
-		if status[i].Name == featureName && (status[i].Enabled != nil && *status[i].Enabled) {
+		if status[i].Name == featureName && (status[i].Ready != nil && *status[i].Ready) {
 			return true
 		}
 	}
 	return false
 }
 
-func atLeastOneFeatureEnabled(status []uiapi.ComponentStatus) bool {
+func atLeastOneFeatureManaged(status []uiapi.ComponentStatus) bool {
 	for i := range status {
-		if status[i].Enabled != nil && *status[i].Enabled {
+		if status[i].Enabled != nil && *status[i].Enabled &&
+			status[i].Managed != nil && *status[i].Managed {
 			return true
 		}
 	}
@@ -415,10 +547,6 @@ func (r *FeatureReconciler) findFeaturesForFeatureSet(featureSet client.Object) 
 }
 
 func (r *FeatureReconciler) findFeatureForHelmRelease(release client.Object) []reconcile.Request {
-	manager, err := meta_util.GetStringValueForKeys(release.GetLabels(), meta_util.ManagedByLabelKey)
-	if err != nil || manager != ManagerAppsCodeContainerEngine {
-		return []reconcile.Request{}
-	}
 	featureName, err := meta_util.GetStringValueForKeys(release.GetLabels(), meta_util.ComponentLabelKey)
 	if err != nil {
 		return []reconcile.Request{}

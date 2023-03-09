@@ -24,27 +24,38 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"gomodules.xyz/pointer"
+	apps "k8s.io/api/apps/v1"
+	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	"kmodules.xyz/client-go/meta"
+	meta_util "kmodules.xyz/client-go/meta"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
-func TestFeatureShouldBeDisabledIfRequirementsNotSatisfied(t *testing.T) {
+const (
+	testFeatureSetName = "opscenter-monitoring"
+	testFeatureName    = "kube-prometheus-stack"
+)
+
+var testWorkloadLabels = map[string]string{
+	"app.kubernetes.io/managed-by": "Helm",
+	"app.kubernetes.io/name":       "sample-workload",
+}
+
+func TestFeatureEnableStatus(t *testing.T) {
 	testCases := map[string]struct {
-		feature *uiapi.Feature
+		feature               *uiapi.Feature
+		workload              *apps.Deployment
+		helmRelease           *fluxcd.HelmRelease
+		expectedEnabledStatus bool
+		errorExpected         bool
 	}{
-		"Dependency not satisfied": {
-			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Features = []string{"foo", "bar"}
-			}),
-		},
-		"Required resources does not exist": {
+		"Should be false when required resources does not exist": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
 				in.Spec.Requirements.Resources = []metav1.GroupVersionKind{
 					{
@@ -54,118 +65,336 @@ func TestFeatureShouldBeDisabledIfRequirementsNotSatisfied(t *testing.T) {
 					},
 				}
 			}),
+			expectedEnabledStatus: false,
+		},
+		"Should be true when required workload exist": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
+				}
+			}),
+			workload:              sampleDeployment(),
+			expectedEnabledStatus: true,
+		},
+		"Should be true when required workload does not exist but HelmRelease exist": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
+				}
+			}),
+			helmRelease:           sampleHelmRelease(),
+			expectedEnabledStatus: true,
+		},
+		"Should be false when neither workload nor HelmRelease exist": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
+				}
+			}),
+			expectedEnabledStatus: false,
 		},
 	}
 	for name, tt := range testCases {
 		t.Run(name, func(t *testing.T) {
+			initObjects := []client.Object{tt.feature}
+			if tt.workload != nil {
+				initObjects = append(initObjects, tt.workload)
+			}
+			if tt.helmRelease != nil {
+				initObjects = append(initObjects, tt.helmRelease)
+			}
 			r := frReconciler{
-				client:  getFakeClient(t, tt.feature),
+				client:  getFakeClient(t, initObjects...),
 				logger:  dummyLogger(),
 				feature: tt.feature,
 			}
 			r.apiReader = r.client
 
 			err := r.reconcile(context.Background())
-			assert.Nil(t, err)
-			assert.NotEmpty(t, r.feature.Status.Note)
+			if tt.errorExpected {
+				assert.NotNil(t, err)
+				assert.NotEmpty(t, r.feature.Status.Note)
+				return
+			}
+
+			if !assert.Nil(t, err) {
+				return
+			}
+			if !assert.NotNil(t, r.feature.Status.Enabled) {
+				return
+			}
+			assert.Equal(t, tt.expectedEnabledStatus, *r.feature.Status.Enabled)
 		})
 	}
 }
 
-func TestManagedFieldIsSetProperly(t *testing.T) {
-	feature := sampleFeature()
-
+func TestFeatureReadyStatus(t *testing.T) {
 	testCases := map[string]struct {
-		labels   map[string]string
-		expected bool
+		feature             *uiapi.Feature
+		workload            *apps.Deployment
+		helmRelease         *fluxcd.HelmRelease
+		expectedReadyStatus bool
+		errorExpected       bool
 	}{
-		"Should be false when not managed by UI": {
-			labels: map[string]string{
-				meta.ManagedByLabelKey: "foo.io",
-				meta.ComponentLabelKey: "bar",
-				meta.PartOfLabelKey:    "baz",
-			},
-			expected: false,
-		},
-		"Should be true when managed by UI": {
-			labels: map[string]string{
-				meta.ManagedByLabelKey: "kubeops.dev",
-				meta.ComponentLabelKey: feature.Name,
-				meta.PartOfLabelKey:    feature.Spec.FeatureSet,
-			},
-			expected: true,
-		},
-	}
-	for name, tt := range testCases {
-		t.Run(name, func(t *testing.T) {
-			hr := sampleHelmRelease(func(in *fluxcd.HelmRelease) {
-				in.Labels = tt.labels
-			})
-			r := frReconciler{
-				client:  getFakeClient(t, feature.DeepCopy(), hr),
-				logger:  dummyLogger(),
-				feature: feature.DeepCopy(),
-			}
-			err := r.reconcile(context.Background())
-			assert.Nil(t, err)
-			if assert.NotNil(t, r.feature.Status.Managed) {
-				assert.Equal(t, tt.expected, *r.feature.Status.Managed)
-			}
-		})
-	}
-}
-
-func TestReadyFieldIsSetProperly(t *testing.T) {
-	feature := sampleFeature()
-
-	testCases := map[string]struct {
-		conditionStatus metav1.ConditionStatus
-		ready           bool
-	}{
-		"Should be false when HelmRelease is not Ready": {
-			conditionStatus: metav1.ConditionFalse,
-			ready:           false,
-		},
-		"Should be true when HelmRelease is Ready": {
-			conditionStatus: metav1.ConditionTrue,
-			ready:           true,
-		},
-	}
-	for name, tt := range testCases {
-		t.Run(name, func(t *testing.T) {
-			hr := sampleHelmRelease(func(in *fluxcd.HelmRelease) {
-				in.Labels = map[string]string{
-					meta.ManagedByLabelKey: "kubeops.dev",
-					meta.ComponentLabelKey: feature.Name,
-					meta.PartOfLabelKey:    feature.Spec.FeatureSet,
+		"Should not be ready when dependency is not satisfied": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Features = []string{"foo", "bar"}
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
 				}
+			}),
+			workload:            sampleDeployment(),
+			helmRelease:         sampleHelmRelease(),
+			expectedReadyStatus: false,
+		},
+		"Should not be ready when the workload does not exit": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
+				}
+			}),
+			helmRelease:         sampleHelmRelease(),
+			expectedReadyStatus: false,
+		},
+		"Should not be ready when workload exist but HelmRelease does not exist": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
+				}
+			}),
+			workload:            sampleDeployment(),
+			expectedReadyStatus: false,
+		},
+		"Should not be ready when workload exist but HelmRelease is not ready ": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
+				}
+			}),
+			workload: sampleDeployment(),
+			helmRelease: sampleHelmRelease(func(in *fluxcd.HelmRelease) {
 				in.Status.Conditions = []metav1.Condition{
 					{
 						Type:   "Ready",
-						Status: tt.conditionStatus,
+						Status: "False",
 					},
 				}
-			})
+			}),
+			expectedReadyStatus: false,
+		},
+		"Should be ready when workload exist and HelmRelease is ready": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
+				}
+			}),
+			workload: sampleDeployment(),
+			helmRelease: sampleHelmRelease(func(in *fluxcd.HelmRelease) {
+				in.Status.Conditions = []metav1.Condition{
+					{
+						Type:   "Ready",
+						Status: "True",
+					},
+				}
+			}),
+			expectedReadyStatus: true,
+		},
+	}
+	for name, tt := range testCases {
+		t.Run(name, func(t *testing.T) {
+			initObjects := []client.Object{tt.feature}
+			if tt.workload != nil {
+				initObjects = append(initObjects, tt.workload)
+			}
+			if tt.helmRelease != nil {
+				initObjects = append(initObjects, tt.helmRelease)
+			}
 			r := frReconciler{
-				client:  getFakeClient(t, feature.DeepCopy(), hr, sampleFeatureSet(feature.Spec.FeatureSet)),
+				client:  getFakeClient(t, initObjects...),
 				logger:  dummyLogger(),
-				feature: feature.DeepCopy(),
+				feature: tt.feature,
 			}
+			r.apiReader = r.client
+
 			err := r.reconcile(context.Background())
-			assert.Nil(t, err)
-			if assert.NotNil(t, r.feature.Status.Ready) {
-				assert.Equal(t, tt.ready, *r.feature.Status.Ready)
+			if tt.errorExpected {
+				assert.NotNil(t, err)
+				assert.NotEmpty(t, r.feature.Status.Note)
+				return
 			}
+
+			if !assert.Nil(t, err) {
+				return
+			}
+			if !assert.NotNil(t, r.feature.Status.Enabled) {
+				return
+			}
+			assert.Equal(t, true, *r.feature.Status.Enabled)
+
+			if !tt.expectedReadyStatus {
+				if r.feature.Status.Ready != nil {
+					assert.Equal(t, tt.expectedReadyStatus, *r.feature.Status.Ready)
+				}
+				return
+			}
+			if !assert.NotNil(t, r.feature.Status.Ready) {
+				return
+			}
+			assert.Equal(t, tt.expectedReadyStatus, *r.feature.Status.Ready)
 		})
 	}
 }
 
-func TestUpdateFeatureSetEntry(t *testing.T) {
+func TestFeatureManagedStatus(t *testing.T) {
 	testCases := map[string]struct {
-		requireFeatures []string
-		componentStatus []uiapi.ComponentStatus
-		expectedErr     error
-		expectedStatus  bool
+		feature               *uiapi.Feature
+		workload              *apps.Deployment
+		helmRelease           *fluxcd.HelmRelease
+		expectedManagedStatus bool
+		errorExpected         bool
+	}{
+		"Managed should be true when HelmRelease exist": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
+				}
+			}),
+			workload:              sampleDeployment(),
+			helmRelease:           sampleHelmRelease(),
+			expectedManagedStatus: true,
+		},
+		"Managed should be false when HelmRelease does not exist": {
+			feature: sampleFeature(func(in *uiapi.Feature) {
+				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+					{
+						GroupVersionKind: metav1.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Deployment",
+						},
+						Selector: testWorkloadLabels,
+					},
+				}
+			}),
+			workload:              sampleDeployment(),
+			expectedManagedStatus: false,
+		},
+	}
+	for name, tt := range testCases {
+		t.Run(name, func(t *testing.T) {
+			initObjects := []client.Object{tt.feature}
+			if tt.workload != nil {
+				initObjects = append(initObjects, tt.workload)
+			}
+			if tt.helmRelease != nil {
+				initObjects = append(initObjects, tt.helmRelease)
+			}
+			r := frReconciler{
+				client:  getFakeClient(t, initObjects...),
+				logger:  dummyLogger(),
+				feature: tt.feature,
+			}
+			r.apiReader = r.client
+
+			err := r.reconcile(context.Background())
+			if tt.errorExpected {
+				assert.NotNil(t, err)
+				assert.NotEmpty(t, r.feature.Status.Note)
+				return
+			}
+
+			if !assert.Nil(t, err) {
+				return
+			}
+			if !assert.NotNil(t, r.feature.Status.Enabled) {
+				return
+			}
+			assert.Equal(t, true, *r.feature.Status.Enabled)
+
+			if !tt.expectedManagedStatus {
+				if r.feature.Status.Managed != nil {
+					assert.Equal(t, tt.expectedManagedStatus, *r.feature.Status.Managed)
+				}
+				return
+			}
+			if !assert.NotNil(t, r.feature.Status.Managed) {
+				return
+			}
+			assert.Equal(t, tt.expectedManagedStatus, *r.feature.Status.Managed)
+		})
+	}
+}
+
+func TestFeatureSetStatus(t *testing.T) {
+	testCases := map[string]struct {
+		requireFeatures      []string
+		componentStatus      []uiapi.ComponentStatus
+		expectedErr          error
+		expectedEnableStatus *bool
+		expectedReadyStatus  *bool
 	}{
 		"Should return not found error when FeatureSet does not exist": {
 			expectedErr: kerr.NewNotFound(
@@ -175,26 +404,55 @@ func TestUpdateFeatureSetEntry(t *testing.T) {
 				},
 				""),
 		},
-		"Should be disabled when all required features not enabled": {
+		"Should not be enabled when no features are enabled": {
 			requireFeatures: []string{"foo", "bar"},
 			componentStatus: []uiapi.ComponentStatus{
-				{Name: "foo", Enabled: pointer.BoolP(true)},
+				{Name: "foo", Enabled: pointer.BoolP(false), Managed: nil, Ready: nil},
+				{Name: "bar", Enabled: pointer.BoolP(false), Managed: nil, Ready: nil},
+				{Name: "baz", Enabled: pointer.BoolP(false), Managed: nil, Ready: nil},
 			},
-			expectedStatus: false,
+			expectedEnableStatus: pointer.BoolP(false),
+			expectedReadyStatus:  pointer.BoolP(false),
 		},
-		"Should be enabled when all required features are enabled": {
+		"Should not be enabled when there is no managed features": {
 			requireFeatures: []string{"foo", "bar"},
 			componentStatus: []uiapi.ComponentStatus{
-				{Name: "foo", Enabled: pointer.BoolP(true)},
-				{Name: "bar", Enabled: pointer.BoolP(true)},
+				{Name: "foo", Enabled: pointer.BoolP(true), Managed: pointer.BoolP(false), Ready: nil},
+				{Name: "bar", Enabled: pointer.BoolP(true), Managed: pointer.BoolP(false), Ready: nil},
+				{Name: "baz", Enabled: pointer.BoolP(true), Managed: pointer.BoolP(false), Ready: nil},
 			},
-			expectedStatus: true,
+			expectedEnableStatus: pointer.BoolP(false),
+			expectedReadyStatus:  pointer.BoolP(false),
 		},
-		"Should be enabled when there are no require features and at least one feature enabled": {
+		"Should be enabled when at least one managed feature is enabled": {
+			requireFeatures: []string{"foo", "bar"},
 			componentStatus: []uiapi.ComponentStatus{
-				{Name: "foo", Enabled: pointer.BoolP(true)},
+				{Name: "foo", Enabled: pointer.BoolP(true), Managed: pointer.BoolP(true), Ready: pointer.BoolP(false)},
+				{Name: "bar", Enabled: pointer.BoolP(false), Managed: pointer.BoolP(true), Ready: nil},
+				{Name: "baz", Enabled: pointer.BoolP(false), Managed: pointer.BoolP(false), Ready: nil},
 			},
-			expectedStatus: true,
+			expectedEnableStatus: pointer.BoolP(true),
+			expectedReadyStatus:  pointer.BoolP(false),
+		},
+		"Should not be ready when all required features are not ready": {
+			requireFeatures: []string{"foo", "bar"},
+			componentStatus: []uiapi.ComponentStatus{
+				{Name: "foo", Enabled: pointer.BoolP(true), Managed: pointer.BoolP(true), Ready: pointer.BoolP(true)},
+				{Name: "bar", Enabled: pointer.BoolP(true), Managed: pointer.BoolP(true), Ready: pointer.BoolP(false)},
+				{Name: "baz", Enabled: pointer.BoolP(false), Managed: pointer.BoolP(false), Ready: nil},
+			},
+			expectedEnableStatus: pointer.BoolP(true),
+			expectedReadyStatus:  pointer.BoolP(false),
+		},
+		"Should be ready when all the required features are ready": {
+			requireFeatures: []string{"foo", "bar"},
+			componentStatus: []uiapi.ComponentStatus{
+				{Name: "foo", Enabled: pointer.BoolP(true), Managed: pointer.BoolP(true), Ready: pointer.BoolP(true)},
+				{Name: "bar", Enabled: pointer.BoolP(true), Managed: pointer.BoolP(true), Ready: pointer.BoolP(true)},
+				{Name: "baz", Enabled: pointer.BoolP(false), Managed: pointer.BoolP(false), Ready: nil},
+			},
+			expectedEnableStatus: pointer.BoolP(true),
+			expectedReadyStatus:  pointer.BoolP(true),
 		},
 	}
 	for name, tt := range testCases {
@@ -224,11 +482,28 @@ func TestUpdateFeatureSetEntry(t *testing.T) {
 				}
 				return
 			}
-			assert.Nil(t, err)
-			assert.Nil(t, r.client.Get(context.Background(), types.NamespacedName{Name: fs.Name}, fs))
-			if assert.NotNil(t, fs.Status.Enabled) {
-				assert.Equal(t, tt.expectedStatus, *fs.Status.Enabled)
+			if !assert.Nil(t, err) {
+				return
 			}
+			assert.Nil(t, r.client.Get(context.Background(), types.NamespacedName{Name: fs.Name}, fs))
+
+			if tt.expectedEnableStatus == nil {
+				assert.Nil(t, fs.Status.Enabled)
+				return
+			}
+			if !assert.NotNil(t, fs.Status.Enabled) {
+				return
+			}
+			assert.Equal(t, *tt.expectedEnableStatus, *fs.Status.Enabled)
+
+			if tt.expectedReadyStatus == nil {
+				assert.Nil(t, fs.Status.Ready)
+				return
+			}
+			if !assert.NotNil(t, fs.Status.Ready) {
+				return
+			}
+			assert.Equal(t, *tt.expectedReadyStatus, *fs.Status.Ready)
 		})
 	}
 }
@@ -262,6 +537,7 @@ func getFakeClient(t *testing.T, initObjs ...client.Object) client.WithWatch {
 	scheme := runtime.NewScheme()
 	assert.Nil(t, uiapi.AddToScheme(scheme))
 	assert.Nil(t, fluxcd.AddToScheme(scheme))
+	assert.Nil(t, apps.AddToScheme(scheme))
 
 	return fake.NewClientBuilder().WithScheme(scheme).WithObjects(initObjs...).Build()
 }
@@ -273,12 +549,12 @@ func dummyLogger() logr.Logger {
 func sampleFeature(transformFuncs ...func(in *uiapi.Feature)) *uiapi.Feature {
 	fr := &uiapi.Feature{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "kube-prometheus-stack",
+			Name: testFeatureName,
 		},
 		Spec: uiapi.FeatureSpec{
 			Title:       "Kube Prometheus Stack",
 			Description: "lorem ipsum",
-			FeatureSet:  "monitoring",
+			FeatureSet:  testFeatureSetName,
 		},
 	}
 	for _, f := range transformFuncs {
@@ -306,8 +582,12 @@ func sampleFeatureSet(name string, transformFuncs ...func(in *uiapi.FeatureSet))
 func sampleHelmRelease(transformFuncs ...func(in *fluxcd.HelmRelease)) *fluxcd.HelmRelease {
 	hr := &fluxcd.HelmRelease{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "sample-release",
+			Name:      "sample-helm-release",
 			Namespace: "kubeops",
+			Labels: map[string]string{
+				meta_util.ComponentLabelKey: testFeatureName,
+				meta_util.PartOfLabelKey:    testFeatureSetName,
+			},
 		},
 		Spec: fluxcd.HelmReleaseSpec{},
 	}
@@ -316,4 +596,21 @@ func sampleHelmRelease(transformFuncs ...func(in *fluxcd.HelmRelease)) *fluxcd.H
 		f(hr)
 	}
 	return hr
+}
+
+func sampleDeployment() *apps.Deployment {
+	return &apps.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "sample-deployment",
+			Namespace: "default",
+			Labels:    testWorkloadLabels,
+		},
+		Spec: apps.DeploymentSpec{
+			Replicas: pointer.Int32P(1),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: testWorkloadLabels,
+			},
+			Template: core.PodTemplateSpec{},
+		},
+	}
 }
