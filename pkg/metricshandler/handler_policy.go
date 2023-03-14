@@ -29,47 +29,49 @@ import (
 )
 
 func collectPolicyMetrics(kc client.Client, generators []generator.FamilyGenerator, store *metricsstore.MetricsStore) error {
-	cl, err := collectForCluster(kc, generators[9])
-	if err != nil {
+	if clTotal, clByType, err := collectForCluster(kc, generators[9], generators[10]); err != nil {
 		return err
+	} else {
+		store.Add(clTotal, clByType)
 	}
-	store.Add(cl)
 
-	nsTotal, nsByType, err := collectForNamespace(kc, generators[10], generators[11])
-	if err != nil {
+	if nsTotal, nsByType, err := collectForNamespace(kc, generators[11], generators[12]); err != nil {
 		return err
+	} else {
+		store.Add(nsTotal, nsByType)
 	}
-	store.Add(nsTotal, nsByType)
 
 	return nil
 }
 
-func collectForCluster(kc client.Client, gen generator.FamilyGenerator) (*metric.Family, error) {
-	f := gen.Generate(nil)
+func collectForCluster(kc client.Client, genTotal generator.FamilyGenerator, genByType generator.FamilyGenerator) (*metric.Family, *metric.Family, error) {
+	fTotal := genTotal.Generate(nil)
+	fByType := genByType.Generate(nil)
 
 	templates, err := policystorage.ListTemplates(context.TODO(), kc)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
+	clusterTotal := 0
 	for _, template := range templates.Items {
 		constraintKind, _, err := unstructured.NestedString(template.UnstructuredContent(), "spec", "crd", "spec", "names", "kind")
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		constraints, err := policystorage.ListConstraints(context.TODO(), kc, constraintKind)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		total := 0
 		for _, constraint := range constraints.Items {
 			violations, err := policystorage.GetViolationsOfConstraint(constraint)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			total += len(violations)
 		}
-		m := metric.Metric{
+		mByType := metric.Metric{
 			LabelKeys: []string{
 				"constraint",
 			},
@@ -78,9 +80,14 @@ func collectForCluster(kc client.Client, gen generator.FamilyGenerator) (*metric
 			},
 			Value: float64(total),
 		}
-		f.Metrics = append(f.Metrics, &m)
+		fByType.Metrics = append(fByType.Metrics, &mByType)
+		clusterTotal += total
 	}
-	return f, nil
+	mTotal := metric.Metric{
+		Value: float64(clusterTotal),
+	}
+	fByType.Metrics = append(fByType.Metrics, &mTotal)
+	return fTotal, fByType, nil
 }
 
 func collectForNamespace(kc client.Client, genTotal generator.FamilyGenerator, genByType generator.FamilyGenerator) (*metric.Family, *metric.Family, error) {

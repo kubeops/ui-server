@@ -81,7 +81,7 @@ func collectMetrics(kc client.Client, w io.Writer) error {
 
 func getFamilyGenerators() []generator.FamilyGenerator {
 	fn := func(obj interface{}) *metric.Family { return new(metric.Family) }
-	generators := make([]generator.FamilyGenerator, 0, 11)
+	generators := make([]generator.FamilyGenerator, 0, 13)
 	generators = append(generators, generator.FamilyGenerator{
 		Name:              scannerMetricPrefix + "cluster_cve_occurrence",
 		Help:              "CVE occurrence statistics",
@@ -149,8 +149,15 @@ func getFamilyGenerators() []generator.FamilyGenerator {
 
 	// Policy related metrics
 	generators = append(generators, generator.FamilyGenerator{
-		Name:              policyMetricPrefix + "cluster_violation_occurrence",
+		Name:              policyMetricPrefix + "cluster_violation_occurrence_total",
 		Help:              "Cluster-wide Violation Occurrence statistics",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              policyMetricPrefix + "cluster_violation_occurrence_by_constraint_type",
+		Help:              "Cluster-wide Violation Occurrence statistics by constraint type",
 		Type:              metric.Gauge,
 		DeprecatedVersion: "",
 		GenerateFunc:      fn,
