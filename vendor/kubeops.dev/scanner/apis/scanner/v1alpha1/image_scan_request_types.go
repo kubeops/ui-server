@@ -70,18 +70,14 @@ type ImageScanRequestStatus struct {
 	Image     *ImageDetails         `json:"image,omitempty"`
 	ReportRef *ScanReportRef        `json:"reportRef,omitempty"`
 
+	// +optional
+	// For Private Images, this field holds the job name created (in .spec.namespace) for scanning.
+	JobName string `json:"jobName,omitempty"`
+
 	// A brief CamelCase message indicating details about why the request is in this state.
 	// +optional
 	Reason string `json:"reason,omitempty"`
 }
-
-// +kubebuilder:validation:Enum=Public;Private
-type ImageVisibility string
-
-const (
-	ImagePublic  ImageVisibility = "Public"
-	ImagePrivate ImageVisibility = "Private"
-)
 
 // +kubebuilder:validation:Enum=Pending;InProgress;Current;Failed;Outdated
 type ImageScanRequestPhase string
@@ -97,7 +93,7 @@ const (
 type ImageDetails struct {
 	Name string `json:"name,omitempty"`
 	// +kubebuilder:default="Public"
-	Visibility ImageVisibility `json:"visibility,omitempty"`
+	Visibility trivy.ImageVisibility `json:"visibility,omitempty"`
 	// Tag & Digest is optional field. One of these fields may not present
 	// +optional
 	Tag string `json:"tag,omitempty"`

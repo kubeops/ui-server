@@ -27,7 +27,7 @@ import (
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
-	"kubeops.dev/ui-server/pkg/controllers"
+	featurecontroller "kubeops.dev/ui-server/pkg/controllers/feature"
 	"kubeops.dev/ui-server/pkg/metricshandler"
 
 	fluxcd "github.com/fluxcd/helm-controller/api/v2beta1"
@@ -215,7 +215,7 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 
 	utilruntime.Must(ui.AddToScheme(server.Manager.GetScheme()))
 	utilruntime.Must(fluxcd.AddToScheme(server.Manager.GetScheme()))
-	fr := &controllers.FeatureReconciler{
+	fr := &featurecontroller.FeatureReconciler{
 		Client:    server.Manager.GetClient(),
 		Scheme:    server.Manager.GetScheme(),
 		APIReader: server.Manager.GetAPIReader(),
