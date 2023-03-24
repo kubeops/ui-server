@@ -46,7 +46,7 @@ require (
 	kmodules.xyz/resource-metadata v0.16.0
 	kmodules.xyz/resource-metrics v0.25.1
 	kmodules.xyz/sets v0.24.0
-	kubeops.dev/scanner v0.0.7-0.20230323044740-3a3f40a6bc44
+	kubeops.dev/scanner v0.0.7
 	kubepack.dev/lib-helm v0.5.9
 	kubepack.dev/preset v0.0.3
 	sigs.k8s.io/cli-utils v0.33.0
