@@ -22,6 +22,9 @@ import (
 	"strings"
 	"time"
 
+	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
+	scannercontrollers "kubeops.dev/ui-server/pkg/controllers/scanner"
+
 	"github.com/graphql-go/graphql"
 	"github.com/pkg/errors"
 	"gomodules.xyz/sets"
@@ -107,6 +110,15 @@ func SetupGraphReconciler(mgr manager.Manager) func(ctx context.Context) error {
 				R:      rid,
 			}).SetupWithManager(mgr); err != nil {
 				return err
+			}
+
+			if rid.Group == scannerapi.SchemeGroupVersion.Group &&
+				rid.Kind == scannerapi.ResourceKindImageScanRequest {
+				if err := (&scannercontrollers.WorkloadReconciler{
+					Client: mgr.GetClient(),
+				}).SetupWithManager(mgr); err != nil {
+					return err
+				}
 			}
 		}
 		return nil
