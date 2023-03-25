@@ -270,13 +270,13 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 		if !ok {
 			iis = reportsapi.ImageInfo{}
 		}
-		setImageInfos(&iis, ref, r.report) // set response.images[].image
+		setImageInfos(&iis, ref, &r.report) // set response.images[].image
 
 		if r.missing {
 			iis.ScanStatus.Result = reportsapi.ScanResultNotFound
 		} else {
-			setImageMetadata(&iis, r.report.Status.Report.Metadata) // set response.images[].metadata
-			setImageScanStatus(&iis, r.report)                      // set response.images[].scanStatus
+			setImageMetadata(&iis, &r.report.Status.Report.Metadata) // set response.images[].metadata
+			setImageScanStatus(&iis, &r.report)                      // set response.images[].scanStatus
 			for _, rpt := range r.report.Status.Report.Results {
 				for _, tv := range rpt.Vulnerabilities {
 					if !isRelevant.CVE(tv) {
@@ -286,7 +286,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 					totalOccurrence[tv.Severity]++
 					riskOccurrence[tv.Severity]++
 					riskByCVE[tv.VulnerabilityID] = tv.Severity
-					populateVulnerabilityInfoMap(vuls, ref, tv, rpt)
+					populateVulnerabilityInfoMap(vuls, ref, &tv, &rpt)
 				}
 			}
 		}
@@ -303,7 +303,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 	}, nil
 }
 
-func setImageInfos(ii *reportsapi.ImageInfo, ref string, report scannerapi.ImageScanReport) {
+func setImageInfos(ii *reportsapi.ImageInfo, ref string, report *scannerapi.ImageScanReport) {
 	ii.Image = reportsapi.ImageReference{
 		Name:   ref,
 		Tag:    report.Spec.Image.Tag,
@@ -311,7 +311,7 @@ func setImageInfos(ii *reportsapi.ImageInfo, ref string, report scannerapi.Image
 	}
 }
 
-func setImageMetadata(ii *reportsapi.ImageInfo, md trivy.ImageMetadata) {
+func setImageMetadata(ii *reportsapi.ImageInfo, md *trivy.ImageMetadata) {
 	var m2 reportsapi.ImageMetadata
 	if md.Os.Name != "" || md.Os.Family != "" {
 		m2.Os = &md.Os
@@ -332,7 +332,7 @@ func setImageMetadata(ii *reportsapi.ImageInfo, md trivy.ImageMetadata) {
 	ii.Metadata = nil
 }
 
-func setImageScanStatus(ii *reportsapi.ImageInfo, report scannerapi.ImageScanReport) {
+func setImageScanStatus(ii *reportsapi.ImageInfo, report *scannerapi.ImageScanReport) {
 	ii.ScanStatus = reportsapi.ImageScanStatus{
 		Result: reportsapi.ScanResultFound,
 		ReportRef: &core.LocalObjectReference{
@@ -358,7 +358,7 @@ func setImageStats(ii *reportsapi.ImageInfo, riskOccurrence map[string]int, risk
 	ii.Stats = stats
 }
 
-func populateVulnerabilityInfoMap(vuls map[string]trivy.VulnerabilityInfo, ref string, tv trivy.Vulnerability, rpt trivy.Result) {
+func populateVulnerabilityInfoMap(vuls map[string]trivy.VulnerabilityInfo, ref string, tv *trivy.Vulnerability, rpt *trivy.Result) {
 	av, ok := vuls[tv.VulnerabilityID]
 	if !ok {
 		av = trivy.VulnerabilityInfo{
@@ -427,24 +427,22 @@ func getCVEsFromVulnerabilityInfoMap(vuls map[string]trivy.VulnerabilityInfo) []
 		cves = append(cves, vul)
 	}
 
-	sortCVEsBySeverity := func() {
-		riskRank := map[string]int{
-			"CRITICAL": 0,
-			"HIGH":     1,
-			"MEDIUM":   2,
-			"LOW":      3,
-			"UNKNOWN":  4,
-		}
-		sort.Slice(cves, func(i, j int) bool {
-			ci, cj := cves[i], cves[j]
-
-			if riskRank[ci.Severity] != riskRank[cj.Severity] {
-				return riskRank[ci.Severity] < riskRank[cj.Severity]
-			}
-			return ci.VulnerabilityID < cj.VulnerabilityID
-		})
+	// sort CVEs by severity
+	riskRank := map[string]int{
+		"CRITICAL": 0,
+		"HIGH":     1,
+		"MEDIUM":   2,
+		"LOW":      3,
+		"UNKNOWN":  4,
 	}
-	sortCVEsBySeverity()
+	sort.Slice(cves, func(i, j int) bool {
+		ci, cj := cves[i], cves[j]
+
+		if riskRank[ci.Severity] != riskRank[cj.Severity] {
+			return riskRank[ci.Severity] < riskRank[cj.Severity]
+		}
+		return ci.VulnerabilityID < cj.VulnerabilityID
+	})
 	return cves
 }
 
