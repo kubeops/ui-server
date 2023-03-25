@@ -373,6 +373,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubeops.dev/scanner/apis/reports/v1alpha1.Workload":                 schema_scanner_apis_reports_v1alpha1_Workload(ref),
 		"kubeops.dev/scanner/apis/reports/v1alpha1.WorkloadList":             schema_scanner_apis_reports_v1alpha1_WorkloadList(ref),
 		"kubeops.dev/scanner/apis/reports/v1alpha1.WorkloadSpec":             schema_scanner_apis_reports_v1alpha1_WorkloadSpec(ref),
+		"kubeops.dev/scanner/apis/trivy.BackendResponse":                     schema_kubeopsdev_scanner_apis_trivy_BackendResponse(ref),
 		"kubeops.dev/scanner/apis/trivy.CVSSScore":                           schema_kubeopsdev_scanner_apis_trivy_CVSSScore(ref),
 		"kubeops.dev/scanner/apis/trivy.ImageConfig":                         schema_kubeopsdev_scanner_apis_trivy_ImageConfig(ref),
 		"kubeops.dev/scanner/apis/trivy.ImageHistory":                        schema_kubeopsdev_scanner_apis_trivy_ImageHistory(ref),
@@ -18190,6 +18191,46 @@ func schema_scanner_apis_reports_v1alpha1_WorkloadSpec(ref common.ReferenceCallb
 		},
 		Dependencies: []string{
 			"k8s.io/api/core/v1.PodTemplateSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"},
+	}
+}
+
+func schema_kubeopsdev_scanner_apis_trivy_BackendResponse(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"report": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.SingleReport"),
+						},
+					},
+					"trivyVersion": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.Version"),
+						},
+					},
+					"visibility": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"lastModificationTime": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("kubeops.dev/scanner/apis/trivy.Time"),
+						},
+					},
+				},
+				Required: []string{"report", "trivyVersion", "visibility", "lastModificationTime"},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/scanner/apis/trivy.SingleReport", "kubeops.dev/scanner/apis/trivy.Time", "kubeops.dev/scanner/apis/trivy.Version"},
 	}
 }
 

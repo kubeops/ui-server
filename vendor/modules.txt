@@ -1,16 +1,18 @@
-# cloud.google.com/go/compute v1.12.1
+# cloud.google.com/go/compute v1.18.0
 ## explicit; go 1.19
 cloud.google.com/go/compute/internal
-# cloud.google.com/go/compute/metadata v0.2.1
+# cloud.google.com/go/compute/metadata v0.2.3
 ## explicit; go 1.19
 cloud.google.com/go/compute/metadata
-# cloud.google.com/go/monitoring v1.5.0
-## explicit; go 1.16
+# cloud.google.com/go/monitoring v1.8.0
+## explicit; go 1.19
 cloud.google.com/go/monitoring/apiv3/v2
+cloud.google.com/go/monitoring/apiv3/v2/monitoringpb
 cloud.google.com/go/monitoring/internal
-# cloud.google.com/go/trace v1.2.0
-## explicit; go 1.16
+# cloud.google.com/go/trace v1.4.0
+## explicit; go 1.19
 cloud.google.com/go/trace/apiv2
+cloud.google.com/go/trace/apiv2/tracepb
 cloud.google.com/go/trace/internal
 # contrib.go.opencensus.io/exporter/ocagent v0.7.0
 ## explicit; go 1.13
@@ -242,7 +244,7 @@ github.com/golang-jwt/jwt/v4
 # github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
 ## explicit
 github.com/golang/groupcache/lru
-# github.com/golang/protobuf v1.5.2
+# github.com/golang/protobuf v1.5.3
 ## explicit; go 1.9
 github.com/golang/protobuf/descriptor
 github.com/golang/protobuf/jsonpb
@@ -290,7 +292,7 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/google/go-containerregistry v0.13.0
+# github.com/google/go-containerregistry v0.14.0
 ## explicit; go 1.18
 github.com/google/go-containerregistry/pkg/name
 # github.com/google/gofuzz v1.2.0
@@ -303,11 +305,11 @@ github.com/google/shlex
 # github.com/google/uuid v1.3.0
 ## explicit
 github.com/google/uuid
-# github.com/googleapis/enterprise-certificate-proxy v0.2.0
-## explicit; go 1.18
+# github.com/googleapis/enterprise-certificate-proxy v0.2.1
+## explicit; go 1.19
 github.com/googleapis/enterprise-certificate-proxy/client
 github.com/googleapis/enterprise-certificate-proxy/client/util
-# github.com/googleapis/gax-go/v2 v2.6.0
+# github.com/googleapis/gax-go/v2 v2.7.0
 ## explicit; go 1.19
 github.com/googleapis/gax-go/v2
 github.com/googleapis/gax-go/v2/apierror
@@ -356,7 +358,7 @@ github.com/huandu/xstrings
 # github.com/imdario/mergo v0.3.13
 ## explicit; go 1.13
 github.com/imdario/mergo
-# github.com/inconshreveable/mousetrap v1.0.1
+# github.com/inconshreveable/mousetrap v1.1.0
 ## explicit; go 1.18
 github.com/inconshreveable/mousetrap
 # github.com/jmespath/go-jmespath v0.4.0
@@ -382,8 +384,6 @@ github.com/liggitt/tabwriter
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
-# github.com/mattn/go-isatty v0.0.16
-## explicit; go 1.15
 # github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369
 ## explicit; go 1.9
 github.com/matttproud/golang_protobuf_extensions/pbutil
@@ -628,7 +628,7 @@ github.com/yudai/golcs
 # github.com/zeebo/xxh3 v1.0.2
 ## explicit; go 1.17
 github.com/zeebo/xxh3
-# go.bytebuilders.dev/license-verifier v0.12.1
+# go.bytebuilders.dev/license-verifier v0.13.0
 ## explicit; go 1.18
 go.bytebuilders.dev/license-verifier/apis/licenses
 go.bytebuilders.dev/license-verifier/info
@@ -654,7 +654,7 @@ go.etcd.io/etcd/client/v3
 go.etcd.io/etcd/client/v3/credentials
 go.etcd.io/etcd/client/v3/internal/endpoint
 go.etcd.io/etcd/client/v3/internal/resolver
-# go.opencensus.io v0.23.0 => go.opencensus.io v0.23.0
+# go.opencensus.io v0.24.0 => go.opencensus.io v0.23.0
 ## explicit; go 1.13
 go.opencensus.io
 go.opencensus.io/internal
@@ -800,7 +800,7 @@ golang.org/x/crypto/pkcs12
 golang.org/x/crypto/pkcs12/internal/rc2
 golang.org/x/crypto/salsa20/salsa
 golang.org/x/crypto/scrypt
-# golang.org/x/net v0.7.0
+# golang.org/x/net v0.8.0
 ## explicit; go 1.17
 golang.org/x/net/context
 golang.org/x/net/html
@@ -813,7 +813,7 @@ golang.org/x/net/internal/timeseries
 golang.org/x/net/publicsuffix
 golang.org/x/net/trace
 golang.org/x/net/websocket
-# golang.org/x/oauth2 v0.5.0
+# golang.org/x/oauth2 v0.6.0
 ## explicit; go 1.17
 golang.org/x/oauth2
 golang.org/x/oauth2/authhandler
@@ -828,17 +828,17 @@ golang.org/x/oauth2/jwt
 golang.org/x/sync/errgroup
 golang.org/x/sync/semaphore
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.5.0
+# golang.org/x/sys v0.6.0
 ## explicit; go 1.17
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/term v0.5.0
+# golang.org/x/term v0.6.0
 ## explicit; go 1.17
 golang.org/x/term
-# golang.org/x/text v0.7.0
+# golang.org/x/text v0.8.0
 ## explicit; go 1.17
 golang.org/x/text/encoding
 golang.org/x/text/encoding/internal
@@ -897,7 +897,7 @@ gomodules.xyz/wait
 gomodules.xyz/x/ioutil
 gomodules.xyz/x/strings
 gomodules.xyz/x/version
-# google.golang.org/api v0.100.0
+# google.golang.org/api v0.108.0
 ## explicit; go 1.19
 google.golang.org/api/googleapi
 google.golang.org/api/internal
@@ -924,7 +924,7 @@ google.golang.org/appengine/internal/socket
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/socket
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
+# google.golang.org/genproto v0.0.0-20230124163310-31e0e69b6fc2
 ## explicit; go 1.19
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
@@ -1005,7 +1005,7 @@ google.golang.org/grpc/serviceconfig
 google.golang.org/grpc/stats
 google.golang.org/grpc/status
 google.golang.org/grpc/tap
-# google.golang.org/protobuf v1.28.1
+# google.golang.org/protobuf v1.29.1
 ## explicit; go 1.11
 google.golang.org/protobuf/encoding/protojson
 google.golang.org/protobuf/encoding/prototext
@@ -1731,17 +1731,17 @@ kmodules.xyz/custom-resources/apis/auditor/install
 kmodules.xyz/custom-resources/apis/auditor/v1alpha1
 kmodules.xyz/custom-resources/crds
 kmodules.xyz/custom-resources/util/siteinfo
-# kmodules.xyz/go-containerregistry v0.0.3
+# kmodules.xyz/go-containerregistry v0.0.9
 ## explicit; go 1.18
 kmodules.xyz/go-containerregistry/name
-# kmodules.xyz/monitoring-agent-api v0.25.0
+# kmodules.xyz/monitoring-agent-api v0.25.1
 ## explicit; go 1.18
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.15.1-0.20230113035645-e4d6e353ed9d
+# kmodules.xyz/resource-metadata v0.16.0
 ## explicit; go 1.18
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -1765,7 +1765,7 @@ kmodules.xyz/resource-metadata/pkg/layouts
 kmodules.xyz/resource-metadata/pkg/tableconvertor
 kmodules.xyz/resource-metadata/pkg/tableconvertor/lib
 kmodules.xyz/resource-metadata/pkg/tableconvertor/printers
-# kmodules.xyz/resource-metrics v0.25.0
+# kmodules.xyz/resource-metrics v0.25.1
 ## explicit; go 1.18
 kmodules.xyz/resource-metrics
 kmodules.xyz/resource-metrics/api
@@ -1774,10 +1774,11 @@ kmodules.xyz/resource-metrics/batch/v1
 kmodules.xyz/resource-metrics/batch/v1beta1
 kmodules.xyz/resource-metrics/core/v1
 kmodules.xyz/resource-metrics/kubedb.com/v1alpha2
+kmodules.xyz/resource-metrics/kubevault.com/v1alpha2
 # kmodules.xyz/sets v0.24.0
 ## explicit; go 1.17
 kmodules.xyz/sets
-# kubeops.dev/scanner v0.0.6-0.20221229070833-e576a0bfa6df
+# kubeops.dev/scanner v0.0.7
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
 kubeops.dev/scanner/apis/reports/v1alpha1
@@ -1785,7 +1786,7 @@ kubeops.dev/scanner/apis/scanner
 kubeops.dev/scanner/apis/scanner/v1alpha1
 kubeops.dev/scanner/apis/trivy
 kubeops.dev/scanner/client/clientset/versioned/scheme
-# kubepack.dev/lib-helm v0.5.7-0.20221024120504-d029626cf65b
+# kubepack.dev/lib-helm v0.5.9
 ## explicit; go 1.18
 kubepack.dev/lib-helm/pkg/chart/loader
 kubepack.dev/lib-helm/pkg/downloader
