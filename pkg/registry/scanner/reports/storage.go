@@ -253,7 +253,7 @@ func (a relevantCVE) CVE(v trivy.Vulnerability) bool {
 }
 
 func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]result, isRelevant IsRelevant) (*reportsapi.CVEReportResponse, error) {
-	totalOccurence := map[string]int{} // risk level -> int
+	totalOccurrence := map[string]int{} // risk level -> int
 
 	imginfos := map[string]reportsapi.ImageInfo{}
 	vuls := map[string]trivy.VulnerabilityInfo{}
@@ -283,7 +283,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 						continue
 					}
 
-					totalOccurence[tv.Severity]++
+					totalOccurrence[tv.Severity]++
 					riskOccurrence[tv.Severity]++
 					riskByCVE[tv.VulnerabilityID] = tv.Severity
 					populateVulnerabilityInfoMap(vuls, ref, tv, rpt)
@@ -297,7 +297,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 	return &reportsapi.CVEReportResponse{
 		Images: sortImageInfosByImageName(imginfos),
 		Vulnerabilities: reportsapi.VulnerabilityInfo{
-			Stats: getVulnerabilityStats(totalOccurence, vuls),
+			Stats: getVulnerabilityStats(totalOccurrence, vuls),
 			CVEs:  getCVEsFromVulnerabilityInfoMap(vuls),
 		},
 	}, nil
@@ -393,9 +393,9 @@ func populateVulnerabilityInfoMap(vuls map[string]trivy.VulnerabilityInfo, ref s
 	vuls[av.VulnerabilityID] = av
 }
 
-func getVulnerabilityStats(totalOccurence map[string]int, vuls map[string]trivy.VulnerabilityInfo) map[string]reportsapi.RiskStats {
+func getVulnerabilityStats(totalOccurrence map[string]int, vuls map[string]trivy.VulnerabilityInfo) map[string]reportsapi.RiskStats {
 	stats := map[string]reportsapi.RiskStats{}
-	for risk, n := range totalOccurence {
+	for risk, n := range totalOccurrence {
 		rs := stats[risk]
 		rs.Occurrence = n
 		stats[risk] = rs
