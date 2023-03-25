@@ -152,6 +152,7 @@ API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,PostalCodes
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,Provinces
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,StreetAddresses
+API rule violation: list_type_missing,kubeops.dev/ui-server/apis/policy/v1alpha1,Constraint,Violations
 API rule violation: list_type_missing,kubeops.dev/ui-server/apis/policy/v1alpha1,PolicyReportResponse,Constraints
 API rule violation: names_match,k8s.io/api/core/v1,AzureDiskVolumeSource,DataDiskURI
 API rule violation: names_match,k8s.io/api/core/v1,ContainerStatus,LastTerminationState

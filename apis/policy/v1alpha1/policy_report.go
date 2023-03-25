@@ -49,13 +49,8 @@ type PolicyReportResponse struct {
 	Constraints []Constraint `json:"constraints,omitempty"`
 }
 
-type (
-	Violation  audit.StatusViolation
-	Violations []Violation
-)
-
 type Constraint struct {
-	AuditTimestamp metav1.Time `json:"auditTimestamp,omitempty"`
-	Name           string      `json:"name,omitempty"`
-	Violations     Violations  `json:"violations,omitempty"`
+	AuditTimestamp metav1.Time             `json:"auditTimestamp,omitempty"`
+	Name           string                  `json:"name,omitempty"`
+	Violations     []audit.StatusViolation `json:"violations,omitempty"`
 }
