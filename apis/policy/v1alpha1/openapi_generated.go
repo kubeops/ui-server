@@ -361,7 +361,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReport":            schema_ui_server_apis_policy_v1alpha1_PolicyReport(ref),
 		"kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReportRequest":     schema_ui_server_apis_policy_v1alpha1_PolicyReportRequest(ref),
 		"kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReportResponse":    schema_ui_server_apis_policy_v1alpha1_PolicyReportResponse(ref),
-		"kubeops.dev/ui-server/apis/policy/v1alpha1.Violation":               schema_ui_server_apis_policy_v1alpha1_Violation(ref),
 	}
 }
 
@@ -17625,7 +17624,7 @@ func schema_ui_server_apis_policy_v1alpha1_Constraint(ref common.ReferenceCallba
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("kubeops.dev/ui-server/apis/policy/v1alpha1.Violation"),
+										Ref:     ref("github.com/open-policy-agent/gatekeeper/pkg/audit.StatusViolation"),
 									},
 								},
 							},
@@ -17635,7 +17634,7 @@ func schema_ui_server_apis_policy_v1alpha1_Constraint(ref common.ReferenceCallba
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Time", "kubeops.dev/ui-server/apis/policy/v1alpha1.Violation"},
+			"github.com/open-policy-agent/gatekeeper/pkg/audit.StatusViolation", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -17728,66 +17727,5 @@ func schema_ui_server_apis_policy_v1alpha1_PolicyReportResponse(ref common.Refer
 		},
 		Dependencies: []string{
 			"kubeops.dev/ui-server/apis/policy/v1alpha1.Constraint"},
-	}
-}
-
-func schema_ui_server_apis_policy_v1alpha1_Violation(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"group": {
-						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
-						},
-					},
-					"version": {
-						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
-						},
-					},
-					"kind": {
-						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
-						},
-					},
-					"name": {
-						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
-						},
-					},
-					"namespace": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
-						},
-					},
-					"enforcementAction": {
-						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
-						},
-					},
-				},
-				Required: []string{"group", "version", "kind", "name", "message", "enforcementAction"},
-			},
-		},
 	}
 }

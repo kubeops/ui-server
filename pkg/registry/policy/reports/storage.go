@@ -26,6 +26,7 @@ import (
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
 
+	"github.com/open-policy-agent/gatekeeper/pkg/audit"
 	"gomodules.xyz/sets"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -172,8 +173,8 @@ func ListConstraints(ctx context.Context, kc client.Client, kind string) (unstru
 	return constraints, err
 }
 
-func GetViolationsOfConstraint(constraint unstructured.Unstructured) (policyapi.Violations, error) {
-	var violations policyapi.Violations
+func GetViolationsOfConstraint(constraint unstructured.Unstructured) ([]audit.StatusViolation, error) {
+	var violations []audit.StatusViolation
 	vs, _, err := unstructured.NestedSlice(constraint.UnstructuredContent(), "status", "violations")
 	if err != nil {
 		return nil, err
@@ -183,7 +184,8 @@ func GetViolationsOfConstraint(constraint unstructured.Unstructured) (policyapi.
 		if err != nil {
 			return nil, err
 		}
-		var vv policyapi.Violation
+
+		var vv audit.StatusViolation
 		err = json.Unmarshal(jsonBytes, &vv)
 		if err != nil {
 			return nil, err
@@ -224,11 +226,11 @@ c = number if resourceGraph.response.connections
 So, overall n * lg^2(n) complexity for a single constraint
 */
 
-func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations policyapi.Violations) policyapi.Violations {
+func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations []audit.StatusViolation) []audit.StatusViolation {
 	gvkToResourceIDMap, neededResourceIDs := preprocess(gr.Resources, violations)
 	idToMeta := buildMapFromConnections(gr.Connections, neededResourceIDs)
 
-	var toAddOnReport policyapi.Violations
+	var toAddOnReport []audit.StatusViolation
 	for _, violation := range violations {
 		id := gvkToResourceIDMap[violationGVKToString(violation)]
 		s := violationMetaToString(violation)
@@ -239,7 +241,7 @@ func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations 
 	return toAddOnReport
 }
 
-func preprocess(resources []kmapi.ResourceID, violations policyapi.Violations) (map[string]int, []int) {
+func preprocess(resources []kmapi.ResourceID, violations []audit.StatusViolation) (map[string]int, []int) {
 	gvkToResourceIDMap := make(map[string]int)
 	for _, violation := range violations {
 		gvkToResourceIDMap[violationGVKToString(violation)] = -1
@@ -287,7 +289,7 @@ func buildMapFromConnections(connections []v1alpha1.ObjectConnection, neededReso
 	return idToMeta
 }
 
-func violationGVKToString(v policyapi.Violation) string {
+func violationGVKToString(v audit.StatusViolation) string {
 	return fmt.Sprintf("G=%v,V=%v,K=%v", v.Group, v.Version, v.Kind)
 }
 
@@ -295,7 +297,7 @@ func resourceIDGVKToString(r kmapi.ResourceID) string {
 	return fmt.Sprintf("G=%v,V=%v,K=%v", r.Group, r.Version, r.Kind)
 }
 
-func violationMetaToString(v policyapi.Violation) string {
+func violationMetaToString(v audit.StatusViolation) string {
 	return fmt.Sprintf("NS=%v,N=%v", v.Namespace, v.Name)
 }
 

@@ -25,6 +25,7 @@ import (
 	unsafe "unsafe"
 
 	scanner "kubeops.dev/scanner/apis/scanner"
+	trivy "kubeops.dev/scanner/apis/trivy"
 
 	v1 "k8s.io/api/core/v1"
 	conversion "k8s.io/apimachinery/pkg/conversion"
@@ -193,7 +194,7 @@ func RegisterConversions(s *runtime.Scheme) error {
 
 func autoConvert_v1alpha1_ImageDetails_To_scanner_ImageDetails(in *ImageDetails, out *scanner.ImageDetails, s conversion.Scope) error {
 	out.Name = in.Name
-	out.Visibility = scanner.ImageVisibility(in.Visibility)
+	out.Visibility = trivy.ImageVisibility(in.Visibility)
 	out.Tag = in.Tag
 	out.Digest = in.Digest
 	return nil
@@ -206,7 +207,7 @@ func Convert_v1alpha1_ImageDetails_To_scanner_ImageDetails(in *ImageDetails, out
 
 func autoConvert_scanner_ImageDetails_To_v1alpha1_ImageDetails(in *scanner.ImageDetails, out *ImageDetails, s conversion.Scope) error {
 	out.Name = in.Name
-	out.Visibility = ImageVisibility(in.Visibility)
+	out.Visibility = trivy.ImageVisibility(in.Visibility)
 	out.Tag = in.Tag
 	out.Digest = in.Digest
 	return nil
@@ -428,6 +429,7 @@ func autoConvert_v1alpha1_ImageScanRequestStatus_To_scanner_ImageScanRequestStat
 	out.Phase = scanner.ImageScanRequestPhase(in.Phase)
 	out.Image = (*scanner.ImageDetails)(unsafe.Pointer(in.Image))
 	out.ReportRef = (*scanner.ScanReportRef)(unsafe.Pointer(in.ReportRef))
+	out.JobName = in.JobName
 	out.Reason = in.Reason
 	return nil
 }
@@ -442,6 +444,7 @@ func autoConvert_scanner_ImageScanRequestStatus_To_v1alpha1_ImageScanRequestStat
 	out.Phase = ImageScanRequestPhase(in.Phase)
 	out.Image = (*ImageDetails)(unsafe.Pointer(in.Image))
 	out.ReportRef = (*ScanReportRef)(unsafe.Pointer(in.ReportRef))
+	out.JobName = in.JobName
 	out.Reason = in.Reason
 	return nil
 }

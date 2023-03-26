@@ -29,7 +29,6 @@ import (
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
-	scannercontrollers "kubeops.dev/ui-server/pkg/controllers/scanner"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/menu"
 	"kubeops.dev/ui-server/pkg/metricshandler"
@@ -191,6 +190,10 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	log.SetLogger(klogr.New())
 	setupLog := log.Log.WithName("setup")
 
+	if !c.ExtraConfig.DisableImageCache {
+		shared.InitImageCache(c.ExtraConfig.CacheSize, c.ExtraConfig.CacheTTL)
+	}
+
 	cfg := c.ExtraConfig.ClientConfig
 	mgr, err := manager.New(cfg, manager.Options{
 		Scheme:                 Scheme,
@@ -241,17 +244,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 	if err := mgr.Add(manager.RunnableFunc(graph.SetupGraphReconciler(mgr))); err != nil {
 		setupLog.Error(err, "unable to set up resource reconciler configurator")
-		os.Exit(1)
-	}
-
-	if !c.ExtraConfig.DisableImageCache {
-		shared.InitImageCache(c.ExtraConfig.CacheSize, c.ExtraConfig.CacheTTL)
-	}
-
-	if err = (&scannercontrollers.WorkloadReconciler{
-		Client: mgr.GetClient(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Workload")
 		os.Exit(1)
 	}
 

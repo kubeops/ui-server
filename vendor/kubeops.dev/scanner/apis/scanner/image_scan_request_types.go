@@ -45,15 +45,9 @@ type ImageScanRequestStatus struct {
 	Phase              ImageScanRequestPhase
 	Image              *ImageDetails
 	ReportRef          *ScanReportRef
+	JobName            string
 	Reason             string
 }
-
-type ImageVisibility string
-
-const (
-	ImagePublic  ImageVisibility = "Public"
-	ImagePrivate ImageVisibility = "Private"
-)
 
 type ImageScanRequestPhase string
 
@@ -67,7 +61,7 @@ const (
 
 type ImageDetails struct {
 	Name       string
-	Visibility ImageVisibility
+	Visibility trivy.ImageVisibility
 	Tag        string
 	Digest     string
 }
