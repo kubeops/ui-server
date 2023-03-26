@@ -140,6 +140,10 @@ API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateS
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateSpec,EmailAddresses
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateSpec,IPAddresses
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateSpec,URIs
+API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,ImageInfo,Lineages
+API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,Lineage,Chain
+API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,Lineage,Containers
+API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,PullCredentials,SecretRefs
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,TLSConfig,Certificates
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,Countries
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,Localities
@@ -148,7 +152,8 @@ API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,PostalCodes
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,Provinces
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,StreetAddresses
-API rule violation: list_type_missing,kubeops.dev/ui-server/apis/identity/v1alpha1,UserInfo,Groups
+API rule violation: list_type_missing,kubeops.dev/ui-server/apis/policy/v1alpha1,Constraint,Violations
+API rule violation: list_type_missing,kubeops.dev/ui-server/apis/policy/v1alpha1,PolicyReportResponse,Constraints
 API rule violation: names_match,k8s.io/api/core/v1,AzureDiskVolumeSource,DataDiskURI
 API rule violation: names_match,k8s.io/api/core/v1,ContainerStatus,LastTerminationState
 API rule violation: names_match,k8s.io/api/core/v1,DaemonEndpoint,Port
