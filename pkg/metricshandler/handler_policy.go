@@ -86,7 +86,7 @@ func collectForCluster(kc client.Client, genTotal generator.FamilyGenerator, gen
 	mTotal := metric.Metric{
 		Value: float64(clusterTotal),
 	}
-	fByType.Metrics = append(fByType.Metrics, &mTotal)
+	fTotal.Metrics = append(fTotal.Metrics, &mTotal)
 	return fTotal, fByType, nil
 }
 
