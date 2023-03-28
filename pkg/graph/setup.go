@@ -120,7 +120,9 @@ func SetupGraphReconciler(mgr manager.Manager) func(ctx context.Context) error {
 				return err
 			}
 
-			opaInstalled = rid.Group == "templates.gatekeeper.sh" && rid.Kind == "ConstraintTemplate"
+			if rid.Group == "templates.gatekeeper.sh" && rid.Kind == "ConstraintTemplate" {
+				opaInstalled = true
+			}
 
 			if rid.Group == scannerapi.SchemeGroupVersion.Group &&
 				rid.Kind == scannerapi.ResourceKindImageScanRequest {
