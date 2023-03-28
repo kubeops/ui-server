@@ -20,6 +20,7 @@ import (
 	"io"
 	"net/http"
 
+	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/metricsstore"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -64,17 +65,28 @@ func (m *MetricsHandler) Install(c *mux.PathRecorderMux) {
 
 func collectMetrics(kc client.Client, w io.Writer) error {
 	generators := getFamilyGenerators()
+	if len(generators) == 0 {
+		_, err := w.Write([]byte("OK"))
+		return err
+	}
+
 	// Generate the headers for the resources metrics
 	headers := generator.ExtractMetricFamilyHeaders(generators)
 	store := metricsstore.NewMetricsStore(headers)
 
-	err := collectScannerMetrics(kc, generators, store)
-	if err != nil {
-		return err
+	offset := 0
+	if graph.ScannerInstalled() {
+		err := collectScannerMetrics(kc, generators, store)
+		if err != nil {
+			return err
+		}
+		offset = 9 // # of scanner metrics families
 	}
-	err = collectPolicyMetrics(kc, generators, store)
-	if err != nil {
-		return err
+	if graph.OPAInstalled() {
+		err := collectPolicyMetrics(kc, generators, store, offset)
+		if err != nil {
+			return err
+		}
 	}
 	return store.WriteAll(w)
 }
@@ -82,99 +94,104 @@ func collectMetrics(kc client.Client, w io.Writer) error {
 func getFamilyGenerators() []generator.FamilyGenerator {
 	fn := func(obj interface{}) *metric.Family { return new(metric.Family) }
 	generators := make([]generator.FamilyGenerator, 0, 13)
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              scannerMetricPrefix + "cluster_cve_occurrence",
-		Help:              "CVE occurrence statistics",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              scannerMetricPrefix + "cluster_cve_occurrence_total",
-		Help:              "Cluster total CVE occurrence",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              scannerMetricPrefix + "cluster_cve_count_total",
-		Help:              "Cluster total unique CVE count",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              scannerMetricPrefix + "namespace_cve_occurrence",
-		Help:              "Namespace CVE occurrence statistics",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              scannerMetricPrefix + "namespace_cve_occurrence_total",
-		Help:              "Namespace total CVE occurrence",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              scannerMetricPrefix + "namespace_cve_count_total",
-		Help:              "Namespace total unique CVE count",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
 
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              scannerMetricPrefix + "image_cve_occurrence_total",
-		Help:              "Image total CVE occurrence",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              scannerMetricPrefix + "image_cve_count_total",
-		Help:              "Image total unique CVE count",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              scannerMetricPrefix + "image_lineage",
-		Help:              "Image Lineage",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
+	if graph.ScannerInstalled() {
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              scannerMetricPrefix + "cluster_cve_occurrence",
+			Help:              "CVE occurrence statistics",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              scannerMetricPrefix + "cluster_cve_occurrence_total",
+			Help:              "Cluster total CVE occurrence",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              scannerMetricPrefix + "cluster_cve_count_total",
+			Help:              "Cluster total unique CVE count",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              scannerMetricPrefix + "namespace_cve_occurrence",
+			Help:              "Namespace CVE occurrence statistics",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              scannerMetricPrefix + "namespace_cve_occurrence_total",
+			Help:              "Namespace total CVE occurrence",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              scannerMetricPrefix + "namespace_cve_count_total",
+			Help:              "Namespace total unique CVE count",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
 
-	// Policy related metrics
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              policyMetricPrefix + "cluster_violation_occurrence_total",
-		Help:              "Cluster-wide Violation Occurrence statistics",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              policyMetricPrefix + "cluster_violation_occurrence_by_constraint_type",
-		Help:              "Cluster-wide Violation Occurrence statistics by constraint type",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              policyMetricPrefix + "namespace_violation_occurrence_total",
-		Help:              "Namespace-wise total Violation Occurrence statistics",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
-	generators = append(generators, generator.FamilyGenerator{
-		Name:              policyMetricPrefix + "namespace_violation_occurrence_by_constraint_type",
-		Help:              "Namespace-wise Violation Occurrence statistics by constraint type",
-		Type:              metric.Gauge,
-		DeprecatedVersion: "",
-		GenerateFunc:      fn,
-	})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              scannerMetricPrefix + "image_cve_occurrence_total",
+			Help:              "Image total CVE occurrence",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              scannerMetricPrefix + "image_cve_count_total",
+			Help:              "Image total unique CVE count",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              scannerMetricPrefix + "image_lineage",
+			Help:              "Image Lineage",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+	}
+
+	if graph.OPAInstalled() {
+		// Policy related metrics
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              policyMetricPrefix + "cluster_violation_occurrence_total",
+			Help:              "Cluster-wide Violation Occurrence statistics",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              policyMetricPrefix + "cluster_violation_occurrence_by_constraint_type",
+			Help:              "Cluster-wide Violation Occurrence statistics by constraint type",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              policyMetricPrefix + "namespace_violation_occurrence_total",
+			Help:              "Namespace-wise total Violation Occurrence statistics",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+		generators = append(generators, generator.FamilyGenerator{
+			Name:              policyMetricPrefix + "namespace_violation_occurrence_by_constraint_type",
+			Help:              "Namespace-wise Violation Occurrence statistics by constraint type",
+			Type:              metric.Gauge,
+			DeprecatedVersion: "",
+			GenerateFunc:      fn,
+		})
+	}
 	return generators
 }
