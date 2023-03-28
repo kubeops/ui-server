@@ -184,6 +184,7 @@ func GetViolationsOfConstraint(constraint unstructured.Unstructured) ([]audit.St
 		if err != nil {
 			return nil, err
 		}
+
 		var vv audit.StatusViolation
 		err = json.Unmarshal(jsonBytes, &vv)
 		if err != nil {
