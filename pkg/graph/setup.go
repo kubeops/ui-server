@@ -101,6 +101,14 @@ func PollNewResourceTypes(cfg *restclient.Config) func(ctx context.Context) erro
 	}
 }
 
+var (
+	opaInstalled     bool
+	scannerInstalled bool
+)
+
+func OPAInstalled() bool     { return opaInstalled }
+func ScannerInstalled() bool { return scannerInstalled }
+
 func SetupGraphReconciler(mgr manager.Manager) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		for rid := range resourceChannel {
@@ -112,8 +120,11 @@ func SetupGraphReconciler(mgr manager.Manager) func(ctx context.Context) error {
 				return err
 			}
 
+			opaInstalled = rid.Group == "templates.gatekeeper.sh" && rid.Kind == "ConstraintTemplate"
+
 			if rid.Group == scannerapi.SchemeGroupVersion.Group &&
 				rid.Kind == scannerapi.ResourceKindImageScanRequest {
+				scannerInstalled = true
 				if err := (&scannercontrollers.WorkloadReconciler{
 					Client: mgr.GetClient(),
 				}).SetupWithManager(mgr); err != nil {

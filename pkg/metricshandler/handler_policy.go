@@ -28,14 +28,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func collectPolicyMetrics(kc client.Client, generators []generator.FamilyGenerator, store *metricsstore.MetricsStore) error {
-	if clTotal, clByType, err := collectForCluster(kc, generators[9], generators[10]); err != nil {
+func collectPolicyMetrics(kc client.Client, generators []generator.FamilyGenerator, store *metricsstore.MetricsStore, offset int) error {
+	if clTotal, clByType, err := collectForCluster(kc, generators[offset], generators[offset+1]); err != nil {
 		return err
 	} else {
 		store.Add(clTotal, clByType)
 	}
 
-	if nsTotal, nsByType, err := collectForNamespace(kc, generators[11], generators[12]); err != nil {
+	if nsTotal, nsByType, err := collectForNamespace(kc, generators[offset+2], generators[offset+3]); err != nil {
 		return err
 	} else {
 		store.Add(nsTotal, nsByType)
