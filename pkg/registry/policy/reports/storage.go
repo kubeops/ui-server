@@ -228,6 +228,9 @@ So, overall n * lg^2(n) complexity for a single constraint
 
 func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations []audit.StatusViolation) []audit.StatusViolation {
 	gvkToResourceIDMap, neededResourceIDs := preprocess(gr.Resources, violations)
+	if len(neededResourceIDs) == 0 {
+		return nil
+	}
 	idToMeta := buildMapFromConnections(gr.Connections, neededResourceIDs)
 
 	var toAddOnReport []audit.StatusViolation
