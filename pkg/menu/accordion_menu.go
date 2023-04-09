@@ -27,11 +27,11 @@ import (
 	"k8s.io/client-go/discovery"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub"
 	"kmodules.xyz/resource-metadata/hub/menuoutlines"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	helmshared "x-helm.dev/apimachinery/apis/shared"
 )
 
 func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterface, menuName string) (*rsapi.Menu, error) {
@@ -120,7 +120,7 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 							Kind:    item.Type.Kind,
 							Scope:   kmapi.NamespaceScoped, // fake default
 						}
-						mi.Icons = []sharedapi.ImageSpec{
+						mi.Icons = []helmshared.ImageSpec{
 							{
 								Source: hub.CRDIconSVG,
 								Size:   "",

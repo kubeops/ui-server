@@ -27,12 +27,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kmodules.xyz/client-go/meta"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	"kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"kubepack.dev/lib-helm/pkg/repo"
 	"kubepack.dev/lib-helm/pkg/values"
 	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	releasesapi "x-helm.dev/apimachinery/apis/releases/v1alpha1"
 )
 
 var HelmRegistry repo.IRegistry
@@ -174,7 +174,7 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 
 func GetPresetName(
 	kc client.Client,
-	chartRef *shared.ChartRepoRef,
+	chartRef *releasesapi.ChartSourceRef,
 	vpsMap map[string]*chartsapi.VendorChartPreset,
 	ref core.TypedLocalObjectReference,
 ) (string, error) {
