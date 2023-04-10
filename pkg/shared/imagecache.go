@@ -20,36 +20,14 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
-	"hash/fnv"
-	"strconv"
-	"time"
 
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
 
-	cache "github.com/go-pkgz/expirable-cache/v2"
 	passgen "gomodules.xyz/password-generator"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	"kmodules.xyz/client-go/meta"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
-
-var (
-	Cache                 cache.Cache[string, string]
-	onlyOneInitImageCache = make(chan struct{})
-)
-
-func InitImageCache(size int, ttl time.Duration) {
-	close(onlyOneInitImageCache) // panics when called twice
-	Cache = cache.NewCache[string, string]().WithMaxKeys(size).WithTTL(ttl).WithLRU()
-}
-
-func PullSecretsHash(info kmapi.PullCredentials) string {
-	h := fnv.New64a()
-	meta.DeepHashObject(h, info)
-	newHash := strconv.FormatUint(h.Sum64(), 10)
-	return newHash
-}
 
 func SendScanRequest(ctx context.Context, kc client.Client, ref string, info kmapi.PullCredentials) error {
 	obj := scannerapi.ImageScanRequest{
@@ -66,10 +44,6 @@ func SendScanRequest(ctx context.Context, kc client.Client, ref string, info kma
 	}
 	if err := kc.Create(ctx, &obj); err != nil {
 		return err
-	}
-
-	if Cache != nil {
-		Cache.Set(ref, PullSecretsHash(info), 0)
 	}
 	return nil
 }

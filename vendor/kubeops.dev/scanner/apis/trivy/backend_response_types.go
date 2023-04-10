@@ -17,10 +17,21 @@ limitations under the License.
 package trivy
 
 type BackendResponse struct {
-	Report               SingleReport    `json:"report"`
-	TrivyVersion         Version         `json:"trivyVersion"`
-	Visibility           ImageVisibility `json:"visibility"`
-	LastModificationTime Time            `json:"lastModificationTime"`
+	Report       SingleReport `json:"report"`
+	TrivyVersion Version      `json:"trivyVersion"`
+	ImageDetails ImageDetails `json:"image_details"`
+	ErrorMessage string       `json:"error_message"`
+}
+
+type ImageDetails struct {
+	Name string `json:"name,omitempty"`
+	// Tag & Digest is optional field. One of these fields may not present
+	// +optional
+	Tag string `json:"tag,omitempty"`
+	// +optional
+	Digest string `json:"digest,omitempty"`
+	// +kubebuilder:default="Public"
+	Visibility ImageVisibility `json:"visibility,omitempty"`
 }
 
 // +kubebuilder:validation:Enum=Public;Private;Unknown

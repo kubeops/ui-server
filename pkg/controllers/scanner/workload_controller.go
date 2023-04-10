@@ -18,18 +18,23 @@ package scanner
 
 import (
 	"context"
+	"crypto/md5"
+	"fmt"
 
 	api "kubeops.dev/scanner/apis/reports/v1alpha1"
+	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/pkg/errors"
 	apps "k8s.io/api/apps/v1"
 	batch "k8s.io/api/batch/v1"
 	core "k8s.io/api/core/v1"
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/client/apiutil"
 	"kmodules.xyz/client-go/client/duck"
@@ -90,7 +95,9 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	for ref, info := range refs {
-		if r.shouldScan(ref, info) {
+		if should, err := r.shouldScan(ref); err != nil {
+			return ctrl.Result{}, err // some serious error occurred
+		} else if should {
 			err := shared.SendScanRequest(ctx, r.Client, ref, info)
 			if err != nil {
 				return ctrl.Result{}, errors.Wrapf(err, "failed to send scan request for image=%s", ref)
@@ -103,12 +110,18 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	return ctrl.Result{}, nil
 }
 
-func (r *WorkloadReconciler) shouldScan(ref string, info kmapi.PullCredentials) bool {
-	if shared.Cache == nil {
-		return true
+func (r *WorkloadReconciler) shouldScan(ref string) (bool, error) {
+	var rep scannerapi.ImageScanReport
+	err := r.Get(context.TODO(), types.NamespacedName{
+		Name: fmt.Sprintf("%x", md5.Sum([]byte(ref))),
+	}, &rep)
+	if kerr.IsNotFound(err) {
+		return true, nil
 	}
-	curHash, found := shared.Cache.Get(ref)
-	return !found || curHash != shared.PullSecretsHash(info)
+	if err != nil {
+		return true, err
+	}
+	return rep.Status.Phase == scannerapi.ImageScanReportPhaseOutdated, nil
 }
 
 func (r *WorkloadReconciler) InjectClient(c client.Client) error {

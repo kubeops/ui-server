@@ -67,7 +67,7 @@ type ImageScanRequestStatus struct {
 	// +optional
 	// +kubebuilder:default="Pending"
 	Phase     ImageScanRequestPhase `json:"phase,omitempty"`
-	Image     *ImageDetails         `json:"image,omitempty"`
+	Image     *trivy.ImageDetails   `json:"image,omitempty"`
 	ReportRef *ScanReportRef        `json:"reportRef,omitempty"`
 
 	// +optional
@@ -79,7 +79,7 @@ type ImageScanRequestStatus struct {
 	Reason string `json:"reason,omitempty"`
 }
 
-// +kubebuilder:validation:Enum=Pending;InProgress;Current;Failed;Outdated
+// +kubebuilder:validation:Enum=Pending;InProgress;Current;Failed
 type ImageScanRequestPhase string
 
 const (
@@ -87,25 +87,10 @@ const (
 	ImageScanRequestPhaseInProgress ImageScanRequestPhase = "InProgress"
 	ImageScanRequestPhaseCurrent    ImageScanRequestPhase = "Current"
 	ImageScanRequestPhaseFailed     ImageScanRequestPhase = "Failed"
-	ImageScanRequestPhaseOutdated   ImageScanRequestPhase = "Outdated"
 )
-
-type ImageDetails struct {
-	Name string `json:"name,omitempty"`
-	// +kubebuilder:default="Public"
-	Visibility trivy.ImageVisibility `json:"visibility,omitempty"`
-	// Tag & Digest is optional field. One of these fields may not present
-	// +optional
-	Tag string `json:"tag,omitempty"`
-	// +optional
-	Digest string `json:"digest,omitempty"`
-}
 
 type ScanReportRef struct {
 	Name string `json:"name"`
-	// When the referred image was checked for the last time
-	// +optional
-	LastChecked trivy.Time `json:"lastChecked,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

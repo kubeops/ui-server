@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"time"
 
 	scannerreports "kubeops.dev/scanner/apis/reports"
 	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
@@ -55,7 +54,6 @@ import (
 	policystorage "kubeops.dev/ui-server/pkg/registry/policy/reports"
 	imagestorage "kubeops.dev/ui-server/pkg/registry/scanner/image"
 	reportstorage "kubeops.dev/ui-server/pkg/registry/scanner/reports"
-	"kubeops.dev/ui-server/pkg/shared"
 
 	fluxsrc "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/graphql-go/handler"
@@ -136,10 +134,6 @@ func init() {
 type ExtraConfig struct {
 	ClientConfig *restclient.Config
 	PromConfig   promclient.Config
-
-	DisableImageCache bool
-	CacheSize         int
-	CacheTTL          time.Duration
 }
 
 // Config defines the config for the apiserver
@@ -190,10 +184,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	log.SetLogger(klogr.New())
 	setupLog := log.Log.WithName("setup")
 
-	if !c.ExtraConfig.DisableImageCache {
-		shared.InitImageCache(c.ExtraConfig.CacheSize, c.ExtraConfig.CacheTTL)
-	}
-
 	cfg := c.ExtraConfig.ClientConfig
 	mgr, err := manager.New(cfg, manager.Options{
 		Scheme:                 Scheme,
@@ -206,6 +196,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		//	&core.Pod{},
 		//},
 		NewClient: cu.NewClient,
+		// Default SyncPeriod is 10 Hours
 	})
 	if err != nil {
 		return nil, fmt.Errorf("unable to start manager, reason: %v", err)

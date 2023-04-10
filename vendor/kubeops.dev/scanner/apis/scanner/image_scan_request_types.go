@@ -43,7 +43,7 @@ type ImageScanRequestSpec struct {
 type ImageScanRequestStatus struct {
 	ObservedGeneration int64
 	Phase              ImageScanRequestPhase
-	Image              *ImageDetails
+	Image              *trivy.ImageDetails
 	ReportRef          *ScanReportRef
 	JobName            string
 	Reason             string
@@ -59,16 +59,8 @@ const (
 	ImageScanRequestPhaseOutdated   ImageScanRequestPhase = "Outdated"
 )
 
-type ImageDetails struct {
-	Name       string
-	Visibility trivy.ImageVisibility
-	Tag        string
-	Digest     string
-}
-
 type ScanReportRef struct {
-	Name        string
-	LastChecked trivy.Time
+	Name string
 }
 
 // +genclient:nonNamespaced
