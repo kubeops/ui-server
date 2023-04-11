@@ -16,7 +16,16 @@ limitations under the License.
 
 package v1alpha1
 
+import (
+	"crypto/md5"
+	"fmt"
+)
+
 func (req ImageScanRequest) IsComplete() bool {
 	return req.Status.Phase == ImageScanRequestPhaseCurrent ||
 		req.Status.Phase == ImageScanRequestPhaseFailed
+}
+
+func GetReportName(imgName string) string {
+	return fmt.Sprintf("%x", md5.Sum([]byte(imgName)))
 }

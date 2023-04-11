@@ -1846,7 +1846,7 @@ kmodules.xyz/resource-metrics/kubevault.com/v1alpha2
 # kmodules.xyz/sets v0.24.0
 ## explicit; go 1.17
 kmodules.xyz/sets
-# kubeops.dev/scanner v0.0.8-0.20230411170947-51b5b3d49513
+# kubeops.dev/scanner v0.0.8-0.20230411172553-db62d15068d6
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
 kubeops.dev/scanner/apis/reports/v1alpha1

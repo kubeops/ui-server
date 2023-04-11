@@ -18,8 +18,6 @@ package scanner
 
 import (
 	"context"
-	"crypto/md5"
-	"fmt"
 
 	api "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
@@ -113,7 +111,7 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 func (r *WorkloadReconciler) shouldScan(ref string) (bool, error) {
 	var rep scannerapi.ImageScanReport
 	err := r.Get(context.TODO(), types.NamespacedName{
-		Name: fmt.Sprintf("%x", md5.Sum([]byte(ref))),
+		Name: scannerapi.GetReportName(ref),
 	}, &rep)
 	if kerr.IsNotFound(err) {
 		return true, nil
