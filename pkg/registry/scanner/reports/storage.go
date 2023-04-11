@@ -18,8 +18,6 @@ package reports
 
 import (
 	"context"
-	"crypto/md5"
-	"fmt"
 	"sort"
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
@@ -170,7 +168,7 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 		g.Go(func() error {
 			for req := range requests {
 				var report scannerapi.ImageScanReport
-				err := kc.Get(ctx, client.ObjectKey{Name: fmt.Sprintf("%x", md5.Sum([]byte(req.Image)))}, &report)
+				err := kc.Get(ctx, client.ObjectKey{Name: scannerapi.GetReportName(req.Image)}, &report)
 				if client.IgnoreNotFound(err) != nil {
 					return err
 				} else if apierrors.IsNotFound(err) {
@@ -338,8 +336,7 @@ func setImageScanStatus(ii *reportsapi.ImageInfo, report *scannerapi.ImageScanRe
 		ReportRef: &core.LocalObjectReference{
 			Name: report.Name,
 		},
-		LastChecked:    &report.Status.LastChecked,
-		TrivyDBVersion: report.Status.TrivyDBVersion,
+		TrivyDBVersion: &report.Status.Version.VulnerabilityDB.UpdatedAt,
 	}
 }
 

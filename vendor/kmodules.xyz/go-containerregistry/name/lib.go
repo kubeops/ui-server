@@ -20,7 +20,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/go-containerregistry/pkg/authn"
+	"github.com/google/go-containerregistry/pkg/crane"
 	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
 type Image struct {
@@ -32,7 +35,7 @@ type Image struct {
 	Digest     string
 }
 
-func ParseReference(s string, opts ...name.Option) (*Image, error) {
+func parseReference(s string, extractTag bool, opts ...name.Option) (*Image, error) {
 	ref, err := name.ParseReference(s, opts...)
 	if err != nil {
 		return nil, err
@@ -44,7 +47,14 @@ func ParseReference(s string, opts ...name.Option) (*Image, error) {
 		img.Registry = u.RegistryStr()
 		img.Repository = u.RepositoryStr()
 		img.Tag = u.TagStr()
-		img.Digest = ""
+		if extractTag {
+			img.Digest, err = crane.Digest(s, crane.WithAuthFromKeychain(authn.DefaultKeychain))
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			img.Digest = ""
+		}
 		img.Name = u.Name()
 		img.Original = u.String()
 	case name.Digest:
@@ -63,4 +73,32 @@ func ParseReference(s string, opts ...name.Option) (*Image, error) {
 		return nil, fmt.Errorf("unknown image %T", ref)
 	}
 	return &img, nil
+}
+
+func ParseReference(s string, opts ...name.Option) (*Image, error) {
+	return parseReference(s, false, opts...)
+}
+
+func ParseOrExtractDigest(s string, opts ...name.Option) (*Image, error) {
+	return parseReference(s, true, opts...)
+}
+
+func IsPrivateImage(img string) (bool, error) {
+	reference, err := name.ParseReference(img)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = remote.Get(reference, remote.WithAuthFromKeychain(authn.DefaultKeychain))
+	if err == nil {
+		return false, nil
+	}
+	if strings.Contains(err.Error(), "UNAUTHORIZED") {
+		return true, nil
+	}
+	if strings.Contains(err.Error(), "MANIFEST_UNKNOWN") { // If the image is kind loaded (not available online)
+		return true, nil
+	}
+
+	return true, err
 }

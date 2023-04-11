@@ -277,8 +277,8 @@ func (in *ImageScanStatus) DeepCopyInto(out *ImageScanStatus) {
 		*out = new(corev1.LocalObjectReference)
 		**out = **in
 	}
-	if in.LastChecked != nil {
-		in, out := &in.LastChecked, &out.LastChecked
+	if in.TrivyDBVersion != nil {
+		in, out := &in.TrivyDBVersion, &out.TrivyDBVersion
 		*out = (*in).DeepCopy()
 	}
 	return

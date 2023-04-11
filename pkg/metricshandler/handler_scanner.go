@@ -18,8 +18,6 @@ package metricshandler
 
 import (
 	"context"
-	"crypto/md5"
-	"fmt"
 
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
 	"kubeops.dev/ui-server/pkg/metricsstore"
@@ -122,7 +120,7 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 		g.Go(func() error {
 			for req := range requests {
 				var report scannerapi.ImageScanReport
-				err := kc.Get(ctx, client.ObjectKey{Name: fmt.Sprintf("%x", md5.Sum([]byte(req.Image)))}, &report)
+				err := kc.Get(ctx, client.ObjectKey{Name: scannerapi.GetReportName(req.Image)}, &report)
 				if client.IgnoreNotFound(err) != nil {
 					return err
 				} else if apierrors.IsNotFound(err) {
