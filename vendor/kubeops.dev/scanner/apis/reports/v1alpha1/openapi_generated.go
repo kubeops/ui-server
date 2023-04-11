@@ -17988,17 +17988,10 @@ func schema_scanner_apis_reports_v1alpha1_ImageScanStatus(ref common.ReferenceCa
 							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
-					"lastChecked": {
-						SchemaProps: spec.SchemaProps{
-							Description: "When the referred image was checked for the last time",
-							Ref:         ref("kubeops.dev/scanner/apis/trivy.Time"),
-						},
-					},
 					"trivyDBVersion": {
 						SchemaProps: spec.SchemaProps{
 							Description: "which TrivyDBVersion was used when the last check",
-							Type:        []string{"string"},
-							Format:      "",
+							Ref:         ref("kubeops.dev/scanner/apis/trivy.Time"),
 						},
 					},
 				},
@@ -18219,8 +18212,15 @@ func schema_kubeopsdev_scanner_apis_trivy_BackendResponse(ref common.ReferenceCa
 							Ref:     ref("kubeops.dev/scanner/apis/trivy.ImageDetails"),
 						},
 					},
+					"error_message": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
 				},
-				Required: []string{"report", "trivyVersion", "image_details"},
+				Required: []string{"report", "trivyVersion", "image_details", "error_message"},
 			},
 		},
 		Dependencies: []string{

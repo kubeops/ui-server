@@ -21,7 +21,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"sort"
-	"time"
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
@@ -339,7 +338,7 @@ func setImageScanStatus(ii *reportsapi.ImageInfo, report *scannerapi.ImageScanRe
 		ReportRef: &core.LocalObjectReference{
 			Name: report.Name,
 		},
-		TrivyDBVersion: report.Status.Version.VulnerabilityDB.UpdatedAt.Format(time.RFC3339),
+		TrivyDBVersion: &report.Status.Version.VulnerabilityDB.UpdatedAt,
 	}
 }
 

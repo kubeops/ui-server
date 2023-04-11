@@ -7,7 +7,6 @@ require (
 	github.com/fluxcd/helm-controller/api v0.26.0
 	github.com/fluxcd/source-controller/api v0.31.0
 	github.com/go-logr/logr v1.2.3
-	github.com/go-pkgz/expirable-cache/v2 v2.0.0
 	github.com/gobuffalo/flect v0.3.0
 	github.com/google/gofuzz v1.2.0
 	github.com/google/uuid v1.3.0
@@ -47,7 +46,7 @@ require (
 	kmodules.xyz/resource-metadata v0.16.3-0.20230409032357-4cda6c577924
 	kmodules.xyz/resource-metrics v0.25.1
 	kmodules.xyz/sets v0.24.0
-	kubeops.dev/scanner v0.0.8-0.20230410115056-a2d97ba8cb64
+	kubeops.dev/scanner v0.0.8-0.20230411170947-51b5b3d49513
 	kubepack.dev/lib-helm v0.5.9
 	kubepack.dev/preset v0.0.3
 	sigs.k8s.io/cli-utils v0.33.0
@@ -105,7 +104,6 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/go-chi/chi/v5 v5.0.8 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
@@ -171,7 +169,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
-	github.com/unrolled/render v1.4.1 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
@@ -199,7 +196,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
-	go.wandrs.dev/http v0.0.2 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect

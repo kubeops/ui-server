@@ -213,10 +213,6 @@ github.com/gabriel-vasile/mimetype/internal/magic
 # github.com/ghodss/yaml v1.0.0
 ## explicit
 github.com/ghodss/yaml
-# github.com/go-chi/chi/v5 v5.0.8
-## explicit; go 1.14
-github.com/go-chi/chi/v5
-github.com/go-chi/chi/v5/middleware
 # github.com/go-errors/errors v1.0.1
 ## explicit
 github.com/go-errors/errors
@@ -240,9 +236,6 @@ github.com/go-openapi/jsonreference/internal
 # github.com/go-openapi/swag v0.22.3
 ## explicit; go 1.18
 github.com/go-openapi/swag
-# github.com/go-pkgz/expirable-cache/v2 v2.0.0
-## explicit; go 1.18
-github.com/go-pkgz/expirable-cache/v2
 # github.com/gobuffalo/flect v0.3.0
 ## explicit; go 1.16
 github.com/gobuffalo/flect
@@ -674,9 +667,6 @@ github.com/stretchr/testify/assert
 # github.com/tchap/go-patricia/v2 v2.3.1
 ## explicit; go 1.16
 github.com/tchap/go-patricia/v2/patricia
-# github.com/unrolled/render v1.4.1
-## explicit; go 1.16
-github.com/unrolled/render
 # github.com/vbatts/tar-split v0.11.2
 ## explicit; go 1.15
 github.com/vbatts/tar-split/archive/tar
@@ -855,9 +845,6 @@ go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
 go.uber.org/zap/zapgrpc
-# go.wandrs.dev/http v0.0.2
-## explicit; go 1.18
-go.wandrs.dev/http
 # golang.org/x/crypto v0.7.0
 ## explicit; go 1.17
 golang.org/x/crypto/bcrypt
@@ -1859,7 +1846,7 @@ kmodules.xyz/resource-metrics/kubevault.com/v1alpha2
 # kmodules.xyz/sets v0.24.0
 ## explicit; go 1.17
 kmodules.xyz/sets
-# kubeops.dev/scanner v0.0.8-0.20230410115056-a2d97ba8cb64
+# kubeops.dev/scanner v0.0.8-0.20230411170947-51b5b3d49513
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
 kubeops.dev/scanner/apis/reports/v1alpha1
@@ -1867,7 +1854,6 @@ kubeops.dev/scanner/apis/scanner
 kubeops.dev/scanner/apis/scanner/v1alpha1
 kubeops.dev/scanner/apis/trivy
 kubeops.dev/scanner/client/clientset/versioned/scheme
-kubeops.dev/scanner/pkg/fileserver
 # kubepack.dev/lib-helm v0.5.9
 ## explicit; go 1.18
 kubepack.dev/lib-helm/pkg/chart/loader

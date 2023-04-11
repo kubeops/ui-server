@@ -17639,8 +17639,15 @@ func schema_kubeopsdev_scanner_apis_trivy_BackendResponse(ref common.ReferenceCa
 							Ref:     ref("kubeops.dev/scanner/apis/trivy.ImageDetails"),
 						},
 					},
+					"error_message": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
 				},
-				Required: []string{"report", "trivyVersion", "image_details"},
+				Required: []string{"report", "trivyVersion", "image_details", "error_message"},
 			},
 		},
 		Dependencies: []string{
