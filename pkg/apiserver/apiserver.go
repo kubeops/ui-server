@@ -29,7 +29,6 @@ import (
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
-	"kubeops.dev/ui-server/pkg/menu"
 	"kubeops.dev/ui-server/pkg/metricshandler"
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
@@ -86,10 +85,9 @@ import (
 	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
-	"kubepack.dev/lib-helm/pkg/repo"
-	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	chartsapi "x-helm.dev/apimachinery/apis/charts/v1alpha1"
 )
 
 var (
@@ -210,8 +208,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
 	}
-
-	menu.HelmRegistry = repo.NewCachedRegistry(ctrlClient, repo.DefaultDiskCache())
 
 	cid, err := cu.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
