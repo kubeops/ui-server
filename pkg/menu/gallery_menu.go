@@ -28,14 +28,9 @@ import (
 	"kmodules.xyz/client-go/meta"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
-	"kubepack.dev/lib-helm/pkg/repo"
-	"kubepack.dev/lib-helm/pkg/values"
-	chartsapi "kubepack.dev/preset/apis/charts/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	releasesapi "x-helm.dev/apimachinery/apis/releases/v1alpha1"
+	chartsapi "x-helm.dev/apimachinery/apis/charts/v1alpha1"
 )
-
-var HelmRegistry repo.IRegistry
 
 func GetGalleryMenu(driver *UserMenuDriver, opts *rsapi.RenderMenuRequest) (*rsapi.Menu, error) {
 	menu, err := driver.Get(opts.Menu)
@@ -96,26 +91,12 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 				if chartRef.SourceRef.Namespace == "" {
 					chartRef.SourceRef.Namespace = meta.PodNamespace()
 				}
-				chartURL, err := HelmRegistry.Register(chartRef.SourceRef)
-				if err != nil {
-					return nil, errors.Wrapf(err, "failed to register repository for chart %+v", chartRef)
-				}
-
-				chrt, err := HelmRegistry.GetChart(chartURL, chartRef.Name, chartRef.Version)
-				if err != nil {
-					return nil, errors.Wrapf(err, "failed to get chart %s/%s@%s", chartURL, chartRef.Name, chartRef.Version)
-				}
-
-				vpsMap, err := values.LoadVendorPresets(chrt.Chart)
-				if err != nil {
-					return nil, errors.Wrapf(err, "failed to load vendor presets for chart %+v", chartRef)
-				}
 
 				for _, ref := range ed.Spec.Variants {
 					if ref.APIGroup == nil {
 						ref.APIGroup = pointer.StringP(chartsapi.GroupVersion.Group)
 					}
-					if ref.Kind != chartsapi.ResourceKindVendorChartPreset && ref.Kind != chartsapi.ResourceKindClusterChartPreset {
+					if ref.Kind != chartsapi.ResourceKindClusterChartPreset {
 						return nil, fmt.Errorf("unknown preset kind %q used in menu item %s", ref.Kind, mi.Name)
 					}
 
@@ -128,7 +109,7 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 					//	RawQuery: qs.Encode(),
 					//}
 
-					name, err := GetPresetName(kc, chartRef, vpsMap, ref.TypedLocalObjectReference)
+					name, err := GetPresetName(kc, ref.TypedLocalObjectReference)
 					if err != nil {
 						return nil, err
 					}
@@ -174,18 +155,8 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 
 func GetPresetName(
 	kc client.Client,
-	chartRef *releasesapi.ChartSourceRef,
-	vpsMap map[string]*chartsapi.VendorChartPreset,
 	ref core.TypedLocalObjectReference,
 ) (string, error) {
-	if ref.Kind == chartsapi.ResourceKindVendorChartPreset {
-		ps, ok := vpsMap[ref.Name]
-		if !ok {
-			return "", fmt.Errorf("%s %s not found in chart %+v", chartsapi.ResourceKindVendorChartPreset, ref.Name, chartRef)
-		}
-		return ps.Name, nil
-	}
-
 	var ps chartsapi.ClusterChartPreset
 	err := kc.Get(context.TODO(), client.ObjectKey{Name: ref.Name}, &ps)
 	if err != nil {
