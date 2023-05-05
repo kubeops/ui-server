@@ -39,18 +39,18 @@ require (
 	k8s.io/kube-state-metrics/v2 v2.7.0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.0
-	kmodules.xyz/client-go v0.25.21
+	kmodules.xyz/client-go v0.25.22
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.1
-	kmodules.xyz/resource-metadata v0.17.1
+	kmodules.xyz/resource-metadata v0.17.2
 	kmodules.xyz/resource-metrics v0.25.2
 	kmodules.xyz/sets v0.24.0
 	kubeops.dev/scanner v0.0.10
 	sigs.k8s.io/cli-utils v0.34.0
 	sigs.k8s.io/controller-runtime v0.13.1
 	sigs.k8s.io/yaml v1.3.0
-	x-helm.dev/apimachinery v0.0.8
+	x-helm.dev/apimachinery v0.0.9
 )
 
 require (
