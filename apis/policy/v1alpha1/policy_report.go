@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	"github.com/open-policy-agent/gatekeeper/pkg/audit"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
@@ -50,7 +51,8 @@ type PolicyReportResponse struct {
 }
 
 type Constraint struct {
-	AuditTimestamp metav1.Time             `json:"auditTimestamp,omitempty"`
-	Name           string                  `json:"name,omitempty"`
-	Violations     []audit.StatusViolation `json:"violations,omitempty"`
+	AuditTimestamp metav1.Time                 `json:"auditTimestamp,omitempty"`
+	Name           string                      `json:"name,omitempty"`
+	GVR            schema.GroupVersionResource `json:"gvr,omitempty"`
+	Violations     []audit.StatusViolation     `json:"violations,omitempty"`
 }

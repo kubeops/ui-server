@@ -30,6 +30,7 @@ import (
 func (in *Constraint) DeepCopyInto(out *Constraint) {
 	*out = *in
 	in.AuditTimestamp.DeepCopyInto(&out.AuditTimestamp)
+	out.GVR = in.GVR
 	if in.Violations != nil {
 		in, out := &in.Violations, &out.Violations
 		*out = make([]audit.StatusViolation, len(*in))

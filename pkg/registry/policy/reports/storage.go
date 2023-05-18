@@ -21,10 +21,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	"kubeops.dev/ui-server/pkg/graph"
+	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/open-policy-agent/gatekeeper/pkg/audit"
 	"gomodules.xyz/sets"
@@ -72,12 +74,24 @@ func (r *Storage) Destroy() {}
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	in := obj.(*policyapi.PolicyReport)
 
-	resourceGraph, err := getResourceGraph(r.kc, in.Request.ObjectInfo)
-	if err != nil {
-		return nil, err
+	var (
+		scp           scopeDetails
+		resourceGraph *v1alpha1.ResourceGraphResponse
+		err           error
+	)
+	if in.Request == nil || shared.IsClusterRequest(&in.Request.ObjectInfo) {
+		scp.isCluster = true
+	} else if shared.IsNamespaceRequest(&in.Request.ObjectInfo) {
+		scp.isNamespace = true
+		scp.namespace = in.Request.ObjectInfo.Ref.Name
+	} else {
+		resourceGraph, err = getResourceGraph(r.kc, in.Request.ObjectInfo)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	resp, err := r.locateResource(ctx, resourceGraph)
+	resp, err := r.locateResource(ctx, resourceGraph, scp)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +100,13 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	return in, nil
 }
 
-func (r *Storage) locateResource(ctx context.Context, resourceGraph *v1alpha1.ResourceGraphResponse) (*policyapi.PolicyReportResponse, error) {
+type scopeDetails struct {
+	isCluster   bool
+	isNamespace bool
+	namespace   string
+}
+
+func (r *Storage) locateResource(ctx context.Context, resourceGraph *v1alpha1.ResourceGraphResponse, scp scopeDetails) (*policyapi.PolicyReportResponse, error) {
 	var resp policyapi.PolicyReportResponse
 	templates, err := ListTemplates(ctx, r.kc)
 	if err != nil {
@@ -116,11 +136,16 @@ func (r *Storage) locateResource(ctx context.Context, resourceGraph *v1alpha1.Re
 			if err != nil {
 				return nil, err
 			}
+			resource, err := GetResourceFQNOfConstraint(constraint)
+			if err != nil {
+				return nil, err
+			}
 
 			c := policyapi.Constraint{
 				AuditTimestamp: metav1.Time{Time: auditTime},
 				Name:           constraintName,
-				Violations:     evaluateForSingleConstraint(resourceGraph, violations),
+				GVR:            resource,
+				Violations:     evaluateForSingleConstraint(resourceGraph, violations, scp),
 			}
 			if len(c.Violations) > 0 {
 				resp.Constraints = append(resp.Constraints, c)
@@ -132,6 +157,10 @@ func (r *Storage) locateResource(ctx context.Context, resourceGraph *v1alpha1.Re
 
 func getResourceGraph(kc client.Client, oi kmapi.ObjectInfo) (*v1alpha1.ResourceGraphResponse, error) {
 	rid := oi.Resource
+	if rid.Group == "core" {
+		rid.Group = ""
+	}
+
 	if rid.Kind == "" {
 		r2, err := kmapi.ExtractResourceID(kc.RESTMapper(), oi.Resource)
 		if err != nil {
@@ -212,6 +241,28 @@ func GetAuditTimeOfConstraint(constraint unstructured.Unstructured) (time.Time, 
 	return auditTime, err
 }
 
+func GetResourceFQNOfConstraint(constraint unstructured.Unstructured) (schema.GroupVersionResource, error) {
+	apiVersion, _, err := unstructured.NestedString(constraint.UnstructuredContent(), "apiVersion")
+	if err != nil {
+		return schema.GroupVersionResource{}, nil
+	}
+
+	kind, _, err := unstructured.NestedString(constraint.UnstructuredContent(), "kind")
+	if err != nil {
+		return schema.GroupVersionResource{}, nil
+	}
+
+	s := strings.Split(apiVersion, "/")
+	if len(s) != 2 {
+		return schema.GroupVersionResource{}, fmt.Errorf("apiVersion %s is bad structured", apiVersion)
+	}
+	return schema.GroupVersionResource{
+		Group:    s[0],
+		Version:  s[1],
+		Resource: strings.ToLower(kind),
+	}, err
+}
+
 /*
 Complexity Analysis:
 preprocess => v*lg(v) + r*lg(v) + v*lg^2(v)
@@ -226,7 +277,13 @@ c = number if resourceGraph.response.connections
 So, overall n * lg^2(n) complexity for a single constraint
 */
 
-func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations []audit.StatusViolation) []audit.StatusViolation {
+func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations []audit.StatusViolation, scp scopeDetails) []audit.StatusViolation {
+	if scp.isCluster {
+		return violations
+	} else if scp.isNamespace {
+		return evaluateForSingleConstraintInNamespaceScope(violations, scp.namespace)
+	}
+
 	gvkToResourceIDMap, neededResourceIDs := preprocess(gr.Resources, violations)
 	if len(neededResourceIDs) == 0 {
 		return nil
@@ -242,6 +299,16 @@ func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations 
 		}
 	}
 	return toAddOnReport
+}
+
+func evaluateForSingleConstraintInNamespaceScope(violations []audit.StatusViolation, ns string) []audit.StatusViolation {
+	ret := make([]audit.StatusViolation, 0)
+	for _, v := range violations {
+		if v.Namespace == ns {
+			ret = append(ret, v)
+		}
+	}
+	return ret
 }
 
 func preprocess(resources []kmapi.ResourceID, violations []audit.StatusViolation) (map[string]int, []int) {
