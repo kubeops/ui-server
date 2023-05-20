@@ -176,7 +176,7 @@ func getResourceGraph(kc client.Client, oi kmapi.ObjectInfo) (*v1alpha1.Resource
 		Name:      oi.Ref.Name,
 	}
 
-	return graph.ResourceGraph(kc.RESTMapper(), src)
+	return graph.ResourceGraph(kc.RESTMapper(), src, kmapi.EdgeOffshoot)
 }
 
 func ListTemplates(ctx context.Context, kc client.Client) (unstructured.UnstructuredList, error) {
