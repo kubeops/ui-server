@@ -82,7 +82,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		Namespace: in.Request.Source.Ref.Namespace,
 		Name:      in.Request.Source.Ref.Name,
 	}
-	resp, err := graph.ResourceGraph(r.kc.RESTMapper(), src)
+	resp, err := graph.ResourceGraph(r.kc.RESTMapper(), src, kmapi.EdgeLabelValues())
 	if err != nil {
 		return nil, err
 	}
