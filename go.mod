@@ -39,11 +39,11 @@ require (
 	k8s.io/kube-state-metrics/v2 v2.7.0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.0
-	kmodules.xyz/client-go v0.25.22
+	kmodules.xyz/client-go v0.25.23
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.1
-	kmodules.xyz/resource-metadata v0.17.3
+	kmodules.xyz/resource-metadata v0.17.5
 	kmodules.xyz/resource-metrics v0.25.2
 	kmodules.xyz/sets v0.24.0
 	kubeops.dev/scanner v0.0.10
@@ -205,7 +205,7 @@ require (
 	gomodules.xyz/clock v0.0.0-20200817085942-06523dba733f // indirect
 	gomodules.xyz/encoding v0.0.7 // indirect
 	gomodules.xyz/flags v0.1.3 // indirect
-	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
+	gomodules.xyz/jsonpatch/v2 v2.3.0 // indirect
 	gomodules.xyz/mergo v0.3.13 // indirect
 	gomodules.xyz/wait v0.2.0 // indirect
 	google.golang.org/api v0.103.0 // indirect

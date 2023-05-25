@@ -27,7 +27,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	"kmodules.xyz/resource-metadata/hub"
 	ksets "kmodules.xyz/sets"
 )
 
@@ -124,7 +123,7 @@ func (g *ObjectGraph) Links(oid *kmapi.ObjectID, edgeLabel kmapi.EdgeLabel) (map
 	}
 
 	src := oid.OID()
-	offshoots := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeOffshoot)
+	offshoots := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeLabelOffshoot)
 	offshoots.Delete(src)
 	return g.links(oid, offshoots.UnsortedList(), edgeLabel)
 }
@@ -183,24 +182,35 @@ func Render(src kmapi.OID) (*runtime.RawExtension, error) {
 	return objGraph.render(src)
 }
 
-func ResourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID) (*rsapi.ResourceGraphResponse, error) {
+func ResourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, includeEdgesBesidesOffshoot []kmapi.EdgeLabel) (*rsapi.ResourceGraphResponse, error) {
 	objGraph.m.RLock()
 	defer objGraph.m.RUnlock()
 
-	return objGraph.resourceGraph(mapper, src)
+	return objGraph.resourceGraph(mapper, src, includeEdgesBesidesOffshoot)
 }
 
-func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID) (*rsapi.ResourceGraphResponse, error) {
+func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, includeEdgesBesidesOffshoot []kmapi.EdgeLabel) (*rsapi.ResourceGraphResponse, error) {
 	connections := map[objectEdge]sets.String{}
 
-	offshoots := g.connectedEdges([]kmapi.OID{src.OID()}, kmapi.EdgeOffshoot, ksets.NewGroupKind(), connections).UnsortedList()
+	offshoots := g.connectedEdges([]kmapi.OID{src.OID()}, kmapi.EdgeLabelOffshoot, ksets.NewGroupKind(), connections).UnsortedList()
 	skipGKs := ksets.NewGroupKind()
 	var objID *kmapi.ObjectID
 	for _, oid := range offshoots {
 		objID, _ = kmapi.ParseObjectID(oid)
 		skipGKs.Insert(objID.GroupKind())
 	}
-	for _, label := range hub.ListEdgeLabels(kmapi.EdgeOffshoot, kmapi.EdgeView) {
+
+	// remove direct edge labels
+	n := 0
+	for _, label := range includeEdgesBesidesOffshoot {
+		if !label.Direct() {
+			includeEdgesBesidesOffshoot[n] = label
+			n++
+		}
+	}
+	includeEdgesBesidesOffshoot = includeEdgesBesidesOffshoot[:n]
+
+	for _, label := range includeEdgesBesidesOffshoot {
 		g.connectedEdges(offshoots, label, skipGKs, connections)
 	}
 

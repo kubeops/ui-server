@@ -90,7 +90,7 @@ func LocatePods(ctx context.Context, kc client.Client, req *kmapi.ObjectInfo) ([
 		},
 		Query: sharedapi.ResourceQuery{
 			Type:    sharedapi.GraphQLQuery,
-			ByLabel: kmapi.EdgeOffshoot,
+			ByLabel: kmapi.EdgeLabelOffshoot,
 		},
 	}
 
