@@ -17617,6 +17617,12 @@ func schema_ui_server_apis_policy_v1alpha1_Constraint(ref common.ReferenceCallba
 							Format: "",
 						},
 					},
+					"gvr": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/runtime/schema.GroupVersionResource"),
+						},
+					},
 					"violations": {
 						SchemaProps: spec.SchemaProps{
 							Type: []string{"array"},
@@ -17634,7 +17640,7 @@ func schema_ui_server_apis_policy_v1alpha1_Constraint(ref common.ReferenceCallba
 			},
 		},
 		Dependencies: []string{
-			"github.com/open-policy-agent/gatekeeper/pkg/audit.StatusViolation", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/open-policy-agent/gatekeeper/pkg/audit.StatusViolation", "k8s.io/apimachinery/pkg/apis/meta/v1.Time", "k8s.io/apimachinery/pkg/runtime/schema.GroupVersionResource"},
 	}
 }
 
