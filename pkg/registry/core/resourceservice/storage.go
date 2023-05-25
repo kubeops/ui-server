@@ -323,7 +323,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			},
 			Query: sharedapi.ResourceQuery{
 				Type:    sharedapi.GraphQLQuery,
-				ByLabel: kmapi.EdgeExposedBy,
+				ByLabel: kmapi.EdgeLabelExposedBy,
 			},
 		})
 		if err != nil {

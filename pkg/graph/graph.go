@@ -27,7 +27,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	"kmodules.xyz/resource-metadata/hub"
 	ksets "kmodules.xyz/sets"
 )
 
@@ -124,7 +123,7 @@ func (g *ObjectGraph) Links(oid *kmapi.ObjectID, edgeLabel kmapi.EdgeLabel) (map
 	}
 
 	src := oid.OID()
-	offshoots := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeOffshoot)
+	offshoots := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeLabelOffshoot)
 	offshoots.Delete(src)
 	return g.links(oid, offshoots.UnsortedList(), edgeLabel)
 }
@@ -193,7 +192,7 @@ func ResourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, forEdges ...kmapi
 func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, forEdges ...kmapi.EdgeLabel) (*rsapi.ResourceGraphResponse, error) {
 	connections := map[objectEdge]sets.String{}
 
-	offshoots := g.connectedEdges([]kmapi.OID{src.OID()}, kmapi.EdgeOffshoot, ksets.NewGroupKind(), connections).UnsortedList()
+	offshoots := g.connectedEdges([]kmapi.OID{src.OID()}, kmapi.EdgeLabelOffshoot, ksets.NewGroupKind(), connections).UnsortedList()
 	skipGKs := ksets.NewGroupKind()
 	var objID *kmapi.ObjectID
 	for _, oid := range offshoots {
@@ -201,17 +200,17 @@ func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, 
 		skipGKs.Insert(objID.GroupKind())
 	}
 
-	edgeLabels := make([]kmapi.EdgeLabel, len(forEdges))
+	edgeLabels := kmapi.EdgeLabelValues()
 	if len(forEdges) > 0 {
-		copy(edgeLabels, forEdges)
-		for i, label := range edgeLabels {
-			if label == kmapi.EdgeOffshoot || label == kmapi.EdgeView {
-				edgeLabels = append(edgeLabels[:i], edgeLabels[i+1:]...) // removing it
-			}
-		}
-	} else {
-		edgeLabels = hub.ListEdgeLabels(kmapi.EdgeOffshoot, kmapi.EdgeView)
+		edgeLabels = forEdges
 	}
+	// remove "offshoot" and "view" labels
+	for i, label := range edgeLabels {
+		if label == kmapi.EdgeLabelOffshoot || label == kmapi.EdgeLabelView {
+			edgeLabels = append(edgeLabels[:i], edgeLabels[i+1:]...) // removing it
+		}
+	}
+
 	for _, label := range edgeLabels {
 		g.connectedEdges(offshoots, label, skipGKs, connections)
 	}

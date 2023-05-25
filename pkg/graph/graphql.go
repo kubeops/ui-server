@@ -22,7 +22,6 @@ import (
 	"github.com/graphql-go/graphql"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	"kmodules.xyz/resource-metadata/hub"
 )
 
 func getGraphQLSchema() graphql.Schema {
@@ -48,7 +47,7 @@ func getGraphQLSchema() graphql.Schema {
 			},
 		},
 	})
-	for _, label := range hub.ListEdgeLabels() {
+	for _, label := range kmapi.EdgeLabelValues() {
 		func(edgeLabel kmapi.EdgeLabel) {
 			oidType.AddFieldConfig(string(edgeLabel), &graphql.Field{
 				Type:        graphql.NewList(oidType),
