@@ -182,14 +182,14 @@ func Render(src kmapi.OID) (*runtime.RawExtension, error) {
 	return objGraph.render(src)
 }
 
-func ResourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, edgeLabels []kmapi.EdgeLabel) (*rsapi.ResourceGraphResponse, error) {
+func ResourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, includeEdgesBesidesOffshoot []kmapi.EdgeLabel) (*rsapi.ResourceGraphResponse, error) {
 	objGraph.m.RLock()
 	defer objGraph.m.RUnlock()
 
-	return objGraph.resourceGraph(mapper, src, edgeLabels)
+	return objGraph.resourceGraph(mapper, src, includeEdgesBesidesOffshoot)
 }
 
-func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, edgeLabels []kmapi.EdgeLabel) (*rsapi.ResourceGraphResponse, error) {
+func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, includeEdgesBesidesOffshoot []kmapi.EdgeLabel) (*rsapi.ResourceGraphResponse, error) {
 	connections := map[objectEdge]sets.String{}
 
 	offshoots := g.connectedEdges([]kmapi.OID{src.OID()}, kmapi.EdgeLabelOffshoot, ksets.NewGroupKind(), connections).UnsortedList()
@@ -200,13 +200,13 @@ func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, 
 		skipGKs.Insert(objID.GroupKind())
 	}
 
-	// remove "offshoot" and "view" labels
-	for i, label := range edgeLabels {
+	// remove direct edge labels
+	for i, label := range includeEdgesBesidesOffshoot {
 		if label.Direct() {
-			edgeLabels = append(edgeLabels[:i], edgeLabels[i+1:]...) // removing it
+			includeEdgesBesidesOffshoot = append(includeEdgesBesidesOffshoot[:i], includeEdgesBesidesOffshoot[i+1:]...) // removing it
 		}
 	}
-	for _, label := range edgeLabels {
+	for _, label := range includeEdgesBesidesOffshoot {
 		g.connectedEdges(offshoots, label, skipGKs, connections)
 	}
 
