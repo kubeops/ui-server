@@ -47,27 +47,12 @@ spec:
               properties:
                 name:
                   type: string
-                sourceRef:
-                  description: TypedObjectReference represents an typed namespaced object.
-                  properties:
-                    apiGroup:
-                      type: string
-                    kind:
-                      type: string
-                    name:
-                      description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
-                      type: string
-                    namespace:
-                      description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
-                      type: string
-                  required:
-                  - name
-                  type: object
+                url:
+                  type: string
                 version:
                   type: string
               required:
               - name
-              - sourceRef
               - version
               type: object
             description:
@@ -95,7 +80,7 @@ spec:
               description: Required specify whether this feature set is mandatory or not for using the UI.
               type: boolean
             requiredFeatures:
-              description: RequiredFeatures specifies list of features that are necessary to consider this feature set as ready.
+              description: RequiredFeatures specifies list of features that are necessary to consider this feature set as enabled.
               items:
                 type: string
               type: array
