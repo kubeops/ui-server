@@ -201,11 +201,15 @@ func (g *ObjectGraph) resourceGraph(mapper meta.RESTMapper, src kmapi.ObjectID, 
 	}
 
 	// remove direct edge labels
-	for i, label := range includeEdgesBesidesOffshoot {
-		if label.Direct() {
-			includeEdgesBesidesOffshoot = append(includeEdgesBesidesOffshoot[:i], includeEdgesBesidesOffshoot[i+1:]...) // removing it
+	n := 0
+	for _, label := range includeEdgesBesidesOffshoot {
+		if !label.Direct() {
+			includeEdgesBesidesOffshoot[n] = label
+			n++
 		}
 	}
+	includeEdgesBesidesOffshoot = includeEdgesBesidesOffshoot[:n]
+
 	for _, label := range includeEdgesBesidesOffshoot {
 		g.connectedEdges(offshoots, label, skipGKs, connections)
 	}
