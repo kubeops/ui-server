@@ -104,9 +104,9 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		}
 		gvr = rid.GroupVersionResource()
 
-		var src unstructured.Unstructured
+		src = &unstructured.Unstructured{}
 		src.SetGroupVersionKind(rid.GroupVersionKind())
-		err = r.kc.Get(context.TODO(), req.SourceLocator.Ref.ObjectKey(), &src)
+		err = r.kc.Get(context.TODO(), req.SourceLocator.Ref.ObjectKey(), src)
 		if err != nil {
 			return nil, err
 		}
