@@ -57,7 +57,7 @@ func TestFeatureEnableStatus(t *testing.T) {
 	}{
 		"Should be false when required resources does not exist": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Resources = []metav1.GroupVersionKind{
+				in.Spec.ReadinessChecks.Resources = []metav1.GroupVersionKind{
 					{
 						Group:   "foo.io",
 						Version: "v1",
@@ -69,7 +69,7 @@ func TestFeatureEnableStatus(t *testing.T) {
 		},
 		"Should be true when required workload exist": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",
@@ -85,7 +85,7 @@ func TestFeatureEnableStatus(t *testing.T) {
 		},
 		"Should be true when required workload does not exist but HelmRelease exist": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",
@@ -101,7 +101,7 @@ func TestFeatureEnableStatus(t *testing.T) {
 		},
 		"Should be false when neither workload nor HelmRelease exist": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",
@@ -160,7 +160,7 @@ func TestFeatureReadyStatus(t *testing.T) {
 		"Should not be ready when dependency is not satisfied": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
 				in.Spec.Requirements.Features = []string{"foo", "bar"}
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",
@@ -177,7 +177,7 @@ func TestFeatureReadyStatus(t *testing.T) {
 		},
 		"Should not be ready when the workload does not exit": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",
@@ -193,7 +193,7 @@ func TestFeatureReadyStatus(t *testing.T) {
 		},
 		"Should not be ready when workload exist but HelmRelease does not exist": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",
@@ -209,7 +209,7 @@ func TestFeatureReadyStatus(t *testing.T) {
 		},
 		"Should not be ready when workload exist but HelmRelease is not ready ": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",
@@ -233,7 +233,7 @@ func TestFeatureReadyStatus(t *testing.T) {
 		},
 		"Should be ready when workload exist and HelmRelease is ready": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",
@@ -311,7 +311,7 @@ func TestFeatureManagedStatus(t *testing.T) {
 	}{
 		"Managed should be true when HelmRelease exist": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",
@@ -328,7 +328,7 @@ func TestFeatureManagedStatus(t *testing.T) {
 		},
 		"Managed should be false when HelmRelease does not exist": {
 			feature: sampleFeature(func(in *uiapi.Feature) {
-				in.Spec.Requirements.Workloads = []uiapi.WorkloadInfo{
+				in.Spec.ReadinessChecks.Workloads = []uiapi.WorkloadInfo{
 					{
 						GroupVersionKind: metav1.GroupVersionKind{
 							Group:   "apps",

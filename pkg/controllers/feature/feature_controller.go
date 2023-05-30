@@ -190,7 +190,7 @@ type releaseStatus struct {
 
 func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error) {
 	var status featureStatus
-	if len(r.feature.Spec.Requirements.Resources) != 0 {
+	if len(r.feature.Spec.ReadinessChecks.Resources) != 0 {
 		satisfied, reason, err := r.checkRequiredResourcesExistence(ctx)
 		if err != nil {
 			return status, err
@@ -203,7 +203,7 @@ func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error
 		}
 	}
 
-	if len(r.feature.Spec.Requirements.Workloads) != 0 {
+	if len(r.feature.Spec.ReadinessChecks.Workloads) != 0 {
 		satisfied, reason, err := r.checkRequiredWorkloadExistence(ctx)
 		if err != nil {
 			return status, err
@@ -341,7 +341,7 @@ func (r *frReconciler) checkDependencyExistence(ctx context.Context) (bool, stri
 }
 
 func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (bool, string, error) {
-	for _, gvk := range r.feature.Spec.Requirements.Resources {
+	for _, gvk := range r.feature.Spec.ReadinessChecks.Resources {
 		objList := unstructured.UnstructuredList{}
 		objList.SetGroupVersionKind(schema.GroupVersionKind{
 			Group:   gvk.Group,
@@ -359,7 +359,7 @@ func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (boo
 }
 
 func (r *frReconciler) checkRequiredWorkloadExistence(ctx context.Context) (bool, string, error) {
-	for _, w := range r.feature.Spec.Requirements.Workloads {
+	for _, w := range r.feature.Spec.ReadinessChecks.Workloads {
 		objList := unstructured.UnstructuredList{}
 		objList.SetGroupVersionKind(schema.GroupVersionKind{
 			Group:   w.Group,
