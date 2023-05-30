@@ -138,15 +138,14 @@ func HostedEndpoint(u string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	host := u2.Hostname()
-	return host == prodDomain ||
-		host == qaDomain ||
-		strings.HasSuffix(host, "."+prodDomain) ||
-		strings.HasSuffix(host, "."+qaDomain), nil
+	return HostedDomain(u2.Hostname()), nil
 }
 
 func HostedDomain(d string) bool {
-	return d == prodDomain || d == qaDomain
+	return d == prodDomain ||
+		d == qaDomain ||
+		strings.HasSuffix(d, "."+prodDomain) ||
+		strings.HasSuffix(d, "."+qaDomain)
 }
 
 func LoadLicenseCA() ([]byte, error) {
