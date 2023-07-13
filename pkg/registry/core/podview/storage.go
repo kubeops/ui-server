@@ -96,12 +96,13 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	}
 
 	attrs := authorizer.AttributesRecord{
-		User:      user,
-		Verb:      "get",
-		Namespace: ns,
-		APIGroup:  r.gr.Group,
-		Resource:  r.gr.Resource,
-		Name:      name,
+		User:            user,
+		Verb:            "get",
+		Namespace:       ns,
+		APIGroup:        r.gr.Group,
+		Resource:        r.gr.Resource,
+		Name:            name,
+		ResourceRequest: true,
 	}
 	decision, why, err := r.a.Authorize(ctx, attrs)
 	if err != nil {
@@ -228,12 +229,13 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	}
 
 	attrs := authorizer.AttributesRecord{
-		User:      user,
-		Verb:      "get",
-		Namespace: ns,
-		APIGroup:  r.gr.Group,
-		Resource:  r.gr.Resource,
-		Name:      "",
+		User:            user,
+		Verb:            "get",
+		Namespace:       ns,
+		APIGroup:        r.gr.Group,
+		Resource:        r.gr.Resource,
+		Name:            "",
+		ResourceRequest: true,
 	}
 
 	opts := client.ListOptions{Namespace: ns}
@@ -257,6 +259,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	podviews := make([]corev1alpha1.PodView, 0, len(podList.Items))
 	for _, pod := range podList.Items {
 		attrs.Name = pod.Name
+		attrs.Namespace = pod.Namespace
 		decision, _, err := r.a.Authorize(context.TODO(), attrs)
 		if err != nil {
 			return nil, apierrors.NewInternalError(err)

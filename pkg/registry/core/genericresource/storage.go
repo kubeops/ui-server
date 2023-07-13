@@ -112,12 +112,13 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	rid := kmapi.NewResourceID(mapping)
 
 	attrs := authorizer.AttributesRecord{
-		User:      user,
-		Verb:      "get",
-		Namespace: ns,
-		APIGroup:  mapping.Resource.Group,
-		Resource:  mapping.Resource.Resource,
-		Name:      objName,
+		User:            user,
+		Verb:            "get",
+		Namespace:       ns,
+		APIGroup:        mapping.Resource.Group,
+		Resource:        mapping.Resource.Resource,
+		Name:            objName,
+		ResourceRequest: true,
 	}
 	decision, why, err := r.a.Authorize(ctx, attrs)
 	if err != nil {
@@ -170,12 +171,13 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		apiType := kmapi.NewResourceID(mapping)
 
 		attrs := authorizer.AttributesRecord{
-			User:      user,
-			Verb:      "get",
-			Namespace: ns,
-			APIGroup:  mapping.Resource.Group,
-			Resource:  mapping.Resource.Resource,
-			Name:      "",
+			User:            user,
+			Verb:            "get",
+			Namespace:       ns,
+			APIGroup:        mapping.Resource.Group,
+			Resource:        mapping.Resource.Resource,
+			Name:            "",
+			ResourceRequest: true,
 		}
 
 		var list unstructured.UnstructuredList
@@ -185,6 +187,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		}
 		for _, item := range list.Items {
 			attrs.Name = item.GetName()
+			attrs.Namespace = item.GetNamespace()
 			decision, _, err := r.a.Authorize(ctx, attrs)
 			if err != nil {
 				return nil, apierrors.NewInternalError(err)
