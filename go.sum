@@ -2106,8 +2106,8 @@ k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2 h1:GfD9OzL11kvZN5iArC6oTS7RTj7oJ
 k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
 kmodules.xyz/apiversion v0.2.0 h1:vAQYqZFm4xu4pbB1cAdHbFEPES6EQkcR4wc06xdTOWk=
 kmodules.xyz/apiversion v0.2.0/go.mod h1:oPX8g8LvlPdPX3Yc5YvCzJHQnw3YF/X4/jdW0b1am80=
-kmodules.xyz/authorizer v0.25.0 h1:yRrLtMOdlU1p4mLzaSz5pmSLpBLsVXLQHkUfiME12iQ=
-kmodules.xyz/authorizer v0.25.0/go.mod h1:Jb99YsLRJE4R4d8F5fFtlxEaxk0prdSk2LApZl4JdyI=
+kmodules.xyz/authorizer v0.25.1 h1:W19AtlPD2A1+Q4UqDmNCJKfX9bKIgj+J6bQmkYwsHwY=
+kmodules.xyz/authorizer v0.25.1/go.mod h1:hKAbHpRkbxZJjc+cMTUiyxQxp7amKUVDiN145IrpnhA=
 kmodules.xyz/client-go v0.25.23 h1:qz5XJYHLVZUowqfRXEJD7JQ4iaLLzQ1O1zPMmsdrkJw=
 kmodules.xyz/client-go v0.25.23/go.mod h1:wbdzLEoDYiCPI6dTW0mIAGNwkwFV4lC5BN1FJxiDsbw=
 kmodules.xyz/crd-schema-fuzz v0.25.0 h1:c5ZxNRqJak1bkGhECmyrKpzKGThFMB4088Kynyvngbc=

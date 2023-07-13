@@ -72,7 +72,7 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
-	"kmodules.xyz/authorizer/rbac"
+	"kmodules.xyz/authorizer"
 	cu "kmodules.xyz/client-go/client"
 	"kmodules.xyz/client-go/meta"
 	appcatalogapi "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -214,7 +214,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 
-	rbacAuthorizer := rbac.NewForManagerOrDie(ctx, mgr)
+	rbacAuthorizer := authorizer.NewForManagerOrDie(ctx, mgr)
 
 	builder, err := promclient.NewBuilder(mgr, &c.ExtraConfig.PromConfig)
 	if err != nil {
