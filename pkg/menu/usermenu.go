@@ -210,7 +210,7 @@ func (r *UserMenuDriver) Upsert(menu *rsapi.Menu) (*rsapi.Menu, error) {
 	var cm core.ConfigMap
 	cm.Namespace = r.ns
 	cm.Name = configmapName(r.user, menu.Name)
-	_, _, err = cu.CreateOrPatch(context.TODO(), r.kc, &cm, func(obj client.Object, createOp bool) client.Object {
+	_, err = cu.CreateOrPatch(context.TODO(), r.kc, &cm, func(obj client.Object, createOp bool) client.Object {
 		in := obj.(*core.ConfigMap)
 		in.Labels = meta.OverwriteKeys(in.Labels, map[string]string{
 			"k8s.io/group": rsapi.SchemeGroupVersion.Group,

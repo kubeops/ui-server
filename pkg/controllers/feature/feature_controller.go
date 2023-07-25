@@ -34,7 +34,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	kmc "kmodules.xyz/client-go/client"
+	cu "kmodules.xyz/client-go/client"
 	meta_util "kmodules.xyz/client-go/meta"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -160,7 +160,7 @@ func (r *frReconciler) reconcile(ctx context.Context) error {
 
 func (r *frReconciler) ensureFinalizer(ctx context.Context) error {
 	if changed := controllerutil.AddFinalizer(r.feature, UIServerCleanupFinalizer); changed {
-		_, _, err := kmc.CreateOrPatch(ctx, r.client, r.feature.DeepCopy(), func(obj client.Object, createOp bool) client.Object {
+		_, err := cu.CreateOrPatch(ctx, r.client, r.feature.DeepCopy(), func(obj client.Object, createOp bool) client.Object {
 			in := obj.(*uiapi.Feature)
 			in.ObjectMeta.Finalizers = r.feature.Finalizers
 			return in
@@ -397,7 +397,7 @@ func (r *frReconciler) updateFeatureSetAndRemoveFinalizer(ctx context.Context) e
 	}
 
 	if changed := controllerutil.RemoveFinalizer(r.feature, UIServerCleanupFinalizer); changed {
-		_, _, err := kmc.CreateOrPatch(ctx, r.client, r.feature.DeepCopy(), func(obj client.Object, createOp bool) client.Object {
+		_, err := cu.CreateOrPatch(ctx, r.client, r.feature.DeepCopy(), func(obj client.Object, createOp bool) client.Object {
 			in := obj.(*uiapi.Feature)
 			in.ObjectMeta.Finalizers = r.feature.Finalizers
 			return in
@@ -449,7 +449,7 @@ func (r *frReconciler) updateFeatureSetStatus(ctx context.Context, fs *uiapi.Fea
 		fs.Status.Ready = pointer.BoolP(false)
 		fs.Status.Note = reason
 	}
-	_, _, err := kmc.PatchStatus(
+	_, err := cu.PatchStatus(
 		ctx,
 		r.client,
 		fs.DeepCopy(),
@@ -491,7 +491,7 @@ func atLeastOneFeatureManaged(status []uiapi.ComponentStatus) bool {
 }
 
 func (r *frReconciler) updateStatus(ctx context.Context) error {
-	_, _, err := kmc.PatchStatus(
+	_, err := cu.PatchStatus(
 		ctx,
 		r.client,
 		r.feature.DeepCopy(),
