@@ -500,17 +500,50 @@ func (r *frReconciler) updateFeatureSetDependencyStatus(ctx context.Context, fsN
 	}
 
 	if enabled {
-		fs.Status.Dependency.FeatureSets = addIfNotExists(fs.Status.Dependency.FeatureSets, r.feature.Spec.FeatureSet)
+		fs.Status.Dependents = addFeatureDependents(fs.Status.Dependents, r.feature)
 	} else {
-		fs.Status.Dependency.FeatureSets = removeIfExists(fs.Status.Dependency.FeatureSets, r.feature.Spec.FeatureSet)
+		fs.Status.Dependents = removeFeatureDependents(fs.Status.Dependents, r.feature)
 	}
 
 	_, err = cu.PatchStatus(ctx, r.client, fs, func(obj client.Object) client.Object {
 		in := obj.(*uiapi.FeatureSet)
-		in.Status.Dependency = fs.Status.Dependency
+		in.Status.Dependents = fs.Status.Dependents
 		return in
 	})
 	return err
+}
+
+func addFeatureDependents(dependents uiapi.Dependents, f *uiapi.Feature) uiapi.Dependents {
+	for idx := range dependents.FeatureSets {
+		fs := dependents.FeatureSets[idx]
+		if fs.Name == f.Spec.FeatureSet {
+			dependents.FeatureSets[idx].Features = addIfNotExists(fs.Features, f.Name)
+			return dependents
+		}
+	}
+
+	dependents.FeatureSets = append(dependents.FeatureSets, uiapi.DependentFeatureSet{
+		Name:     f.Spec.FeatureSet,
+		Features: []string{f.Name},
+	})
+	return dependents
+}
+
+func removeFeatureDependents(dependents uiapi.Dependents, f *uiapi.Feature) uiapi.Dependents {
+	dfs := make([]uiapi.DependentFeatureSet, 0, len(dependents.FeatureSets))
+	for idx := range dependents.FeatureSets {
+		fs := dependents.FeatureSets[idx]
+		if fs.Name == f.Spec.FeatureSet {
+			fs.Features = removeIfExists(fs.Features, f.Name)
+			if len(fs.Features) > 0 {
+				dfs = append(dfs, fs)
+			}
+		} else {
+			dfs = append(dfs, fs)
+		}
+	}
+	dependents.FeatureSets = dfs
+	return dependents
 }
 
 func addIfNotExists(slice []string, s string) []string {
