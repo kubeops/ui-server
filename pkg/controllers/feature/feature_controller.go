@@ -111,7 +111,7 @@ func (r *FeatureReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, err
 	}
 
-	if err = fr.calculateFeatureSetDependency(ctx); err != nil {
+	if err = fr.updateAllFeatureSetDependencies(ctx); err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -464,105 +464,6 @@ func (r *frReconciler) updateFeatureSetStatus(ctx context.Context, fs *uiapi.Fea
 		},
 	)
 	return client.IgnoreNotFound(err)
-}
-
-func (r *frReconciler) calculateFeatureSetDependency(ctx context.Context) error {
-	enabled := pointer.Bool(r.feature.Status.Managed) && pointer.Bool(r.feature.Status.Enabled)
-
-	for _, name := range r.feature.Spec.Requirements.Features {
-		f := &uiapi.Feature{}
-		if err := r.client.Get(ctx, types.NamespacedName{Name: name}, f); err != nil {
-			if kerr.IsNotFound(err) {
-				// required feature isn't available yet
-				continue
-			}
-			return err
-		}
-
-		if !pointer.Bool(f.Status.Enabled) || f.Spec.FeatureSet == r.feature.Spec.FeatureSet {
-			// required feature isn't enabled or belongs to same feature set
-			continue
-		}
-
-		if err := r.updateFeatureSetDependencyStatus(ctx, f.Spec.FeatureSet, enabled); err != nil {
-			return err
-		}
-
-	}
-	return nil
-}
-
-func (r *frReconciler) updateFeatureSetDependencyStatus(ctx context.Context, fsName string, enabled bool) error {
-	fs := &uiapi.FeatureSet{}
-	err := r.client.Get(ctx, types.NamespacedName{Name: fsName}, fs)
-	if err != nil {
-		return err
-	}
-
-	if enabled {
-		fs.Status.Dependents = addFeatureDependents(fs.Status.Dependents, r.feature)
-	} else {
-		fs.Status.Dependents = removeFeatureDependents(fs.Status.Dependents, r.feature)
-	}
-
-	_, err = cu.PatchStatus(ctx, r.client, fs, func(obj client.Object) client.Object {
-		in := obj.(*uiapi.FeatureSet)
-		in.Status.Dependents = fs.Status.Dependents
-		return in
-	})
-	return err
-}
-
-func addFeatureDependents(dependents uiapi.Dependents, f *uiapi.Feature) uiapi.Dependents {
-	for idx := range dependents.FeatureSets {
-		fs := dependents.FeatureSets[idx]
-		if fs.Name == f.Spec.FeatureSet {
-			dependents.FeatureSets[idx].Features = addIfNotExists(fs.Features, f.Name)
-			return dependents
-		}
-	}
-
-	dependents.FeatureSets = append(dependents.FeatureSets, uiapi.DependentFeatureSet{
-		Name:     f.Spec.FeatureSet,
-		Features: []string{f.Name},
-	})
-	return dependents
-}
-
-func removeFeatureDependents(dependents uiapi.Dependents, f *uiapi.Feature) uiapi.Dependents {
-	dfs := make([]uiapi.DependentFeatureSet, 0, len(dependents.FeatureSets))
-	for idx := range dependents.FeatureSets {
-		fs := dependents.FeatureSets[idx]
-		if fs.Name == f.Spec.FeatureSet {
-			fs.Features = removeIfExists(fs.Features, f.Name)
-			if len(fs.Features) > 0 {
-				dfs = append(dfs, fs)
-			}
-		} else {
-			dfs = append(dfs, fs)
-		}
-	}
-	dependents.FeatureSets = dfs
-	return dependents
-}
-
-func addIfNotExists(slice []string, s string) []string {
-	for _, item := range slice {
-		if item == s {
-			return slice
-		}
-	}
-	return append(slice, s)
-}
-
-func removeIfExists(slice []string, s string) []string {
-	result := make([]string, 0, len(slice))
-	for _, item := range slice {
-		if item != s {
-			result = append(result, item)
-		}
-	}
-	return result
 }
 
 func allRequireFeaturesReady(fs *uiapi.FeatureSet) (enabled bool, reason string) {
