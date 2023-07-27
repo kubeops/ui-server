@@ -89,7 +89,7 @@ func (r *FeatureReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	if fr.feature.DeletionTimestamp != nil {
-		err := fr.updateFeatureSetAndRemoveFinalizer(ctx)
+		err = fr.updateFeatureSetAndRemoveFinalizer(ctx)
 		if err != nil && kerr.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
@@ -102,12 +102,16 @@ func (r *FeatureReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
-	if err := fr.updateStatus(ctx); err != nil {
+	if err = fr.updateStatus(ctx); err != nil {
 		return ctrl.Result{}, err
 	}
 
 	err = fr.updateFeatureSetEntry(ctx)
 	if err != nil && !kerr.IsNotFound(err) {
+		return ctrl.Result{}, err
+	}
+
+	if err = fr.updateAllFeatureSetDependencies(ctx); err != nil {
 		return ctrl.Result{}, err
 	}
 
