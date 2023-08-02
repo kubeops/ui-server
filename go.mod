@@ -43,7 +43,7 @@ require (
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.1
-	kmodules.xyz/resource-metadata v0.17.9-0.20230802101346-f6b6b5af8c65
+	kmodules.xyz/resource-metadata v0.17.9
 	kmodules.xyz/resource-metrics v0.25.2
 	kmodules.xyz/sets v0.25.0
 	kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
@@ -251,3 +251,5 @@ replace (
 	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v0.20.0
 	go.opentelemetry.io/proto/otlp => go.opentelemetry.io/proto/otlp v0.7.0
 )
+
+replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.13.1-0.20230725210630-f8273f9c4412

@@ -845,6 +845,8 @@ github.com/klauspost/compress v1.15.11 h1:Lcadnb3RKGin4FYM/orgq0qde+nc15E5Cbqg4B
 github.com/klauspost/compress v1.15.11/go.mod h1:QPwzmACJjUTFsnSHH934V6woptycfrDDJnH7hvFVbGM=
 github.com/klauspost/cpuid/v2 v2.0.9 h1:lgaqFMSdTdQYdZ04uHyN2d/eKdOMyi2YLSvlQIBFYa4=
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
+github.com/kmodules/controller-runtime v0.13.1-0.20230725210630-f8273f9c4412 h1:sy5gE/M+SfQdIK9wh1VIT0RhXxiVlPRQxpGy2TVvnzE=
+github.com/kmodules/controller-runtime v0.13.1-0.20230725210630-f8273f9c4412/go.mod h1:Zbz+el8Yg31jubvAEyglRZGdLAjplZl+PgtYNI6WNTI=
 github.com/kolo/xmlrpc v0.0.0-20201022064351-38db28db192b/go.mod h1:pcaDhQK0/NJZEvtCO0qQPPropqV0sJOJ6YW7X+9kRwM=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/konsorten/go-windows-terminal-sequences v1.0.2/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
@@ -2119,8 +2121,8 @@ kmodules.xyz/monitoring-agent-api v0.25.1 h1:E1H8U/vMfYQ8wevmJv6Lcj0Z4DF7cH3hZ2x
 kmodules.xyz/monitoring-agent-api v0.25.1/go.mod h1:IphGzRWbuV00B3TLalcBs6+IlchSZVTwKDty+J3LLz4=
 kmodules.xyz/offshoot-api v0.25.0 h1:Svq9da/+sg5afOjpgo9vx2J/Lu90Mo0aFxkdQmgKnGI=
 kmodules.xyz/offshoot-api v0.25.0/go.mod h1:ysEBn7LJuT3+s8ynAQA/OG0BSsJugXa6KGtDLMRjlKo=
-kmodules.xyz/resource-metadata v0.17.9-0.20230802101346-f6b6b5af8c65 h1:8wjzLLEUAekMH5B7tjg/WPFUXwDVNvMLDD8G/A/N+ZA=
-kmodules.xyz/resource-metadata v0.17.9-0.20230802101346-f6b6b5af8c65/go.mod h1:re7Gc4eIBc1emoFMQiS02Q5jyzVy6rjfjsohmJegrZo=
+kmodules.xyz/resource-metadata v0.17.9 h1:BNfm8KWcXvGCi3lJEhf283q84G2mNT2i25MgK0xg9eo=
+kmodules.xyz/resource-metadata v0.17.9/go.mod h1:re7Gc4eIBc1emoFMQiS02Q5jyzVy6rjfjsohmJegrZo=
 kmodules.xyz/resource-metrics v0.25.2 h1:BwCb6qyunvQBa0u8UUkw+wYG5/T4qtNtAKcHjSsk0JU=
 kmodules.xyz/resource-metrics v0.25.2/go.mod h1:ZK/52NLuwMk+Jt0bmUtGQHtSxPLYYpsFILG7SJhYPg0=
 kmodules.xyz/sets v0.25.0 h1:belY/3trp/M/CKc1TEteA40jb2uCIdwKHhjpvrIxG+8=
@@ -2137,8 +2139,6 @@ sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33 h1:LYqFq+6Cj2D0g
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33/go.mod h1:soWkSNf2tZC7aMibXEqVhCd73GOY5fJikn8qbdzemB0=
 sigs.k8s.io/cli-utils v0.34.0 h1:zCUitt54f0/MYj/ajVFnG6XSXMhpZ72O/3RewIchW8w=
 sigs.k8s.io/cli-utils v0.34.0/go.mod h1:EXyMwPMu9OL+LRnj0JEMsGG/fRvbgFadcVlSnE8RhFs=
-sigs.k8s.io/controller-runtime v0.13.1 h1:tUsRCSJVM1QQOOeViGeX3GMT3dQF1eePPw6sEE3xSlg=
-sigs.k8s.io/controller-runtime v0.13.1/go.mod h1:Zbz+el8Yg31jubvAEyglRZGdLAjplZl+PgtYNI6WNTI=
 sigs.k8s.io/json v0.0.0-20211020170558-c049b76a60c6/go.mod h1:p4QtZmO4uMYipTQNzagwnNoseA6OxSUutVw05NhYDRs=
 sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd h1:EDPBXCAspyGV4jQlpZSudPeMmr1bNJefnuqLsRAsHZo=
 sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd/go.mod h1:B8JuhiUyNFVKdsE8h686QcCxMaH6HrOAZj4vswFpcB0=
