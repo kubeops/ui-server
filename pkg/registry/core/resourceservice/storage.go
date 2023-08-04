@@ -44,7 +44,6 @@ import (
 	cu "kmodules.xyz/client-go/client"
 	mu "kmodules.xyz/client-go/meta"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
-	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
 	resourcemetrics "kmodules.xyz/resource-metrics"
@@ -497,37 +496,46 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 				}
 
 				if shared.IsPod(gvr) {
-					execServices = append(execServices, corev1alpha1.ExecServiceFacilitator{
+					execSvc := corev1alpha1.ExecServiceFacilitator{
 						Alias:    exec.Alias,
 						Resource: "pods",
 						Ref: kmapi.ObjectReference{
 							Namespace: item.GetNamespace(),
 							Name:      item.GetName(),
 						},
-						Container:      exec.Container,
-						Command:        exec.Command,
-						Help:           exec.Help,
-						KubectlCommand: genKubectlCommand("Pod", item.GetName(), item.GetNamespace(), exec),
-					})
+						Container: exec.ContainerNameTemplate,
+						Command:   exec.Command,
+						Help:      exec.Help,
+					}
+					execSvc.KubectlCommand = genKubectlCommand(execSvc)
+					execServices = append(execServices, execSvc)
 				} else {
 					buf.Reset()
 					svcName, err := shared.RenderTemplate(exec.ServiceNameTemplate, content, buf)
 					if err != nil {
 						return nil, errors.Wrapf(err, "failed to render service name for %+v exec with alias %s", gvr, exec.Alias)
 					}
+					container := exec.ContainerNameTemplate
+					if strings.Contains(container, "{{") {
+						container, err = shared.RenderTemplate(exec.ContainerNameTemplate, content, buf)
+						if err != nil {
+							return nil, errors.Wrapf(err, "failed to render container name for %+v exec with alias %s", gvr, exec.Alias)
+						}
+					}
 
-					execServices = append(execServices, corev1alpha1.ExecServiceFacilitator{
+					execSvc := corev1alpha1.ExecServiceFacilitator{
 						Alias:    exec.Alias,
 						Resource: "services",
 						Ref: kmapi.ObjectReference{
 							Namespace: item.GetNamespace(),
 							Name:      svcName,
 						},
-						Container:      exec.Container,
-						Command:        exec.Command,
-						Help:           exec.Help,
-						KubectlCommand: genKubectlCommand("Service", svcName, item.GetNamespace(), exec),
-					})
+						Container: container,
+						Command:   exec.Command,
+						Help:      exec.Help,
+					}
+					execSvc.KubectlCommand = genKubectlCommand(execSvc)
+					execServices = append(execServices, execSvc)
 				}
 			}
 
@@ -538,20 +546,20 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 	return &genres, nil
 }
 
-func genKubectlCommand(kind, name, ns string, exec rsapi.ResourceExec) string {
+func genKubectlCommand(e corev1alpha1.ExecServiceFacilitator) string {
 	isBash := func(cmd []string) bool {
 		return len(cmd) > 2 &&
 			(cmd[0] == "bash" || cmd[0] == "/bin/bash" || cmd[0] == "sh" || cmd[0] == "/bin/sh") &&
 			cmd[1] == "-c"
 	}
-	cmd := fmt.Sprintf("kubectl exec -it -n %s %s/%s", ns, strings.ToLower(kind), name)
-	if exec.Container != "" {
-		cmd += fmt.Sprintf("  -c %s", exec.Container)
+	cmd := fmt.Sprintf("kubectl exec -it -n %s %s/%s", e.Ref.Namespace, e.Resource, e.Ref.Name)
+	if e.Container != "" {
+		cmd += fmt.Sprintf("  -c %s", e.Container)
 	}
-	if isBash(exec.Command) {
-		cmd += fmt.Sprintf(" -- %s %s '%s'", exec.Command[0], exec.Command[1], exec.Command[2])
+	if isBash(e.Command) {
+		cmd += fmt.Sprintf(" -- %s %s '%s'", e.Command[0], e.Command[1], e.Command[2])
 	} else {
-		cmd += fmt.Sprintf(" -- %s", strings.Join(exec.Command, " "))
+		cmd += fmt.Sprintf(" -- %s", strings.Join(e.Command, " "))
 	}
 	return cmd
 }

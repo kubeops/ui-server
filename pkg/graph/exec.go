@@ -40,12 +40,12 @@ func RenderExec(src, target *schema.GroupVersionResource) tableconvertor.Resourc
 		if shared.IsPod(*target) && rdSrc != nil && len(rdSrc.Spec.Exec) > 0 {
 			in := rdSrc.Spec.Exec[0]
 			out := rsapi.ResourceExec{
-				Alias:               "",
-				If:                  nil,
-				ServiceNameTemplate: "",
-				Container:           in.Container,
-				Command:             in.Command,
-				Help:                in.Help,
+				Alias:                 "",
+				If:                    nil,
+				ServiceNameTemplate:   "",
+				ContainerNameTemplate: in.ContainerNameTemplate,
+				Command:               in.Command,
+				Help:                  in.Help,
 			}
 			return []rsapi.ResourceExec{out}
 		}

@@ -76,7 +76,7 @@ type ResourceExec struct {
 	// +optional
 	ServiceNameTemplate string `json:"serviceNameTemplate,omitempty"`
 	// +optional
-	Container string `json:"container,omitempty"`
+	ContainerNameTemplate string `json:"containerNameTemplate,omitempty"`
 	// +optional
 	Command []string `json:"command,omitempty"`
 	// +optional
@@ -227,7 +227,7 @@ type ExecDefinition struct {
 	// +optional
 	ServiceNameTemplate string `json:"serviceNameTemplate,omitempty"`
 	// +optional
-	Container string `json:"container,omitempty"`
+	ContainerNameTemplate string `json:"containerNameTemplate,omitempty"`
 	// +optional
 	Command []string `json:"command,omitempty"`
 	// +optional
@@ -311,8 +311,6 @@ type ExecResult struct {
 	Alias string `json:"alias,omitempty"`
 	// +optional
 	Resource string `json:"resource,omitempty"` // pods or services
-	// +optional
-	Container string `json:"container,omitempty"`
 	// +optional
 	Command []string `json:"command,omitempty"`
 	// +optional
