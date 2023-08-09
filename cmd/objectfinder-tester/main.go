@@ -59,19 +59,19 @@ func NewClient() (client.Client, error) {
 }
 
 func main() {
-	if err := useKubebuilderClient(); err != nil {
+	if err := finPrometheusForServiceMonitor(); err != nil {
 		panic(err)
 	}
 }
 
-func useKubebuilderClient() error {
+func finConfigMapForPod() error {
 	fmt.Println("Using kubebuilder client")
 	kc, err := NewClient()
 	if err != nil {
 		return err
 	}
 
-	podDesc, err := resourcedescriptors.LoadByGVR(schema.GroupVersionResource{
+	rd, err := resourcedescriptors.LoadByGVR(schema.GroupVersionResource{
 		Group:    "",
 		Version:  "v1",
 		Resource: "pods",
@@ -80,24 +80,71 @@ func useKubebuilderClient() error {
 		return err
 	}
 
-	var pod unstructured.Unstructured
-	pod.SetAPIVersion("v1")
-	pod.SetKind("Pod")
+	var src unstructured.Unstructured
+	src.SetAPIVersion("v1")
+	src.SetKind("Pod")
 
 	key := client.ObjectKey{
 		Namespace: "kube-system",
 		Name:      "calico-node-ctlqh",
 	}
-	err = kc.Get(context.TODO(), key, &pod)
+	err = kc.Get(context.TODO(), key, &src)
 	if err != nil {
 		return err
 	}
 
 	finder := graph.ObjectFinder{Client: kc}
 
-	for _, c := range podDesc.Spec.Connections {
+	for _, c := range rd.Spec.Connections {
 		if c.Target.Kind == "ConfigMap" {
-			result, err := finder.ListConnectedObjectIDs(&pod, []rsapi.ResourceConnection{c})
+			result, err := finder.ListConnectedObjectIDs(&src, []rsapi.ResourceConnection{c})
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%+v\n", result)
+		}
+	}
+	return nil
+}
+
+func finPrometheusForServiceMonitor() error {
+	fmt.Println("Using kubebuilder client")
+	kc, err := NewClient()
+	if err != nil {
+		return err
+	}
+
+	/*
+		apiVersion: monitoring.coreos.com/v1
+		kind: Prometheus
+	*/
+	rd, err := resourcedescriptors.LoadByGVR(schema.GroupVersionResource{
+		Group:    "monitoring.coreos.com",
+		Version:  "v1",
+		Resource: "prometheuses",
+	})
+	if err != nil {
+		return err
+	}
+
+	var src unstructured.Unstructured
+	src.SetAPIVersion("monitoring.coreos.com/v1")
+	src.SetKind("Prometheus")
+
+	key := client.ObjectKey{
+		Namespace: "monitoring",
+		Name:      "kube-prometheus-stack-prometheus",
+	}
+	err = kc.Get(context.TODO(), key, &src)
+	if err != nil {
+		return err
+	}
+
+	finder := graph.ObjectFinder{Client: kc}
+
+	for _, c := range rd.Spec.Connections {
+		if c.Target.Kind == "ServiceMonitor" {
+			result, err := finder.ListConnectedObjectIDs(&src, []rsapi.ResourceConnection{c})
 			if err != nil {
 				return err
 			}

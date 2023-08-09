@@ -218,12 +218,9 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 				return nil, fmt.Errorf("edge %v is missing selectorPath and selector", e)
 			}
 
-			namespaces, err := Namespaces(src, e.Connection.NamespacePath)
+			namespaces, err := Namespaces(finder.Client, src, e.Connection.Namespace)
 			if err != nil {
 				return nil, err
-			}
-			if len(namespaces) == 0 {
-				namespaces = []string{metav1.NamespaceAll}
 			}
 
 			var out []*unstructured.Unstructured
@@ -275,12 +272,9 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 			}
 			name := strings.ReplaceAll(e.Connection.NameTemplate, MetadataNameQuery, src.GetName())
 
-			namespaces, err := Namespaces(src, e.Connection.NamespacePath)
+			namespaces, err := Namespaces(finder.Client, src, e.Connection.Namespace)
 			if err != nil {
 				return nil, err
-			}
-			if len(namespaces) == 0 {
-				namespaces = []string{metav1.NamespaceAll}
 			}
 
 			var out []*unstructured.Unstructured
@@ -382,7 +376,7 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 		}
 	} else {
 		namespace := core.NamespaceAll
-		if e.Connection.NamespacePath == MetadataNamespace {
+		if e.Connection.Namespace != nil && e.Connection.Namespace.Path == MetadataNamespace {
 			namespace = src.GetNamespace()
 		} // else all namespace RETHINK
 
@@ -417,12 +411,14 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 			for i := range result.Items {
 				rs := result.Items[i]
 
-				if e.Connection.NamespacePath != "" && e.Connection.NamespacePath != MetadataNamespace {
-					namespaces, err := Namespaces(&rs, e.Connection.NamespacePath)
+				if e.Connection.Namespace != nil && e.Connection.Namespace.Path != MetadataNamespace {
+					namespaces, err := Namespaces(finder.Client, &rs, e.Connection.Namespace)
 					if err != nil {
 						return nil, err
 					}
-					if len(namespaces) > 0 && !contains(namespaces, src.GetNamespace()) {
+					found := contains(namespaces, src.GetNamespace()) ||
+						(len(namespaces) == 1 && namespaces[0] == core.NamespaceAll)
+					if !found {
 						continue
 					}
 				}
@@ -494,8 +490,8 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 			if namespaced, err := finder.isNamespaced(e.Dst); err != nil {
 				return nil, err
 			} else if namespaced {
-				ns := metav1.NamespaceAll
-				if e.Connection.NamespacePath == MetadataNamespace {
+				ns := core.NamespaceAll
+				if e.Connection.Namespace != nil && e.Connection.Namespace.Path == MetadataNamespace {
 					ns = src.GetNamespace()
 				}
 				opts.Namespace = ns
@@ -751,17 +747,50 @@ func IsOwnedBy(obj metav1.Object, owner metav1.Object) bool {
 }
 
 // len([]string) == 0 && err == nil => all namespaces
-func Namespaces(ref *unstructured.Unstructured, nsSelector string) ([]string, error) {
-	if nsSelector == MetadataNamespace {
+func Namespaces(kc client.Client, ref *unstructured.Unstructured, ns *rsapi.NamespaceRef) ([]string, error) {
+	if ns == nil {
+		return []string{metav1.NamespaceAll}, nil
+	}
+
+	if ns.Path == MetadataNamespace {
 		return []string{ref.GetNamespace()}, nil
-	} else if nsSelector != "" {
+	} else if ns.Path != "" {
+		v, ok, err := unstructured.NestedString(ref.UnstructuredContent(), strings.Split(ns.Path, ".")...)
+		if ok {
+			return []string{v}, nil
+		}
+		return []string{}, err
+	} else if ns.LabelSelector != "" {
+		sel, err := ExtractSelector(ref, ns.LabelSelector)
+		if err != nil {
+			return nil, err
+		} else if sel.Empty() {
+			return []string{metav1.NamespaceAll}, nil
+		} else {
+			var namespaces unstructured.UnstructuredList
+			namespaces.SetAPIVersion("v1")
+			namespaces.SetKind("Namespace")
+			err = kc.List(context.TODO(), &namespaces, client.MatchingLabelsSelector{Selector: sel})
+			if err != nil {
+				return nil, err
+			}
+			names := make([]string, 0, len(namespaces.Items))
+			err = namespaces.EachListItem(func(object runtime.Object) error {
+				names = append(names, object.(client.Object).GetName())
+				return nil
+			})
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else if ns.Selector != "" {
 		var nsel NamespaceSelector
-		ok, err := Extract(ref, nsSelector, &nsel)
+		ok, err := Extract(ref, ns.Selector, &nsel)
 		if err != nil {
 			return nil, err
 		}
 		if ok {
-			// https://gitg.r.com/coreos/prometheus-operator/blob/cc584ecfa08d2eb95ba9401f116e3a20bf71be8b/pkg/prometheus/promcfg.go#L392
+			// https://github.com/coreos/prometheus-operator/blob/cc584ecfa08d2eb95ba9401f116e3a20bf71be8b/pkg/prometheus/promcfg.go#L392
 			if !nsel.Any && len(nsel.MatchNames) == 0 {
 				return []string{ref.GetNamespace()}, nil
 			} else if len(nsel.MatchNames) > 0 {
@@ -770,7 +799,7 @@ func Namespaces(ref *unstructured.Unstructured, nsSelector string) ([]string, er
 			return nil, nil
 		}
 	}
-	return nil, nil
+	return []string{metav1.NamespaceAll}, nil
 }
 
 func Extract(u *unstructured.Unstructured, fieldPath string, v interface{}) (bool, error) {
