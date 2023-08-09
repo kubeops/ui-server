@@ -366,7 +366,9 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 					var rs unstructured.Unstructured
 					rs.SetGroupVersionKind(e.Dst)
 					err := finder.Client.Get(context.TODO(), objkey, &rs)
-					if err != nil {
+					if kerr.IsNotFound(err) {
+						continue // ignore optional configMapRef, secretRef
+					} else if err != nil {
 						return nil, err
 					}
 
