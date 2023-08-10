@@ -1,0 +1,11 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: RenderRawGraph
+request:
+  source:
+    ref:
+      name: mongo-stats
+      namespace: default
+    resource:
+      group: monitoring.coreos.com
+      version: v1
+      name: servicemonitors

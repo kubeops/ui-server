@@ -63,24 +63,24 @@ func getGraphQLSchema() graphql.Schema {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					var group, kind string
+					var targetGK metav1.GroupKind
 					if v, ok := p.Args["group"]; ok {
-						group = v.(string)
+						targetGK.Group = v.(string)
 					}
 					if v, ok := p.Args["kind"]; ok {
-						kind = v.(string)
+						targetGK.Kind = v.(string)
 					}
-					if group != "" && kind == "" { // group can be empty
+					if targetGK.Group != "" && targetGK.Kind == "" { // group can be empty
 						return nil, fmt.Errorf("group is set but kind is not set")
 					}
 
 					if oid, ok := p.Source.(kmapi.ObjectID); ok {
-						links, err := objGraph.Links(&oid, edgeLabel)
+						links, err := objGraph.Links(&oid, edgeLabel, targetGK)
 						if err != nil {
 							return nil, err
 						}
-						if kind != "" { // group can be empty
-							linksForGK := links[metav1.GroupKind{Group: group, Kind: kind}]
+						if targetGK.Kind != "" { // group can be empty
+							linksForGK := links[targetGK]
 							return linksForGK, nil
 						}
 

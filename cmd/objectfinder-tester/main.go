@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+//nolint:unused
 package main
 
 import (
@@ -59,13 +60,12 @@ func NewClient() (client.Client, error) {
 }
 
 func main() {
-	if err := finPrometheusForServiceMonitor(); err != nil {
+	if err := findServiceForServiceMonitor(); err != nil {
 		panic(err)
 	}
 }
 
-func finConfigMapForPod() error {
-	fmt.Println("Using kubebuilder client")
+func findConfigMapForPod() error {
 	kc, err := NewClient()
 	if err != nil {
 		return err
@@ -107,8 +107,53 @@ func finConfigMapForPod() error {
 	return nil
 }
 
-func finPrometheusForServiceMonitor() error {
-	fmt.Println("Using kubebuilder client")
+func findServiceForServiceMonitor() error {
+	kc, err := NewClient()
+	if err != nil {
+		return err
+	}
+
+	/*
+		apiVersion: monitoring.coreos.com/v1
+		kind: Prometheus
+	*/
+	rd, err := resourcedescriptors.LoadByGVR(schema.GroupVersionResource{
+		Group:    "monitoring.coreos.com",
+		Version:  "v1",
+		Resource: "servicemonitors",
+	})
+	if err != nil {
+		return err
+	}
+
+	var src unstructured.Unstructured
+	src.SetAPIVersion("monitoring.coreos.com/v1")
+	src.SetKind("ServiceMonitor")
+
+	key := client.ObjectKey{
+		Namespace: "default",
+		Name:      "mongo-stats",
+	}
+	err = kc.Get(context.TODO(), key, &src)
+	if err != nil {
+		return err
+	}
+
+	finder := graph.ObjectFinder{Client: kc}
+
+	for _, c := range rd.Spec.Connections {
+		if c.Target.Kind == "Service" {
+			result, err := finder.ListConnectedObjectIDs(&src, []rsapi.ResourceConnection{c})
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%+v\n", result)
+		}
+	}
+	return nil
+}
+
+func findServiceMonitorForPrometheus() error {
 	kc, err := NewClient()
 	if err != nil {
 		return err
