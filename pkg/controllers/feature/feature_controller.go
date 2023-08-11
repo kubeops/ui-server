@@ -19,8 +19,6 @@ package feature
 import (
 	"context"
 	"fmt"
-	"math/rand"
-	"time"
 
 	fluxcd "github.com/fluxcd/helm-controller/api/v2beta1"
 	"github.com/go-logr/logr"
@@ -147,6 +145,11 @@ func (r *frReconciler) reconcile(ctx context.Context) error {
 	if !status.managed {
 		r.feature.Status.Managed = pointer.BoolP(false)
 		r.feature.Status.Note = "Feature is not managed by the UI"
+
+		if status.workload != nil {
+			r.feature.Status.Ready = &status.workload.ready
+			r.feature.Status.Note = status.workload.reason
+		}
 		return nil
 	}
 	r.feature.Status.Managed = pointer.BoolP(true)
@@ -179,28 +182,25 @@ type featureStatus struct {
 	dependency *requirementStatus
 	resources  *requirementStatus
 	workload   *requirementStatus
-	release    *releaseStatus
+	release    *requirementStatus
 }
 
 type requirementStatus struct {
-	satisfied bool
-	reason    string
-}
-
-type releaseStatus struct {
-	found bool
-	ready bool
+	found  bool
+	ready  bool
+	reason string
 }
 
 func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error) {
 	var status featureStatus
+	var err error
 	if len(r.feature.Spec.ReadinessChecks.Resources) != 0 {
 		satisfied, reason, err := r.checkRequiredResourcesExistence(ctx)
 		if err != nil {
 			return status, err
 		}
 		status.resources = &requirementStatus{
-			satisfied: satisfied,
+			found: satisfied,
 		}
 		if !satisfied {
 			status.resources.reason = reason
@@ -208,28 +208,16 @@ func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error
 	}
 
 	if len(r.feature.Spec.ReadinessChecks.Workloads) != 0 {
-		satisfied, reason, err := r.checkRequiredWorkloadExistence(ctx)
+		status.workload, err = r.checkRequiredWorkloadExistence(ctx)
 		if err != nil {
 			return status, err
-		}
-		status.workload = &requirementStatus{
-			satisfied: satisfied,
-		}
-		if !satisfied {
-			status.workload.reason = reason
 		}
 	}
 
 	if len(r.feature.Spec.Requirements.Features) != 0 {
-		satisfied, reason, err := r.checkDependencyExistence(ctx)
+		status.dependency, err = r.checkDependencyExistence(ctx)
 		if err != nil {
 			return status, err
-		}
-		status.dependency = &requirementStatus{
-			satisfied: satisfied,
-		}
-		if !satisfied {
-			status.dependency.reason = reason
 		}
 	}
 
@@ -241,12 +229,11 @@ func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error
 		}
 		return status, err
 	}
-	status.release = &releaseStatus{
+	status.release = &requirementStatus{
 		found: true,
 	}
-	if isReleaseReady(release.Status.Conditions) {
-		status.release.ready = true
-	}
+
+	status.release.ready = meta_util.IsConditionTrue(release.Status.Conditions, "Ready")
 	if metav1.HasLabel(release.ObjectMeta, meta_util.ComponentLabelKey) && release.Labels[meta_util.ComponentLabelKey] == r.feature.Name &&
 		metav1.HasLabel(release.ObjectMeta, meta_util.PartOfLabelKey) && release.Labels[meta_util.PartOfLabelKey] == r.feature.Spec.FeatureSet {
 		status.managed = true
@@ -286,38 +273,11 @@ func (r *frReconciler) isFeatureEnabled(status featureStatus) (bool, string) {
 	return false, findReason(status)
 }
 
-func isRequiredResourcesExist(status featureStatus) bool {
-	if status.resources != nil && !status.resources.satisfied {
-		return false
-	}
-	return true
-}
-
-func isWorkloadOrReleaseExist(status featureStatus) bool {
-	if status.workload != nil && status.workload.satisfied {
-		return true
-	}
-	if status.release != nil && status.release.found {
-		return true
-	}
-	return false
-}
-
-func findReason(status featureStatus) string {
-	if status.resources != nil && !status.resources.satisfied {
-		return status.resources.reason
-	}
-	if status.workload != nil && !status.workload.satisfied {
-		return status.workload.reason
-	}
-	return "No relevant resources found for the Feature"
-}
-
 func (r *frReconciler) isFeatureReady(status featureStatus) (bool, string) {
-	if status.dependency != nil && !status.dependency.satisfied {
+	if status.dependency != nil && !status.dependency.found {
 		return false, status.dependency.reason
 	}
-	if status.workload != nil && !status.workload.satisfied {
+	if status.workload != nil && !status.workload.found {
 		return false, status.workload.reason
 	}
 
@@ -327,21 +287,25 @@ func (r *frReconciler) isFeatureReady(status featureStatus) (bool, string) {
 	return true, ""
 }
 
-func (r *frReconciler) checkDependencyExistence(ctx context.Context) (bool, string, error) {
+func (r *frReconciler) checkDependencyExistence(ctx context.Context) (*requirementStatus, error) {
+	status := &requirementStatus{}
 	for _, d := range r.feature.Spec.Requirements.Features {
 		f := &uiapi.Feature{}
 		if err := r.client.Get(ctx, types.NamespacedName{Name: d}, f); err != nil {
 			if kerr.IsNotFound(err) {
-				return false, fmt.Sprintf("Dependency not satisfied. Feature %q does not exist.", d), nil
+				status.reason = fmt.Sprintf("Dependency not satisfied. Feature %q does not exist.", d)
+				return status, nil
 			}
-			return false, "", err
+			return nil, err
 		}
 
 		if f.Status.Enabled == nil || !*f.Status.Enabled {
-			return false, fmt.Sprintf("Dependency not satisfied. Feature %q is not enabled.", d), nil
+			status.reason = fmt.Sprintf("Dependency not satisfied. Feature %q is not enabled.", d)
+			return status, nil
 		}
 	}
-	return true, "", nil
+	status.found = true
+	return status, nil
 }
 
 func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (bool, string, error) {
@@ -362,7 +326,8 @@ func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (boo
 	return true, "", nil
 }
 
-func (r *frReconciler) checkRequiredWorkloadExistence(ctx context.Context) (bool, string, error) {
+func (r *frReconciler) checkRequiredWorkloadExistence(ctx context.Context) (*requirementStatus, error) {
+	status := &requirementStatus{}
 	for _, w := range r.feature.Spec.ReadinessChecks.Workloads {
 		objList := unstructured.UnstructuredList{}
 		objList.SetGroupVersionKind(schema.GroupVersionKind{
@@ -373,24 +338,27 @@ func (r *frReconciler) checkRequiredWorkloadExistence(ctx context.Context) (bool
 		selector := labels.SelectorFromSet(w.Selector)
 		if err := r.apiReader.List(ctx, &objList, &client.ListOptions{Limit: 1, LabelSelector: selector}); err != nil {
 			if meta.IsNoMatchError(err) {
-				return false, fmt.Sprintf("Required resource %q is not registered.", w.String()), nil
+				status.reason = fmt.Sprintf("Required resource %q is not registered.", w.String())
+				return status, nil
 			}
-			return false, "", err
+			return nil, err
 		}
 		if len(objList.Items) == 0 {
-			return false, "Required workload does not exist", nil
+			status.reason = "Required workload does not exist"
+			return status, nil
 		}
-	}
-	return true, "", nil
-}
 
-func isReleaseReady(conditions []metav1.Condition) bool {
-	for i := range conditions {
-		if conditions[i].Type == "Ready" && conditions[i].Status == "True" {
-			return true
+		if !isWorkLoadsReady(objList) {
+			status.found = true
+			status.reason = "Required workload is not ready"
+			return status, nil
 		}
 	}
-	return false
+
+	status.ready = true
+	status.found = true
+
+	return status, nil
 }
 
 func (r *frReconciler) updateFeatureSetAndRemoveFinalizer(ctx context.Context) error {
@@ -466,34 +434,6 @@ func (r *frReconciler) updateFeatureSetStatus(ctx context.Context, fs *uiapi.Fea
 	return client.IgnoreNotFound(err)
 }
 
-func allRequireFeaturesReady(fs *uiapi.FeatureSet) (enabled bool, reason string) {
-	for _, f := range fs.Spec.RequiredFeatures {
-		if !isFeatureReady(f, fs.Status.Features) {
-			return false, fmt.Sprintf("Required feature '%s' is not ready.", f)
-		}
-	}
-	return true, ""
-}
-
-func isFeatureReady(featureName string, status []uiapi.ComponentStatus) bool {
-	for i := range status {
-		if status[i].Name == featureName && (status[i].Ready != nil && *status[i].Ready) {
-			return true
-		}
-	}
-	return false
-}
-
-func atLeastOneFeatureManaged(status []uiapi.ComponentStatus) bool {
-	for i := range status {
-		if status[i].Enabled != nil && *status[i].Enabled &&
-			status[i].Managed != nil && *status[i].Managed {
-			return true
-		}
-	}
-	return false
-}
-
 func (r *frReconciler) updateStatus(ctx context.Context) error {
 	_, err := cu.PatchStatus(
 		ctx,
@@ -562,11 +502,4 @@ func (r *FeatureReconciler) findFeatureForHelmRelease(release client.Object) []r
 			},
 		},
 	}
-}
-
-func getRandomInterval() time.Duration {
-	minSecond := 30
-	maxSecond := 120
-	offset := rand.Int() % maxSecond
-	return time.Second * time.Duration(minSecond+offset)
 }
