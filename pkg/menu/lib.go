@@ -65,7 +65,7 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 
 			// if resource can't be listed or read (get) or only view type skip it
 			verbs := sets.NewString(rs.Verbs...)
-			if !verbs.HasAll("list", "get", "watch", "create") {
+			if !verbs.HasAll("list", "get") {
 				continue
 			}
 
