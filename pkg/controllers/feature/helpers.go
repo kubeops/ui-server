@@ -91,15 +91,6 @@ func isWorkLoadsReady(objList unstructured.UnstructuredList) bool {
 	return true
 }
 
-func isReleaseReady(conditions []metav1.Condition) bool {
-	for i := range conditions {
-		if conditions[i].Type == "Ready" && conditions[i].Status == "True" {
-			return true
-		}
-	}
-	return false
-}
-
 func allRequireFeaturesReady(fs *uiapi.FeatureSet) (enabled bool, reason string) {
 	for _, f := range fs.Spec.RequiredFeatures {
 		if !isFeatureReady(f, fs.Status.Features) {
