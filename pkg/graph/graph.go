@@ -121,21 +121,21 @@ func (g *ObjectGraph) Links(oid *kmapi.ObjectID, edgeLabel kmapi.EdgeLabel, targ
 	defer g.m.RUnlock()
 
 	if edgeLabel.Direct() {
-		return g.links(oid, nil, edgeLabel, targetGK)
+		return g.links(oid, nil, edgeLabel, false, targetGK)
 	}
 
 	src := oid.OID()
-	offshoots, err := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeLabelOffshoot, targetGK)
+	offshoots, err := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeLabelOffshoot, true, targetGK)
 	if err != nil {
 		return nil, err
 	}
 	offshoots.Delete(src)
-	return g.links(oid, offshoots.UnsortedList(), edgeLabel, targetGK)
+	return g.links(oid, offshoots.UnsortedList(), edgeLabel, false, targetGK)
 }
 
-func (g *ObjectGraph) links(oid *kmapi.ObjectID, seeds []kmapi.OID, edgeLabel kmapi.EdgeLabel, targetGK metav1.GroupKind) (map[metav1.GroupKind][]kmapi.ObjectID, error) {
+func (g *ObjectGraph) links(oid *kmapi.ObjectID, seeds []kmapi.OID, edgeLabel kmapi.EdgeLabel, fwdEdgeOnly bool, targetGK metav1.GroupKind) (map[metav1.GroupKind][]kmapi.ObjectID, error) {
 	src := oid.OID()
-	links, err := g.connectedOIDs(append([]kmapi.OID{src}, seeds...), edgeLabel, targetGK)
+	links, err := g.connectedOIDs(append([]kmapi.OID{src}, seeds...), edgeLabel, fwdEdgeOnly, targetGK)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func (g *ObjectGraph) links(oid *kmapi.ObjectID, seeds []kmapi.OID, edgeLabel km
 	return result, nil
 }
 
-func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.EdgeLabel, targetGK metav1.GroupKind) (ksets.OID, error) {
+func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.EdgeLabel, fwdEdgeOnly bool, targetGK metav1.GroupKind) (ksets.OID, error) {
 	if edgeLabel != kmapi.EdgeLabelOffshoot && targetGK.Kind == "" {
 		return nil, fmt.Errorf("target kind must be set for edge label %s", edgeLabel)
 	}
@@ -168,7 +168,10 @@ func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.Ed
 
 		edges := ksets.NewOID()
 		if edgedPerLabel, ok := g.Edges[x]; ok {
-			for to := range edgedPerLabel[edgeLabel] {
+			for to, fwdEdge := range edgedPerLabel[edgeLabel] {
+				if fwdEdgeOnly && !fwdEdge {
+					continue
+				}
 				/*
 					For Offshoot label connects, the target might be connected via different types of nodes.
 					For all other label types (including other direct types), the target must be connected via
