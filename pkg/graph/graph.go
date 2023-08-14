@@ -121,7 +121,7 @@ func (g *ObjectGraph) Links(oid *kmapi.ObjectID, edgeLabel kmapi.EdgeLabel, targ
 	defer g.m.RUnlock()
 
 	if edgeLabel.Direct() {
-		return g.links(oid, nil, edgeLabel, false, targetGK)
+		return g.links(oid, nil, edgeLabel, true, targetGK)
 	}
 
 	src := oid.OID()
