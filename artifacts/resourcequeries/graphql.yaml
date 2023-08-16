@@ -3,17 +3,17 @@ kind: ResourceQuery
 request:
   source:
     resource:
-      group: kubedb.com
-      version: v1alpha2
-      name: mongodbs
-    name: mg-alert
-    namespace: demo
+      group: apps
+      version: v1
+      name: deployments
+    name: kube-ui-server
+    namespace: kubeops
   # Ref;Object;Table
   outputFormat: Object
   target:
     query:
-      byLabel: view
+      byLabel: offshoot
       type: GraphQL
     ref:
-      group: core.k8s.appscode.com
-      kind: GenericResourceService
+      group: apps
+      kind: ReplicaSet

@@ -18,8 +18,6 @@ package graph
 
 import (
 	"encoding/json"
-	"fmt"
-	"strings"
 	"sync"
 
 	"gomodules.xyz/sets"
@@ -116,26 +114,26 @@ func (g *ObjectGraph) delEdge(src, to kmapi.OID, lbl kmapi.EdgeLabel) {
 	delete(g.Edges[src][lbl], to)
 }
 
-func (g *ObjectGraph) Links(oid *kmapi.ObjectID, edgeLabel kmapi.EdgeLabel, targetGK metav1.GroupKind) (map[metav1.GroupKind][]kmapi.ObjectID, error) {
+func (g *ObjectGraph) Links(oid *kmapi.ObjectID, edgeLabel kmapi.EdgeLabel) (map[metav1.GroupKind][]kmapi.ObjectID, error) {
 	g.m.RLock()
 	defer g.m.RUnlock()
 
 	if edgeLabel.Direct() {
-		return g.links(oid, nil, edgeLabel, true, targetGK)
+		return g.links(oid, nil, edgeLabel)
 	}
 
 	src := oid.OID()
-	offshoots, err := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeLabelOffshoot, true, targetGK)
+	offshoots, err := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeLabelOffshoot)
 	if err != nil {
 		return nil, err
 	}
 	offshoots.Delete(src)
-	return g.links(oid, offshoots.UnsortedList(), edgeLabel, false, targetGK)
+	return g.links(oid, offshoots.UnsortedList(), edgeLabel)
 }
 
-func (g *ObjectGraph) links(oid *kmapi.ObjectID, seeds []kmapi.OID, edgeLabel kmapi.EdgeLabel, fwdEdgeOnly bool, targetGK metav1.GroupKind) (map[metav1.GroupKind][]kmapi.ObjectID, error) {
+func (g *ObjectGraph) links(oid *kmapi.ObjectID, seeds []kmapi.OID, edgeLabel kmapi.EdgeLabel) (map[metav1.GroupKind][]kmapi.ObjectID, error) {
 	src := oid.OID()
-	links, err := g.connectedOIDs(append([]kmapi.OID{src}, seeds...), edgeLabel, fwdEdgeOnly, targetGK)
+	links, err := g.connectedOIDs(append([]kmapi.OID{src}, seeds...), edgeLabel)
 	if err != nil {
 		return nil, err
 	}
@@ -153,25 +151,25 @@ func (g *ObjectGraph) links(oid *kmapi.ObjectID, seeds []kmapi.OID, edgeLabel km
 	return result, nil
 }
 
-func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.EdgeLabel, fwdEdgeOnly bool, targetGK metav1.GroupKind) (ksets.OID, error) {
-	if edgeLabel != kmapi.EdgeLabelOffshoot && targetGK.Kind == "" {
-		return nil, fmt.Errorf("target kind must be set for edge label %s", edgeLabel)
-	}
-	targetPrefix := fmt.Sprintf("G=%s,K=%s,", targetGK.Group, targetGK.Kind)
-
+func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.EdgeLabel) (ksets.OID, error) {
 	processed := ksets.NewOID()
+	processedGK := ksets.NewGroupKind()
 	result := ksets.NewOID()
 	var x kmapi.OID
 	for len(idsToProcess) > 0 {
 		x, idsToProcess = idsToProcess[0], idsToProcess[1:]
-		processed.Insert(x)
+		processed.Insert(x) // self-ref not allowed
 
 		edges := ksets.NewOID()
 		if edgedPerLabel, ok := g.Edges[x]; ok {
-			for to, fwdEdge := range edgedPerLabel[edgeLabel] {
-				if fwdEdgeOnly && !fwdEdge {
-					continue
+			for to := range edgedPerLabel[edgeLabel] {
+				if !processed.Has(to) && !processedGK.Has(kmapi.MustParseObjectID(to).GroupKind()) {
+					edges.Insert(to)
 				}
+
+				//if strings.HasPrefix(string(to), srcPrefix) {
+				//	continue // avoid cycles like pod -> sts -> {pods}
+				//}
 				/*
 					For Offshoot label connects, the target might be connected via different types of nodes.
 					For all other label types (including other direct types), the target must be connected via
@@ -179,17 +177,18 @@ func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.Ed
 					OK: Deployment --->offshoot--> Pod --->exposed_by---> Service
 					Not OK: ServiceMonitor --->monitored_by---> Prometheus --->monitored_by---> Service
 				*/
-				if edgeLabel == kmapi.EdgeLabelOffshoot || strings.HasPrefix(string(to), targetPrefix) {
-					edges.Insert(to)
-				}
+				// if edgeLabel == kmapi.EdgeLabelOffshoot || strings.HasPrefix(string(to), targetPrefix) {
+
+				//}
 			}
 		}
+		processedGK.Insert(kmapi.MustParseObjectID(x).GroupKind()) // self-type refs allowed
 		result = result.Union(edges)
 
 		for id := range edges {
-			if !processed.Has(id) {
-				idsToProcess = append(idsToProcess, id)
-			}
+			// if !processed.Has(id) {
+			idsToProcess = append(idsToProcess, id)
+			// }
 		}
 	}
 	return result, nil
