@@ -75,7 +75,7 @@ func getGraphQLSchema() graphql.Schema {
 					}
 
 					if oid, ok := p.Source.(kmapi.ObjectID); ok {
-						links, err := objGraph.Links(&oid, edgeLabel, targetGK)
+						links, err := objGraph.Links(&oid, edgeLabel)
 						if err != nil {
 							return nil, err
 						}
