@@ -179,7 +179,7 @@ func getResourceGraph(kc client.Client, oi kmapi.ObjectInfo) (*v1alpha1.Resource
 	return graph.ResourceGraph(kc.RESTMapper(), src, []kmapi.EdgeLabel{
 		kmapi.EdgeLabelConfig,
 		kmapi.EdgeLabelExposedBy,
-		kmapi.EdgeLabelId,
+		kmapi.EdgeLabelAuthn,
 	})
 }
 
