@@ -123,20 +123,14 @@ func (g *ObjectGraph) Links(oid *kmapi.ObjectID, edgeLabel kmapi.EdgeLabel) (map
 	}
 
 	src := oid.OID()
-	offshoots, err := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeLabelOffshoot)
-	if err != nil {
-		return nil, err
-	}
+	offshoots := g.connectedOIDs([]kmapi.OID{src}, kmapi.EdgeLabelOffshoot)
 	offshoots.Delete(src)
 	return g.links(oid, offshoots.UnsortedList(), edgeLabel)
 }
 
 func (g *ObjectGraph) links(oid *kmapi.ObjectID, seeds []kmapi.OID, edgeLabel kmapi.EdgeLabel) (map[metav1.GroupKind][]kmapi.ObjectID, error) {
 	src := oid.OID()
-	links, err := g.connectedOIDs(append([]kmapi.OID{src}, seeds...), edgeLabel)
-	if err != nil {
-		return nil, err
-	}
+	links := g.connectedOIDs(append([]kmapi.OID{src}, seeds...), edgeLabel)
 	links.Delete(src)
 
 	result := map[metav1.GroupKind][]kmapi.ObjectID{}
@@ -151,7 +145,7 @@ func (g *ObjectGraph) links(oid *kmapi.ObjectID, seeds []kmapi.OID, edgeLabel km
 	return result, nil
 }
 
-func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.EdgeLabel) (ksets.OID, error) {
+func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.EdgeLabel) ksets.OID {
 	processed := ksets.NewOID()
 	processedGK := ksets.NewGroupKind()
 	result := ksets.NewOID()
@@ -166,32 +160,16 @@ func (g *ObjectGraph) connectedOIDs(idsToProcess []kmapi.OID, edgeLabel kmapi.Ed
 				if !processed.Has(to) && !processedGK.Has(kmapi.MustParseObjectID(to).GroupKind()) {
 					edges.Insert(to)
 				}
-
-				//if strings.HasPrefix(string(to), srcPrefix) {
-				//	continue // avoid cycles like pod -> sts -> {pods}
-				//}
-				/*
-					For Offshoot label connects, the target might be connected via different types of nodes.
-					For all other label types (including other direct types), the target must be connected via
-					nodes only of the target type.
-					OK: Deployment --->offshoot--> Pod --->exposed_by---> Service
-					Not OK: ServiceMonitor --->monitored_by---> Prometheus --->monitored_by---> Service
-				*/
-				// if edgeLabel == kmapi.EdgeLabelOffshoot || strings.HasPrefix(string(to), targetPrefix) {
-
-				//}
 			}
 		}
 		processedGK.Insert(kmapi.MustParseObjectID(x).GroupKind()) // self-type refs allowed
 		result = result.Union(edges)
 
 		for id := range edges {
-			// if !processed.Has(id) {
 			idsToProcess = append(idsToProcess, id)
-			// }
 		}
 	}
-	return result, nil
+	return result
 }
 
 type objectEdge struct {
