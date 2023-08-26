@@ -10,6 +10,11 @@ metadata:
   name: falco.appscode.com-v1alpha1-falcoevents
 spec:
   columns:
+  - format: name
+    name: Name
+    pathTemplate: '{{ .metadata.name }}'
+    priority: 4
+    type: string
   - name: Rule
     pathTemplate: '{{ .spec.rule }}'
     priority: 3
@@ -24,7 +29,7 @@ spec:
     type: string
   - name: Node
     pathTemplate: '{{ .spec.nodename }}'
-    priority: 3
+    priority: 1
     type: string
   - name: Pod
     pathTemplate: '{{ printf "%s/%s" (dig "outputFields" "k8s.ns.name" "" .spec) (dig "outputFields" "k8s.pod.name" "" .spec) }}'
@@ -32,11 +37,11 @@ spec:
     type: string
   - name: Output
     pathTemplate: '{{ .spec.output }}'
-    priority: 3
+    priority: 1
     type: string
   - name: Output Fields
     pathTemplate: '{{ .spec.outputFields | toRawJson }}'
-    priority: 3
+    priority: 1
     type: object
   - name: Last Seen
     pathTemplate: '{{ .spec.time }}'
