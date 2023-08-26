@@ -1,0 +1,23 @@
+apiVersion: core.k8s.appscode.com/v1alpha1
+kind: ResourceCalculator
+request:
+  apiVersion: kubedb.com/v1alpha2
+  kind: Redis
+  metadata:
+    name: redis
+    namespace: demo
+  spec:
+    cluster:
+      master: 3
+      replicas: 1
+    mode: Cluster
+    storage:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: standard
+    storageType: Durable
+    terminationPolicy: WipeOut
+    version: 6.0.6
