@@ -30,22 +30,22 @@ spec:
     pathTemplate: '{{ .spec.nodename }}'
     priority: 3
     type: object
-  # - name: Pod
-  #   pathTemplate: '{{ printf "%s/%s" (dig "outputFields" "k8s.ns.name" "" .spec) (dig "outputFields" "k8s.pod.name" "" .spec) }}'
-  #   priority: 3
-  #   type: object
-  # - name: Rule
-  #   pathTemplate: '{{ .spec.rule }}'
-  #   priority: 3
-  #   type: string
-  # - name: Output
-  #   pathTemplate: '{{ .spec.output }}'
-  #   priority: 3
-  #   type: string
-  # - name: Output Fields
-  #   pathTemplate: '{{ .spec.outputFields | toRawJson }}'
-  #   priority: 3
-  #   type: string
+  - name: Pod
+    pathTemplate: '{{ printf "%s/%s" (dig "outputFields" "k8s.ns.name" "" .spec) (dig "outputFields" "k8s.pod.name" "" .spec) }}'
+    priority: 3
+    type: object
+  - name: Rule
+    pathTemplate: '{{ .spec.rule }}'
+    priority: 3
+    type: string
+  - name: Output
+    pathTemplate: '{{ .spec.output }}'
+    priority: 3
+    type: string
+  - name: Output Fields
+    pathTemplate: '{{ .spec.outputFields | toRawJson }}'
+    priority: 3
+    type: string
   defaultView: true
   resource:
     group: falco.appscode.com
