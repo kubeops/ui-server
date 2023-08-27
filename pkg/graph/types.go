@@ -80,6 +80,7 @@ type ResourceRef struct {
 }
 
 func fields(path string) []string {
+	// TODO(tamal): support escape of . using \
 	return strings.Split(strings.Trim(path, "."), ".")
 }
 

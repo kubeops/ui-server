@@ -755,7 +755,7 @@ func Namespaces(kc client.Client, ref *unstructured.Unstructured, ns *rsapi.Name
 	if ns.Path == MetadataNamespace {
 		return []string{ref.GetNamespace()}, nil
 	} else if ns.Path != "" {
-		v, ok, err := unstructured.NestedString(ref.UnstructuredContent(), strings.Split(ns.Path, ".")...)
+		v, ok, err := unstructured.NestedString(ref.UnstructuredContent(), fields(ns.Path)...)
 		if ok {
 			return []string{v}, nil
 		}
