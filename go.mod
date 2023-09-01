@@ -10,6 +10,7 @@ require (
 	github.com/gobuffalo/flect v0.3.0
 	github.com/google/gofuzz v1.2.0
 	github.com/google/uuid v1.3.0
+	github.com/gorilla/schema v1.2.0
 	github.com/graphql-go/graphql v0.8.1
 	github.com/graphql-go/handler v0.2.3
 	github.com/open-policy-agent/gatekeeper v3.11.0+incompatible
@@ -27,6 +28,7 @@ require (
 	gomodules.xyz/password-generator v0.2.9
 	gomodules.xyz/pointer v0.1.0
 	gomodules.xyz/sets v0.2.1
+	gomodules.xyz/sync v0.1.0
 	gomodules.xyz/x v0.0.15
 	k8s.io/api v0.25.4
 	k8s.io/apiextensions-apiserver v0.25.3
@@ -39,7 +41,7 @@ require (
 	k8s.io/kube-state-metrics/v2 v2.7.0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.1
-	kmodules.xyz/client-go v0.25.31-0.20230830090952-f1796d3fb00f
+	kmodules.xyz/client-go v0.25.31-0.20230831105420-5cbd7c4877ef
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.1
