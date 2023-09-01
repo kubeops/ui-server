@@ -24,6 +24,7 @@ import (
 	scannerreports "kubeops.dev/scanner/apis/reports"
 	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerscheme "kubeops.dev/scanner/client/clientset/versioned/scheme"
+	costinstall "kubeops.dev/ui-server/apis/cost/install"
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
@@ -105,6 +106,7 @@ func init() {
 	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
 	policyinstall.Install(Scheme)
+	costinstall.Install(Scheme)
 	rsinstall.Install(Scheme)
 	uiinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
