@@ -350,6 +350,9 @@ github.com/googleapis/gax-go/v2
 github.com/googleapis/gax-go/v2/apierror
 github.com/googleapis/gax-go/v2/apierror/internal/proto
 github.com/googleapis/gax-go/v2/internal
+# github.com/gorilla/schema v1.2.0
+## explicit
+github.com/gorilla/schema
 # github.com/graphql-go/graphql v0.8.1
 ## explicit; go 1.13
 github.com/graphql-go/graphql
@@ -941,6 +944,9 @@ gomodules.xyz/pointer
 # gomodules.xyz/sets v0.2.1
 ## explicit; go 1.14
 gomodules.xyz/sets
+# gomodules.xyz/sync v0.1.0
+## explicit; go 1.15
+gomodules.xyz/sync
 # gomodules.xyz/wait v0.2.0
 ## explicit; go 1.14
 gomodules.xyz/wait
@@ -1750,7 +1756,7 @@ kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.25.31-0.20230830090952-f1796d3fb00f
+# kmodules.xyz/client-go v0.25.31-0.20230831105420-5cbd7c4877ef
 ## explicit; go 1.18
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1

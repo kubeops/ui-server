@@ -357,10 +357,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/client-go/api/v1.TypedObjectReference":                 schema_kmodulesxyz_client_go_api_v1_TypedObjectReference(ref),
 		"kmodules.xyz/client-go/api/v1.X509Subject":                          schema_kmodulesxyz_client_go_api_v1_X509Subject(ref),
 		"kmodules.xyz/client-go/api/v1.stringSetMerger":                      schema_kmodulesxyz_client_go_api_v1_stringSetMerger(ref),
-		"kubeops.dev/ui-server/apis/policy/v1alpha1.Constraint":              schema_ui_server_apis_policy_v1alpha1_Constraint(ref),
-		"kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReport":            schema_ui_server_apis_policy_v1alpha1_PolicyReport(ref),
-		"kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReportRequest":     schema_ui_server_apis_policy_v1alpha1_PolicyReportRequest(ref),
-		"kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReportResponse":    schema_ui_server_apis_policy_v1alpha1_PolicyReportResponse(ref),
+		"kubeops.dev/ui-server/apis/cost/v1alpha1.CostReport":                schema_ui_server_apis_cost_v1alpha1_CostReport(ref),
+		"kubeops.dev/ui-server/apis/cost/v1alpha1.CostReportRequest":         schema_ui_server_apis_cost_v1alpha1_CostReportRequest(ref),
 	}
 }
 
@@ -17605,52 +17603,7 @@ func schema_kmodulesxyz_client_go_api_v1_stringSetMerger(ref common.ReferenceCal
 	}
 }
 
-func schema_ui_server_apis_policy_v1alpha1_Constraint(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"auditTimestamp": {
-						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
-						},
-					},
-					"name": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"gvr": {
-						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/runtime/schema.GroupVersionResource"),
-						},
-					},
-					"violations": {
-						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: map[string]interface{}{},
-										Ref:     ref("github.com/open-policy-agent/gatekeeper/pkg/audit.StatusViolation"),
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		Dependencies: []string{
-			"github.com/open-policy-agent/gatekeeper/pkg/audit.StatusViolation", "k8s.io/apimachinery/pkg/apis/meta/v1.Time", "k8s.io/apimachinery/pkg/runtime/schema.GroupVersionResource"},
-	}
-}
-
-func schema_ui_server_apis_policy_v1alpha1_PolicyReport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_ui_server_apis_cost_v1alpha1_CostReport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -17672,72 +17625,98 @@ func schema_ui_server_apis_policy_v1alpha1_PolicyReport(ref common.ReferenceCall
 					},
 					"request": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReportRequest"),
+							Ref: ref("kubeops.dev/ui-server/apis/cost/v1alpha1.CostReportRequest"),
 						},
 					},
 					"response": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReportResponse"),
+							Ref: ref("k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.JSON"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReportRequest", "kubeops.dev/ui-server/apis/policy/v1alpha1.PolicyReportResponse"},
+			"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1.JSON", "kubeops.dev/ui-server/apis/cost/v1alpha1.CostReportRequest"},
 	}
 }
 
-func schema_ui_server_apis_policy_v1alpha1_PolicyReportRequest(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_ui_server_apis_cost_v1alpha1_CostReportRequest(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"resource": {
+					"window": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("kmodules.xyz/client-go/api/v1.ResourceID"),
+							Type:   []string{"string"},
+							Format: "",
 						},
 					},
-					"ref": {
+					"resolution": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("kmodules.xyz/client-go/api/v1.ObjectReference"),
+							Type:   []string{"string"},
+							Format: "",
 						},
 					},
-				},
-				Required: []string{"resource", "ref"},
-			},
-		},
-		Dependencies: []string{
-			"kmodules.xyz/client-go/api/v1.ObjectReference", "kmodules.xyz/client-go/api/v1.ResourceID"},
-	}
-}
-
-func schema_ui_server_apis_policy_v1alpha1_PolicyReportResponse(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"constraints": {
+					"step": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"aggregate": {
 						SchemaProps: spec.SchemaProps{
 							Type: []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Default: map[string]interface{}{},
-										Ref:     ref("kubeops.dev/ui-server/apis/policy/v1alpha1.Constraint"),
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
 									},
 								},
 							},
 						},
 					},
+					"includeIdle": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+					"accumulate": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+					"accumulateBy": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"idleByNode": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+					"includeProportionalAssetResourceCosts": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+					"includeAggregatedMetadata": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
 				},
 			},
 		},
-		Dependencies: []string{
-			"kubeops.dev/ui-server/apis/policy/v1alpha1.Constraint"},
 	}
 }
