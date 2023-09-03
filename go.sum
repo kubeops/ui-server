@@ -176,7 +176,7 @@ github.com/aws/aws-sdk-go v1.43.31/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4
 github.com/aws/aws-sdk-go v1.44.100 h1:7I86bWNQB+HGDT5z/dJy61J7qgbgLoZ7O51C9eL6hrA=
 github.com/aws/aws-sdk-go v1.44.100/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/benbjohnson/clock v1.0.3/go.mod h1:bGMdMPoPVvcYyt1gHDf4J2KE153Yf9BuiUKYMaxlTDM=
-github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
+github.com/benbjohnson/clock v1.3.0 h1:ip6w0uFQkncKQ979AypyG0ER7mqUSBdKLOgAle/AT8A=
 github.com/beorn7/perks v0.0.0-20160804104726-4c0e84591b9a/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
@@ -2132,6 +2132,8 @@ kmodules.xyz/resource-metrics v0.25.2 h1:BwCb6qyunvQBa0u8UUkw+wYG5/T4qtNtAKcHjSs
 kmodules.xyz/resource-metrics v0.25.2/go.mod h1:ZK/52NLuwMk+Jt0bmUtGQHtSxPLYYpsFILG7SJhYPg0=
 kmodules.xyz/sets v0.25.0 h1:belY/3trp/M/CKc1TEteA40jb2uCIdwKHhjpvrIxG+8=
 kmodules.xyz/sets v0.25.0/go.mod h1:ICWmplgCsxniWkImSBGlJrLT9npqOXKhX/Bwbc7bmEw=
+kubeops.dev/falco-ui-server v0.0.2-0.20230904104633-470c4434cd9b h1:w45N/bVJiKE8/DmxSk2jNtvA/eNBnDeoK4sf9ChH08I=
+kubeops.dev/falco-ui-server v0.0.2-0.20230904104633-470c4434cd9b/go.mod h1:/uAFucnRdvQvltXTL/gcAfaZcnrNdEjqNJxbnk3cLyQ=
 kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780 h1:w4fP2k8lahFVKlWOKah208zfdfWJFPUALFwfdvuGZ5c=
 kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780/go.mod h1:XWtmGm+ugCgxjYkYBI2Dcnlf042cYB3EkxQ4zSpu2a4=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=

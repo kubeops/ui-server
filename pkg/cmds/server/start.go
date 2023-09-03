@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"strconv"
 
+	falcoreportsapi "kubeops.dev/falco-ui-server/apis/reports/v1alpha1"
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
@@ -157,6 +158,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceImages),
 		fmt.Sprintf("/apis/%s/%s", reportsapi.SchemeGroupVersion, reportsapi.ResourceCVEReports),
 		fmt.Sprintf("/apis/%s/%s", policyapi.SchemeGroupVersion, policyapi.ResourcePolicyReports),
+		fmt.Sprintf("/apis/%s/%s", falcoreportsapi.SchemeGroupVersion, falcoreportsapi.ResourceFalcoReports),
 		fmt.Sprintf("/apis/%s/%s", costapi.SchemeGroupVersion, costapi.ResourceCostReports),
 
 		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),

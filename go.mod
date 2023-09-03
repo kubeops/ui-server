@@ -48,6 +48,7 @@ require (
 	kmodules.xyz/resource-metadata v0.17.15
 	kmodules.xyz/resource-metrics v0.25.2
 	kmodules.xyz/sets v0.25.0
+	kubeops.dev/falco-ui-server v0.0.2-0.20230904104633-470c4434cd9b
 	kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
 	sigs.k8s.io/cli-utils v0.34.0
 	sigs.k8s.io/controller-runtime v0.13.1

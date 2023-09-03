@@ -21,6 +21,10 @@ import (
 	"fmt"
 	"os"
 
+	falcoinstall "kubeops.dev/falco-ui-server/apis/falco/install"
+	falcoreports "kubeops.dev/falco-ui-server/apis/reports"
+	falcoreportsinstall "kubeops.dev/falco-ui-server/apis/reports/install"
+	falcoreportsapi "kubeops.dev/falco-ui-server/apis/reports/v1alpha1"
 	scannerreports "kubeops.dev/scanner/apis/reports"
 	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerscheme "kubeops.dev/scanner/client/clientset/versioned/scheme"
@@ -40,6 +44,7 @@ import (
 	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/core/resourceservice"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
+	falcostorage "kubeops.dev/ui-server/pkg/registry/falco/reports"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderdashboard"
@@ -106,6 +111,8 @@ func init() {
 	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
 	policyinstall.Install(Scheme)
+	falcoinstall.Install(Scheme)
+	falcoreportsinstall.Install(Scheme)
 	costinstall.Install(Scheme)
 	rsinstall.Install(Scheme)
 	uiinstall.Install(Scheme)
@@ -337,6 +344,17 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[policyapi.ResourcePolicyReports] = policystorage.NewStorage(ctrlClient)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(falcoreports.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[falcoreportsapi.ResourceFalcoReports] = falcostorage.NewStorage(ctrlClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

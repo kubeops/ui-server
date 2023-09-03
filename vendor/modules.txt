@@ -1827,6 +1827,14 @@ kmodules.xyz/resource-metrics/kubevault.com/v1alpha2
 # kmodules.xyz/sets v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/sets
+# kubeops.dev/falco-ui-server v0.0.2-0.20230904104633-470c4434cd9b
+## explicit; go 1.18
+kubeops.dev/falco-ui-server/apis/falco
+kubeops.dev/falco-ui-server/apis/falco/install
+kubeops.dev/falco-ui-server/apis/falco/v1alpha1
+kubeops.dev/falco-ui-server/apis/reports
+kubeops.dev/falco-ui-server/apis/reports/install
+kubeops.dev/falco-ui-server/apis/reports/v1alpha1
 # kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
