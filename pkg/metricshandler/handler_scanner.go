@@ -36,7 +36,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func collectScannerMetrics(kc client.Client, generators []generator.FamilyGenerator, store *metricsstore.MetricsStore) error {
+func collectScannerMetrics(kc client.Client, generators []generator.FamilyGenerator, store *metricsstore.MetricsStore, offset int) error {
 	var list unstructured.UnstructuredList
 	list.SetAPIVersion("v1")
 	list.SetKind("Pod")
@@ -63,10 +63,10 @@ func collectScannerMetrics(kc client.Client, generators []generator.FamilyGenera
 		return err
 	}
 
-	store.Add(collectClusterCVEMetrics(results, generators[0], generators[1], generators[2]))
-	store.Add(collectNamespaceCVEMetrics(images, results, generators[3], generators[4], generators[5]))
-	store.Add(collectImageCVEMetrics(results, generators[6], generators[7]))
-	store.Add(collectLineageMetrics(images, generators[8]))
+	store.Add(collectClusterCVEMetrics(results, generators[offset], generators[offset+1], generators[offset+2]))
+	store.Add(collectNamespaceCVEMetrics(images, results, generators[offset+3], generators[offset+4], generators[offset+5]))
+	store.Add(collectImageCVEMetrics(results, generators[offset+6], generators[offset+7]))
+	store.Add(collectLineageMetrics(images, generators[offset+8]))
 
 	return nil
 }
@@ -186,9 +186,11 @@ func collectClusterCVEMetrics(results map[string]result, gen, genO, genC generat
 		m := metric.Metric{
 			LabelKeys: []string{
 				"cve",
+				"namespace",
 			},
 			LabelValues: []string{
 				cve,
+				"",
 			},
 			Value: float64(n),
 		}
@@ -204,9 +206,11 @@ func collectClusterCVEMetrics(results map[string]result, gen, genO, genC generat
 		mO := metric.Metric{
 			LabelKeys: []string{
 				"severity",
+				"namespace",
 			},
 			LabelValues: []string{
 				risk,
+				"",
 			},
 			Value: float64(riskOccurrence[risk]),
 		}
@@ -215,9 +219,11 @@ func collectClusterCVEMetrics(results map[string]result, gen, genO, genC generat
 		mC := metric.Metric{
 			LabelKeys: []string{
 				"severity",
+				"namespace",
 			},
 			LabelValues: []string{
 				risk,
+				"",
 			},
 			Value: float64(riskCount[risk]),
 		}
@@ -363,10 +369,12 @@ func collectImageCVEMetrics(results map[string]result, genO, genC generator.Fami
 				LabelKeys: []string{
 					"image",
 					"severity",
+					"namespace",
 				},
 				LabelValues: []string{
 					r.ref,
 					risk,
+					"",
 				},
 				Value: float64(occurrence[risk]),
 			}
@@ -376,10 +384,12 @@ func collectImageCVEMetrics(results map[string]result, genO, genC generator.Fami
 				LabelKeys: []string{
 					"image",
 					"severity",
+					"namespace",
 				},
 				LabelValues: []string{
 					r.ref,
 					risk,
+					"",
 				},
 				Value: float64(count[risk]),
 			}

@@ -81,11 +81,11 @@ func collectMetrics(kc client.Client, w io.Writer) error {
 
 	offset := 1
 	if graph.ScannerInstalled() {
-		err := collectScannerMetrics(kc, generators, store)
+		err := collectScannerMetrics(kc, generators, store, offset)
 		if err != nil {
 			return err
 		}
-		offset = 10 // # of scanner metrics families
+		offset = offset + 9 // # of scanner metrics families
 	}
 	if graph.OPAInstalled() {
 		err := collectPolicyMetrics(kc, generators, store, offset)

@@ -74,9 +74,11 @@ func collectForCluster(kc client.Client, genTotal generator.FamilyGenerator, gen
 		mByType := metric.Metric{
 			LabelKeys: []string{
 				"constraint",
+				"namespace",
 			},
 			LabelValues: []string{
 				constraintKind,
+				"",
 			},
 			Value: float64(total),
 		}
