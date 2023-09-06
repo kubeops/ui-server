@@ -109,7 +109,7 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 						mi.Installer = ed.Spec.Installer
 						mi.AvailableVariants = len(ed.Spec.Variants)
 						if mi.AvailableVariants == 1 {
-							mi.Preset = &ed.Spec.Variants[0].TypedLocalObjectReference
+							mi.Preset = ed.Spec.Variants[0].Name
 						}
 						// mi.LayoutName = ""
 					} else {

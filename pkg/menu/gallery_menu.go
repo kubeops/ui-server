@@ -17,19 +17,14 @@ limitations under the License.
 package menu
 
 import (
-	"context"
 	"fmt"
 	"sort"
 
-	"github.com/pkg/errors"
-	"gomodules.xyz/pointer"
-	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kmodules.xyz/client-go/meta"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	chartsapi "x-helm.dev/apimachinery/apis/charts/v1alpha1"
 )
 
 func GetGalleryMenu(driver *UserMenuDriver, opts *rsapi.RenderMenuRequest) (*rsapi.Menu, error) {
@@ -93,48 +88,14 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 				}
 
 				for _, ref := range ed.Spec.Variants {
-					if ref.APIGroup == nil {
-						ref.APIGroup = pointer.StringP(chartsapi.GroupVersion.Group)
+					cp := mi
+					cp.Name = ref.Title
+					// cp.Path = u.String()
+					cp.Preset = ref.Name
+					if len(ref.Icons) > 0 {
+						cp.Icons = ref.Icons
 					}
-					if ref.Kind != chartsapi.ResourceKindClusterChartPreset {
-						return nil, fmt.Errorf("unknown preset kind %q used in menu item %s", ref.Kind, mi.Name)
-					}
-
-					//qs := gourl.Values{}
-					//qs.Set("presetGroup", *ref.APIGroup)
-					//qs.Set("presetKind", ref.Kind)
-					//qs.Set("presetName", ref.Name)
-					//u := gourl.URL{
-					//	Path:     path.Join(mi.Resource.Group, mi.Resource.Version, mi.Resource.Name),
-					//	RawQuery: qs.Encode(),
-					//}
-
-					name, err := GetPresetName(kc, ref.TypedLocalObjectReference)
-					if err != nil {
-						return nil, err
-					}
-
-					if len(ed.Spec.Variants) == 1 {
-						// cp := mi
-						mi.Name = name
-						// mi.Path = u.String()
-						refCopy := ref.TypedLocalObjectReference
-						mi.Preset = &refCopy
-						if len(ref.Icons) > 0 {
-							mi.Icons = ref.Icons
-						}
-						items = append(items, mi)
-					} else {
-						cp := mi
-						cp.Name = name
-						// cp.Path = u.String()
-						refCopy := ref.TypedLocalObjectReference
-						cp.Preset = &refCopy
-						if len(ref.Icons) > 0 {
-							cp.Icons = ref.Icons
-						}
-						items = append(items, cp)
-					}
+					items = append(items, cp)
 				}
 			}
 		}
@@ -151,16 +112,4 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 	}
 
 	return &out, nil
-}
-
-func GetPresetName(
-	kc client.Client,
-	ref core.TypedLocalObjectReference,
-) (string, error) {
-	var ps chartsapi.ClusterChartPreset
-	err := kc.Get(context.TODO(), client.ObjectKey{Name: ref.Name}, &ps)
-	if err != nil {
-		return "", errors.Wrapf(err, "%s %s not found", chartsapi.ResourceKindClusterChartPreset, ref.Name)
-	}
-	return ps.GetDisplayName(), nil
 }
