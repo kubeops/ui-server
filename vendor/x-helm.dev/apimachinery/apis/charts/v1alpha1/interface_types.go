@@ -43,6 +43,11 @@ func (in ChartPreset) GetSpec() ClusterChartPresetSpec {
 
 type ChartPresetFlatRef struct {
 	releasesv1alpha1.ChartSourceFlatRef `json:",inline"`
-	PresetName                          string `json:"presetName,omitempty"`
-	Namespace                           string `json:"namespace,omitempty"`
+
+	// Editor GVR
+	Group      string `json:"group,omitempty"`
+	Resource   string `json:"resource,omitempty"`
+	Kind       string `json:"kind,omitempty"`
+	PresetName string `json:"presetName,omitempty"`
+	Namespace  string `json:"namespace,omitempty"`
 }
