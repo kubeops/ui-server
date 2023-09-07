@@ -1,0 +1,29 @@
+apiVersion: charts.x-helm.dev/v1alpha1
+kind: ClusterChartPreset
+metadata:
+  annotations:
+    meta.helm.sh/release-name: monitoring-config
+    meta.helm.sh/release-namespace: monitoring
+  creationTimestamp: "2023-09-06T23:11:56Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    charts.x-helm.dev/is-custom-preset: "true"
+    helm.toolkit.fluxcd.io/name: opscenter-monitoring-monitoring-config
+    helm.toolkit.fluxcd.io/namespace: kubeops
+  name: custom-monitoring-presets
+  resourceVersion: "1772"
+  uid: 94d7e767-c2ea-4122-8610-a582b9645d9c
+spec:
+  values:
+    form:
+      alert:
+        enabled: critical
+        labels:
+          release: kube-prometheus-stack
+    spec:
+      monitoring:
+        agent: prometheus.io/operator
+        serviceMonitor:
+          labels:
+            release: custom-prometheus-stack
