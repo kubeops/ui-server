@@ -89,7 +89,12 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 
 				for _, ref := range ed.Spec.Variants {
 					cp := mi
-					cp.Name = ref.Title
+					if len(ed.Spec.Variants) > 1 && ref.Title == "" {
+						return nil, fmt.Errorf("resource editor for %+v and variant %s is missing title", ed.Spec.Resource.GroupKind(), ref.Name)
+					}
+					if ref.Title != "" {
+						cp.Name = ref.Title
+					}
 					// cp.Path = u.String()
 					cp.Preset = ref.Name
 					if len(ref.Icons) > 0 {
