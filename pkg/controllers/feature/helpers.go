@@ -91,8 +91,23 @@ func isWorkLoadsReady(objList unstructured.UnstructuredList) bool {
 	return true
 }
 
+func getAllEnabledFeatures(fs *uiapi.FeatureSet) []string {
+	var features []string
+	for _, f := range fs.Status.Features {
+		if f.Enabled != nil && *f.Enabled {
+			features = append(features, f.Name)
+		}
+	}
+	return features
+}
+
 func allRequireFeaturesReady(fs *uiapi.FeatureSet) (enabled bool, reason string) {
-	for _, f := range fs.Spec.RequiredFeatures {
+	reqFeatures := fs.Spec.RequiredFeatures
+	if len(reqFeatures) == 0 {
+		reqFeatures = getAllEnabledFeatures(fs)
+	}
+
+	for _, f := range reqFeatures {
 		if !isFeatureReady(f, fs.Status.Features) {
 			return false, fmt.Sprintf("Required feature '%s' is not ready.", f)
 		}
