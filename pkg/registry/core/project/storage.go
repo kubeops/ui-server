@@ -56,7 +56,7 @@ var (
 func NewStorage(kc client.Client) *Storage {
 	s := &Storage{
 		kc:        kc,
-		convertor: rest.NewDefaultTableConvertor(gr),
+		convertor: NewDefaultTableConvertor(gr),
 	}
 	return s
 }
