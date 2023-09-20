@@ -46,7 +46,6 @@ import (
 	"k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/component-base/metrics/legacyregistry"
 	"k8s.io/klog/v2"
-	mgmtapi "kmodules.xyz/client-go/apis/management/v1alpha1"
 	ou "kmodules.xyz/client-go/openapi"
 	"kmodules.xyz/client-go/tools/clientcmd"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
@@ -139,6 +138,8 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	serverConfig.OpenAPIConfig.Info.Version = v.Version.Version
 	serverConfig.OpenAPIConfig.IgnorePrefixes = []string{
 		"/swaggerapi",
+		fmt.Sprintf("/apis/%s/%s", corev1alpha1.GroupName, corev1alpha1.ResourceProjects),
+
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceChartPresetQueries),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceDescriptors),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceGraphs),
@@ -162,8 +163,6 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", policyapi.SchemeGroupVersion, policyapi.ResourcePolicyReports),
 
 		fmt.Sprintf("/apis/%s/%s", costapi.SchemeGroupVersion, costapi.ResourceCostReports),
-
-		fmt.Sprintf("/apis/%s/%s", mgmtapi.GroupVersion, mgmtapi.ResourceProjects),
 
 		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
 

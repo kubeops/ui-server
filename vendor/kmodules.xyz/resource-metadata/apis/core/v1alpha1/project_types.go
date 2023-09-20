@@ -46,10 +46,12 @@ const (
 // ProjectStatus defines the observed state of Project
 type ProjectStatus struct{}
 
+// +genclient
+// +genclient:nonNamespaced
+// +genclient:onlyVerbs=get,list
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 //+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
-//+k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // Project is the Schema for the projects API
 type Project struct {
