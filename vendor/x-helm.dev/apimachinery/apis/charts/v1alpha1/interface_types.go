@@ -17,7 +17,9 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	releasesv1alpha1 "x-helm.dev/apimachinery/apis/releases/v1alpha1"
 )
 
@@ -50,4 +52,16 @@ type ChartPresetFlatRef struct {
 	Kind       string `json:"kind,omitempty"`
 	PresetName string `json:"presetName,omitempty"`
 	Namespace  string `json:"namespace,omitempty"`
+}
+
+type ChartPresetValues struct {
+	Source SourceLocator         `json:"source"`
+	Values *runtime.RawExtension `json:"values"`
+}
+
+type SourceLocator struct {
+	// +optional
+	Resource kmapi.ResourceID `json:"resource"`
+	// +optional
+	Ref kmapi.ObjectReference `json:"ref"`
 }

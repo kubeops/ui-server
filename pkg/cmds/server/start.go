@@ -79,7 +79,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 				auditorv1alpha1.SchemeGroupVersion,
 				rsapi.SchemeGroupVersion,
 				identityv1alpha1.GroupVersion,
-				corev1alpha1.GroupVersion,
+				corev1alpha1.SchemeGroupVersion,
 			),
 		),
 		PrometheusOptions: promclient.NewPrometheusConfig(),
@@ -138,6 +138,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	serverConfig.OpenAPIConfig.Info.Version = v.Version.Version
 	serverConfig.OpenAPIConfig.IgnorePrefixes = []string{
 		"/swaggerapi",
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceChartPresetQueries),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceDescriptors),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceGraphs),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceRenders),

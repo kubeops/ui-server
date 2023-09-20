@@ -96,7 +96,7 @@ func (s GroupKindSelector) Matches(gk schema.GroupKind) bool {
 
 var (
 	podGVR     = schema.GroupVersionResource{Version: "v1", Resource: "Pods"}
-	podviewGVR = corev1alpha1.GroupVersion.WithResource(corev1alpha1.ResourcePodViews)
+	podviewGVR = corev1alpha1.SchemeGroupVersion.WithResource(corev1alpha1.ResourcePodViews)
 )
 
 func IsPod(gvr schema.GroupVersionResource) bool {

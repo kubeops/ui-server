@@ -41,6 +41,7 @@ import (
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
+	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderdashboard"
 	"kubeops.dev/ui-server/pkg/registry/meta/rendermenu"
@@ -78,6 +79,7 @@ import (
 	"k8s.io/klog/v2/klogr"
 	"kmodules.xyz/authorizer"
 	cu "kmodules.xyz/client-go/client"
+	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/client-go/meta"
 	appcatalogapi "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	"kmodules.xyz/custom-resources/apis/auditor"
@@ -214,7 +216,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
 	}
 
-	cid, err := cu.ClusterUID(mgr.GetAPIReader())
+	cid, err := clustermeta.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
 		return nil, err
 	}
@@ -258,6 +260,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(rsapi.SchemeGroupVersion.Group, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[rsapi.ResourceChartPresetQueries] = chartpresetquery.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()
 		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, oc, rbacAuthorizer)

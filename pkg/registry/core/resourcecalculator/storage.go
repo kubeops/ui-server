@@ -61,7 +61,7 @@ func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *St
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return corev1alpha1.GroupVersion.WithKind(corev1alpha1.ResourceKindResourceCalculator)
+	return corev1alpha1.SchemeGroupVersion.WithKind(corev1alpha1.ResourceKindResourceCalculator)
 }
 
 func (r *Storage) NamespaceScoped() bool {
