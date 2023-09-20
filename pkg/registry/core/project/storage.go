@@ -46,15 +46,17 @@ var (
 	_ rest.Storage                  = &Storage{}
 	_ rest.Lister                   = &Storage{}
 	_ rest.Getter                   = &Storage{}
+
+	gr = schema.GroupResource{
+		Group:    corev1alpha1.GroupName,
+		Resource: corev1alpha1.ResourceProjects,
+	}
 )
 
 func NewStorage(kc client.Client) *Storage {
 	s := &Storage{
-		kc: kc,
-		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    corev1alpha1.SchemeGroupVersion.Group,
-			Resource: corev1alpha1.ResourceProjects,
-		}),
+		kc:        kc,
+		convertor: rest.NewDefaultTableConvertor(gr),
 	}
 	return s
 }
@@ -77,10 +79,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	if clustermeta.IsRancherManaged(r.kc.RESTMapper()) {
 		return GetRancherProject(r.kc, name)
 	}
-	return nil, apierrors.NewNotFound(schema.GroupResource{
-		Group:    corev1alpha1.SchemeGroupVersion.Group,
-		Resource: corev1alpha1.ResourceProjects,
-	}, name)
+	return nil, apierrors.NewNotFound(gr, name)
 }
 
 func (r *Storage) NewList() runtime.Object {
@@ -146,10 +145,14 @@ func ListRancherProjects(kc client.Client) ([]corev1alpha1.Project, error) {
 							clustermeta.LabelKeyRancherProjectId: projectId,
 						},
 					},
-					// Quota: core.ResourceRequirements{},
 				},
 			}
 		}
+
+		if ns.CreationTimestamp.Before(&project.CreationTimestamp) {
+			project.CreationTimestamp = ns.CreationTimestamp
+		}
+
 		if ns.Name == metav1.NamespaceDefault {
 			project.Spec.Type = corev1alpha1.ProjectDefault
 		} else if ns.Name == metav1.NamespaceSystem {
@@ -174,6 +177,8 @@ func GetRancherProject(kc client.Client, projectId string) (*corev1alpha1.Projec
 	})
 	if err != nil {
 		return nil, err
+	} else if len(list.Items) == 0 {
+		return nil, apierrors.NewNotFound(gr, projectId)
 	}
 
 	now := time.Now()
@@ -197,6 +202,10 @@ func GetRancherProject(kc client.Client, projectId string) (*corev1alpha1.Projec
 		},
 	}
 	for _, ns := range list.Items {
+		if ns.CreationTimestamp.Before(&project.CreationTimestamp) {
+			project.CreationTimestamp = ns.CreationTimestamp
+		}
+
 		if ns.Name == metav1.NamespaceDefault {
 			project.Spec.Type = corev1alpha1.ProjectDefault
 		} else if ns.Name == metav1.NamespaceSystem {
