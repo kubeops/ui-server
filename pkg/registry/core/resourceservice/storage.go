@@ -41,7 +41,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	cu "kmodules.xyz/client-go/client"
+	clustermeta "kmodules.xyz/client-go/cluster"
 	mu "kmodules.xyz/client-go/meta"
 	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -81,7 +81,7 @@ func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *St
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return corev1alpha1.GroupVersion.WithKind(corev1alpha1.ResourceKindGenericResourceService)
+	return corev1alpha1.SchemeGroupVersion.WithKind(corev1alpha1.ResourceKindGenericResourceService)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -108,7 +108,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, apierrors.NewBadRequest("missing user info")
 	}
 
-	cmeta, err := cu.ClusterMetadata(r.kc)
+	cmeta, err := clustermeta.ClusterMetadata(r.kc)
 	if err != nil {
 		return nil, apierrors.NewInternalError(err)
 	}
@@ -163,7 +163,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewBadRequest("missing user info")
 	}
 
-	cmeta, err := cu.ClusterMetadata(r.kc)
+	cmeta, err := clustermeta.ClusterMetadata(r.kc)
 	if err != nil {
 		return nil, apierrors.NewInternalError(err)
 	}

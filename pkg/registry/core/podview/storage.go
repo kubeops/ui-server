@@ -72,7 +72,7 @@ func NewStorage(kc client.Client, a authorizer.Authorizer, builder *promclient.C
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return corev1alpha1.GroupVersion.WithKind(corev1alpha1.ResourceKindPodView)
+	return corev1alpha1.SchemeGroupVersion.WithKind(corev1alpha1.ResourceKindPodView)
 }
 
 func (r *Storage) NamespaceScoped() bool {
