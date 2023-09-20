@@ -49,7 +49,7 @@ require (
 	kmodules.xyz/resource-metrics v0.25.2
 	kmodules.xyz/sets v0.25.0
 	kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
-	kubepack.dev/lib-helm v0.7.2-0.20230920082220-472f4c7a79c8
+	kubepack.dev/lib-helm v0.7.2-0.20230920145804-ede12e65df63
 	sigs.k8s.io/cli-utils v0.34.0
 	sigs.k8s.io/controller-runtime v0.13.1
 	sigs.k8s.io/yaml v1.3.0

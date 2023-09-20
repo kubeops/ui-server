@@ -1845,7 +1845,7 @@ kubeops.dev/scanner/apis/scanner
 kubeops.dev/scanner/apis/scanner/v1alpha1
 kubeops.dev/scanner/apis/trivy
 kubeops.dev/scanner/client/clientset/versioned/scheme
-# kubepack.dev/lib-helm v0.7.2-0.20230920082220-472f4c7a79c8
+# kubepack.dev/lib-helm v0.7.2-0.20230920145804-ede12e65df63
 ## explicit; go 1.18
 kubepack.dev/lib-helm/pkg/values
 # sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33

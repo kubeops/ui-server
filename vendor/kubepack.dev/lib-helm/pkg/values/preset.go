@@ -19,7 +19,8 @@ import (
 
 func LoadPresetValues(kc client.Client, ref chartsapi.ChartPresetFlatRef) ([]chartsapi.ChartPresetValues, error) {
 	if ref.PresetName == "" {
-		return nil, errors.New("preset name is not set")
+		// required for editor charts
+		return nil, nil
 	}
 
 	rid := &kmapi.ResourceID{
@@ -48,7 +49,7 @@ func LoadPresetValues(kc client.Client, ref chartsapi.ChartPresetFlatRef) ([]cha
 	}
 
 	if variant.Selector == nil {
-		return nil, nil // ERROR?
+		return nil, nil
 	}
 	sel, err := metav1.LabelSelectorAsSelector(variant.Selector)
 	if err != nil {
