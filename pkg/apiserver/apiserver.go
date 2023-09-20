@@ -36,12 +36,12 @@ import (
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/core/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/core/podview"
+	projecttorage "kubeops.dev/ui-server/pkg/registry/core/project"
 	resourcecalculatorstorage "kubeops.dev/ui-server/pkg/registry/core/resourcecalculator"
 	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/core/resourceservice"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
-	projecttorage "kubeops.dev/ui-server/pkg/registry/management/projects"
 	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
 	"kubeops.dev/ui-server/pkg/registry/meta/renderdashboard"
@@ -79,7 +79,6 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 	"kmodules.xyz/authorizer"
-	mgmtapi "kmodules.xyz/client-go/apis/management/v1alpha1"
 	cu "kmodules.xyz/client-go/client"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/client-go/meta"
@@ -319,6 +318,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rscoreapi.ResourceResourceCalculators] = resourcecalculatorstorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[rscoreapi.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[rscoreapi.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[rscoreapi.ResourceProjects] = projecttorage.NewStorage(ctrlClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
@@ -353,17 +353,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[costapi.ResourceCostReports] = coststorage.NewStorage(ctrlClient)
-		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
-
-		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-			return nil, err
-		}
-	}
-	{
-		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(mgmtapi.GroupVersion.Group, Scheme, metav1.ParameterCodec, Codecs)
-
-		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[mgmtapi.ResourceProjects] = projecttorage.NewStorage(ctrlClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
