@@ -6,7 +6,6 @@ import (
 
 	"github.com/pkg/errors"
 	"helm.sh/helm/v3/pkg/chart"
-	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -70,12 +69,10 @@ func LoadPresetValues(kc client.Client, ref chartsapi.ChartPresetFlatRef) ([]cha
 	}
 
 	if clustermeta.IsRancherManaged(kc.RESTMapper()) {
-		var ns core.Namespace
-		err = kc.Get(context.TODO(), client.ObjectKey{Name: ref.Namespace}, &ns)
+		projectId, found, err := clustermeta.GetProjectId(kc, ref.Namespace)
 		if err != nil {
 			return nil, err
 		}
-		projectId, found := ns.Labels[clustermeta.LabelKeyRancherProjectId]
 		if !found {
 			// NS not in a project. So, just add the extra CCPs
 			ccps, err := bundleClusterChartPresets(kc, sel, knownPresets)
@@ -86,25 +83,18 @@ func LoadPresetValues(kc client.Client, ref chartsapi.ChartPresetFlatRef) ([]cha
 			return values, nil
 		}
 
-		var nsList core.NamespaceList
-		err := kc.List(context.TODO(), &nsList, client.MatchingLabels{
-			clustermeta.LabelKeyRancherProjectId: projectId,
-		})
+		nsList, err := clustermeta.ListProjectNamespaces(kc, projectId)
 		if err != nil {
 			return nil, err
 		}
-		namespaces := nsList.Items
-		sort.Slice(namespaces, func(i, j int) bool {
-			return namespaces[i].Name < namespaces[j].Name
-		})
-
 		projectPresets := map[string]bool{} // true => cp, false => ccp
+		namespaces := clustermeta.Names(nsList)
 		for i := len(namespaces) - 1; i >= 0; i-- {
-			if namespaces[i].Name == ref.Namespace {
+			if namespaces[i] == ref.Namespace {
 				continue
 			}
 
-			nsPresets, err := bundleChartPresets(kc, namespaces[i].Name, sel, knownPresets)
+			nsPresets, err := bundleChartPresets(kc, namespaces[i], sel, knownPresets)
 			if err != nil {
 				return nil, err
 			}
