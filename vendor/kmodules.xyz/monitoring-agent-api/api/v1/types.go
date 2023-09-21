@@ -29,8 +29,10 @@ const (
 	DefaultPrometheusKey   = "monitoring.appscode.com/is-default-prometheus"
 	DefaultAlertmanagerKey = "monitoring.appscode.com/is-default-alertmanager"
 	DefaultGrafanaKey      = "monitoring.appscode.com/is-default-grafana"
+	FederatedKey           = "monitoring.appscode.com/federate"
 )
 
+// +kubebuilder:validation:Enum=prometheus.io/operator;prometheus.io;prometheus.io/builtin
 type AgentType string
 
 const (
@@ -52,30 +54,30 @@ func (at AgentType) Vendor() string {
 }
 
 type AgentSpec struct {
-	Agent      AgentType       `json:"agent,omitempty" protobuf:"bytes,1,opt,name=agent,casttype=AgentType"`
-	Prometheus *PrometheusSpec `json:"prometheus,omitempty" protobuf:"bytes,2,opt,name=prometheus"`
+	Agent      AgentType       `json:"agent,omitempty"`
+	Prometheus *PrometheusSpec `json:"prometheus,omitempty"`
 }
 
 type PrometheusSpec struct {
-	Exporter       PrometheusExporterSpec `json:"exporter,omitempty" protobuf:"bytes,1,opt,name=exporter"`
-	ServiceMonitor *ServiceMonitorSpec    `json:"serviceMonitor,omitempty" protobuf:"bytes,2,opt,name=serviceMonitor"`
+	Exporter       PrometheusExporterSpec `json:"exporter,omitempty"`
+	ServiceMonitor *ServiceMonitorSpec    `json:"serviceMonitor,omitempty"`
 }
 
 type ServiceMonitorSpec struct {
 	// Labels are key value pairs that is used to select Prometheus instance via ServiceMonitor labels.
 	// +optional
-	Labels map[string]string `json:"labels,omitempty" protobuf:"bytes,1,rep,name=labels"`
+	Labels map[string]string `json:"labels,omitempty"`
 
 	// Interval at which metrics should be scraped
 	// +optional
-	Interval string `json:"interval,omitempty" protobuf:"bytes,2,opt,name=interval"`
+	Interval string `json:"interval,omitempty"`
 }
 
 type PrometheusExporterSpec struct {
 	// Port number for the exporter side car.
 	// +optional
 	// +kubebuilder:default=56790
-	Port int32 `json:"port,omitempty" protobuf:"varint,1,opt,name=port"`
+	Port int32 `json:"port,omitempty"`
 
 	// Arguments to the entrypoint.
 	// The docker image's CMD is used if this is not provided.
@@ -86,26 +88,26 @@ type PrometheusExporterSpec struct {
 	// Cannot be updated.
 	// More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
 	// +optional
-	Args []string `json:"args,omitempty" protobuf:"bytes,2,rep,name=args"`
+	Args []string `json:"args,omitempty"`
 
 	// List of environment variables to set in the container.
 	// Cannot be updated.
 	// +optional
 	// +patchMergeKey=name
 	// +patchStrategy=merge
-	Env []core.EnvVar `json:"env,omitempty" patchStrategy:"merge" patchMergeKey:"name" protobuf:"bytes,3,rep,name=env"`
+	Env []core.EnvVar `json:"env,omitempty" patchStrategy:"merge" patchMergeKey:"name"`
 
 	// Compute Resources required by exporter container.
 	// Cannot be updated.
 	// More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
 	// +optional
-	Resources core.ResourceRequirements `json:"resources,omitempty" protobuf:"bytes,4,opt,name=resources"`
+	Resources core.ResourceRequirements `json:"resources,omitempty"`
 
 	// Security options the pod should run with.
 	// More info: https://kubernetes.io/docs/concepts/policy/security-context/
 	// More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 	// +optional
-	SecurityContext *core.SecurityContext `json:"securityContext,omitempty" protobuf:"bytes,5,opt,name=securityContext"`
+	SecurityContext *core.SecurityContext `json:"securityContext,omitempty"`
 }
 
 type Agent interface {
