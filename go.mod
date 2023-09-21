@@ -15,6 +15,7 @@ require (
 	github.com/graphql-go/handler v0.2.3
 	github.com/open-policy-agent/gatekeeper v3.11.0+incompatible
 	github.com/pkg/errors v0.9.1
+	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.59.1
 	github.com/prometheus/client_golang v1.14.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
@@ -41,11 +42,11 @@ require (
 	k8s.io/kube-state-metrics/v2 v2.7.0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.1
-	kmodules.xyz/client-go v0.25.34-0.20230921040103-348a70fd7492
+	kmodules.xyz/client-go v0.25.34-0.20230921171922-af0189b22d8c
 	kmodules.xyz/custom-resources v0.25.2
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.3-0.20230921024614-ff5edfe18660
-	kmodules.xyz/resource-metadata v0.17.18-0.20230920172001-dbcf3e25f9da
+	kmodules.xyz/resource-metadata v0.17.18-0.20230921212650-1608ccad0625
 	kmodules.xyz/resource-metrics v0.25.2
 	kmodules.xyz/sets v0.25.0
 	kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
@@ -155,7 +156,6 @@ require (
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.59.1 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect

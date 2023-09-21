@@ -18,8 +18,6 @@ package project
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -28,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/duration"
 	"k8s.io/apiserver/pkg/registry/rest"
-	"kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 )
 
 /*
@@ -52,7 +50,7 @@ var swaggerMetadataDescriptions = metav1.ObjectMeta{}.SwaggerDoc()
 func (c defaultTableConvertor) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
 	var table metav1.Table
 	fn := func(obj runtime.Object) error {
-		o := obj.(*v1alpha1.Project)
+		o := obj.(*rsapi.Project)
 
 		table.Rows = append(table.Rows, metav1.TableRow{
 			Cells: []interface{}{
@@ -91,24 +89,6 @@ func (c defaultTableConvertor) ConvertToTable(ctx context.Context, object runtim
 		}
 	}
 	return &table, nil
-}
-
-// errNotAcceptable indicates the resource doesn't support Table conversion
-type errNotAcceptable struct {
-	resource schema.GroupResource
-}
-
-func (e errNotAcceptable) Error() string {
-	return fmt.Sprintf("the resource %s does not support being converted to a Table", e.resource)
-}
-
-func (e errNotAcceptable) Status() metav1.Status {
-	return metav1.Status{
-		Status:  metav1.StatusFailure,
-		Code:    http.StatusNotAcceptable,
-		Reason:  metav1.StatusReason("NotAcceptable"),
-		Message: e.Error(),
-	}
 }
 
 // convertToHumanReadableDateType returns the elapsed time since timestamp in
