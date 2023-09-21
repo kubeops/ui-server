@@ -62,6 +62,7 @@ import (
 
 	fluxsrc "github.com/fluxcd/source-controller/api/v1beta2"
 	"github.com/graphql-go/handler"
+	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
 	crdinstall "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install"
@@ -120,6 +121,7 @@ func init() {
 	utilruntime.Must(appcatalogapi.AddToScheme(Scheme))
 	utilruntime.Must(openvizapi.AddToScheme(Scheme))
 	utilruntime.Must(fluxsrc.AddToScheme(Scheme))
+	utilruntime.Must(monitoringv1.AddToScheme(Scheme))
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
