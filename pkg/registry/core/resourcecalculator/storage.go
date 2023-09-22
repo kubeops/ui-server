@@ -65,7 +65,7 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 }
 
 func (r *Storage) NamespaceScoped() bool {
-	return true
+	return false
 }
 
 func (r *Storage) New() runtime.Object {
