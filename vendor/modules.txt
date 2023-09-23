@@ -841,7 +841,7 @@ go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
 go.uber.org/zap/zapgrpc
-# golang.org/x/crypto v0.9.0
+# golang.org/x/crypto v0.13.0
 ## explicit; go 1.17
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
@@ -855,7 +855,7 @@ golang.org/x/crypto/pkcs12
 golang.org/x/crypto/pkcs12/internal/rc2
 golang.org/x/crypto/salsa20/salsa
 golang.org/x/crypto/scrypt
-# golang.org/x/net v0.10.0
+# golang.org/x/net v0.15.0
 ## explicit; go 1.17
 golang.org/x/net/context
 golang.org/x/net/http/httpguts
@@ -881,7 +881,7 @@ golang.org/x/oauth2/jwt
 golang.org/x/sync/errgroup
 golang.org/x/sync/semaphore
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.8.0
+# golang.org/x/sys v0.12.0
 ## explicit; go 1.17
 golang.org/x/sys/cpu
 golang.org/x/sys/execabs
@@ -889,10 +889,10 @@ golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/term v0.8.0
+# golang.org/x/term v0.12.0
 ## explicit; go 1.17
 golang.org/x/term
-# golang.org/x/text v0.9.0
+# golang.org/x/text v0.13.0
 ## explicit; go 1.17
 golang.org/x/text/encoding
 golang.org/x/text/encoding/internal
@@ -1764,7 +1764,7 @@ kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.25.34-0.20230921171922-af0189b22d8c
+# kmodules.xyz/client-go v0.25.34
 ## explicit; go 1.18
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
@@ -1792,14 +1792,14 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/go-containerregistry v0.0.11
 ## explicit; go 1.18
 kmodules.xyz/go-containerregistry/name
-# kmodules.xyz/monitoring-agent-api v0.25.3-0.20230921024614-ff5edfe18660
+# kmodules.xyz/monitoring-agent-api v0.25.3
 ## explicit; go 1.18
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.17.18-0.20230921230542-ac68abcecde2
+# kmodules.xyz/resource-metadata v0.17.18
 ## explicit; go 1.18
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -1844,7 +1844,7 @@ kubeops.dev/scanner/apis/scanner
 kubeops.dev/scanner/apis/scanner/v1alpha1
 kubeops.dev/scanner/apis/trivy
 kubeops.dev/scanner/client/clientset/versioned/scheme
-# kubepack.dev/lib-helm v0.7.2-0.20230921222611-9c4fd35ac8db
+# kubepack.dev/lib-helm v0.7.2
 ## explicit; go 1.18
 kubepack.dev/lib-helm/pkg/values
 # sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33
@@ -1995,7 +1995,7 @@ sigs.k8s.io/structured-merge-diff/v4/value
 # sigs.k8s.io/yaml v1.3.0
 ## explicit; go 1.12
 sigs.k8s.io/yaml
-# x-helm.dev/apimachinery v0.0.11-0.20230920073953-6834648fee5b
+# x-helm.dev/apimachinery v0.0.11
 ## explicit; go 1.19
 x-helm.dev/apimachinery/apis/charts/v1alpha1
 x-helm.dev/apimachinery/apis/releases/v1alpha1
