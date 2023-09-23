@@ -66,7 +66,7 @@ func (m *MetricsHandler) Install(c *mux.PathRecorderMux) {
 func collectMetrics(kc client.Client, w io.Writer) error {
 	generators := getFamilyGenerators()
 	if len(generators) == 0 {
-		_, err := w.Write([]byte("OK"))
+		_, err := w.Write([]byte(""))
 		return err
 	}
 
