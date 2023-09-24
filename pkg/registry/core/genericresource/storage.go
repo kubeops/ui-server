@@ -36,7 +36,7 @@ import (
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
-	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -62,14 +62,14 @@ func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *St
 		clusterID: clusterID,
 		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    corev1alpha1.GroupName,
-			Resource: corev1alpha1.ResourceGenericResources,
+			Group:    rscoreapi.GroupName,
+			Resource: rscoreapi.ResourceGenericResources,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return corev1alpha1.SchemeGroupVersion.WithKind(corev1alpha1.ResourceKindGenericResource)
+	return rscoreapi.SchemeGroupVersion.WithKind(rscoreapi.ResourceKindGenericResource)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -77,13 +77,13 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) New() runtime.Object {
-	return &corev1alpha1.GenericResource{}
+	return &rscoreapi.GenericResource{}
 }
 
 func (r *Storage) Destroy() {}
 
 func (r *Storage) NewList() runtime.Object {
-	return &corev1alpha1.GenericResourceList{}
+	return &rscoreapi.GenericResourceList{}
 }
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
@@ -101,7 +101,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, apierrors.NewInternalError(err)
 	}
 
-	objName, gk, err := corev1alpha1.ParseGenericResourceName(name)
+	objName, gk, err := rscoreapi.ParseGenericResourceName(name)
 	if err != nil {
 		return nil, apierrors.NewBadRequest(err.Error())
 	}
@@ -135,7 +135,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, err
 	}
 
-	return corev1alpha1.ToGenericResource(&obj, rid, cmeta)
+	return rscoreapi.ToGenericResource(&obj, rid, cmeta)
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -156,7 +156,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewInternalError(err)
 	}
 
-	items := make([]corev1alpha1.GenericResource, 0)
+	items := make([]rscoreapi.GenericResource, 0)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
 			continue
@@ -196,7 +196,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				continue
 			}
 
-			genres, err := corev1alpha1.ToGenericResource(&item, apiType, cmeta)
+			genres, err := rscoreapi.ToGenericResource(&item, apiType, cmeta)
 			if err != nil {
 				return nil, err
 			}
@@ -222,7 +222,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return items[i].Name < items[j].Name
 	})
 
-	result := corev1alpha1.GenericResourceList{
+	result := rscoreapi.GenericResourceList{
 		TypeMeta: metav1.TypeMeta{},
 		ListMeta: metav1.ListMeta{},
 		Items:    items,

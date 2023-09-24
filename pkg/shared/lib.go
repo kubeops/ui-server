@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/selection"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 )
 
 var BufferPool = sync.Pool{
@@ -96,7 +96,7 @@ func (s GroupKindSelector) Matches(gk schema.GroupKind) bool {
 
 var (
 	podGVR     = schema.GroupVersionResource{Version: "v1", Resource: "Pods"}
-	podviewGVR = corev1alpha1.SchemeGroupVersion.WithResource(corev1alpha1.ResourcePodViews)
+	podviewGVR = rscoreapi.SchemeGroupVersion.WithResource(rscoreapi.ResourcePodViews)
 )
 
 func IsPod(gvr schema.GroupVersionResource) bool {

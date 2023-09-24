@@ -28,7 +28,7 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -54,14 +54,14 @@ func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *St
 		clusterID: clusterID,
 		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    corev1alpha1.GroupName,
-			Resource: corev1alpha1.ResourceResourceCalculators,
+			Group:    rsapi.SchemeGroupVersion.Group,
+			Resource: rsapi.ResourceResourceCalculators,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return corev1alpha1.SchemeGroupVersion.WithKind(corev1alpha1.ResourceKindResourceCalculator)
+	return rsapi.SchemeGroupVersion.WithKind(rsapi.ResourceKindResourceCalculator)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -69,13 +69,13 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) New() runtime.Object {
-	return &corev1alpha1.ResourceCalculator{}
+	return &rsapi.ResourceCalculator{}
 }
 
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidation rest.ValidateObjectFunc, options *metav1.CreateOptions) (runtime.Object, error) {
-	in := obj.(*corev1alpha1.ResourceCalculator)
+	in := obj.(*rsapi.ResourceCalculator)
 	if in.Request == nil {
 		return nil, apierrors.NewBadRequest("missing apirequest")
 	}
@@ -110,10 +110,10 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
 
-func ToGenericResource(item *unstructured.Unstructured, apiType *kmapi.ResourceID) (*corev1alpha1.ResourceCalculatorResponse, error) {
+func ToGenericResource(item *unstructured.Unstructured, apiType *kmapi.ResourceID) (*rsapi.ResourceCalculatorResponse, error) {
 	content := item.UnstructuredContent()
 
-	var genres corev1alpha1.ResourceCalculatorResponse
+	var genres rsapi.ResourceCalculatorResponse
 	genres.APIType = *apiType
 	{
 		if v, ok, _ := unstructured.NestedString(content, "spec", "version"); ok {

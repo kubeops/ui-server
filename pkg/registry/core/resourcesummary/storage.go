@@ -37,7 +37,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
-	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -63,14 +63,14 @@ func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *St
 		clusterID: clusterID,
 		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    corev1alpha1.GroupName,
-			Resource: corev1alpha1.ResourceResourceSummaries,
+			Group:    rscoreapi.GroupName,
+			Resource: rscoreapi.ResourceResourceSummaries,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return corev1alpha1.SchemeGroupVersion.WithKind(corev1alpha1.ResourceKindResourceSummary)
+	return rscoreapi.SchemeGroupVersion.WithKind(rscoreapi.ResourceKindResourceSummary)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -78,13 +78,13 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) New() runtime.Object {
-	return &corev1alpha1.ResourceSummary{}
+	return &rscoreapi.ResourceSummary{}
 }
 
 func (r *Storage) Destroy() {}
 
 func (r *Storage) NewList() runtime.Object {
-	return &corev1alpha1.ResourceSummaryList{}
+	return &rscoreapi.ResourceSummaryList{}
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -105,7 +105,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	selector := shared.NewGroupKindSelector(options.LabelSelector)
 	now := time.Now()
 
-	items := make([]corev1alpha1.ResourceSummary, 0)
+	items := make([]rscoreapi.ResourceSummary, 0)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
 			continue
@@ -129,7 +129,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			ResourceRequest: true,
 		}
 
-		summary := corev1alpha1.ResourceSummary{
+		summary := rscoreapi.ResourceSummary{
 			TypeMeta: metav1.TypeMeta{},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:              gvk.GroupKind().String(),
@@ -137,7 +137,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				CreationTimestamp: metav1.NewTime(now),
 				UID:               types.UID(uuid.Must(uuid.NewUUID()).String()),
 			},
-			Spec: corev1alpha1.ResourceSummarySpec{
+			Spec: rscoreapi.ResourceSummarySpec{
 				Cluster: *cmeta,
 				APIType: *apiType,
 				// TotalResource: core.ResourceRequirements{},
@@ -203,7 +203,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return items[i].Spec.APIType.Kind < items[j].Spec.APIType.Kind
 	})
 
-	result := corev1alpha1.ResourceSummaryList{
+	result := rscoreapi.ResourceSummaryList{
 		TypeMeta: metav1.TypeMeta{},
 		ListMeta: metav1.ListMeta{},
 		Items:    items,
