@@ -43,7 +43,7 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	mu "kmodules.xyz/client-go/meta"
-	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
@@ -74,14 +74,14 @@ func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *St
 		clusterID: clusterID,
 		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    corev1alpha1.GroupName,
-			Resource: corev1alpha1.ResourceGenericResourceServices,
+			Group:    rscoreapi.GroupName,
+			Resource: rscoreapi.ResourceGenericResourceServices,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return corev1alpha1.SchemeGroupVersion.WithKind(corev1alpha1.ResourceKindGenericResourceService)
+	return rscoreapi.SchemeGroupVersion.WithKind(rscoreapi.ResourceKindGenericResourceService)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -89,13 +89,13 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) New() runtime.Object {
-	return &corev1alpha1.GenericResourceService{}
+	return &rscoreapi.GenericResourceService{}
 }
 
 func (r *Storage) Destroy() {}
 
 func (r *Storage) NewList() runtime.Object {
-	return &corev1alpha1.GenericResourceServiceList{}
+	return &rscoreapi.GenericResourceServiceList{}
 }
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
@@ -113,7 +113,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, apierrors.NewInternalError(err)
 	}
 
-	objName, gk, err := corev1alpha1.ParseGenericResourceName(name)
+	objName, gk, err := rscoreapi.ParseGenericResourceName(name)
 	if err != nil {
 		return nil, apierrors.NewBadRequest(err.Error())
 	}
@@ -168,7 +168,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewInternalError(err)
 	}
 
-	items := make([]corev1alpha1.GenericResourceService, 0)
+	items := make([]rscoreapi.GenericResourceService, 0)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
 			continue
@@ -234,7 +234,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return items[i].Name < items[j].Name
 	})
 
-	result := corev1alpha1.GenericResourceServiceList{
+	result := rscoreapi.GenericResourceServiceList{
 		TypeMeta: metav1.TypeMeta{},
 		ListMeta: metav1.ListMeta{},
 		Items:    items,
@@ -247,7 +247,7 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
 
-func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiType *kmapi.ResourceID, cmeta *kmapi.ClusterMetadata) (*corev1alpha1.GenericResourceService, error) {
+func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiType *kmapi.ResourceID, cmeta *kmapi.ClusterMetadata) (*rscoreapi.GenericResourceService, error) {
 	content := item.UnstructuredContent()
 
 	objID := kmapi.NewObjectID(&item)
@@ -267,10 +267,10 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		resstatus = &runtime.RawExtension{Raw: data}
 	}
 
-	genres := corev1alpha1.GenericResourceService{
+	genres := rscoreapi.GenericResourceService{
 		// TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:         corev1alpha1.GetGenericResourceName(&item),
+			Name:         rscoreapi.GetGenericResourceName(&item),
 			GenerateName: item.GetGenerateName(),
 			Namespace:    item.GetNamespace(),
 			// SelfLink:                   "",
@@ -287,26 +287,26 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			// ZZZ_DeprecatedClusterName: item.GetZZZ_DeprecatedClusterName(),
 			// ManagedFields:              nil,
 		},
-		Spec: corev1alpha1.GenericResourceServiceSpec{
+		Spec: rscoreapi.GenericResourceServiceSpec{
 			Cluster: *cmeta,
 			APIType: *apiType,
 			Name:    item.GetName(),
-			Status: corev1alpha1.GenericResourceServiceStatus{
+			Status: rscoreapi.GenericResourceServiceStatus{
 				Status:  s.Status.String(),
 				Message: s.Message,
 			},
-			Facilities: corev1alpha1.GenericResourceServiceFacilities{
-				Exposed: corev1alpha1.GenericResourceServiceFacilitator{
-					Usage: corev1alpha1.FacilityUnknown,
+			Facilities: rscoreapi.GenericResourceServiceFacilities{
+				Exposed: rscoreapi.GenericResourceServiceFacilitator{
+					Usage: rscoreapi.FacilityUnknown,
 				},
-				TLS: corev1alpha1.GenericResourceServiceFacilitator{
-					Usage: corev1alpha1.FacilityUnknown,
+				TLS: rscoreapi.GenericResourceServiceFacilitator{
+					Usage: rscoreapi.FacilityUnknown,
 				},
-				Backup: corev1alpha1.GenericResourceServiceFacilitator{
-					Usage: corev1alpha1.FacilityUnknown,
+				Backup: rscoreapi.GenericResourceServiceFacilitator{
+					Usage: rscoreapi.FacilityUnknown,
 				},
-				Monitoring: corev1alpha1.GenericResourceServiceFacilitator{
-					Usage: corev1alpha1.FacilityUnknown,
+				Monitoring: rscoreapi.GenericResourceServiceFacilitator{
+					Usage: rscoreapi.FacilityUnknown,
 				},
 			},
 		},
@@ -352,11 +352,11 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			}
 		}
 		if isExposed {
-			genres.Spec.Facilities.Exposed.Usage = corev1alpha1.FacilityUsed
+			genres.Spec.Facilities.Exposed.Usage = rscoreapi.FacilityUsed
 			genres.Spec.Facilities.Exposed.Resource = rid
 			genres.Spec.Facilities.Exposed.Refs = refs
 		} else {
-			genres.Spec.Facilities.Exposed.Usage = corev1alpha1.FacilityUnused
+			genres.Spec.Facilities.Exposed.Usage = rscoreapi.FacilityUnused
 		}
 	}
 	{
@@ -365,9 +365,9 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			return nil, err
 		}
 		if yes {
-			genres.Spec.Facilities.TLS.Usage = corev1alpha1.FacilityUsed
+			genres.Spec.Facilities.TLS.Usage = rscoreapi.FacilityUsed
 		} else {
-			genres.Spec.Facilities.TLS.Usage = corev1alpha1.FacilityUnused
+			genres.Spec.Facilities.TLS.Usage = rscoreapi.FacilityUnused
 		}
 	}
 	{
@@ -392,11 +392,11 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		})
 		if err == nil {
 			if len(refs) > 0 {
-				genres.Spec.Facilities.Backup.Usage = corev1alpha1.FacilityUsed
+				genres.Spec.Facilities.Backup.Usage = rscoreapi.FacilityUsed
 				genres.Spec.Facilities.Backup.Resource = rid
 				genres.Spec.Facilities.Backup.Refs = refs
 			} else {
-				genres.Spec.Facilities.Backup.Usage = corev1alpha1.FacilityUnused
+				genres.Spec.Facilities.Backup.Usage = rscoreapi.FacilityUnused
 			}
 		} else if !meta.IsNoMatchError(err) {
 			return nil, err
@@ -424,7 +424,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		})
 		if err == nil {
 			if len(refs) > 0 {
-				genres.Spec.Facilities.Monitoring.Usage = corev1alpha1.FacilityUsed
+				genres.Spec.Facilities.Monitoring.Usage = rscoreapi.FacilityUsed
 				genres.Spec.Facilities.Monitoring.Resource = rid
 				genres.Spec.Facilities.Monitoring.Refs = refs
 			}
@@ -432,7 +432,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			return nil, err
 		}
 
-		if genres.Spec.Facilities.Monitoring.Usage == corev1alpha1.FacilityUnknown {
+		if genres.Spec.Facilities.Monitoring.Usage == rscoreapi.FacilityUnknown {
 			rid, refs, err = graph.ExecRawQuery(r.kc, oid, sharedapi.ResourceLocator{
 				Ref: metav1.GroupKind{
 					Group: "monitoring.coreos.com",
@@ -454,11 +454,11 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			})
 			if err == nil {
 				if len(refs) > 0 {
-					genres.Spec.Facilities.Monitoring.Usage = corev1alpha1.FacilityUsed
+					genres.Spec.Facilities.Monitoring.Usage = rscoreapi.FacilityUsed
 					genres.Spec.Facilities.Monitoring.Resource = rid
 					genres.Spec.Facilities.Monitoring.Refs = refs
 				} else {
-					genres.Spec.Facilities.Monitoring.Usage = corev1alpha1.FacilityUnused
+					genres.Spec.Facilities.Monitoring.Usage = rscoreapi.FacilityUnused
 				}
 			} else if !meta.IsNoMatchError(err) {
 				return nil, err
@@ -471,7 +471,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 
 		gvr := apiType.GroupVersionResource()
 		if rd, err := resourcedescriptors.LoadByGVR(gvr); err == nil {
-			execServices := make([]corev1alpha1.ExecServiceFacilitator, 0, len(rd.Spec.Exec))
+			execServices := make([]rscoreapi.ExecServiceFacilitator, 0, len(rd.Spec.Exec))
 
 			for _, exec := range rd.Spec.Exec {
 				cond := true
@@ -497,7 +497,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 				}
 
 				if shared.IsPod(gvr) {
-					execServices = append(execServices, corev1alpha1.ExecServiceFacilitator{
+					execServices = append(execServices, rscoreapi.ExecServiceFacilitator{
 						Alias:    exec.Alias,
 						Resource: "pods",
 						Ref: kmapi.ObjectReference{
@@ -516,7 +516,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 						return nil, errors.Wrapf(err, "failed to render service name for %+v exec with alias %s", gvr, exec.Alias)
 					}
 
-					execServices = append(execServices, corev1alpha1.ExecServiceFacilitator{
+					execServices = append(execServices, rscoreapi.ExecServiceFacilitator{
 						Alias:    exec.Alias,
 						Resource: "services",
 						Ref: kmapi.ObjectReference{

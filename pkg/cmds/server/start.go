@@ -50,7 +50,7 @@ import (
 	"kmodules.xyz/client-go/tools/clientcmd"
 	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
 	promclient "kmodules.xyz/monitoring-agent-api/client"
-	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	ui "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -79,7 +79,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 				auditorv1alpha1.SchemeGroupVersion,
 				rsapi.SchemeGroupVersion,
 				identityv1alpha1.GroupVersion,
-				corev1alpha1.SchemeGroupVersion,
+				rscoreapi.SchemeGroupVersion,
 			),
 		),
 		PrometheusOptions: promclient.NewPrometheusConfig(),
@@ -131,7 +131,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		ou.GetDefinitions(
 			auditorv1alpha1.GetOpenAPIDefinitions,
 			identityv1alpha1.GetOpenAPIDefinitions,
-			corev1alpha1.GetOpenAPIDefinitions,
+			rscoreapi.GetOpenAPIDefinitions,
 		),
 		openapi.NewDefinitionNamer(apiserver.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"
@@ -150,7 +150,6 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, "usermenus"),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceChartPresetQueries),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceMenus),
-		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceProjects),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceRenderDashboards),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceRenderMenus),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceRenderRawGraphs),
@@ -163,6 +162,8 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceOutlines),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceQueries),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceTableDefinitions),
+
+		fmt.Sprintf("/apis/%s/%s", rscoreapi.SchemeGroupVersion, rscoreapi.ResourceProjects),
 	}
 
 	extraConfig := apiserver.ExtraConfig{

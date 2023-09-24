@@ -33,7 +33,7 @@ import (
 	"k8s.io/klog/v2"
 	mu "kmodules.xyz/client-go/meta"
 	promclient "kmodules.xyz/monitoring-agent-api/client"
-	corev1alpha1 "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rmapi "kmodules.xyz/resource-metrics/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -64,15 +64,15 @@ func NewStorage(kc client.Client, a authorizer.Authorizer, builder *promclient.C
 			Resource: "pods",
 		},
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    corev1alpha1.GroupName,
-			Resource: corev1alpha1.ResourcePodViews,
+			Group:    rscoreapi.GroupName,
+			Resource: rscoreapi.ResourcePodViews,
 		}),
 	}
 	return s
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return corev1alpha1.SchemeGroupVersion.WithKind(corev1alpha1.ResourceKindPodView)
+	return rscoreapi.SchemeGroupVersion.WithKind(rscoreapi.ResourceKindPodView)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -80,7 +80,7 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) New() runtime.Object {
-	return &corev1alpha1.PodView{}
+	return &rscoreapi.PodView{}
 }
 
 func (r *Storage) Destroy() {}
@@ -121,12 +121,12 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	return r.toPodView(&pod), nil
 }
 
-func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
-	result := corev1alpha1.PodView{
+func (r *Storage) toPodView(pod *core.Pod) *rscoreapi.PodView {
+	result := rscoreapi.PodView{
 		// TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: *pod.ObjectMeta.DeepCopy(),
-		Spec: corev1alpha1.PodViewSpec{
-			Resources: corev1alpha1.ResourceView{
+		Spec: rscoreapi.PodViewSpec{
+			Resources: rscoreapi.ResourceView{
 				Limits:   nil,
 				Requests: nil,
 				Usage:    nil,
@@ -143,12 +143,12 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 
 	var limits, requests core.ResourceList
 
-	result.Spec.Containers = make([]corev1alpha1.ContainerView, 0, len(pod.Spec.Containers))
+	result.Spec.Containers = make([]rscoreapi.ContainerView, 0, len(pod.Spec.Containers))
 	for _, c := range pod.Spec.Containers {
 		limits = rmapi.AddResourceList(limits, c.Resources.Limits)
 		requests = rmapi.AddResourceList(requests, c.Resources.Requests)
 
-		result.Spec.Containers = append(result.Spec.Containers, corev1alpha1.ContainerView{
+		result.Spec.Containers = append(result.Spec.Containers, rscoreapi.ContainerView{
 			Name:       c.Name,
 			Image:      c.Image,
 			Command:    c.Command,
@@ -157,7 +157,7 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 			Ports:      c.Ports,
 			EnvFrom:    c.EnvFrom,
 			Env:        c.Env,
-			Resources: corev1alpha1.ResourceView{
+			Resources: rscoreapi.ResourceView{
 				Limits:   c.Resources.Limits,
 				Requests: c.Resources.Requests,
 				Usage:    nil,
@@ -199,7 +199,7 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 		limits[core.ResourceStorage] = storageCap
 	}
 
-	rv := corev1alpha1.ResourceView{
+	rv := rscoreapi.ResourceView{
 		Limits:   limits,
 		Requests: requests,
 	}
@@ -214,7 +214,7 @@ func (r *Storage) toPodView(pod *core.Pod) *corev1alpha1.PodView {
 }
 
 func (r *Storage) NewList() runtime.Object {
-	return &corev1alpha1.PodViewList{}
+	return &rscoreapi.PodViewList{}
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -256,7 +256,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, err
 	}
 
-	podviews := make([]corev1alpha1.PodView, 0, len(podList.Items))
+	podviews := make([]rscoreapi.PodView, 0, len(podList.Items))
 	for _, pod := range podList.Items {
 		attrs.Name = pod.Name
 		attrs.Namespace = pod.Namespace
@@ -272,7 +272,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		podviews = append(podviews, *podView)
 	}
 
-	result := corev1alpha1.PodViewList{
+	result := rscoreapi.PodViewList{
 		TypeMeta: metav1.TypeMeta{},
 		ListMeta: podList.ListMeta,
 		Items:    podviews,

@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/duration"
 	"k8s.io/apiserver/pkg/registry/rest"
-	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 )
 
 /*
@@ -50,7 +50,7 @@ var swaggerMetadataDescriptions = metav1.ObjectMeta{}.SwaggerDoc()
 func (c defaultTableConvertor) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
 	var table metav1.Table
 	fn := func(obj runtime.Object) error {
-		o := obj.(*rsapi.Project)
+		o := obj.(*rscoreapi.Project)
 
 		table.Rows = append(table.Rows, metav1.TableRow{
 			Cells: []interface{}{

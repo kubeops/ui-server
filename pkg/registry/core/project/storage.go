@@ -37,7 +37,8 @@ import (
 	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
-	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	"kmodules.xyz/resource-metadata/apis/shared"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	chartsapi "x-helm.dev/apimachinery/apis/charts/v1alpha1"
 )
@@ -55,8 +56,8 @@ var (
 	_ rest.Getter                   = &Storage{}
 
 	gr = schema.GroupResource{
-		Group:    rsapi.SchemeGroupVersion.Group,
-		Resource: rsapi.ResourceProjects,
+		Group:    rscoreapi.SchemeGroupVersion.Group,
+		Resource: rscoreapi.ResourceProjects,
 	}
 )
 
@@ -69,7 +70,7 @@ func NewStorage(kc client.Client) *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return rsapi.SchemeGroupVersion.WithKind(rsapi.ResourceKindProject)
+	return rscoreapi.SchemeGroupVersion.WithKind(rscoreapi.ResourceKindProject)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -77,7 +78,7 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) New() runtime.Object {
-	return &rsapi.Project{}
+	return &rscoreapi.Project{}
 }
 
 func (r *Storage) Destroy() {}
@@ -90,11 +91,11 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 }
 
 func (r *Storage) NewList() runtime.Object {
-	return &rsapi.ProjectList{}
+	return &rscoreapi.ProjectList{}
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
-	var projects []rsapi.Project
+	var projects []rscoreapi.Project
 	var err error
 	if clustermeta.IsRancherManaged(r.kc.RESTMapper()) {
 		projects, err = ListRancherProjects(r.kc)
@@ -103,7 +104,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		}
 	}
 
-	result := rsapi.ProjectList{
+	result := rscoreapi.ProjectList{
 		TypeMeta: metav1.TypeMeta{},
 		// ListMeta: nil,
 		Items: projects,
@@ -116,7 +117,7 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
 
-func ListRancherProjects(kc client.Client) ([]rsapi.Project, error) {
+func ListRancherProjects(kc client.Client) ([]rscoreapi.Project, error) {
 	var list core.NamespaceList
 	err := kc.List(context.TODO(), &list)
 	if meta.IsNoMatchError(err) {
@@ -125,7 +126,7 @@ func ListRancherProjects(kc client.Client) ([]rsapi.Project, error) {
 		return nil, err
 	}
 
-	projects := map[string]rsapi.Project{}
+	projects := map[string]rscoreapi.Project{}
 	now := time.Now()
 	for _, ns := range list.Items {
 		projectId, exists := ns.Labels[clustermeta.LabelKeyRancherFieldProjectId]
@@ -135,7 +136,7 @@ func ListRancherProjects(kc client.Client) ([]rsapi.Project, error) {
 
 		project, exists := projects[projectId]
 		if !exists {
-			project = rsapi.Project{
+			project = rscoreapi.Project{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:              projectId,
 					CreationTimestamp: metav1.NewTime(now),
@@ -144,8 +145,8 @@ func ListRancherProjects(kc client.Client) ([]rsapi.Project, error) {
 						clustermeta.LabelKeyRancherFieldProjectId: projectId,
 					},
 				},
-				Spec: rsapi.ProjectSpec{
-					Type:       rsapi.ProjectUser,
+				Spec: rscoreapi.ProjectSpec{
+					Type:       rscoreapi.ProjectUser,
 					Namespaces: nil,
 					NamespaceSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
@@ -161,9 +162,9 @@ func ListRancherProjects(kc client.Client) ([]rsapi.Project, error) {
 		}
 
 		if ns.Name == metav1.NamespaceDefault {
-			project.Spec.Type = rsapi.ProjectDefault
+			project.Spec.Type = rscoreapi.ProjectDefault
 		} else if ns.Name == metav1.NamespaceSystem {
-			project.Spec.Type = rsapi.ProjectSystem
+			project.Spec.Type = rscoreapi.ProjectSystem
 		}
 		project.Spec.Namespaces = append(project.Spec.Namespaces, ns.Name)
 
@@ -184,7 +185,7 @@ func ListRancherProjects(kc client.Client) ([]rsapi.Project, error) {
 				return nil, err
 			}
 			for _, x := range presetList.Items {
-				presets = append(presets, rsapi.SourceLocator{
+				presets = append(presets, shared.SourceLocator{
 					Resource: kmapi.ResourceID{
 						Group:   chartsapi.GroupVersion.Group,
 						Version: chartsapi.GroupVersion.Version,
@@ -249,7 +250,7 @@ func ListRancherProjects(kc client.Client) ([]rsapi.Project, error) {
 			}
 
 			if prj.Spec.Monitoring == nil {
-				prj.Spec.Monitoring = &rsapi.ProjectMonitoring{}
+				prj.Spec.Monitoring = &rscoreapi.ProjectMonitoring{}
 			}
 			prj.Spec.Monitoring.PrometheusRef = &kmapi.ObjectReference{
 				Namespace: prom.Namespace,
@@ -283,7 +284,7 @@ func ListRancherProjects(kc client.Client) ([]rsapi.Project, error) {
 		}
 	}
 
-	result := make([]rsapi.Project, 0, len(projects))
+	result := make([]rscoreapi.Project, 0, len(projects))
 	for _, p := range projects {
 		result = append(result, p)
 	}
@@ -324,7 +325,7 @@ func DetectProjectMonitoringURLs(kc client.Client, promNS string) (alertmanagerU
 	return
 }
 
-func GetRancherProject(kc client.Client, projectId string) (*rsapi.Project, error) {
+func GetRancherProject(kc client.Client, projectId string) (*rscoreapi.Project, error) {
 	projects, err := ListRancherProjects(kc)
 	if err != nil {
 		return nil, err

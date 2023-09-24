@@ -18,7 +18,9 @@ package v1alpha1
 
 import (
 	kmapi "kmodules.xyz/client-go/api/v1"
+	"kmodules.xyz/resource-metadata/apis/shared"
 
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -31,11 +33,11 @@ const (
 // ProjectSpec defines the desired state of Project
 type ProjectSpec struct {
 	// +kubebuilder:default=User
-	Type              ProjectType           `json:"type,omitempty"`
-	Namespaces        []string              `json:"namespaces,omitempty"`
-	NamespaceSelector *metav1.LabelSelector `json:"namespaceSelector,omitempty"`
-	Monitoring        *ProjectMonitoring    `json:"monitoring,omitempty"`
-	Presets           []SourceLocator       `json:"presets,omitempty"`
+	Type              ProjectType            `json:"type,omitempty"`
+	Namespaces        []string               `json:"namespaces,omitempty"`
+	NamespaceSelector *metav1.LabelSelector  `json:"namespaceSelector,omitempty"`
+	Monitoring        *ProjectMonitoring     `json:"monitoring,omitempty"`
+	Presets           []shared.SourceLocator `json:"presets,omitempty"`
 }
 
 type ProjectMonitoring struct {
@@ -56,7 +58,21 @@ const (
 )
 
 // ProjectStatus defines the observed state of Project
-type ProjectStatus struct{}
+type ProjectStatus struct {
+	Quotas []ResourceQuota `json:"quotas"`
+}
+
+type ResourceQuota struct {
+	Group string `json:"group,omitempty"`
+	Kind  string `json:"kind,omitempty"`
+	// Hard is the set of enforced hard limits for each named resource.
+	// More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+	// +optional
+	Hard core.ResourceList `json:"hard,omitempty"`
+	// Used is the current observed total usage of the resource in the namespace.
+	// +optional
+	Used core.ResourceList `json:"used,omitempty"`
+}
 
 // +genclient
 // +genclient:nonNamespaced
@@ -82,4 +98,8 @@ type ProjectList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []Project `json:"items"`
+}
+
+func init() {
+	SchemeBuilder.Register(&Project{}, &ProjectList{})
 }
