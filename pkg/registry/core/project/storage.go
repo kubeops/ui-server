@@ -251,7 +251,7 @@ func ListRancherProjects(kc client.Client) ([]rscoreapi.Project, error) {
 		}
 		for _, prom := range promList.Items {
 			var projectId string
-			if prom.Namespace == "cattle-monitoring-system" {
+			if prom.Namespace == clustermeta.NamespaceRancherMonitoring {
 				projectId = sysProjectId
 			} else {
 				if prom.Spec.ServiceMonitorNamespaceSelector != nil {
