@@ -179,25 +179,45 @@ func ListRancherProjects(kc client.Client) ([]rscoreapi.Project, error) {
 				hasUseNs = true
 			}
 
-			var presetList chartsapi.ChartPresetList
-			err := kc.List(context.TODO(), &presetList, client.InNamespace(ns))
-			if err != nil && !meta.IsNoMatchError(err) {
-				return nil, err
-			}
-			for _, x := range presetList.Items {
-				presets = append(presets, shared.SourceLocator{
-					Resource: kmapi.ResourceID{
-						Group:   chartsapi.GroupVersion.Group,
-						Version: chartsapi.GroupVersion.Version,
-						Name:    "",
-						Kind:    chartsapi.ResourceKindChartPreset,
-						Scope:   "",
-					},
-					Ref: kmapi.ObjectReference{
-						Namespace: x.Namespace,
-						Name:      x.Name,
-					},
-				})
+			if prj.Spec.Type == rscoreapi.ProjectSystem {
+				if ns == metav1.NamespaceSystem {
+					var ccps chartsapi.ClusterChartPresetList
+					err := kc.List(context.TODO(), &ccps)
+					if err != nil && !meta.IsNoMatchError(err) {
+						return nil, err
+					}
+					for _, x := range ccps.Items {
+						presets = append(presets, shared.SourceLocator{
+							Resource: kmapi.ResourceID{
+								Group:   chartsapi.GroupVersion.Group,
+								Version: chartsapi.GroupVersion.Version,
+								Kind:    chartsapi.ResourceKindClusterChartPreset,
+							},
+							Ref: kmapi.ObjectReference{
+								Name: x.Name,
+							},
+						})
+					}
+				}
+			} else {
+				var cps chartsapi.ChartPresetList
+				err := kc.List(context.TODO(), &cps, client.InNamespace(ns))
+				if err != nil && !meta.IsNoMatchError(err) {
+					return nil, err
+				}
+				for _, x := range cps.Items {
+					presets = append(presets, shared.SourceLocator{
+						Resource: kmapi.ResourceID{
+							Group:   chartsapi.GroupVersion.Group,
+							Version: chartsapi.GroupVersion.Version,
+							Kind:    chartsapi.ResourceKindChartPreset,
+						},
+						Ref: kmapi.ObjectReference{
+							Name:      x.Name,
+							Namespace: x.Namespace,
+						},
+					})
+				}
 			}
 		}
 
