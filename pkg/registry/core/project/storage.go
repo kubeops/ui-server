@@ -250,21 +250,16 @@ func ListRancherProjects(kc client.Client) ([]rscoreapi.Project, error) {
 			return nil, err
 		}
 		for _, prom := range promList.Items {
-			promProjectId, found, err := clustermeta.GetProjectId(kc, prom.Namespace)
-			if err != nil {
-				return nil, err
-			} else if !found {
-				continue
-			}
-
-			projectId := promProjectId
-			prj, found := projects[projectId]
-			if !found {
+			var projectId string
+			if prom.Namespace == "cattle-monitoring-system" {
+				projectId = sysProjectId
+			} else {
 				if prom.Spec.ServiceMonitorNamespaceSelector != nil {
 					projectId = prom.Spec.ServiceMonitorNamespaceSelector.MatchLabels[clustermeta.LabelKeyRancherHelmProjectId]
-					prj, found = projects[projectId]
 				}
 			}
+
+			prj, found := projects[projectId]
 			if !found {
 				continue
 			}
