@@ -74,13 +74,18 @@ func collectMetrics(kc client.Client, w io.Writer) error {
 	headers := generator.ExtractMetricFamilyHeaders(generators)
 	store := metricsstore.NewMetricsStore(headers)
 
-	offset := 0
+	err := collectPodAncestorMetrics(kc, generators, store)
+	if err != nil {
+		return err
+	}
+
+	offset := 1
 	if graph.ScannerInstalled() {
 		err := collectScannerMetrics(kc, generators, store)
 		if err != nil {
 			return err
 		}
-		offset = 9 // # of scanner metrics families
+		offset = 10 // # of scanner metrics families
 	}
 	if graph.OPAInstalled() {
 		err := collectPolicyMetrics(kc, generators, store, offset)
@@ -93,7 +98,15 @@ func collectMetrics(kc client.Client, w io.Writer) error {
 
 func getFamilyGenerators() []generator.FamilyGenerator {
 	fn := func(obj interface{}) *metric.Family { return new(metric.Family) }
-	generators := make([]generator.FamilyGenerator, 0, 13)
+	generators := make([]generator.FamilyGenerator, 0, 14)
+
+	generators = append(generators, generator.FamilyGenerator{
+		Name:              "k8s_appscode_com_pod_ancestor",
+		Help:              "Pod Ancestor statistics",
+		Type:              metric.Gauge,
+		DeprecatedVersion: "",
+		GenerateFunc:      fn,
+	})
 
 	if graph.ScannerInstalled() {
 		generators = append(generators, generator.FamilyGenerator{
