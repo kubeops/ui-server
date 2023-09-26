@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
+	"gomodules.xyz/pointer"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"kmodules.xyz/client-go/meta"
@@ -91,8 +92,23 @@ func isWorkLoadsReady(objList unstructured.UnstructuredList) bool {
 	return true
 }
 
-func allRequireFeaturesReady(fs *uiapi.FeatureSet) (enabled bool, reason string) {
-	for _, f := range fs.Spec.RequiredFeatures {
+func getAllEnabledFeatures(fs *uiapi.FeatureSet) []string {
+	var features []string
+	for _, f := range fs.Status.Features {
+		if pointer.Bool(f.Enabled) {
+			features = append(features, f.Name)
+		}
+	}
+	return features
+}
+
+func allRequiredFeaturesReady(fs *uiapi.FeatureSet) (enabled bool, reason string) {
+	reqFeatures := fs.Spec.RequiredFeatures
+	if len(reqFeatures) == 0 {
+		reqFeatures = getAllEnabledFeatures(fs)
+	}
+
+	for _, f := range reqFeatures {
 		if !isFeatureReady(f, fs.Status.Features) {
 			return false, fmt.Sprintf("Required feature '%s' is not ready.", f)
 		}
