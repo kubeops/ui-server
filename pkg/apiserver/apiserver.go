@@ -30,6 +30,7 @@ import (
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
+	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/metricshandler"
 	"kubeops.dev/ui-server/pkg/registry"
@@ -241,6 +242,14 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 	if err := mgr.Add(manager.RunnableFunc(graph.SetupGraphReconciler(mgr))); err != nil {
 		setupLog.Error(err, "unable to set up resource reconciler configurator")
+		os.Exit(1)
+	}
+
+	if err = (&projectquotacontroller.ProjectQuotaReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		klog.Error(err, "unable to create controller", "controller", "ProjectQuota")
 		os.Exit(1)
 	}
 
