@@ -3,6 +3,9 @@ package resource_calculator
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -22,14 +25,11 @@ import (
 	"kubedb.dev/installer/catalog"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
-	"time"
 )
 
 func CalcProjectQuotaStatus(mgr ctrl.Manager, obj client.Object) (*v1alpha1.ProjectQuota, error) {
 	kc := mgr.GetClient()
 	clientSet, err := cs.NewForConfig(mgr.GetConfig())
-
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +37,9 @@ func CalcProjectQuotaStatus(mgr ctrl.Manager, obj client.Object) (*v1alpha1.Proj
 	// 1. Get the object for which the reconciler triggered
 	var unstructuredResource unstructured.Unstructured
 	err = kc.Get(context.Background(), client.ObjectKey{Name: obj.GetName()}, &unstructuredResource)
+	if err != nil {
+		return nil, err
+	}
 
 	// 2. Get the projectId for that namespace
 	projectId, _, err := cluster.GetProjectId(kc, obj.GetNamespace())

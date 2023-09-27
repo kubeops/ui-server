@@ -1,7 +1,7 @@
 # cloud.google.com/go/compute v1.13.0
 ## explicit; go 1.19
 cloud.google.com/go/compute/internal
-# cloud.google.com/go/compute/metadata v0.2.1
+# cloud.google.com/go/compute/metadata v0.2.2
 ## explicit; go 1.19
 cloud.google.com/go/compute/metadata
 # cloud.google.com/go/monitoring v1.8.0
@@ -139,7 +139,7 @@ github.com/cert-manager/cert-manager/pkg/apis/certmanager
 github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1
 github.com/cert-manager/cert-manager/pkg/apis/meta
 github.com/cert-manager/cert-manager/pkg/apis/meta/v1
-# github.com/cespare/xxhash/v2 v2.1.2
+# github.com/cespare/xxhash/v2 v2.2.0
 ## explicit; go 1.11
 github.com/cespare/xxhash/v2
 # github.com/containerd/stargz-snapshotter/estargz v0.12.1
@@ -472,6 +472,18 @@ github.com/munnerz/goautoneg
 # github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f
 ## explicit
 github.com/mwitkow/go-conntrack
+# github.com/onsi/gomega v1.27.4
+## explicit; go 1.18
+github.com/onsi/gomega
+github.com/onsi/gomega/format
+github.com/onsi/gomega/internal
+github.com/onsi/gomega/internal/gutil
+github.com/onsi/gomega/matchers
+github.com/onsi/gomega/matchers/support/goraph/bipartitegraph
+github.com/onsi/gomega/matchers/support/goraph/edge
+github.com/onsi/gomega/matchers/support/goraph/node
+github.com/onsi/gomega/matchers/support/goraph/util
+github.com/onsi/gomega/types
 # github.com/open-policy-agent/frameworks/constraint v0.0.0-20221214024800-b745745c4118
 ## explicit; go 1.18
 github.com/open-policy-agent/frameworks/constraint/pkg/apis/constraints
@@ -866,6 +878,9 @@ golang.org/x/crypto/scrypt
 # golang.org/x/net v0.15.0
 ## explicit; go 1.17
 golang.org/x/net/context
+golang.org/x/net/html
+golang.org/x/net/html/atom
+golang.org/x/net/html/charset
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
@@ -903,10 +918,20 @@ golang.org/x/term
 # golang.org/x/text v0.13.0
 ## explicit; go 1.17
 golang.org/x/text/encoding
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/htmlindex
 golang.org/x/text/encoding/internal
 golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/korean
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
 golang.org/x/text/encoding/unicode
+golang.org/x/text/internal/language
+golang.org/x/text/internal/language/compact
+golang.org/x/text/internal/tag
 golang.org/x/text/internal/utf8internal
+golang.org/x/text/language
 golang.org/x/text/runes
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
@@ -916,8 +941,6 @@ golang.org/x/text/width
 # golang.org/x/time v0.3.0
 ## explicit
 golang.org/x/time/rate
-# golang.org/x/tools v0.7.0
-## explicit; go 1.18
 # gomodules.xyz/atomic-writer v0.0.2
 ## explicit; go 1.16
 gomodules.xyz/atomic-writer
@@ -1785,6 +1808,7 @@ kmodules.xyz/client-go/client
 kmodules.xyz/client-go/client/apiutil
 kmodules.xyz/client-go/client/duck
 kmodules.xyz/client-go/cluster
+kmodules.xyz/client-go/conditions
 kmodules.xyz/client-go/core/v1
 kmodules.xyz/client-go/discovery
 kmodules.xyz/client-go/meta
@@ -1805,15 +1829,15 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/go-containerregistry v0.0.11
 ## explicit; go 1.18
 kmodules.xyz/go-containerregistry/name
-# kmodules.xyz/monitoring-agent-api v0.25.0
+# kmodules.xyz/monitoring-agent-api v0.25.1
 ## explicit; go 1.18
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/api/v1alpha1
 kmodules.xyz/monitoring-agent-api/client
-# kmodules.xyz/objectstore-api v0.25.1-0.20221104003322-f0289b5b6ca2
+# kmodules.xyz/objectstore-api v0.25.1
 ## explicit; go 1.18
 kmodules.xyz/objectstore-api/api/v1
-# kmodules.xyz/offshoot-api v0.25.0
+# kmodules.xyz/offshoot-api v0.25.4
 ## explicit; go 1.18
 kmodules.xyz/offshoot-api/api/v1
 # kmodules.xyz/resource-metadata v0.17.20-0.20230925104037-c526b22982fe
@@ -1855,7 +1879,7 @@ kmodules.xyz/resource-metrics/kubevault.com/v1alpha2
 # kmodules.xyz/sets v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/sets
-# kubedb.dev/apimachinery v0.32.0
+# kubedb.dev/apimachinery v0.35.0
 ## explicit; go 1.18
 kubedb.dev/apimachinery/apis
 kubedb.dev/apimachinery/apis/autoscaling
@@ -1888,8 +1912,9 @@ kubedb.dev/apimachinery/client/clientset/versioned/typed/postgres/v1alpha1
 kubedb.dev/apimachinery/client/clientset/versioned/typed/schema/v1alpha1
 kubedb.dev/apimachinery/client/clientset/versioned/typed/ui/v1alpha1
 kubedb.dev/apimachinery/crds
+kubedb.dev/apimachinery/pkg/double_optin
 kubedb.dev/apimachinery/pkg/validator
-# kubedb.dev/installer v0.17.2-0.20220914213231-59a10600bd29
+# kubedb.dev/installer v0.17.2-0.20230927081659-ca8d9fb9957d
 ## explicit; go 1.18
 kubedb.dev/installer/catalog
 # kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
