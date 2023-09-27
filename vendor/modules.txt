@@ -131,6 +131,14 @@ github.com/census-instrumentation/opencensus-proto/gen-go/agent/trace/v1
 github.com/census-instrumentation/opencensus-proto/gen-go/metrics/v1
 github.com/census-instrumentation/opencensus-proto/gen-go/resource/v1
 github.com/census-instrumentation/opencensus-proto/gen-go/trace/v1
+# github.com/cert-manager/cert-manager v1.9.1
+## explicit; go 1.18
+github.com/cert-manager/cert-manager/pkg/apis/acme
+github.com/cert-manager/cert-manager/pkg/apis/acme/v1
+github.com/cert-manager/cert-manager/pkg/apis/certmanager
+github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1
+github.com/cert-manager/cert-manager/pkg/apis/meta
+github.com/cert-manager/cert-manager/pkg/apis/meta/v1
 # github.com/cespare/xxhash/v2 v2.1.2
 ## explicit; go 1.11
 github.com/cespare/xxhash/v2
@@ -920,6 +928,7 @@ gomodules.xyz/clock
 ## explicit; go 1.17
 gomodules.xyz/encoding/json
 gomodules.xyz/encoding/json/query
+gomodules.xyz/encoding/json/types
 # gomodules.xyz/flags v0.1.3
 ## explicit; go 1.16
 gomodules.xyz/flags
@@ -953,6 +962,7 @@ gomodules.xyz/sync
 gomodules.xyz/wait
 # gomodules.xyz/x v0.0.15
 ## explicit; go 1.18
+gomodules.xyz/x/arrays
 gomodules.xyz/x/ioutil
 gomodules.xyz/x/strings
 gomodules.xyz/x/version
@@ -1770,6 +1780,7 @@ kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
 kmodules.xyz/client-go/apiextensions
 kmodules.xyz/client-go/apiextensions/v1
+kmodules.xyz/client-go/apps/v1
 kmodules.xyz/client-go/client
 kmodules.xyz/client-go/client/apiutil
 kmodules.xyz/client-go/client/duck
@@ -1781,6 +1792,7 @@ kmodules.xyz/client-go/openapi
 kmodules.xyz/client-go/pointer
 kmodules.xyz/client-go/tools/clientcmd
 kmodules.xyz/client-go/tools/clusterid
+kmodules.xyz/client-go/tools/parser
 # kmodules.xyz/custom-resources v0.25.2
 ## explicit; go 1.18
 kmodules.xyz/custom-resources/apis/appcatalog
@@ -1793,10 +1805,14 @@ kmodules.xyz/custom-resources/util/siteinfo
 # kmodules.xyz/go-containerregistry v0.0.11
 ## explicit; go 1.18
 kmodules.xyz/go-containerregistry/name
-# kmodules.xyz/monitoring-agent-api v0.25.3
+# kmodules.xyz/monitoring-agent-api v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/monitoring-agent-api/api/v1
+kmodules.xyz/monitoring-agent-api/api/v1alpha1
 kmodules.xyz/monitoring-agent-api/client
+# kmodules.xyz/objectstore-api v0.25.1-0.20221104003322-f0289b5b6ca2
+## explicit; go 1.18
+kmodules.xyz/objectstore-api/api/v1
 # kmodules.xyz/offshoot-api v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/offshoot-api/api/v1
@@ -1839,6 +1855,43 @@ kmodules.xyz/resource-metrics/kubevault.com/v1alpha2
 # kmodules.xyz/sets v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/sets
+# kubedb.dev/apimachinery v0.32.0
+## explicit; go 1.18
+kubedb.dev/apimachinery/apis
+kubedb.dev/apimachinery/apis/autoscaling
+kubedb.dev/apimachinery/apis/autoscaling/v1alpha1
+kubedb.dev/apimachinery/apis/catalog
+kubedb.dev/apimachinery/apis/catalog/v1alpha1
+kubedb.dev/apimachinery/apis/config
+kubedb.dev/apimachinery/apis/config/v1alpha1
+kubedb.dev/apimachinery/apis/dashboard/v1alpha1
+kubedb.dev/apimachinery/apis/kubedb
+kubedb.dev/apimachinery/apis/kubedb/v1alpha1
+kubedb.dev/apimachinery/apis/kubedb/v1alpha2
+kubedb.dev/apimachinery/apis/ops
+kubedb.dev/apimachinery/apis/ops/v1alpha1
+kubedb.dev/apimachinery/apis/postgres
+kubedb.dev/apimachinery/apis/postgres/v1alpha1
+kubedb.dev/apimachinery/apis/schema/v1alpha1
+kubedb.dev/apimachinery/apis/ui
+kubedb.dev/apimachinery/apis/ui/v1alpha1
+kubedb.dev/apimachinery/client/clientset/versioned
+kubedb.dev/apimachinery/client/clientset/versioned/scheme
+kubedb.dev/apimachinery/client/clientset/versioned/typed/autoscaling/v1alpha1
+kubedb.dev/apimachinery/client/clientset/versioned/typed/catalog/v1alpha1
+kubedb.dev/apimachinery/client/clientset/versioned/typed/config/v1alpha1
+kubedb.dev/apimachinery/client/clientset/versioned/typed/dashboard/v1alpha1
+kubedb.dev/apimachinery/client/clientset/versioned/typed/kubedb/v1alpha1
+kubedb.dev/apimachinery/client/clientset/versioned/typed/kubedb/v1alpha2
+kubedb.dev/apimachinery/client/clientset/versioned/typed/ops/v1alpha1
+kubedb.dev/apimachinery/client/clientset/versioned/typed/postgres/v1alpha1
+kubedb.dev/apimachinery/client/clientset/versioned/typed/schema/v1alpha1
+kubedb.dev/apimachinery/client/clientset/versioned/typed/ui/v1alpha1
+kubedb.dev/apimachinery/crds
+kubedb.dev/apimachinery/pkg/validator
+# kubedb.dev/installer v0.17.2-0.20220914213231-59a10600bd29
+## explicit; go 1.18
+kubedb.dev/installer/catalog
 # kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
@@ -1901,6 +1954,9 @@ sigs.k8s.io/controller-runtime/pkg/webhook
 sigs.k8s.io/controller-runtime/pkg/webhook/admission
 sigs.k8s.io/controller-runtime/pkg/webhook/conversion
 sigs.k8s.io/controller-runtime/pkg/webhook/internal/metrics
+# sigs.k8s.io/gateway-api v0.4.3
+## explicit; go 1.15
+sigs.k8s.io/gateway-api/apis/v1alpha2
 # sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd
 ## explicit; go 1.18
 sigs.k8s.io/json

@@ -45,10 +45,12 @@ require (
 	kmodules.xyz/client-go v0.25.37
 	kmodules.xyz/custom-resources v0.25.2
 	kmodules.xyz/go-containerregistry v0.0.11
-	kmodules.xyz/monitoring-agent-api v0.25.3
+	kmodules.xyz/monitoring-agent-api v0.25.0
 	kmodules.xyz/resource-metadata v0.17.20-0.20230925104037-c526b22982fe
 	kmodules.xyz/resource-metrics v0.25.2
 	kmodules.xyz/sets v0.25.0
+	kubedb.dev/apimachinery v0.32.0
+	kubedb.dev/installer v0.17.2-0.20220914213231-59a10600bd29
 	kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
 	kubepack.dev/lib-helm v0.7.2
 	sigs.k8s.io/cli-utils v0.34.0
@@ -84,6 +86,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
+	github.com/cert-manager/cert-manager v1.9.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.12.1 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
@@ -223,8 +226,10 @@ require (
 	k8s.io/cli-runtime v0.25.3 // indirect
 	k8s.io/component-helpers v0.25.1 // indirect
 	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2 // indirect
+	kmodules.xyz/objectstore-api v0.25.1-0.20221104003322-f0289b5b6ca2 // indirect
 	kmodules.xyz/offshoot-api v0.25.0 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33 // indirect
+	sigs.k8s.io/gateway-api v0.4.3 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.12.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.9 // indirect
