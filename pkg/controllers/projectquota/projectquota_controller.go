@@ -23,11 +23,9 @@ import (
 	"strings"
 
 	core "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/discovery"
 	"kmodules.xyz/apiversion"
 	kutil "kmodules.xyz/client-go"
@@ -178,7 +176,7 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 							}
 							nsUsed[gk] = used
 						}
-						quota.Used = AddResourceList(quota.Used, used)
+						quota.Used = api.AddResourceList(quota.Used, used)
 					}
 				}
 			} else {
@@ -191,7 +189,7 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 					return err
 				}
 				nsUsed[gk] = used
-				quota.Used = AddResourceList(quota.Used, used)
+				quota.Used = api.AddResourceList(quota.Used, used)
 			}
 
 			pj.Status.Quotas[i] = quota
@@ -248,7 +246,7 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 					usage["limits."+k] = v
 				}
 
-				used = AddResourceList(used, usage)
+				used = api.AddResourceList(used, usage)
 			}
 			break
 		}
@@ -267,51 +265,6 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 		}
 	}
 	return used, nil
-}
-
-func AddResourceList(x, y core.ResourceList) core.ResourceList {
-	names := sets.NewString()
-	for k := range x {
-		names.Insert(string(k))
-	}
-	for k := range y {
-		names.Insert(string(k))
-	}
-
-	result := core.ResourceList{}
-	for _, fullName := range names.UnsortedList() {
-		_, name, found := strings.Cut(fullName, ".")
-		var rf resource.Format
-		if found {
-			rf = resourceFormat(core.ResourceName(name))
-		} else {
-			rf = resourceFormat(core.ResourceName(fullName))
-		}
-
-		sum := resource.Quantity{Format: rf}
-		sum.Add(*x.Name(core.ResourceName(fullName), rf))
-		sum.Add(*y.Name(core.ResourceName(fullName), rf))
-		if !sum.IsZero() {
-			result[core.ResourceName(fullName)] = sum
-		}
-	}
-	return result
-}
-
-func resourceFormat(name core.ResourceName) resource.Format {
-	switch name {
-	case core.ResourceCPU:
-		return resource.DecimalSI
-	case core.ResourceMemory:
-		return resource.BinarySI
-	case core.ResourceStorage:
-		return resource.BinarySI
-	case core.ResourcePods:
-		return resource.DecimalSI
-	case core.ResourceEphemeralStorage:
-		return resource.BinarySI
-	}
-	return resource.BinarySI // panic ?
 }
 
 // SetupWithManager sets up the controller with the Manager.
