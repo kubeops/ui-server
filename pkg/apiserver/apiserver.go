@@ -91,6 +91,7 @@ import (
 	promclient "kmodules.xyz/monitoring-agent-api/client"
 	rscoreinstall "kmodules.xyz/resource-metadata/apis/core/install"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	mgmtinstall "kmodules.xyz/resource-metadata/apis/management/install"
 	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
@@ -115,6 +116,7 @@ func init() {
 	rsinstall.Install(Scheme)
 	uiinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
+	mgmtinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
 	utilruntime.Must(scannerscheme.AddToScheme(Scheme))
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
@@ -211,7 +213,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, fmt.Errorf("unable to start manager, reason: %v", err)
 	}
 	ctrlClient := mgr.GetClient()
-	disco, err := kubernetes.NewForConfig(mgr.GetConfig())
+	disco, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create discovery client, reason: %v", err)
 	}
@@ -246,8 +248,9 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	}
 
 	if err = (&projectquotacontroller.ProjectQuotaReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:    mgr.GetClient(),
+		Discovery: disco,
+		Scheme:    mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		klog.Error(err, "unable to create controller", "controller", "ProjectQuota")
 		os.Exit(1)

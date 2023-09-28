@@ -46,11 +46,9 @@ require (
 	kmodules.xyz/custom-resources v0.25.2
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.1
-	kmodules.xyz/resource-metadata v0.17.20-0.20230925104037-c526b22982fe
+	kmodules.xyz/resource-metadata v0.17.20-0.20230927041026-f43985eb8263
 	kmodules.xyz/resource-metrics v0.25.2
 	kmodules.xyz/sets v0.25.0
-	kubedb.dev/apimachinery v0.35.0
-	kubedb.dev/installer v0.17.2-0.20230927081659-ca8d9fb9957d
 	kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
 	kubepack.dev/lib-helm v0.7.2
 	sigs.k8s.io/cli-utils v0.34.0
@@ -86,7 +84,6 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
-	github.com/cert-manager/cert-manager v1.9.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.12.1 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
@@ -153,7 +150,6 @@ require (
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
-	github.com/onsi/gomega v1.27.4 // indirect
 	github.com/open-policy-agent/frameworks/constraint v0.0.0-20221214024800-b745745c4118 // indirect
 	github.com/open-policy-agent/opa v0.47.2 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -166,6 +162,7 @@ require (
 	github.com/prometheus/prometheus v0.35.0 // indirect
 	github.com/prometheus/statsd_exporter v0.22.7 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
+	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
@@ -206,6 +203,7 @@ require (
 	golang.org/x/term v0.12.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
+	golang.org/x/tools v0.7.0 // indirect
 	gomodules.xyz/atomic-writer v0.0.2 // indirect
 	gomodules.xyz/clock v0.0.0-20200817085942-06523dba733f // indirect
 	gomodules.xyz/encoding v0.0.7 // indirect
@@ -226,10 +224,8 @@ require (
 	k8s.io/cli-runtime v0.25.3 // indirect
 	k8s.io/component-helpers v0.25.1 // indirect
 	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2 // indirect
-	kmodules.xyz/objectstore-api v0.25.1 // indirect
 	kmodules.xyz/offshoot-api v0.25.4 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33 // indirect
-	sigs.k8s.io/gateway-api v0.4.3 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.12.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.9 // indirect
