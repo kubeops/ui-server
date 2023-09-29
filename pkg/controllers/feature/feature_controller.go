@@ -416,7 +416,7 @@ func (r *frReconciler) updateFeatureSetStatus(ctx context.Context, fs *uiapi.Fea
 		fs.Status.Ready = nil
 		fs.Status.Note = "No feature enabled yet for this feature set."
 	}
-	ready, reason := allRequiredFeaturesReady(fs)
+	ready, reason := allEnabledFeaturesReady(fs)
 	if !ready {
 		fs.Status.Ready = pointer.BoolP(false)
 		fs.Status.Note = reason

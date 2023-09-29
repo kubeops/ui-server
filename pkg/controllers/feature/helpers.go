@@ -102,15 +102,11 @@ func getAllEnabledFeatures(fs *uiapi.FeatureSet) []string {
 	return features
 }
 
-func allRequiredFeaturesReady(fs *uiapi.FeatureSet) (enabled bool, reason string) {
-	reqFeatures := fs.Spec.RequiredFeatures
-	if len(reqFeatures) == 0 {
-		reqFeatures = getAllEnabledFeatures(fs)
-	}
-
-	for _, f := range reqFeatures {
+func allEnabledFeaturesReady(fs *uiapi.FeatureSet) (enabled bool, reason string) {
+	features := getAllEnabledFeatures(fs)
+	for _, f := range features {
 		if !isFeatureReady(f, fs.Status.Features) {
-			return false, fmt.Sprintf("Required feature '%s' is not ready.", f)
+			return false, fmt.Sprintf("Feature '%s' is enabled but not ready.", f)
 		}
 	}
 	return true, ""
