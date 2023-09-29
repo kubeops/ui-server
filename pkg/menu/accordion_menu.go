@@ -98,7 +98,7 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 							mi.Icons = generated.Icons
 						}
 						mi.AvailableVariants = generated.AvailableVariants
-						mi.Preset = generated.Preset
+						mi.Variant = generated.Variant
 					} else if gvr, ok := reg.FindGVR(item.Type, true); ok {
 						rd, _ := reg.LoadByGVR(gvr)
 						ed, _ := resourceeditors.LoadByGVR(kc, gvr)
@@ -109,7 +109,7 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 						mi.Installer = ed.Spec.Installer
 						mi.AvailableVariants = len(ed.Spec.Variants)
 						if mi.AvailableVariants == 1 {
-							mi.Preset = ed.Spec.Variants[0].Name
+							mi.Variant = ed.Spec.Variants[0].Name
 						}
 						// mi.LayoutName = ""
 					} else {
