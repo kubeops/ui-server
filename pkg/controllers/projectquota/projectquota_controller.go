@@ -21,14 +21,18 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 
 	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
+	"k8s.io/klog/v2"
 	"kmodules.xyz/apiversion"
 	kutil "kmodules.xyz/client-go"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	cu "kmodules.xyz/client-go/client"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/resource-metadata/apis/management/v1alpha1"
@@ -36,14 +40,31 @@ import (
 	"kmodules.xyz/resource-metrics/api"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 // ProjectQuotaReconciler reconciles a ProjectQuota object
 type ProjectQuotaReconciler struct {
 	client.Client
-	Discovery discovery.DiscoveryInterface
-	Scheme    *runtime.Scheme
+	disco  discovery.DiscoveryInterface
+	scheme *runtime.Scheme
+
+	mu       sync.Mutex
+	ctrl     controller.Controller
+	regTypes map[schema.GroupVersionKind]bool
+}
+
+func NewReconciler(kc client.Client, disco discovery.DiscoveryInterface) *ProjectQuotaReconciler {
+	return &ProjectQuotaReconciler{
+		Client:   kc,
+		disco:    disco,
+		scheme:   kc.Scheme(),
+		regTypes: make(map[schema.GroupVersionKind]bool),
+	}
 }
 
 func (r *ProjectQuotaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -80,7 +101,7 @@ type APIType struct {
 
 // handle non-namespaced resource limits
 func (r *ProjectQuotaReconciler) ListKinds() (map[string]APIType, error) {
-	_, resourceList, err := r.Discovery.ServerGroupsAndResources()
+	_, resourceList, err := r.disco.ServerGroupsAndResources()
 
 	apiTypes := map[string]APIType{}
 	if discovery.IsGroupDiscoveryFailedError(err) || err == nil {
@@ -268,8 +289,64 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *ProjectQuotaReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
+func (r *ProjectQuotaReconciler) SetupWithManager(mgr ctrl.Manager) (*ProjectQuotaReconciler, error) {
+	ctrl, err := ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.ProjectQuota{}).
-		Complete(r)
+		Build(r)
+	if err != nil {
+		return nil, err
+	}
+	r.ctrl = ctrl
+	return r, nil
+}
+
+func (r *ProjectQuotaReconciler) StartWatcher(rid kmapi.ResourceID) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if r.ctrl == nil {
+		klog.Fatalln("ProjectQuota reconciler is not setup yet!")
+	}
+
+	gvk := rid.GroupVersionKind()
+	if gvk.Kind == "" {
+		klog.Fatalln("can't start ProjectQuota reconciler for unknown Kind!")
+	}
+
+	if api.IsRegistered(gvk) && !r.regTypes[gvk] {
+		var obj unstructured.Unstructured
+		obj.SetGroupVersionKind(gvk)
+		err := r.ctrl.Watch(
+			&source.Kind{Type: &obj},
+			handler.EnqueueRequestsFromMapFunc(ProjectQuotaForObjects(r.Client)),
+		)
+		if err != nil {
+			klog.Fatalln(err)
+		}
+		r.regTypes[gvk] = true
+	}
+}
+
+// Obj -> ProjectQuota
+func ProjectQuotaForObjects(kc client.Client) func(_ client.Object) []reconcile.Request {
+	return func(obj client.Object) []reconcile.Request {
+		if obj.GetNamespace() == "" {
+			return nil
+		}
+
+		var ns core.Namespace
+		err := kc.Get(context.TODO(), client.ObjectKey{Name: obj.GetNamespace()}, &ns)
+		if err != nil {
+			klog.Error(err)
+			return nil
+		}
+
+		projectId, found := ns.Labels[clustermeta.LabelKeyRancherFieldProjectId]
+		if !found {
+			return nil
+		}
+		return []reconcile.Request{
+			{NamespacedName: types.NamespacedName{Name: projectId}},
+		}
+	}
 }

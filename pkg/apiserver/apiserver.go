@@ -237,22 +237,19 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 
-	if err := mgr.Add(manager.RunnableFunc(graph.PollNewResourceTypes(cfg))); err != nil {
+	pqr, err := projectquotacontroller.NewReconciler(mgr.GetClient(), disco).SetupWithManager(mgr)
+	if err != nil {
+		klog.Error(err, "unable to create controller", "controller", "ProjectQuota")
+		os.Exit(1)
+	}
+
+	if err := mgr.Add(manager.RunnableFunc(graph.PollNewResourceTypes(cfg, pqr))); err != nil {
 		setupLog.Error(err, "unable to set up resource poller")
 		os.Exit(1)
 	}
 
 	if err := mgr.Add(manager.RunnableFunc(graph.SetupGraphReconciler(mgr))); err != nil {
 		setupLog.Error(err, "unable to set up resource reconciler configurator")
-		os.Exit(1)
-	}
-
-	if err = (&projectquotacontroller.ProjectQuotaReconciler{
-		Client:    mgr.GetClient(),
-		Discovery: disco,
-		Scheme:    mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		klog.Error(err, "unable to create controller", "controller", "ProjectQuota")
 		os.Exit(1)
 	}
 
