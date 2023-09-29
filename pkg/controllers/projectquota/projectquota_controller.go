@@ -151,6 +151,11 @@ func (r *ProjectQuotaReconciler) ListKinds() (map[string]APIType, error) {
 	return apiTypes, nil
 }
 
+type status struct {
+	Result v1alpha1.QuotaResult
+	Used   core.ResourceList
+}
+
 func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) error {
 	var nsList core.NamespaceList
 	err := r.List(context.TODO(), &nsList, client.MatchingLabels{
@@ -165,6 +170,7 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 	for i := range pj.Spec.Quotas {
 		pj.Status.Quotas[i] = v1alpha1.ResourceQuotaStatus{
 			ResourceQuotaSpec: pj.Spec.Quotas[i],
+			Result:            "",
 			Used:              core.ResourceList{},
 		}
 	}
@@ -175,7 +181,7 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 	}
 
 	for _, ns := range nsList.Items {
-		nsUsed := map[schema.GroupKind]core.ResourceList{}
+		nsUsed := map[schema.GroupKind]status{}
 
 		for i, quota := range pj.Status.Quotas {
 			gk := schema.GroupKind{
@@ -184,7 +190,8 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 			}
 			used, found := nsUsed[gk]
 			if found {
-				quota.Used = used
+				quota.Used = used.Used
+				quota.Result = used.Result
 				pj.Status.Quotas[i] = quota
 			} else if quota.Kind == "" {
 				for _, typeInfo := range apiTypes {
@@ -194,13 +201,22 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 							Kind:  typeInfo.Kind,
 						}]
 						if !found {
-							used, err = r.UsedQuota(ns.Name, typeInfo)
+							q, result, err := r.UsedQuota(ns.Name, typeInfo)
 							if err != nil {
 								return err
 							}
+							used = status{
+								Result: result,
+								Used:   q,
+							}
 							nsUsed[gk] = used
 						}
-						quota.Used = api.AddResourceList(quota.Used, used)
+						quota.Used = api.AddResourceList(quota.Used, used.Used)
+						if quota.Result == v1alpha1.ResultError || used.Result == v1alpha1.ResultError {
+							quota.Result = v1alpha1.ResultError
+						} else {
+							quota.Result = v1alpha1.ResultSuccess
+						}
 					}
 				}
 			} else {
@@ -208,12 +224,16 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 				if !found {
 					return fmt.Errorf("can't detect api type info for %+v", gk)
 				}
-				used, err := r.UsedQuota(ns.Name, typeInfo)
+				used, result, err := r.UsedQuota(ns.Name, typeInfo)
 				if err != nil {
 					return err
 				}
-				nsUsed[gk] = used
+				nsUsed[gk] = status{
+					Result: result,
+					Used:   used,
+				}
 				quota.Used = api.AddResourceList(quota.Used, used)
+				quota.Result = result
 			}
 
 			pj.Status.Quotas[i] = quota
@@ -223,7 +243,7 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 	return nil
 }
 
-func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.ResourceList, error) {
+func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.ResourceList, v1alpha1.QuotaResult, error) {
 	gk := schema.GroupKind{
 		Group: typeInfo.Group,
 		Kind:  typeInfo.Kind,
@@ -232,7 +252,7 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 	if !typeInfo.Namespaced {
 		// Todo:
 		// No opinion?
-		return nil, fmt.Errorf("can't apply quota for non-namespaced resources %+v", gk)
+		return nil, v1alpha1.ResultError, fmt.Errorf("can't apply quota for non-namespaced resources %+v", gk)
 	}
 
 	var done bool
@@ -246,7 +266,7 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 			list.SetGroupVersionKind(gvk)
 			err := r.List(context.TODO(), &list, client.InNamespace(ns))
 			if err != nil {
-				return nil, err
+				return nil, v1alpha1.ResultError, err
 			}
 
 			for _, obj := range list.Items {
@@ -257,14 +277,14 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 				// https://kubernetes.io/docs/concepts/policy/resource-quotas/#compute-resource-quota
 				requests, err := resourcemetrics.AppResourceRequests(content)
 				if err != nil {
-					return nil, err
+					return nil, v1alpha1.ResultError, err
 				}
 				for k, v := range requests {
 					usage["requests."+k] = v
 				}
 				limits, err := resourcemetrics.AppResourceLimits(content)
 				if err != nil {
-					return nil, err
+					return nil, v1alpha1.ResultError, err
 				}
 				for k, v := range limits {
 					usage["limits."+k] = v
@@ -280,15 +300,13 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 		list.SetGroupVersionKind(gk.WithVersion(typeInfo.Versions[0]))
 		err := r.List(context.TODO(), &list, client.InNamespace(ns))
 		if err != nil {
-			return nil, err
+			return nil, v1alpha1.ResultError, err
 		}
 		if len(list.Items) > 0 {
-			// Todo:
-			// Don't error out
-			return nil, fmt.Errorf("resource calculator not defined for %+v", gk)
+			return nil, v1alpha1.ResultError, nil // "resource calculator not defined
 		}
 	}
-	return used, nil
+	return used, v1alpha1.ResultSuccess, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
