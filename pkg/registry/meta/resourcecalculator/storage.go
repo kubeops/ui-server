@@ -101,7 +101,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 		return nil, apierrors.NewInternalError(err)
 	}
 	rid := kmapi.NewResourceID(mapping)
-	pq := getProjectQuota(r.kc, u)
+	pq := getProjectQuota(r.kc, u.GetNamespace())
 
 	resp, err := ToGenericResource(&u, rid, pq)
 	if err != nil {
@@ -225,6 +225,9 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota, apiType *kmapi
 	}
 
 	for _, quota := range pq.Status.Quotas {
+		if quota.Result != v1alpha1.ResultSuccess {
+			continue
+		}
 		if quota.Group == apiType.Group {
 			if quota.Kind != "" && quota.Kind != apiType.Kind {
 				continue
@@ -291,8 +294,8 @@ func extractRequestsLimits(res core.ResourceList) (core.ResourceList, core.Resou
 	return requests, limits
 }
 
-func getProjectQuota(kc client.Client, u unstructured.Unstructured) *v1alpha1.ProjectQuota {
-	projectId, _, err := cluster.GetProjectId(kc, u.GetNamespace())
+func getProjectQuota(kc client.Client, ns string) *v1alpha1.ProjectQuota {
+	projectId, _, err := cluster.GetProjectId(kc, ns)
 	if err != nil {
 		return nil
 	}
