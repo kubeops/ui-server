@@ -23,6 +23,7 @@ import (
 	"time"
 
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
+	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
 	scannercontrollers "kubeops.dev/ui-server/pkg/controllers/scanner"
 
 	"github.com/graphql-go/graphql"
@@ -46,7 +47,7 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-func PollNewResourceTypes(cfg *restclient.Config) func(ctx context.Context) error {
+func PollNewResourceTypes(cfg *restclient.Config, pqr *projectquotacontroller.ProjectQuotaReconciler) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		kc := kubernetes.NewForConfigOrDie(cfg)
 		err := wait.PollImmediateUntil(60*time.Second, func() (done bool, err error) {
@@ -87,6 +88,9 @@ func PollNewResourceTypes(cfg *restclient.Config) func(ctx context.Context) erro
 					if _, found := resourceTracker[gvk]; !found {
 						resourceTracker[gvk] = rid
 						resourceChannel <- rid
+						if pqr != nil {
+							pqr.StartWatcher(rid)
+						}
 					}
 				}
 			}

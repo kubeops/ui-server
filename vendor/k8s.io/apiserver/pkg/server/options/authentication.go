@@ -202,6 +202,8 @@ type DelegatingAuthenticationOptions struct {
 
 	// CustomRoundTripperFn allows for specifying a middleware function for custom HTTP behaviour for the authentication webhook client.
 	CustomRoundTripperFn transport.WrapperFunc
+
+	AuthenticationConfigMapNamespace string
 }
 
 func NewDelegatingAuthenticationOptions() *DelegatingAuthenticationOptions {
@@ -214,8 +216,9 @@ func NewDelegatingAuthenticationOptions() *DelegatingAuthenticationOptions {
 			GroupHeaders:        []string{"x-remote-group"},
 			ExtraHeaderPrefixes: []string{"x-remote-extra-"},
 		},
-		WebhookRetryBackoff: DefaultAuthWebhookRetryBackoff(),
-		TokenRequestTimeout: 10 * time.Second,
+		WebhookRetryBackoff:              DefaultAuthWebhookRetryBackoff(),
+		TokenRequestTimeout:              10 * time.Second,
+		AuthenticationConfigMapNamespace: metav1.NamespaceSystem,
 	}
 }
 
@@ -274,6 +277,9 @@ func (s *DelegatingAuthenticationOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.BoolVar(&s.TolerateInClusterLookupFailure, "authentication-tolerate-lookup-failure", s.TolerateInClusterLookupFailure, ""+
 		"If true, failures to look up missing authentication configuration from the cluster are not considered fatal. "+
 		"Note that this can result in authentication that treats all requests as anonymous.")
+
+	fs.StringVar(&s.AuthenticationConfigMapNamespace, "authentication-configmap-namespace", s.AuthenticationConfigMapNamespace, ""+
+		"Namespace of extension-apiserver-authentication configmap")
 }
 
 func (s *DelegatingAuthenticationOptions) ApplyTo(authenticationInfo *server.AuthenticationInfo, servingInfo *server.SecureServingInfo, openAPIConfig *openapicommon.Config) error {
@@ -314,9 +320,9 @@ func (s *DelegatingAuthenticationOptions) ApplyTo(authenticationInfo *server.Aut
 
 	} else if !s.SkipInClusterLookup {
 		if client == nil {
-			klog.Warningf("No authentication-kubeconfig provided in order to lookup client-ca-file in configmap/%s in %s, so client certificate authentication won't work.", authenticationConfigMapName, authenticationConfigMapNamespace)
+			klog.Warningf("No authentication-kubeconfig provided in order to lookup client-ca-file in configmap/%s in %s, so client certificate authentication won't work.", authenticationConfigMapName, s.AuthenticationConfigMapNamespace)
 		} else {
-			clientCAProvider, err = dynamiccertificates.NewDynamicCAFromConfigMapController("client-ca", authenticationConfigMapNamespace, authenticationConfigMapName, "client-ca-file", client)
+			clientCAProvider, err = dynamiccertificates.NewDynamicCAFromConfigMapController("client-ca", s.AuthenticationConfigMapNamespace, authenticationConfigMapName, "client-ca-file", client)
 			if err != nil {
 				return fmt.Errorf("unable to load configmap based client CA file: %v", err)
 			}
@@ -338,7 +344,7 @@ func (s *DelegatingAuthenticationOptions) ApplyTo(authenticationInfo *server.Aut
 
 	} else if !s.SkipInClusterLookup {
 		if client == nil {
-			klog.Warningf("No authentication-kubeconfig provided in order to lookup requestheader-client-ca-file in configmap/%s in %s, so request-header client certificate authentication won't work.", authenticationConfigMapName, authenticationConfigMapNamespace)
+			klog.Warningf("No authentication-kubeconfig provided in order to lookup requestheader-client-ca-file in configmap/%s in %s, so request-header client certificate authentication won't work.", authenticationConfigMapName, s.AuthenticationConfigMapNamespace)
 		} else {
 			requestHeaderConfig, err = s.createRequestHeaderConfig(client)
 			if err != nil {
@@ -373,7 +379,7 @@ func (s *DelegatingAuthenticationOptions) ApplyTo(authenticationInfo *server.Aut
 }
 
 const (
-	authenticationConfigMapNamespace = metav1.NamespaceSystem
+	// authenticationConfigMapNamespace = metav1.NamespaceSystem
 	// authenticationConfigMapName is the name of ConfigMap in the kube-system namespace holding the root certificate
 	// bundle to use to verify client certificates on incoming requests before trusting usernames in headers specified
 	// by --requestheader-username-headers. This is created in the cluster by the kube-apiserver.
@@ -382,7 +388,7 @@ const (
 )
 
 func (s *DelegatingAuthenticationOptions) createRequestHeaderConfig(client kubernetes.Interface) (*authenticatorfactory.RequestHeaderConfig, error) {
-	dynamicRequestHeaderProvider, err := newDynamicRequestHeaderController(client)
+	dynamicRequestHeaderProvider, err := newDynamicRequestHeaderController(client, s.AuthenticationConfigMapNamespace)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create request header authentication config: %v", err)
 	}

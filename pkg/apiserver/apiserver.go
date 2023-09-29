@@ -30,6 +30,7 @@ import (
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
+	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/metricshandler"
 	"kubeops.dev/ui-server/pkg/registry"
@@ -90,6 +91,7 @@ import (
 	promclient "kmodules.xyz/monitoring-agent-api/client"
 	rscoreinstall "kmodules.xyz/resource-metadata/apis/core/install"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	mgmtinstall "kmodules.xyz/resource-metadata/apis/management/install"
 	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
@@ -114,6 +116,7 @@ func init() {
 	rsinstall.Install(Scheme)
 	uiinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
+	mgmtinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
 	utilruntime.Must(scannerscheme.AddToScheme(Scheme))
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
@@ -210,7 +213,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, fmt.Errorf("unable to start manager, reason: %v", err)
 	}
 	ctrlClient := mgr.GetClient()
-	disco, err := kubernetes.NewForConfig(mgr.GetConfig())
+	disco, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create discovery client, reason: %v", err)
 	}
@@ -234,7 +237,13 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 
-	if err := mgr.Add(manager.RunnableFunc(graph.PollNewResourceTypes(cfg))); err != nil {
+	pqr, err := projectquotacontroller.NewReconciler(mgr.GetClient(), disco).SetupWithManager(mgr)
+	if err != nil {
+		klog.Error(err, "unable to create controller", "controller", "ProjectQuota")
+		os.Exit(1)
+	}
+
+	if err := mgr.Add(manager.RunnableFunc(graph.PollNewResourceTypes(cfg, pqr))); err != nil {
 		setupLog.Error(err, "unable to set up resource poller")
 		os.Exit(1)
 	}

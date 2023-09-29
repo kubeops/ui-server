@@ -26,10 +26,12 @@ import (
 )
 
 const (
-	DefaultPrometheusKey   = "monitoring.appscode.com/is-default-prometheus"
-	DefaultAlertmanagerKey = "monitoring.appscode.com/is-default-alertmanager"
-	DefaultGrafanaKey      = "monitoring.appscode.com/is-default-grafana"
-	FederatedKey           = "monitoring.appscode.com/federate"
+	DefaultPrometheusKey     = "monitoring.appscode.com/is-default-prometheus"
+	DefaultAlertmanagerKey   = "monitoring.appscode.com/is-default-alertmanager"
+	DefaultGrafanaKey        = "monitoring.appscode.com/is-default-grafana"
+	PrometheusKey            = "monitoring.appscode.com/prometheus"
+	PrometheusValueAuto      = "auto"
+	PrometheusValueFederated = "federated"
 )
 
 // +kubebuilder:validation:Enum=prometheus.io/operator;prometheus.io;prometheus.io/builtin
