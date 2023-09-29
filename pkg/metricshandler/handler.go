@@ -17,17 +17,20 @@ limitations under the License.
 package metricshandler
 
 import (
-	"io"
+	"context"
 	"net/http"
+	"time"
 
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/metricsstore"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"k8s.io/apiserver/pkg/server/mux"
+	"k8s.io/klog/v2"
 	"k8s.io/kube-state-metrics/v2/pkg/metric"
 	generator "k8s.io/kube-state-metrics/v2/pkg/metric_generator"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
 const (
@@ -41,11 +44,18 @@ type MetricsHandler struct {
 	client.Client
 }
 
+var (
+	generators       []generator.FamilyGenerator
+	store            *metricsstore.MetricsStore
+	opaInstalled     bool
+	scannerInstalled bool
+)
+
 // ServeHTTP serves the request for /metrics path
 func (m *MetricsHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	resHeader := w.Header()
 	resHeader.Set("Content-Type", `text/plain; version=`+"0.0.4")
-	err := collectMetrics(m.Client, w)
+	err := store.WriteAll(w)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -63,42 +73,59 @@ func (m *MetricsHandler) Install(c *mux.PathRecorderMux) {
 	c.Handle(MetricsPath, next)
 }
 
-func collectMetrics(kc client.Client, w io.Writer) error {
-	generators := getFamilyGenerators()
-	if len(generators) == 0 {
-		_, err := w.Write([]byte(""))
-		return err
+func StartMetricsCollector(mgr manager.Manager) func(ctx context.Context) error {
+	return func(ctx context.Context) error {
+		go startMetricsCollector(mgr.GetClient())
+		return nil
 	}
+}
 
-	// Generate the headers for the resources metrics
-	headers := generator.ExtractMetricFamilyHeaders(generators)
-	store := metricsstore.NewMetricsStore(headers)
+func startMetricsCollector(kc client.Client) {
+	klog.Infoln("Starts the Metrics Collector")
+	t := time.NewTicker(time.Minute * 2)
+	defer t.Stop()
 
+	for {
+		scannerInstalled = graph.ScannerInstalled()
+		opaInstalled = graph.OPAInstalled()
+		generators = getFamilyGenerators()
+		headers := generator.ExtractMetricFamilyHeaders(generators)
+		store = metricsstore.NewMetricsStore(headers)
+		err := collectMetrics(kc)
+		if err != nil {
+			klog.Errorf("Error occurred while collecting metrics : %s \n", err.Error())
+		}
+		<-t.C
+	}
+}
+
+func collectMetrics(kc client.Client) error {
 	err := collectPodAncestorMetrics(kc, generators, store)
 	if err != nil {
 		return err
 	}
 
 	offset := 1
-	if graph.ScannerInstalled() {
+	if scannerInstalled {
 		err := collectScannerMetrics(kc, generators, store, offset)
 		if err != nil {
 			return err
 		}
 		offset = offset + 9 // # of scanner metrics families
 	}
-	if graph.OPAInstalled() {
+	if opaInstalled {
 		err := collectPolicyMetrics(kc, generators, store, offset)
 		if err != nil {
 			return err
 		}
 	}
-	return store.WriteAll(w)
+
+	return nil
 }
 
 func getFamilyGenerators() []generator.FamilyGenerator {
 	fn := func(obj interface{}) *metric.Family { return new(metric.Family) }
-	generators := make([]generator.FamilyGenerator, 0, 14)
+	generators = make([]generator.FamilyGenerator, 0, 14)
 
 	generators = append(generators, generator.FamilyGenerator{
 		Name:              "k8s_appscode_com_pod_ancestor",
@@ -108,7 +135,7 @@ func getFamilyGenerators() []generator.FamilyGenerator {
 		GenerateFunc:      fn,
 	})
 
-	if graph.ScannerInstalled() {
+	if scannerInstalled {
 		generators = append(generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "cluster_cve_occurrence",
 			Help:              "CVE occurrence statistics",
@@ -175,7 +202,7 @@ func getFamilyGenerators() []generator.FamilyGenerator {
 		})
 	}
 
-	if graph.OPAInstalled() {
+	if opaInstalled {
 		// Policy related metrics
 		generators = append(generators, generator.FamilyGenerator{
 			Name:              policyMetricPrefix + "cluster_violation_occurrence_total",
