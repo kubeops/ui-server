@@ -31,7 +31,6 @@ import (
 	"k8s.io/client-go/discovery"
 	"k8s.io/klog/v2"
 	"kmodules.xyz/apiversion"
-	kutil "kmodules.xyz/client-go"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	cu "kmodules.xyz/client-go/client"
 	clustermeta "kmodules.xyz/client-go/cluster"
@@ -76,11 +75,15 @@ func (r *ProjectQuotaReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	var err error
-	var vt kutil.VerbType
-	vt, err = cu.CreateOrPatch(context.TODO(), r.Client, &pj, func(in client.Object, createOp bool) client.Object {
+	err := r.CalculateStatus(&pj)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	vt, err := cu.PatchStatus(context.TODO(), r.Client, &pj, func(in client.Object) client.Object {
 		obj := in.(*v1alpha1.ProjectQuota)
-		err = r.CalculateStatus(&pj)
+		obj.Status = pj.Status
+
 		return obj
 	})
 	if err != nil {
