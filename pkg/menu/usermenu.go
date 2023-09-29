@@ -106,7 +106,7 @@ func updateMenuItemVariantsInfo(kc client.Client, in []rsapi.MenuItem) []rsapi.M
 			if ed, ok := resourceeditors.LoadByGVR(kc, gvr); ok {
 				item.AvailableVariants = len(ed.Spec.Variants)
 				if item.AvailableVariants == 1 {
-					item.Preset = ed.Spec.Variants[0].Name
+					item.Variant = ed.Spec.Variants[0].Name
 				}
 				if len(item.Items) > 0 {
 					item.Items = updateMenuItemVariantsInfo(kc, item.Items)

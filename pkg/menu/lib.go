@@ -98,7 +98,7 @@ func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterfac
 
 				me.AvailableVariants = len(ed.Spec.Variants)
 				if me.AvailableVariants == 1 {
-					me.Preset = ed.Spec.Variants[0].Name
+					me.Variant = ed.Spec.Variants[0].Name
 				}
 			}
 

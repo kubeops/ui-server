@@ -46,15 +46,15 @@ require (
 	kmodules.xyz/custom-resources v0.25.2
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.4
-	kmodules.xyz/resource-metadata v0.17.20
+	kmodules.xyz/resource-metadata v0.17.21
 	kmodules.xyz/resource-metrics v0.25.3
 	kmodules.xyz/sets v0.25.0
-	kubeops.dev/scanner v0.0.13-0.20230610152531-83d060ed8780
-	kubepack.dev/lib-helm v0.7.2
+	kubeops.dev/scanner v0.0.15-0.20230929084557-c991a6514ff9
+	kubepack.dev/lib-helm v0.7.3
 	sigs.k8s.io/cli-utils v0.34.0
 	sigs.k8s.io/controller-runtime v0.13.1
 	sigs.k8s.io/yaml v1.3.0
-	x-helm.dev/apimachinery v0.0.11
+	x-helm.dev/apimachinery v0.0.12
 )
 
 require (
@@ -136,7 +136,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect

@@ -96,7 +96,7 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 						cp.Name = ref.Title
 					}
 					// cp.Path = u.String()
-					cp.Preset = ref.Name
+					cp.Variant = ref.Name
 					if len(ref.Icons) > 0 {
 						cp.Icons = ref.Icons
 					}

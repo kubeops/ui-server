@@ -17,7 +17,7 @@ import (
 )
 
 func LoadPresetValues(kc client.Client, ref chartsapi.ChartPresetFlatRef) ([]chartsapi.ChartPresetValues, error) {
-	if ref.PresetName == "" {
+	if ref.Variant == "" {
 		// required for editor charts
 		return nil, nil
 	}
@@ -38,13 +38,13 @@ func LoadPresetValues(kc client.Client, ref chartsapi.ChartPresetFlatRef) ([]cha
 
 	var variant *uiapi.VariantRef
 	for i := range ed.Spec.Variants {
-		if ed.Spec.Variants[i].Name == ref.PresetName {
+		if ed.Spec.Variants[i].Name == ref.Variant {
 			variant = &ed.Spec.Variants[i]
 			break
 		}
 	}
 	if variant == nil {
-		return nil, errors.Errorf("No variant with name %s found for %+v", ref.PresetName, *rid)
+		return nil, errors.Errorf("No variant with name %s found for %+v", ref.Variant, *rid)
 	}
 
 	if variant.Selector == nil {
