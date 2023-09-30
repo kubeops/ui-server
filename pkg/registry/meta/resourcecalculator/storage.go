@@ -31,7 +31,7 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	"kmodules.xyz/client-go/cluster"
+	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/resource-metadata/apis/management/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
@@ -101,7 +101,10 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 		return nil, apierrors.NewInternalError(err)
 	}
 	rid := kmapi.NewResourceID(mapping)
-	pq := getProjectQuota(r.kc, u.GetNamespace())
+	pq, err := getProjectQuota(r.kc, u.GetNamespace())
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
 
 	resp, err := ToGenericResource(&u, rid, pq)
 	if err != nil {
@@ -210,11 +213,11 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota, apiType *kmapi
 		qd.Decision = rsapi.DecisionNoOpinion
 		return qd, nil
 	}
+
 	c, err := api.Load(obj)
 	if err != nil {
 		return nil, err
 	}
-
 	requests, err := c.AppResourceRequests(obj)
 	if err != nil {
 		return nil, err
@@ -294,16 +297,18 @@ func extractRequestsLimits(res core.ResourceList) (core.ResourceList, core.Resou
 	return requests, limits
 }
 
-func getProjectQuota(kc client.Client, ns string) *v1alpha1.ProjectQuota {
-	projectId, _, err := cluster.GetProjectId(kc, ns)
+func getProjectQuota(kc client.Client, ns string) (*v1alpha1.ProjectQuota, error) {
+	projectId, _, err := clustermeta.GetProjectId(kc, ns)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	var pj v1alpha1.ProjectQuota
 	err = kc.Get(context.TODO(), client.ObjectKey{Name: projectId}, &pj)
 	if err != nil {
-		return nil
+		if apierrors.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, err
 	}
-
-	return &pj
+	return &pj, nil
 }
