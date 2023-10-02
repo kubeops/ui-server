@@ -56,6 +56,9 @@ func PollNewResourceTypes(cfg *restclient.Config, pqr *projectquotacontroller.Pr
 				klog.ErrorS(err, "failed to list server preferred resources")
 				return false, nil
 			}
+			// As we are generating metrics based on these variables, we need to update them timely.
+			opaInstalled = false
+			scannerInstalled = false
 			for _, rsList := range rsLists {
 				for _, rs := range rsList.APIResources {
 					// skip sub resource
@@ -85,6 +88,7 @@ func PollNewResourceTypes(cfg *restclient.Config, pqr *projectquotacontroller.Pr
 						Kind:    rs.Kind,
 						Scope:   scope,
 					}
+					updateVarsForMetricsGeneration(rid)
 					if _, found := resourceTracker[gvk]; !found {
 						resourceTracker[gvk] = rid
 						resourceChannel <- rid
@@ -113,6 +117,15 @@ var (
 func OPAInstalled() bool     { return opaInstalled }
 func ScannerInstalled() bool { return scannerInstalled }
 
+func updateVarsForMetricsGeneration(rid kmapi.ResourceID) {
+	if rid.Group == "templates.gatekeeper.sh" && rid.Kind == "ConstraintTemplate" {
+		opaInstalled = true
+	}
+	if rid.Group == scannerapi.SchemeGroupVersion.Group && rid.Kind == scannerapi.ResourceKindImageScanRequest {
+		scannerInstalled = true
+	}
+}
+
 func SetupGraphReconciler(mgr manager.Manager) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		for rid := range resourceChannel {
@@ -124,13 +137,8 @@ func SetupGraphReconciler(mgr manager.Manager) func(ctx context.Context) error {
 				return err
 			}
 
-			if rid.Group == "templates.gatekeeper.sh" && rid.Kind == "ConstraintTemplate" {
-				opaInstalled = true
-			}
-
 			if rid.Group == scannerapi.SchemeGroupVersion.Group &&
 				rid.Kind == scannerapi.ResourceKindImageScanRequest {
-				scannerInstalled = true
 				if err := (&scannercontrollers.WorkloadReconciler{
 					Client: mgr.GetClient(),
 				}).SetupWithManager(mgr); err != nil {
