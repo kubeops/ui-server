@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    field.cattle.io/projectId: p-demo
+  name: demo
+---
+apiVersion: management.k8s.appscode.com/v1alpha1
+kind: ProjectQuota
+metadata:
+  name: p-demo
+spec:
+  quotas:
+  - group: kubedb.com
+    kind: Postgres
+    hard:
+      limits.memory: 1Gi
+  - group: kubedb.com
+    hard:
+      limits.memory: 1Gi
