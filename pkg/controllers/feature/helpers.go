@@ -56,16 +56,6 @@ func isWorkloadOrReleaseExist(status featureStatus) bool {
 	return false
 }
 
-func findReason(status featureStatus) string {
-	if status.resources != nil && !status.resources.found {
-		return status.resources.reason
-	}
-	if status.workload != nil && !status.workload.found {
-		return status.workload.reason
-	}
-	return "No relevant resources found for the Feature"
-}
-
 func isWorkLoadsReady(objList unstructured.UnstructuredList) bool {
 	for idx := range objList.Items {
 		obj := objList.Items[idx]
