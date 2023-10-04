@@ -103,7 +103,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 	rid := kmapi.NewResourceID(mapping)
 	pq, err := getProjectQuota(r.kc, u.GetNamespace())
 	if err != nil {
-		return nil, apierrors.NewInternalError(err)
+		return nil, err
 	}
 
 	resp, err := ToGenericResource(&u, rid, pq)
@@ -228,7 +228,7 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota, apiType *kmapi
 	}
 
 	for _, quota := range pq.Status.Quotas {
-		if quota.Result != v1alpha1.ResultSuccess {
+		if quota.QuotaStatus.Result != v1alpha1.ResultSuccess {
 			continue
 		}
 		if quota.Group == apiType.Group {
