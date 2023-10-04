@@ -111,10 +111,9 @@ func isFeatureReady(featureName string, status []uiapi.ComponentStatus) bool {
 	return false
 }
 
-func atLeastOneFeatureManaged(status []uiapi.ComponentStatus) bool {
+func atLeastOneFeatureEnabled(status []uiapi.ComponentStatus) bool {
 	for i := range status {
-		if status[i].Enabled != nil && *status[i].Enabled &&
-			status[i].Managed != nil && *status[i].Managed {
+		if pointer.Bool(status[i].Enabled) {
 			return true
 		}
 	}
