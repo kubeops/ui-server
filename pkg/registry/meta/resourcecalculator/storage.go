@@ -228,7 +228,7 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota, apiType *kmapi
 	}
 
 	for _, quota := range pq.Status.Quotas {
-		if quota.QuotaStatus.Result != v1alpha1.ResultSuccess {
+		if quota.Result != v1alpha1.ResultSuccess {
 			continue
 		}
 		if quota.Group == apiType.Group {
