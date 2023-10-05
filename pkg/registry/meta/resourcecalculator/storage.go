@@ -103,7 +103,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 	rid := kmapi.NewResourceID(mapping)
 	pq, err := getProjectQuota(r.kc, u.GetNamespace())
 	if err != nil {
-		return nil, apierrors.NewInternalError(err)
+		return nil, err
 	}
 
 	resp, err := ToGenericResource(&u, rid, pq)

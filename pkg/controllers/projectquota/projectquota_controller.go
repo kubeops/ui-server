@@ -151,9 +151,14 @@ func (r *ProjectQuotaReconciler) ListKinds() (map[string]APIType, error) {
 	return apiTypes, nil
 }
 
-type status struct {
+type typeStatus struct {
+	QuotaResult QuotaResult
+	Used        core.ResourceList
+}
+
+type QuotaResult struct {
 	Result v1alpha1.QuotaResult
-	Used   core.ResourceList
+	Reason string
 }
 
 func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) error {
@@ -170,7 +175,7 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 	for i := range pj.Spec.Quotas {
 		pj.Status.Quotas[i] = v1alpha1.ResourceQuotaStatus{
 			ResourceQuotaSpec: pj.Spec.Quotas[i],
-			Result:            "",
+			Result:            v1alpha1.ResultSuccess,
 			Used:              core.ResourceList{},
 		}
 	}
@@ -181,9 +186,14 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 	}
 
 	for _, ns := range nsList.Items {
-		nsUsed := map[schema.GroupKind]status{}
+		nsUsed := map[schema.GroupKind]typeStatus{}
 
 		for i, quota := range pj.Status.Quotas {
+			// If previously set quotaStatus as error we can skip that as we've already assigned the reason
+			if quota.Result == v1alpha1.ResultError {
+				continue
+			}
+
 			gk := schema.GroupKind{
 				Group: quota.Group,
 				Kind:  quota.Kind,
@@ -191,49 +201,60 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 			used, found := nsUsed[gk]
 			if found {
 				quota.Used = used.Used
-				quota.Result = used.Result
+				quota.Result = used.QuotaResult.Result
+				quota.Reason = used.QuotaResult.Reason
 				pj.Status.Quotas[i] = quota
+
 			} else if quota.Kind == "" {
+				isGroupFound := false
+
 				for _, typeInfo := range apiTypes {
 					if typeInfo.Group == quota.Group {
+						isGroupFound = true
+
 						used, found := nsUsed[schema.GroupKind{
 							Group: typeInfo.Group,
 							Kind:  typeInfo.Kind,
 						}]
 						if !found {
-							q, result, err := r.UsedQuota(ns.Name, typeInfo)
+							q, qr, err := r.UsedQuota(ns.Name, typeInfo)
 							if err != nil {
 								return err
 							}
-							used = status{
-								Result: result,
-								Used:   q,
+							used = typeStatus{
+								QuotaResult: *qr,
+								Used:        q,
 							}
 							nsUsed[gk] = used
 						}
+
 						quota.Used = api.AddResourceList(quota.Used, used.Used)
-						if quota.Result == v1alpha1.ResultError || used.Result == v1alpha1.ResultError {
-							quota.Result = v1alpha1.ResultError
-						} else {
-							quota.Result = v1alpha1.ResultSuccess
+						if used.QuotaResult.Result == v1alpha1.ResultError {
+							quota.Result = used.QuotaResult.Result
+							quota.Reason = used.QuotaResult.Reason
 						}
 					}
+				}
+				if !isGroupFound {
+					quota.Result = v1alpha1.ResultError
+					quota.Reason = "API Group doesn't exits"
 				}
 			} else {
 				typeInfo, found := apiTypes[gk.String()]
 				if !found {
-					return fmt.Errorf("can't detect api type info for %+v", gk)
+					quota.Result = v1alpha1.ResultError
+					quota.Reason = "Provided API Info is not valid"
+				} else {
+					used, qr, err := r.UsedQuota(ns.Name, typeInfo)
+					if err != nil {
+						return err
+					}
+					nsUsed[gk] = typeStatus{
+						QuotaResult: *qr,
+						Used:        used,
+					}
+					quota.Used = api.AddResourceList(quota.Used, used)
 				}
-				used, result, err := r.UsedQuota(ns.Name, typeInfo)
-				if err != nil {
-					return err
-				}
-				nsUsed[gk] = status{
-					Result: result,
-					Used:   used,
-				}
-				quota.Used = api.AddResourceList(quota.Used, used)
-				quota.Result = result
 			}
 
 			pj.Status.Quotas[i] = quota
@@ -243,16 +264,18 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 	return nil
 }
 
-func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.ResourceList, v1alpha1.QuotaResult, error) {
+func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.ResourceList, *QuotaResult, error) {
 	gk := schema.GroupKind{
 		Group: typeInfo.Group,
 		Kind:  typeInfo.Kind,
 	}
 
+	// If found non-namespaced resource for a group we can invalidate that quota
 	if !typeInfo.Namespaced {
-		// Todo:
-		// No opinion?
-		return nil, v1alpha1.ResultError, fmt.Errorf("can't apply quota for non-namespaced resources %+v", gk)
+		return nil, &QuotaResult{
+			Result: v1alpha1.ResultError,
+			Reason: fmt.Sprintf("Group `%s` has non-namespaced resource `%s`", typeInfo.Group, typeInfo.Resource),
+		}, nil
 	}
 
 	var done bool
@@ -266,7 +289,7 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 			list.SetGroupVersionKind(gvk)
 			err := r.List(context.TODO(), &list, client.InNamespace(ns))
 			if err != nil {
-				return nil, v1alpha1.ResultError, err
+				return nil, nil, err
 			}
 
 			for _, obj := range list.Items {
@@ -277,14 +300,14 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 				// https://kubernetes.io/docs/concepts/policy/resource-quotas/#compute-resource-quota
 				requests, err := resourcemetrics.AppResourceRequests(content)
 				if err != nil {
-					return nil, v1alpha1.ResultError, err
+					return nil, nil, err
 				}
 				for k, v := range requests {
 					usage["requests."+k] = v
 				}
 				limits, err := resourcemetrics.AppResourceLimits(content)
 				if err != nil {
-					return nil, v1alpha1.ResultError, err
+					return nil, nil, err
 				}
 				for k, v := range limits {
 					usage["limits."+k] = v
@@ -295,18 +318,22 @@ func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.Re
 			break
 		}
 	}
+
 	if !done {
 		var list unstructured.UnstructuredList
 		list.SetGroupVersionKind(gk.WithVersion(typeInfo.Versions[0]))
 		err := r.List(context.TODO(), &list, client.InNamespace(ns))
 		if err != nil {
-			return nil, v1alpha1.ResultError, err
+			return nil, nil, err
 		}
 		if len(list.Items) > 0 {
-			return nil, v1alpha1.ResultError, nil // "resource calculator not defined
+			return nil, &QuotaResult{
+				Result: v1alpha1.ResultError,
+				Reason: "Resource calculator not defined",
+			}, nil
 		}
 	}
-	return used, v1alpha1.ResultSuccess, nil
+	return used, &QuotaResult{Result: v1alpha1.ResultSuccess}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
