@@ -19,6 +19,8 @@ package clusterstatus
 import (
 	"context"
 
+	"kubeops.dev/ui-server/pkg/clusterstatus"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -70,6 +72,7 @@ func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidation rest.ValidateObjectFunc, options *metav1.CreateOptions) (runtime.Object, error) {
 	in := obj.(*rsapi.ClusterStatus)
+	in.Response = clusterstatus.GetClusterStatus()
 
 	return in, nil
 }

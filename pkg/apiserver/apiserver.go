@@ -30,6 +30,7 @@ import (
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
+	"kubeops.dev/ui-server/pkg/clusterstatus"
 	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/metricshandler"
@@ -251,6 +252,11 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 	if err := mgr.Add(manager.RunnableFunc(graph.SetupGraphReconciler(mgr))); err != nil {
 		setupLog.Error(err, "unable to set up resource reconciler configurator")
+		os.Exit(1)
+	}
+
+	if err := mgr.Add(manager.RunnableFunc(clusterstatus.StartClusterStatusPuller(mgr))); err != nil {
+		setupLog.Error(err, "unable to set up cluster status puller")
 		os.Exit(1)
 	}
 
