@@ -377,5 +377,9 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		}
 		m.Install(genericServer.Handler.NonGoRestfulMux)
 	}
+	if err := mgr.Add(manager.RunnableFunc(metricshandler.StartMetricsCollector(mgr))); err != nil {
+		setupLog.Error(err, "unable to start metrics collector")
+		os.Exit(1)
+	}
 	return s, nil
 }
