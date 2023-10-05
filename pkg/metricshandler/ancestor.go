@@ -20,38 +20,35 @@ import (
 	"context"
 
 	"kubeops.dev/ui-server/pkg/graph"
-	"kubeops.dev/ui-server/pkg/metricsstore"
 
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/kube-state-metrics/v2/pkg/metric"
-	generator "k8s.io/kube-state-metrics/v2/pkg/metric_generator"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func collectPodAncestorMetrics(kc client.Client, generators []generator.FamilyGenerator, store *metricsstore.MetricsStore) error {
+func (mc *Collector) collectPodAncestorMetrics() error {
 	var pods core.PodList
-	err := kc.List(context.TODO(), &pods)
+	err := mc.kc.List(context.TODO(), &pods)
 	if err != nil {
 		return err
 	}
 
-	family := generators[0].Generate(nil)
+	family := mc.generators[0].Generate(nil)
 	for _, pod := range pods.Items {
-		g, err := getResourceGraph(kc, pod.ObjectMeta)
+		g, err := mc.getResourceGraph(pod.ObjectMeta)
 		if err != nil {
 			return err
 		}
 		family.Metrics = append(family.Metrics, getMetricsForSinglePod(g, pod.Name)...)
 	}
 
-	store.Add(family)
+	mc.store.Add(family)
 	return nil
 }
 
-func getResourceGraph(kc client.Client, podMeta metav1.ObjectMeta) (*v1alpha1.ResourceGraphResponse, error) {
+func (mc *Collector) getResourceGraph(podMeta metav1.ObjectMeta) (*v1alpha1.ResourceGraphResponse, error) {
 	src := kmapi.ObjectID{
 		Group:     "",
 		Kind:      "Pod",
@@ -59,7 +56,7 @@ func getResourceGraph(kc client.Client, podMeta metav1.ObjectMeta) (*v1alpha1.Re
 		Name:      podMeta.Name,
 	}
 
-	return graph.ResourceGraph(kc.RESTMapper(), src, []kmapi.EdgeLabel{
+	return graph.ResourceGraph(mc.kc.RESTMapper(), src, []kmapi.EdgeLabel{
 		kmapi.EdgeLabelOffshoot,
 	})
 }

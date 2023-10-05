@@ -19,6 +19,7 @@ package metricshandler
 import (
 	"context"
 	"net/http"
+	"sync"
 	"time"
 
 	"kubeops.dev/ui-server/pkg/graph"
@@ -34,10 +35,15 @@ import (
 )
 
 const (
-	MetricsPath             = "/metrics"
-	scannerMetricPrefix     = "scanner_appscode_com_"
-	policyMetricPrefix      = "policy_appscode_com_"
-	MetricsCollectionPeriod = time.Second * 2
+	MetricsPath          = "/metrics"
+	scannerMetricPrefix  = "scanner_appscode_com_"
+	policyMetricPrefix   = "policy_appscode_com_"
+	MetricsRefreshPeriod = 2 * time.Second
+)
+
+var (
+	mu    sync.RWMutex
+	store *metricsstore.MetricsStore
 )
 
 // MetricsHandler struct contains Stores which store the metrics to serve in the /metrics path
@@ -45,27 +51,36 @@ type MetricsHandler struct {
 	client.Client
 }
 
-var (
-	generators       []generator.FamilyGenerator
-	store            *metricsstore.MetricsStore
+type Collector struct {
+	kc               client.Client
 	opaInstalled     bool
 	scannerInstalled bool
-)
+
+	generators []generator.FamilyGenerator
+	store      *metricsstore.MetricsStore
+}
 
 // ServeHTTP serves the request for /metrics path
-func (m *MetricsHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
+func (h *MetricsHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	resHeader := w.Header()
 	resHeader.Set("Content-Type", `text/plain; version=`+"0.0.4")
-	err := store.WriteAll(w)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+
+	mu.RLock()
+	defer mu.RUnlock()
+	if store != nil {
+		err := store.WriteAll(w)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	} else {
+		_, _ = w.Write([]byte(""))
 	}
 }
 
 // Install adds the MetricsWithReset handler
-func (m *MetricsHandler) Install(c *mux.PathRecorderMux) {
-	var next http.Handler = m
+func (h *MetricsHandler) Install(c *mux.PathRecorderMux) {
+	var next http.Handler = h
 	next = promhttp.InstrumentHandlerCounter(httpRequestsTotal, next)
 	next = promhttp.InstrumentHandlerDuration(requestDuration, next)
 	next = promhttp.InstrumentHandlerInFlight(inFlight, next)
@@ -76,43 +91,51 @@ func (m *MetricsHandler) Install(c *mux.PathRecorderMux) {
 
 func StartMetricsCollector(mgr manager.Manager) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
-		go startMetricsCollector(mgr.GetClient())
-		return nil
-	}
-}
+		klog.Infoln("Starts the Metrics Collector")
+		for {
+			collector := &Collector{
+				kc:               mgr.GetClient(),
+				opaInstalled:     graph.OPAInstalled.Load(),
+				scannerInstalled: graph.ScannerInstalled.Load(),
+			}
+			collector.init()
+			err := collector.collectMetrics()
+			if err != nil {
+				klog.Errorf("Error occurred while collecting metrics : %s \n", err.Error())
+				continue
+			}
 
-func startMetricsCollector(kc client.Client) {
-	klog.Infoln("Starts the Metrics Collector")
-	for {
-		scannerInstalled = graph.ScannerInstalled()
-		opaInstalled = graph.OPAInstalled()
-		generators = getFamilyGenerators()
-		headers := generator.ExtractMetricFamilyHeaders(generators)
-		store = metricsstore.NewMetricsStore(headers)
-		err := collectMetrics(kc)
-		if err != nil {
-			klog.Errorf("Error occurred while collecting metrics : %s \n", err.Error())
+			mu.Lock()
+			store = collector.store
+			mu.Unlock()
+
+			time.Sleep(MetricsRefreshPeriod)
 		}
-		time.Sleep(MetricsCollectionPeriod)
 	}
 }
 
-func collectMetrics(kc client.Client) error {
-	err := collectPodAncestorMetrics(kc, generators, store)
+func (mc *Collector) init() {
+	mc.initFamilyGenerators()
+	headers := generator.ExtractMetricFamilyHeaders(mc.generators)
+	mc.store = metricsstore.NewMetricsStore(headers)
+}
+
+func (mc *Collector) collectMetrics() error {
+	err := mc.collectPodAncestorMetrics()
 	if err != nil {
 		return err
 	}
 
 	offset := 1
-	if scannerInstalled {
-		err := collectScannerMetrics(kc, generators, store, offset)
+	if mc.scannerInstalled {
+		err := mc.collectScannerMetrics(offset)
 		if err != nil {
 			return err
 		}
 		offset = offset + 9 // # of scanner metrics families
 	}
-	if opaInstalled {
-		err := collectPolicyMetrics(kc, generators, store, offset)
+	if mc.opaInstalled {
+		err := mc.collectPolicyMetrics(offset)
 		if err != nil {
 			return err
 		}
@@ -121,11 +144,11 @@ func collectMetrics(kc client.Client) error {
 	return nil
 }
 
-func getFamilyGenerators() []generator.FamilyGenerator {
+func (mc *Collector) initFamilyGenerators() {
 	fn := func(obj interface{}) *metric.Family { return new(metric.Family) }
-	generators = make([]generator.FamilyGenerator, 0, 14)
+	mc.generators = make([]generator.FamilyGenerator, 0, 14)
 
-	generators = append(generators, generator.FamilyGenerator{
+	mc.generators = append(mc.generators, generator.FamilyGenerator{
 		Name:              "k8s_appscode_com_pod_ancestor",
 		Help:              "Pod Ancestor statistics",
 		Type:              metric.Gauge,
@@ -133,43 +156,43 @@ func getFamilyGenerators() []generator.FamilyGenerator {
 		GenerateFunc:      fn,
 	})
 
-	if scannerInstalled {
-		generators = append(generators, generator.FamilyGenerator{
+	if mc.scannerInstalled {
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "cluster_cve_occurrence",
 			Help:              "CVE occurrence statistics",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "cluster_cve_occurrence_total",
 			Help:              "Cluster total CVE occurrence",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "cluster_cve_count_total",
 			Help:              "Cluster total unique CVE count",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "namespace_cve_occurrence",
 			Help:              "Namespace CVE occurrence statistics",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "namespace_cve_occurrence_total",
 			Help:              "Namespace total CVE occurrence",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "namespace_cve_count_total",
 			Help:              "Namespace total unique CVE count",
 			Type:              metric.Gauge,
@@ -177,21 +200,21 @@ func getFamilyGenerators() []generator.FamilyGenerator {
 			GenerateFunc:      fn,
 		})
 
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "image_cve_occurrence_total",
 			Help:              "Image total CVE occurrence",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "image_cve_count_total",
 			Help:              "Image total unique CVE count",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              scannerMetricPrefix + "image_lineage",
 			Help:              "Image Lineage",
 			Type:              metric.Gauge,
@@ -200,30 +223,30 @@ func getFamilyGenerators() []generator.FamilyGenerator {
 		})
 	}
 
-	if opaInstalled {
+	if mc.opaInstalled {
 		// Policy related metrics
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              policyMetricPrefix + "cluster_violation_occurrence_total",
 			Help:              "Cluster-wide Violation Occurrence statistics",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              policyMetricPrefix + "cluster_violation_occurrence_by_constraint_type",
 			Help:              "Cluster-wide Violation Occurrence statistics by constraint type",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              policyMetricPrefix + "namespace_violation_occurrence_total",
 			Help:              "Namespace-wise total Violation Occurrence statistics",
 			Type:              metric.Gauge,
 			DeprecatedVersion: "",
 			GenerateFunc:      fn,
 		})
-		generators = append(generators, generator.FamilyGenerator{
+		mc.generators = append(mc.generators, generator.FamilyGenerator{
 			Name:              policyMetricPrefix + "namespace_violation_occurrence_by_constraint_type",
 			Help:              "Namespace-wise Violation Occurrence statistics by constraint type",
 			Type:              metric.Gauge,
@@ -231,5 +254,4 @@ func getFamilyGenerators() []generator.FamilyGenerator {
 			GenerateFunc:      fn,
 		})
 	}
-	return generators
 }

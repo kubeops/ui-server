@@ -19,36 +19,34 @@ package metricshandler
 import (
 	"context"
 
-	"kubeops.dev/ui-server/pkg/metricsstore"
 	policystorage "kubeops.dev/ui-server/pkg/registry/policy/reports"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/kube-state-metrics/v2/pkg/metric"
 	generator "k8s.io/kube-state-metrics/v2/pkg/metric_generator"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func collectPolicyMetrics(kc client.Client, generators []generator.FamilyGenerator, store *metricsstore.MetricsStore, offset int) error {
-	if clTotal, clByType, err := collectForCluster(kc, generators[offset], generators[offset+1]); err != nil {
+func (mc *Collector) collectPolicyMetrics(offset int) error {
+	if clTotal, clByType, err := mc.collectForCluster(mc.generators[offset], mc.generators[offset+1]); err != nil {
 		return err
 	} else {
-		store.Add(clTotal, clByType)
+		mc.store.Add(clTotal, clByType)
 	}
 
-	if nsTotal, nsByType, err := collectForNamespace(kc, generators[offset+2], generators[offset+3]); err != nil {
+	if nsTotal, nsByType, err := mc.collectForNamespace(mc.generators[offset+2], mc.generators[offset+3]); err != nil {
 		return err
 	} else {
-		store.Add(nsTotal, nsByType)
+		mc.store.Add(nsTotal, nsByType)
 	}
 
 	return nil
 }
 
-func collectForCluster(kc client.Client, genTotal generator.FamilyGenerator, genByType generator.FamilyGenerator) (*metric.Family, *metric.Family, error) {
+func (mc *Collector) collectForCluster(genTotal generator.FamilyGenerator, genByType generator.FamilyGenerator) (*metric.Family, *metric.Family, error) {
 	fTotal := genTotal.Generate(nil)
 	fByType := genByType.Generate(nil)
 
-	templates, err := policystorage.ListTemplates(context.TODO(), kc)
+	templates, err := policystorage.ListTemplates(context.TODO(), mc.kc)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -58,7 +56,7 @@ func collectForCluster(kc client.Client, genTotal generator.FamilyGenerator, gen
 		if err != nil {
 			return nil, nil, err
 		}
-		constraints, err := policystorage.ListConstraints(context.TODO(), kc, constraintKind)
+		constraints, err := policystorage.ListConstraints(context.TODO(), mc.kc, constraintKind)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -92,11 +90,11 @@ func collectForCluster(kc client.Client, genTotal generator.FamilyGenerator, gen
 	return fTotal, fByType, nil
 }
 
-func collectForNamespace(kc client.Client, genTotal generator.FamilyGenerator, genByType generator.FamilyGenerator) (*metric.Family, *metric.Family, error) {
+func (mc *Collector) collectForNamespace(genTotal generator.FamilyGenerator, genByType generator.FamilyGenerator) (*metric.Family, *metric.Family, error) {
 	fTotal := genTotal.Generate(nil)
 	fByType := genByType.Generate(nil)
 
-	templates, err := policystorage.ListTemplates(context.TODO(), kc)
+	templates, err := policystorage.ListTemplates(context.TODO(), mc.kc)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -105,7 +103,7 @@ func collectForNamespace(kc client.Client, genTotal generator.FamilyGenerator, g
 		if err != nil {
 			return nil, nil, err
 		}
-		constraints, err := policystorage.ListConstraints(context.TODO(), kc, cKind)
+		constraints, err := policystorage.ListConstraints(context.TODO(), mc.kc, cKind)
 		if err != nil {
 			return nil, nil, err
 		}

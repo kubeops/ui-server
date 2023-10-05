@@ -20,7 +20,6 @@ import (
 	"context"
 
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
-	"kubeops.dev/ui-server/pkg/metricsstore"
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"golang.org/x/sync/errgroup"
@@ -36,11 +35,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func collectScannerMetrics(kc client.Client, generators []generator.FamilyGenerator, store *metricsstore.MetricsStore, offset int) error {
+func (mc *Collector) collectScannerMetrics(offset int) error {
 	var list unstructured.UnstructuredList
 	list.SetAPIVersion("v1")
 	list.SetKind("Pod")
-	if err := kc.List(context.TODO(), &list); err != nil {
+	if err := mc.kc.List(context.TODO(), &list); err != nil {
 		return err
 	}
 	pods := list.Items
@@ -52,21 +51,21 @@ func collectScannerMetrics(kc client.Client, generators []generator.FamilyGenera
 		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(p.UnstructuredContent(), &pod); err != nil {
 			return err
 		}
-		images, err = au.CollectImageInfo(kc, &pod, images, true)
+		images, err = au.CollectImageInfo(mc.kc, &pod, images, true)
 		if err != nil {
 			return err
 		}
 	}
 
-	results, err := collectReports(context.TODO(), kc, images)
+	results, err := mc.collectReports(context.TODO(), images)
 	if err != nil {
 		return err
 	}
 
-	store.Add(collectClusterCVEMetrics(results, generators[offset], generators[offset+1], generators[offset+2]))
-	store.Add(collectNamespaceCVEMetrics(images, results, generators[offset+3], generators[offset+4], generators[offset+5]))
-	store.Add(collectImageCVEMetrics(results, generators[offset+6], generators[offset+7]))
-	store.Add(collectLineageMetrics(images, generators[offset+8]))
+	mc.store.Add(collectClusterCVEMetrics(results, mc.generators[offset], mc.generators[offset+1], mc.generators[offset+2]))
+	mc.store.Add(collectNamespaceCVEMetrics(images, results, mc.generators[offset+3], mc.generators[offset+4], mc.generators[offset+5]))
+	mc.store.Add(collectImageCVEMetrics(results, mc.generators[offset+6], mc.generators[offset+7]))
+	mc.store.Add(collectLineageMetrics(images, mc.generators[offset+8]))
 
 	return nil
 }
@@ -86,7 +85,7 @@ var severities = []string{
 }
 
 // Based on https://pkg.go.dev/golang.org/x/sync@v0.1.0/errgroup#example-Group-Pipeline
-func collectReports(ctx context.Context, kc client.Client, images map[string]kmapi.ImageInfo) (map[string]result, error) {
+func (mc *Collector) collectReports(ctx context.Context, images map[string]kmapi.ImageInfo) (map[string]result, error) {
 	// ctx is canceled when g.Wait() returns. When this version of MD5All returns
 	// - even in case of error! - we know that all of the goroutines have finished
 	// and the memory they were using can be garbage-collected.
@@ -120,11 +119,11 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 		g.Go(func() error {
 			for req := range requests {
 				var report scannerapi.ImageScanReport
-				err := kc.Get(ctx, client.ObjectKey{Name: scannerapi.GetReportName(req.Image)}, &report)
+				err := mc.kc.Get(ctx, client.ObjectKey{Name: scannerapi.GetReportName(req.Image)}, &report)
 				if client.IgnoreNotFound(err) != nil {
 					return err
 				} else if apierrors.IsNotFound(err) {
-					_ = shared.SendScanRequest(ctx, kc, req.Image, kmapi.PullCredentials{
+					_ = shared.SendScanRequest(ctx, mc.kc, req.Image, kmapi.PullCredentials{
 						Namespace:          req.Namespace,
 						SecretRefs:         req.PullSecrets,
 						ServiceAccountName: req.ServiceAccountName,
