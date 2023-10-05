@@ -134,10 +134,9 @@ func (r *frReconciler) reconcile(ctx context.Context) error {
 		return nil
 	}
 
-	enabled, reason := r.isFeatureEnabled(status)
+	enabled := r.isFeatureEnabled(status)
 	if !enabled {
 		r.feature.Status.Enabled = pointer.BoolP(false)
-		r.feature.Status.Note = reason
 		return nil
 	}
 	r.feature.Status.Enabled = pointer.BoolP(true)
@@ -265,12 +264,8 @@ func (r *frReconciler) getHelmRelease(ctx context.Context) (fluxcd.HelmRelease, 
 	}, r.feature.Name)
 }
 
-func (r *frReconciler) isFeatureEnabled(status featureStatus) (bool, string) {
-	if isRequiredResourcesExist(status) &&
-		isWorkloadOrReleaseExist(status) {
-		return true, ""
-	}
-	return false, findReason(status)
+func (r *frReconciler) isFeatureEnabled(status featureStatus) bool {
+	return isRequiredResourcesExist(status) && isWorkloadOrReleaseExist(status)
 }
 
 func (r *frReconciler) isFeatureReady(status featureStatus) (bool, string) {
@@ -411,7 +406,7 @@ func (r *frReconciler) updateFeatureSetStatus(ctx context.Context, fs *uiapi.Fea
 	fs.Status.Ready = pointer.BoolP(true)
 	fs.Status.Note = ""
 
-	if !atLeastOneFeatureManaged(fs.Status.Features) {
+	if !atLeastOneFeatureEnabled(fs.Status.Features) {
 		fs.Status.Enabled = pointer.BoolP(false)
 		fs.Status.Ready = nil
 		fs.Status.Note = "No feature enabled yet for this feature set."
