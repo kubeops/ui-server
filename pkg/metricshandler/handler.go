@@ -34,9 +34,10 @@ import (
 )
 
 const (
-	MetricsPath         = "/metrics"
-	scannerMetricPrefix = "scanner_appscode_com_"
-	policyMetricPrefix  = "policy_appscode_com_"
+	MetricsPath             = "/metrics"
+	scannerMetricPrefix     = "scanner_appscode_com_"
+	policyMetricPrefix      = "policy_appscode_com_"
+	MetricsCollectionPeriod = time.Second * 2
 )
 
 // MetricsHandler struct contains Stores which store the metrics to serve in the /metrics path
@@ -82,9 +83,6 @@ func StartMetricsCollector(mgr manager.Manager) func(ctx context.Context) error 
 
 func startMetricsCollector(kc client.Client) {
 	klog.Infoln("Starts the Metrics Collector")
-	t := time.NewTicker(time.Minute * 2)
-	defer t.Stop()
-
 	for {
 		scannerInstalled = graph.ScannerInstalled()
 		opaInstalled = graph.OPAInstalled()
@@ -95,7 +93,7 @@ func startMetricsCollector(kc client.Client) {
 		if err != nil {
 			klog.Errorf("Error occurred while collecting metrics : %s \n", err.Error())
 		}
-		<-t.C
+		time.Sleep(MetricsCollectionPeriod)
 	}
 }
 
