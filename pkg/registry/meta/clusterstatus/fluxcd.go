@@ -19,13 +19,13 @@ package clusterstatus
 import (
 	goctx "context"
 
-	core "k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
 const (
@@ -39,9 +39,9 @@ type FluxCDStatus struct {
 	Message   string `json:"message,omitempty"`
 }
 
-func getFluxCDStatus(config *rest.Config) (FluxCDStatus, error) {
+func getFluxCDStatus(mgr manager.Manager) (FluxCDStatus, error) {
 	status := FluxCDStatus{}
-	if err := checkFluxCRDRegistered(config); err != nil {
+	if err := checkFluxCRDRegistered(mgr.GetConfig()); err != nil {
 		if kerr.IsNotFound(err) || meta.IsNoMatchError(err) {
 			status.Installed = false
 			status.Message = "FluxCD CRDs HelmReleases and HelmRepositories are not registered"
@@ -50,13 +50,11 @@ func getFluxCDStatus(config *rest.Config) (FluxCDStatus, error) {
 		return status, err
 	}
 
-	kc, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return status, err
-	}
+	kc := mgr.GetClient()
 
-	srcCtrl, err := kc.AppsV1().Deployments(core.NamespaceAll).List(goctx.Background(), metav1.ListOptions{
-		FieldSelector: "metadata.name=source-controller",
+	srcCtrl := appsv1.DeploymentList{}
+	err := kc.List(goctx.Background(), &srcCtrl, client.MatchingFields{
+		"metadata.name": "source-controller",
 	})
 	if err != nil {
 		return status, err
@@ -75,8 +73,9 @@ func getFluxCDStatus(config *rest.Config) (FluxCDStatus, error) {
 		return status, nil
 	}
 
-	helmCtrl, err := kc.AppsV1().Deployments(core.NamespaceAll).List(goctx.Background(), metav1.ListOptions{
-		FieldSelector: "metadata.name=helm-controller",
+	helmCtrl := appsv1.DeploymentList{}
+	err = kc.List(goctx.Background(), &helmCtrl, client.MatchingFields{
+		"metadata.name": "helm-controller",
 	})
 	if err != nil {
 		return status, err
