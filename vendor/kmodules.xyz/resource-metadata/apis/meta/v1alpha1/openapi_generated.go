@@ -299,6 +299,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"k8s.io/apimachinery/pkg/version.Info":                                          schema_k8sio_apimachinery_pkg_version_Info(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.AttributeDefinition":         schema_resource_metadata_apis_meta_v1alpha1_AttributeDefinition(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ChartPresetQuery":            schema_resource_metadata_apis_meta_v1alpha1_ChartPresetQuery(ref),
+		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ClusterStatus":               schema_resource_metadata_apis_meta_v1alpha1_ClusterStatus(ref),
+		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ClusterStatusResponse":       schema_resource_metadata_apis_meta_v1alpha1_ClusterStatusResponse(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ColorDefinition":             schema_resource_metadata_apis_meta_v1alpha1_ColorDefinition(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ContactData":                 schema_resource_metadata_apis_meta_v1alpha1_ContactData(ref),
 		"kmodules.xyz/resource-metadata/apis/meta/v1alpha1.DashboardDefinition":         schema_resource_metadata_apis_meta_v1alpha1_DashboardDefinition(ref),
@@ -14730,6 +14732,100 @@ func schema_resource_metadata_apis_meta_v1alpha1_ChartPresetQuery(ref common.Ref
 	}
 }
 
+func schema_resource_metadata_apis_meta_v1alpha1_ClusterStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"response": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ClusterStatusResponse"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kmodules.xyz/resource-metadata/apis/meta/v1alpha1.ClusterStatusResponse"},
+	}
+}
+
+func schema_resource_metadata_apis_meta_v1alpha1_ClusterStatusResponse(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Phase represents current status of the cluster",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Reason explains the reason behind the cluster current phase",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Message specifies additional information regarding the possible actions for the user",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"clusterManagers": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"clusterAPI": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ClusterAPI contains capi cluster information if the cluster is created by cluster-api",
+							Ref:         ref("kmodules.xyz/client-go/api/v1.CAPIClusterInfo"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/client-go/api/v1.CAPIClusterInfo"},
+	}
+}
+
 func schema_resource_metadata_apis_meta_v1alpha1_ColorDefinition(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -18882,8 +18978,15 @@ func schema_kmodulesxyz_resource_metadata_apis_shared_ActionTemplate(ref common.
 							Ref: ref("x-helm.dev/apimachinery/apis/releases/v1alpha1.ChartSourceRef"),
 						},
 					},
+					"enforceQuota": {
+						SchemaProps: spec.SchemaProps{
+							Default: false,
+							Type:    []string{"boolean"},
+							Format:  "",
+						},
+					},
 				},
-				Required: []string{"operationId", "flow"},
+				Required: []string{"operationId", "flow", "enforceQuota"},
 			},
 		},
 		Dependencies: []string{
@@ -19173,6 +19276,13 @@ func schema_kmodulesxyz_resource_metadata_apis_shared_UIParameterTemplate(ref co
 							Ref: ref("x-helm.dev/apimachinery/apis/releases/v1alpha1.ChartSourceRef"),
 						},
 					},
+					"enforceQuota": {
+						SchemaProps: spec.SchemaProps{
+							Default: false,
+							Type:    []string{"boolean"},
+							Format:  "",
+						},
+					},
 					"actions": {
 						SchemaProps: spec.SchemaProps{
 							Type: []string{"array"},
@@ -19201,6 +19311,7 @@ func schema_kmodulesxyz_resource_metadata_apis_shared_UIParameterTemplate(ref co
 						},
 					},
 				},
+				Required: []string{"enforceQuota"},
 			},
 		},
 		Dependencies: []string{
