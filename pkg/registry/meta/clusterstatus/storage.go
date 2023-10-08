@@ -22,7 +22,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -30,8 +29,6 @@ import (
 
 type Storage struct {
 	kc        client.Client
-	clusterID string
-	a         authorizer.Authorizer
 	convertor rest.TableConvertor
 }
 
@@ -42,11 +39,9 @@ var (
 	_ rest.Creater                  = &Storage{}
 )
 
-func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
+func NewStorage(kc client.Client) *Storage {
 	return &Storage{
-		kc:        kc,
-		clusterID: clusterID,
-		a:         a,
+		kc: kc,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    rsapi.SchemeGroupVersion.Group,
 			Resource: rsapi.ResourceClusterStatuses,
@@ -70,7 +65,7 @@ func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidation rest.ValidateObjectFunc, options *metav1.CreateOptions) (runtime.Object, error) {
 	in := obj.(*rsapi.ClusterStatus)
-	in.Response = GetClusterStatus()
+	in.Response = generateClusterStatusResponse(r.kc)
 
 	return in, nil
 }

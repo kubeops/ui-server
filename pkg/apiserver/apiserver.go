@@ -254,11 +254,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		os.Exit(1)
 	}
 
-	if err := mgr.Add(manager.RunnableFunc(clusterstatusstorage.StartClusterStatusPuller(mgr))); err != nil {
-		setupLog.Error(err, "unable to set up cluster status puller")
-		os.Exit(1)
-	}
-
 	s := &UIServer{
 		GenericAPIServer: genericServer,
 		Manager:          mgr,
@@ -279,7 +274,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[rsapi.ResourceChartPresetQueries] = chartpresetquery.NewStorage(ctrlClient)
-		v1alpha1storage[rsapi.ResourceClusterStatuses] = clusterstatusstorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceClusterStatuses] = clusterstatusstorage.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient, oc)
 		v1alpha1storage[rsapi.ResourceRenderRawGraphs] = renderrawgraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, oc, rbacAuthorizer)

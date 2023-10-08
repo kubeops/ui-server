@@ -17,15 +17,13 @@ limitations under the License.
 package clusterstatus
 
 import (
-	goctx "context"
+	"context"
 
-	appsv1 "k8s.io/api/apps/v1"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
+	apps "k8s.io/api/apps/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
 const (
@@ -39,10 +37,10 @@ type FluxCDStatus struct {
 	Message   string `json:"message,omitempty"`
 }
 
-func getFluxCDStatus(mgr manager.Manager) (FluxCDStatus, error) {
+func getFluxCDStatus(kc client.Client) (FluxCDStatus, error) {
 	status := FluxCDStatus{}
-	if err := checkFluxCRDRegistered(mgr.GetConfig()); err != nil {
-		if kerr.IsNotFound(err) || meta.IsNoMatchError(err) {
+	if err := checkFluxCRDRegistered(kc.RESTMapper()); err != nil {
+		if apierrors.IsNotFound(err) || meta.IsNoMatchError(err) {
 			status.Installed = false
 			status.Message = "FluxCD CRDs HelmReleases and HelmRepositories are not registered"
 			return status, nil
@@ -50,44 +48,37 @@ func getFluxCDStatus(mgr manager.Manager) (FluxCDStatus, error) {
 		return status, err
 	}
 
-	kc := mgr.GetClient()
-
-	srcCtrl := appsv1.DeploymentList{}
-	err := kc.List(goctx.Background(), &srcCtrl, client.MatchingFields{
-		"metadata.name": "source-controller",
+	var deployments apps.DeploymentList
+	err := kc.List(context.Background(), &deployments, client.MatchingLabels{
+		"app.kubernetes.io/instance": "flux-system",
+		"app.kubernetes.io/part-of":  "flux",
+		"control-plane":              "controller",
 	})
 	if err != nil {
 		return status, err
 	}
-	if len(srcCtrl.Items) == 0 {
+	if len(deployments.Items) == 0 {
 		status.Installed = false
-		status.Message = "Deployment 'source-controller' does not exist"
-		return status, nil
-	}
-	status.Installed = true
-	status.Managed = isFluxCDManaged(srcCtrl.Items[0].Spec.Template.Labels)
-
-	if srcCtrl.Items[0].Status.ReadyReplicas == 0 {
-		status.Ready = false
-		status.Message = "No ready replica found for deployment 'source-controller'"
+		status.Message = "FluxCD deployments do not exist"
 		return status, nil
 	}
 
-	helmCtrl := appsv1.DeploymentList{}
-	err = kc.List(goctx.Background(), &helmCtrl, client.MatchingFields{
-		"metadata.name": "helm-controller",
-	})
-	if err != nil {
-		return status, err
-	}
-	if len(helmCtrl.Items) == 0 {
-		status.Ready = false
-		status.Message = "Deployment 'helm-controller' does not exist"
-		return status, nil
-	}
-	if helmCtrl.Items[0].Status.ReadyReplicas == 0 {
-		status.Ready = false
-		status.Message = "No ready replica found for deployment 'helm-controller'"
+	for _, deploy := range deployments.Items {
+		if deploy.Name == "source-controller" {
+			status.Installed = true
+			status.Managed = isFluxCDManaged(deploy.Spec.Template.Labels)
+
+			if deploy.Status.ReadyReplicas == 0 {
+				status.Ready = false
+				status.Message = "No ready replica found for deployment 'source-controller'"
+				return status, nil
+			}
+		} else if deploy.Name == "helm-controller" {
+			if deploy.Status.ReadyReplicas == 0 {
+				status.Ready = false
+				status.Message = "No ready replica found for deployment 'helm-controller'"
+			}
+		}
 	}
 	status.Ready = true
 
@@ -95,28 +86,21 @@ func getFluxCDStatus(mgr manager.Manager) (FluxCDStatus, error) {
 }
 
 func isFluxCDManaged(podLabels map[string]string) bool {
-	if _, ok := podLabels[KeyACEManaged]; ok {
-		return true
-	}
-	return false
+	_, exists := podLabels[KeyACEManaged]
+	return exists
 }
 
-func checkFluxCRDRegistered(config *rest.Config) error {
-	_, err := getResourceList(config, schema.GroupVersionResource{
-		Group:    "helm.toolkit.fluxcd.io",
-		Version:  "v2beta1",
-		Resource: "helmreleases",
-	})
-	if err != nil {
+func checkFluxCRDRegistered(mapper meta.RESTMapper) error {
+	if _, err := mapper.RESTMappings(schema.GroupKind{
+		Group: "helm.toolkit.fluxcd.io",
+		Kind:  "HelmRelease",
+	}); err != nil {
 		return err
 	}
-
-	_, err = getResourceList(config, schema.GroupVersionResource{
-		Group:    "source.toolkit.fluxcd.io",
-		Version:  "v1beta1",
-		Resource: "helmrepositories",
-	})
-	if err != nil {
+	if _, err := mapper.RESTMappings(schema.GroupKind{
+		Group: "source.toolkit.fluxcd.io",
+		Kind:  "HelmRepository",
+	}); err != nil {
 		return err
 	}
 	return nil
