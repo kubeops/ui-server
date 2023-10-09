@@ -1,3 +1,19 @@
+/*
+Copyright AppsCode Inc. and Contributors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package resourceCalculator
 
 import (
@@ -11,7 +27,7 @@ import (
 )
 
 // ReferencedObjInfo indicates the information about the referenced database
-// object by the OpsRequest object
+// object by the kubedb OpsRequest object
 type ReferencedObjInfo struct {
 	group     string
 	version   string
@@ -28,46 +44,46 @@ const (
 // wrapReferencedDBResourceWithOpsReqObject get the DB resource reference by the OpsRequest
 // object and wrap the DB object within it as 'referencedDB'
 func wrapReferencedDBResourceWithOpsReqObject(kc client.Client, u *unstructured.Unstructured) error {
-	OpsReqObj := u.UnstructuredContent()
+	opsReqObj := u.UnstructuredContent()
 	defer func() {
-		u.Object = OpsReqObj
+		u.Object = opsReqObj
 	}()
-
-	// Get the referenced database info
+	// Get the referenced db info
 	refObjInfo, err := getOpsRequestReferencedDbObjectInfo(u)
 	if err != nil {
 		return err
 	}
-
 	// Get the referenced db object
 	refDb, err := getReferencedDBResource(kc, refObjInfo)
 	if err != nil {
 		return err
 	}
-
 	// Wrap the referenced db object with the OpsRequest object
-	OpsReqObj["referencedDB"] = refDb
+	err = unstructured.SetNestedMap(opsReqObj, refDb.UnstructuredContent(), "spec", "databaseRef", "referencedDB")
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // getOpsRequestReferencedDbObjectInfo extracts the referenced database information from OpsRequest object
 func getOpsRequestReferencedDbObjectInfo(u *unstructured.Unstructured) (*ReferencedObjInfo, error) {
-	refDBName, ok, err := unstructured.NestedString(u.UnstructuredContent(), "spec", "databaseRef")
+	refDbName, ok, err := unstructured.NestedString(u.UnstructuredContent(), "spec", "databaseRef", "name")
 	if err != nil {
 		return nil, err
 	}
 	if !ok {
 		return nil, errors.New("referenced database name not found")
 	}
-	kind := strings.TrimSuffix(u.GetKind(), "OpsRequest")
 	ns := u.GetNamespace()
+	kind := strings.TrimSuffix(u.GetKind(), "OpsRequest")
 
 	return &ReferencedObjInfo{
 		group:     DBGroup,
 		version:   DBVersion,
 		kind:      kind,
-		name:      refDBName,
+		name:      refDbName,
 		namespace: ns,
 	}, nil
 }
