@@ -50,12 +50,12 @@ func generateClusterStatusResponse(kc client.Client) *rsapi.ClusterStatusRespons
 	ready, msg, err := checkClusterReadiness(kc)
 	if err != nil {
 		csr.Phase = rsapi.ClusterPhaseInactive
-		csr.Reason = rsapi.ClusterNotFound
+		csr.Reason = rsapi.ClusterPhaseReasonClusterNotFound
 		csr.Message = err.Error()
 		return &csr
 	} else if !ready {
 		csr.Phase = rsapi.ClusterPhaseNotReady
-		csr.Reason = rsapi.MissingComponent
+		csr.Reason = rsapi.ClusterPhaseReasonMissingComponent
 		csr.Message = msg
 		return &csr
 	}
