@@ -42,14 +42,14 @@ require (
 	k8s.io/kube-state-metrics/v2 v2.7.0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.25.1
-	kmodules.xyz/client-go v0.25.37
+	kmodules.xyz/client-go v0.25.38
 	kmodules.xyz/custom-resources v0.25.2
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.4
-	kmodules.xyz/resource-metadata v0.17.26-0.20231009075914-70d9638b6217
+	kmodules.xyz/resource-metadata v0.17.26-0.20231009112556-f90c55e7954d
 	kmodules.xyz/resource-metrics v0.25.3
 	kmodules.xyz/sets v0.25.0
-	kubeops.dev/scanner v0.0.15-0.20230929084557-c991a6514ff9
+	kubeops.dev/scanner v0.0.15
 	kubepack.dev/lib-helm v0.7.3
 	sigs.k8s.io/cli-utils v0.34.0
 	sigs.k8s.io/controller-runtime v0.13.1
@@ -136,7 +136,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.16.5 // indirect
+	github.com/klauspost/compress v1.17.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
