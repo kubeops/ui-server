@@ -17,10 +17,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	core "k8s.io/api/core/v1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
-	"reflect"
+
+	core "k8s.io/api/core/v1"
 )
 
 func init() {
@@ -36,8 +36,8 @@ func (r OpsResourceCalculator) ResourceCalculator() api.ResourceCalculator {
 		RoleReplicasFn:         r.roleReplicasFn,
 		ModeFn:                 r.modeFn,
 		UsesTLSFn:              r.usesTLSFn,
-		RoleResourceLimitsFn:   r.roleResourceFn(api.ResourceLimits),
-		RoleResourceRequestsFn: r.roleResourceFn(api.ResourceRequests),
+		RoleResourceLimitsFn:   r.roleResourceLimitsFn(api.ResourceLimits),
+		RoleResourceRequestsFn: r.roleResourceRequestsFn(api.ResourceRequests),
 	}
 }
 
@@ -80,7 +80,7 @@ func (r OpsResourceCalculator) usesTLSFn(opsObj map[string]interface{}) (bool, e
 	return isUsedTLS, nil
 }
 
-func (r OpsResourceCalculator) roleResourceFn(fn func(rr core.ResourceRequirements) core.ResourceList) func(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
+func (r OpsResourceCalculator) roleResourceLimitsFn(fn func(rr core.ResourceRequirements) core.ResourceList) func(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
 	return func(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
 		var rs map[api.PodRole]core.ResourceList
 		var err error
@@ -89,17 +89,29 @@ func (r OpsResourceCalculator) roleResourceFn(fn func(rr core.ResourceRequiremen
 		if err != nil {
 			return nil, err
 		}
-		// TODO: check if its correct
-		if reflect.TypeOf(fn) == reflect.TypeOf(api.ResourceLimits) {
-			rs, err = resourcemetrics.RoleResourceLimits(scaledObject)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			rs, err = resourcemetrics.RoleResourceRequests(scaledObject)
-			if err != nil {
-				return nil, err
-			}
+
+		rs, err = resourcemetrics.RoleResourceLimits(scaledObject)
+		if err != nil {
+			return nil, err
+		}
+
+		return rs, nil
+	}
+}
+
+func (r OpsResourceCalculator) roleResourceRequestsFn(fn func(rr core.ResourceRequirements) core.ResourceList) func(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
+	return func(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
+		var rs map[api.PodRole]core.ResourceList
+		var err error
+
+		scaledObject, err := GetScaledObject(opsObj)
+		if err != nil {
+			return nil, err
+		}
+
+		rs, err = resourcemetrics.RoleResourceRequests(scaledObject)
+		if err != nil {
+			return nil, err
 		}
 
 		return rs, nil

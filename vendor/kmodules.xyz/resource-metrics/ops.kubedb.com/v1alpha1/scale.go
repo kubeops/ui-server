@@ -19,9 +19,10 @@ package v1alpha1
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"strings"
 )
 
 func GetScaledObject(opsObj map[string]interface{}) (ScaledObject, error) {
@@ -78,7 +79,6 @@ func extractReferencedObject(opsObj map[string]interface{}, refDbPath ...string)
 	if !found {
 		return nil, errors.New("referenced db object not found")
 	}
-	_ = unstructured.SetNestedField(opsObj, nil, refDbPath...)
 
 	return dbObj, nil
 }

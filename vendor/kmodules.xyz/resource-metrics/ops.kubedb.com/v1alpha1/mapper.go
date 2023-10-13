@@ -18,8 +18,10 @@ package v1alpha1
 
 import (
 	"errors"
-	"k8s.io/apimachinery/pkg/runtime/schema"
+
 	"kmodules.xyz/resource-metrics/api"
+
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type OpsPathMapper interface {
@@ -30,10 +32,12 @@ type OpsPathMapper interface {
 	GetGroupVersionKind() schema.GroupVersionKind
 }
 
-type OpsReqPath string
-type ReferencedObjPath string
-type ScaledObject map[string]interface{}
-type OpsReqObject map[string]interface{}
+type (
+	OpsReqPath        string
+	ReferencedObjPath string
+	ScaledObject      map[string]interface{}
+	OpsReqObject      map[string]interface{}
+)
 
 var PathMapperPlugin = map[schema.GroupVersionKind]OpsPathMapper{}
 

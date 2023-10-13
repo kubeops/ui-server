@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package resourceCalculator
+package resourcecalculator
 
 import (
 	"context"
@@ -54,24 +54,25 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaD
 		if err != nil {
 			return nil, err
 		}
-		if err := deductFromProjectQuota(dbObj, pq); err != nil {
+		if err := deductRefDbObjResourceUsageFromProjectQuota(obj, pq); err != nil {
 			return nil, err
 		}
-		gvk = opsPathMapper.GetGroupVersionKind()
+		gvk = getGVK(dbObj)
 	}
 
 	c, err := api.Load(obj)
 	if err != nil {
 		return nil, err
 	}
-	requests, err := c.AppResourceRequests(obj)
+	dbRequests, err := c.AppResourceRequests(obj)
 	if err != nil {
 		return nil, err
 	}
-	limits, err := c.AppResourceLimits(obj)
+	dbLimits, err := c.AppResourceLimits(obj)
 	if err != nil {
 		return nil, err
 	}
+	dbDemand := mergeRequestsLimits(dbRequests, dbLimits)
 
 	for _, quota := range pq.Status.Quotas {
 		if quota.Result != v1alpha1.ResultSuccess {
@@ -81,40 +82,20 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaD
 			if quota.Kind != "" && quota.Kind != gvk.Kind {
 				continue
 			}
-			hardRequests, hardLimits := extractRequestsLimits(quota.Hard)
-			usedRequests, usedLimits := extractRequestsLimits(quota.Used)
-
-			totRequestsUsage := api.AddResourceList(requests, usedRequests)
-			for rn, usageQuan := range totRequestsUsage {
-				hr, found := hardRequests[rn]
+			newUsed := api.AddResourceList(quota.Used, dbDemand)
+			for rk, newUsed := range newUsed {
+				hard, found := quota.Hard[rk]
 				if !found {
 					continue
 				}
-				if usageQuan.Cmp(hr) > 0 {
-					r := requests[rn]
-					u := usedRequests[rn]
-					l := hardRequests[rn]
+				if newUsed.Cmp(hard) > 0 {
+					dd := dbDemand[rk]
+					du := quota.Used[rk]
+					dh := quota.Hard[rk]
 
 					qd.Decision = rsapi.DecisionDeny
 					qd.Violations = append(qd.Violations,
-						fmt.Sprintf("Project quota exceeded. Requested: requests.%s=%s, Used: requests.%s=%s, Limited: requests.%s=%s", rn, r.String(), rn, u.String(), rn, l.String()))
-				}
-			}
-
-			totLimitsUsage := api.AddResourceList(limits, usedLimits)
-			for rn, usageQuan := range totLimitsUsage {
-				hl, found := hardLimits[rn]
-				if !found {
-					continue
-				}
-				if usageQuan.Cmp(hl) > 0 {
-					r := limits[rn]
-					u := usedLimits[rn]
-					l := hardLimits[rn]
-
-					qd.Decision = rsapi.DecisionDeny
-					qd.Violations = append(qd.Violations,
-						fmt.Sprintf("Project quota exceeded. Requested: limits.%s=%s, Used: limits.%s=%s, Limited: limits.%s=%s", rn, r.String(), rn, u.String(), rn, l.String()))
+						fmt.Sprintf("Project quota exceeded. Requested: %s=%s, Used: %s=%s, Limited: %s=%s", rk, dd.String(), rk, du.String(), rk, dh.String()))
 				}
 			}
 		}
@@ -123,21 +104,22 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaD
 	return qd, nil
 }
 
-func deductFromProjectQuota(oldDbObj map[string]interface{}, pq *v1alpha1.ProjectQuota) error {
-	c, err := api.Load(oldDbObj)
+func deductRefDbObjResourceUsageFromProjectQuota(dbObj map[string]interface{}, pq *v1alpha1.ProjectQuota) error {
+	c, err := api.Load(dbObj)
 	if err != nil {
 		return err
 	}
-	requests, err := c.AppResourceRequests(oldDbObj)
+	dbRequests, err := c.AppResourceRequests(dbObj)
 	if err != nil {
 		return err
 	}
-	limits, err := c.AppResourceLimits(oldDbObj)
+	dbLimits, err := c.AppResourceLimits(dbObj)
 	if err != nil {
 		return err
 	}
+	dbDemand := mergeRequestsLimits(dbRequests, dbLimits)
 
-	gvk := getGVK(oldDbObj)
+	gvk := getGVK(dbObj)
 	for i, quota := range pq.Status.Quotas {
 		if quota.Result != v1alpha1.ResultSuccess {
 			continue
@@ -146,16 +128,7 @@ func deductFromProjectQuota(oldDbObj map[string]interface{}, pq *v1alpha1.Projec
 			if quota.Kind != "" && quota.Kind != gvk.Kind {
 				continue
 			}
-			usedRequests, usedLimits := extractRequestsLimits(quota.Used)
-			newRequests := api.SubtractResourceList(usedRequests, requests)
-			newLimits := api.SubtractResourceList(usedLimits, limits)
-
-			for k, nr := range newRequests {
-				quota.Used[k] = nr
-			}
-			for k, nl := range newLimits {
-				quota.Used[k] = nl
-			}
+			quota.Used = api.SubtractResourceList(quota.Used, dbDemand)
 		}
 		pq.Status.Quotas[i].Used = quota.Used
 	}
@@ -163,24 +136,26 @@ func deductFromProjectQuota(oldDbObj map[string]interface{}, pq *v1alpha1.Projec
 	return nil
 }
 
-func extractRequestsLimits(res core.ResourceList) (core.ResourceList, core.ResourceList) {
-	requests := core.ResourceList{}
-	limits := core.ResourceList{}
-
-	for fullName, quan := range res {
-		identifier, name, found := strings.Cut(fullName.String(), ".")
+func mergeRequestsLimits(requests, limits core.ResourceList) core.ResourceList {
+	rl := make(core.ResourceList)
+	for k, r := range requests {
+		_, _, found := strings.Cut(k.String(), ".")
 		if !found {
-			continue
-		}
-
-		if identifier == "requests" {
-			requests[core.ResourceName(name)] = quan
+			rl["requests."+k] = r
 		} else {
-			limits[core.ResourceName(name)] = quan
+			rl[k] = r
+		}
+	}
+	for k, l := range limits {
+		_, _, found := strings.Cut(k.String(), ".")
+		if !found {
+			rl["limits."+k] = l
+		} else {
+			rl[k] = l
 		}
 	}
 
-	return requests, limits
+	return rl
 }
 
 func getProjectQuota(kc client.Client, ns string) (*v1alpha1.ProjectQuota, error) {
@@ -214,7 +189,6 @@ func extractReferencedObject(opsObj map[string]interface{}, refDbPath ...string)
 	if !found {
 		return nil, errors.New("referenced db object not found")
 	}
-	_ = unstructured.SetNestedField(opsObj, nil, refDbPath...)
 
 	return dbObj, nil
 }

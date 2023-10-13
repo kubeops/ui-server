@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package resourceCalculator
+package resourcecalculator
 
 import (
 	"context"
@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	opsv1alpha1 "kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -46,10 +47,16 @@ const (
 // object and wrap the DB object within it as 'referencedDB'
 func wrapReferencedDBResourceWithOpsReqObject(kc client.Client, u *unstructured.Unstructured) error {
 	opsReqObj := u.UnstructuredContent()
-	defer func() {
-		u.Object = opsReqObj
-	}()
-	refObjInfo, err := getOpsRequestReferencedDbObjectInfo(u)
+	opsPathMapper, err := opsv1alpha1.LoadOpsPathMapper(u.UnstructuredContent())
+	if err != nil {
+		return err
+	}
+	refObjPath := opsPathMapper.GetReferencedDbObjectPath()
+	refObjNamePath := make([]string, len(refObjPath))
+	copy(refObjNamePath, refObjPath)
+	refObjNamePath[len(refObjNamePath)-1] = "name"
+
+	refObjInfo, err := getOpsRequestReferencedDbObjectInfo(u, refObjNamePath)
 	if err != nil {
 		return err
 	}
@@ -57,17 +64,18 @@ func wrapReferencedDBResourceWithOpsReqObject(kc client.Client, u *unstructured.
 	if err != nil {
 		return err
 	}
-	err = unstructured.SetNestedMap(opsReqObj, refDb.UnstructuredContent(), "spec", "databaseRef", "referencedDB")
+	err = unstructured.SetNestedMap(opsReqObj, refDb.UnstructuredContent(), refObjPath...)
 	if err != nil {
 		return err
 	}
+	u.Object = opsReqObj
 
 	return nil
 }
 
 // getOpsRequestReferencedDbObjectInfo extracts the referenced database information from OpsRequest object
-func getOpsRequestReferencedDbObjectInfo(u *unstructured.Unstructured) (*ReferencedObjInfo, error) {
-	refDbName, ok, err := unstructured.NestedString(u.UnstructuredContent(), "spec", "databaseRef", "name")
+func getOpsRequestReferencedDbObjectInfo(u *unstructured.Unstructured, refObjNamePath []string) (*ReferencedObjInfo, error) {
+	refDbName, ok, err := unstructured.NestedString(u.UnstructuredContent(), refObjNamePath...)
 	if err != nil {
 		return nil, err
 	}

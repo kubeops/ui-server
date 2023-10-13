@@ -1827,7 +1827,7 @@ kmodules.xyz/resource-metadata/pkg/layouts
 kmodules.xyz/resource-metadata/pkg/tableconvertor
 kmodules.xyz/resource-metadata/pkg/tableconvertor/lib
 kmodules.xyz/resource-metadata/pkg/tableconvertor/printers
-# kmodules.xyz/resource-metrics v0.25.4-0.20231012114451-4473ecfe1636
+# kmodules.xyz/resource-metrics v0.25.4-0.20231013112238-988bba212526
 ## explicit; go 1.18
 kmodules.xyz/resource-metrics
 kmodules.xyz/resource-metrics/api

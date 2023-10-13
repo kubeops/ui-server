@@ -107,9 +107,7 @@ func SubtractResourceList(x, y core.ResourceList) core.ResourceList {
 		sum := resource.Quantity{Format: rf}
 		sum.Add(*x.Name(core.ResourceName(fullName), rf))
 		sum.Sub(*y.Name(core.ResourceName(fullName), rf))
-		if !sum.IsZero() {
-			result[core.ResourceName(fullName)] = sum
-		}
+		result[core.ResourceName(fullName)] = sum
 	}
 	return result
 }

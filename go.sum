@@ -2141,25 +2141,14 @@ kmodules.xyz/monitoring-agent-api v0.25.4 h1:OwkvtV23QhUy3f7o9lxPWaAW3jiJMGAMPPR
 kmodules.xyz/monitoring-agent-api v0.25.4/go.mod h1:3LhrLDGQKQXhxYcjA/WNaO4HPpopYQzOutsEp2i3008=
 kmodules.xyz/offshoot-api v0.25.4 h1:IjJNvkphcdYUG8XO/pBwXpuP8W+jxAWJZ3yH8vgI/as=
 kmodules.xyz/offshoot-api v0.25.4/go.mod h1:PUk4EuJFhhyQykCflHj7EgXcljGIqs9vi0IN0RpxtY4=
-<<<<<<< HEAD
 kmodules.xyz/resource-metadata v0.17.26-0.20231009112556-f90c55e7954d h1:E0SkGh/coySTCdes4ZLw9kBT+RaVMjNhzm6mycxhK7g=
 kmodules.xyz/resource-metadata v0.17.26-0.20231009112556-f90c55e7954d/go.mod h1:tyLxzAVkhlL3/jFdcQcX1RZ8i8h9bs+AJur5RcuaW40=
-kmodules.xyz/resource-metrics v0.25.3 h1:g9EjNfYRrUSnbA4r+bUQefQ5Ban6I6rpKjnB3ER+Yew=
-kmodules.xyz/resource-metrics v0.25.3/go.mod h1:H7YLdUQJXUSzf5cNI4IYWU4Wsmrua/jpw7gqDnE3BwM=
+kmodules.xyz/resource-metrics v0.25.4-0.20231013112238-988bba212526 h1:UdlISZo4DI+LfytHKuXA2QTrsrbFTjWixNpdxLq7wPQ=
+kmodules.xyz/resource-metrics v0.25.4-0.20231013112238-988bba212526/go.mod h1:H7YLdUQJXUSzf5cNI4IYWU4Wsmrua/jpw7gqDnE3BwM=
 kmodules.xyz/sets v0.25.0 h1:belY/3trp/M/CKc1TEteA40jb2uCIdwKHhjpvrIxG+8=
 kmodules.xyz/sets v0.25.0/go.mod h1:ICWmplgCsxniWkImSBGlJrLT9npqOXKhX/Bwbc7bmEw=
 kubeops.dev/scanner v0.0.15 h1:u9hM2096LEa+BPlI/p7tcqvOv7A9fAFEw8AOEGHP5GY=
 kubeops.dev/scanner v0.0.15/go.mod h1:qu2mnR2u8mmaNIIS9CKW1sWKpXmaBKTXKHLyW7Oz/i4=
-=======
-kmodules.xyz/resource-metadata v0.17.25-0.20231006102558-311a1a2eaa10 h1:D1HcIuYxmHG44nQY6r9dm9qKU+pKtPUDiekJaRjbu+o=
-kmodules.xyz/resource-metadata v0.17.25-0.20231006102558-311a1a2eaa10/go.mod h1:tyLxzAVkhlL3/jFdcQcX1RZ8i8h9bs+AJur5RcuaW40=
-kmodules.xyz/resource-metrics v0.25.4-0.20231012114451-4473ecfe1636 h1:79DjeRe3/79lRuWnZJTJzPnmwQ8UkNLNXT6RV7FsSNA=
-kmodules.xyz/resource-metrics v0.25.4-0.20231012114451-4473ecfe1636/go.mod h1:H7YLdUQJXUSzf5cNI4IYWU4Wsmrua/jpw7gqDnE3BwM=
-kmodules.xyz/sets v0.25.0 h1:belY/3trp/M/CKc1TEteA40jb2uCIdwKHhjpvrIxG+8=
-kmodules.xyz/sets v0.25.0/go.mod h1:ICWmplgCsxniWkImSBGlJrLT9npqOXKhX/Bwbc7bmEw=
-kubeops.dev/scanner v0.0.15-0.20230929084557-c991a6514ff9 h1:IA6a7TEiugCvxqpA2BQpRQR2iiuR8b5cPY9qtlFczpE=
-kubeops.dev/scanner v0.0.15-0.20230929084557-c991a6514ff9/go.mod h1:NOUA+OwkEYNzNcgIL/mUWep8/zuNXOPlAkOcudgXxVw=
->>>>>>> c44f74ed9 (Add quota support for kubedb ops request)
 kubepack.dev/lib-helm v0.7.3 h1:TsvHCCX/QscHy1+VUoySd7GPMC78pf1B1r21Dk+tJu4=
 kubepack.dev/lib-helm v0.7.3/go.mod h1:vY1++mpRC6jRlZTZ/qKPqmr9EMqEwzu+++9ifHm1qdI=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
