@@ -18,19 +18,23 @@ package resourceCalculator
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
+
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	kmapi "kmodules.xyz/client-go/api/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/resource-metadata/apis/management/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metrics/api"
+	opsv1alpha1 "kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
-func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota, apiType *kmapi.ResourceID) (*rsapi.QuotaDecision, error) {
+func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaDecision, error) {
 	qd := &rsapi.QuotaDecision{
 		Decision:   rsapi.DecisionAllow,
 		Violations: make([]string, 0),
@@ -38,6 +42,22 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota, apiType *kmapi
 	if pq == nil {
 		qd.Decision = rsapi.DecisionNoOpinion
 		return qd, nil
+	}
+
+	gvk := getGVK(obj)
+	if gvk.Group == "ops.kubedb.com" {
+		opsPathMapper, err := opsv1alpha1.LoadOpsPathMapper(obj)
+		if err != nil {
+			return nil, err
+		}
+		dbObj, err := extractReferencedObject(obj, opsPathMapper.GetReferencedDbObjectPath()...)
+		if err != nil {
+			return nil, err
+		}
+		if err := deductFromProjectQuota(dbObj, pq); err != nil {
+			return nil, err
+		}
+		gvk = opsPathMapper.GetGroupVersionKind()
 	}
 
 	c, err := api.Load(obj)
@@ -57,8 +77,8 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota, apiType *kmapi
 		if quota.Result != v1alpha1.ResultSuccess {
 			continue
 		}
-		if quota.Group == apiType.Group {
-			if quota.Kind != "" && quota.Kind != apiType.Kind {
+		if quota.Group == gvk.Group {
+			if quota.Kind != "" && quota.Kind != gvk.Kind {
 				continue
 			}
 			hardRequests, hardLimits := extractRequestsLimits(quota.Hard)
@@ -103,6 +123,46 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota, apiType *kmapi
 	return qd, nil
 }
 
+func deductFromProjectQuota(oldDbObj map[string]interface{}, pq *v1alpha1.ProjectQuota) error {
+	c, err := api.Load(oldDbObj)
+	if err != nil {
+		return err
+	}
+	requests, err := c.AppResourceRequests(oldDbObj)
+	if err != nil {
+		return err
+	}
+	limits, err := c.AppResourceLimits(oldDbObj)
+	if err != nil {
+		return err
+	}
+
+	gvk := getGVK(oldDbObj)
+	for i, quota := range pq.Status.Quotas {
+		if quota.Result != v1alpha1.ResultSuccess {
+			continue
+		}
+		if quota.Group == gvk.Group {
+			if quota.Kind != "" && quota.Kind != gvk.Kind {
+				continue
+			}
+			usedRequests, usedLimits := extractRequestsLimits(quota.Used)
+			newRequests := api.SubtractResourceList(usedRequests, requests)
+			newLimits := api.SubtractResourceList(usedLimits, limits)
+
+			for k, nr := range newRequests {
+				quota.Used[k] = nr
+			}
+			for k, nl := range newLimits {
+				quota.Used[k] = nl
+			}
+		}
+		pq.Status.Quotas[i].Used = quota.Used
+	}
+
+	return nil
+}
+
 func extractRequestsLimits(res core.ResourceList) (core.ResourceList, core.ResourceList) {
 	requests := core.ResourceList{}
 	limits := core.ResourceList{}
@@ -137,4 +197,24 @@ func getProjectQuota(kc client.Client, ns string) (*v1alpha1.ProjectQuota, error
 		return nil, err
 	}
 	return &pj, nil
+}
+
+func getGVK(obj map[string]interface{}) schema.GroupVersionKind {
+	var unObj unstructured.Unstructured
+	unObj.SetUnstructuredContent(obj)
+
+	return unObj.GroupVersionKind()
+}
+
+func extractReferencedObject(opsObj map[string]interface{}, refDbPath ...string) (map[string]interface{}, error) {
+	if len(refDbPath) == 0 {
+		refDbPath = []string{"spec", "databaseRef", "referencedDB"}
+	}
+	dbObj, found, _ := unstructured.NestedMap(opsObj, refDbPath...)
+	if !found {
+		return nil, errors.New("referenced db object not found")
+	}
+	_ = unstructured.SetNestedField(opsObj, nil, refDbPath...)
+
+	return dbObj, nil
 }

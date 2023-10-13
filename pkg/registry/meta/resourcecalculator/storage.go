@@ -18,6 +18,7 @@ package resourcecalculator
 
 import (
 	"context"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -97,7 +98,6 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 	}
 	rid := kmapi.NewResourceID(mapping)
 
-	// TODO: Move this to quota
 	// Wrap referenced db resource with the OpsRequest object
 	if rid.Group == "ops.kubedb.com" {
 		if err = wrapReferencedDBResourceWithOpsReqObject(r.kc, &u); err != nil {
@@ -197,7 +197,7 @@ func ToGenericResource(item *unstructured.Unstructured, apiType *kmapi.ResourceI
 			genres.RoleResourceLimits = rv
 		}
 		{
-			rv, err := quota(content, pq, apiType)
+			rv, err := quota(content, pq)
 			if err != nil {
 				return nil, err
 			}

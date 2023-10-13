@@ -19,11 +19,12 @@ package resourceCalculator
 import (
 	"context"
 	"errors"
+	"strings"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
 // ReferencedObjInfo indicates the information about the referenced database
@@ -48,17 +49,14 @@ func wrapReferencedDBResourceWithOpsReqObject(kc client.Client, u *unstructured.
 	defer func() {
 		u.Object = opsReqObj
 	}()
-	// Get the referenced db info
 	refObjInfo, err := getOpsRequestReferencedDbObjectInfo(u)
 	if err != nil {
 		return err
 	}
-	// Get the referenced db object
 	refDb, err := getReferencedDBResource(kc, refObjInfo)
 	if err != nil {
 		return err
 	}
-	// Wrap the referenced db object with the OpsRequest object
 	err = unstructured.SetNestedMap(opsReqObj, refDb.UnstructuredContent(), "spec", "databaseRef", "referencedDB")
 	if err != nil {
 		return err
