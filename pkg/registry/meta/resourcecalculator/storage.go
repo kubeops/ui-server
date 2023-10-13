@@ -101,6 +101,13 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 		return nil, apierrors.NewInternalError(err)
 	}
 	rid := kmapi.NewResourceID(mapping)
+
+	// Wrap referenced db resource with the OpsRequest object
+	if rid.Group == "ops.kubedb.com" {
+		if err = wrapReferencedDBResourceWithOpsReqObject(r.kc, &u); err != nil {
+			return nil, err
+		}
+	}
 	pq, err := getProjectQuota(r.kc, u.GetNamespace())
 	if err != nil {
 		return nil, err
