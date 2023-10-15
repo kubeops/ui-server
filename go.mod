@@ -46,8 +46,8 @@ require (
 	kmodules.xyz/custom-resources v0.25.2
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.4
-	kmodules.xyz/resource-metadata v0.17.26-0.20231009112556-f90c55e7954d
-	kmodules.xyz/resource-metrics v0.25.3
+	kmodules.xyz/resource-metadata v0.17.26
+	kmodules.xyz/resource-metrics v0.25.5
 	kmodules.xyz/sets v0.25.0
 	kubeops.dev/scanner v0.0.15
 	kubepack.dev/lib-helm v0.7.3
@@ -196,11 +196,11 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0 // indirect
-	golang.org/x/crypto v0.13.0 // indirect
-	golang.org/x/net v0.15.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
-	golang.org/x/term v0.12.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/term v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
