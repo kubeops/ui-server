@@ -34,17 +34,9 @@ func GetScaledObject(opsObj map[string]interface{}) (ScaledObject, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Merge opsObj scaling information with dbObj
-	dbObj, err = merge(opsObj, dbObj)
-	if err != nil {
-		return nil, err
-	}
-
-	return dbObj, nil
-}
-
-func merge(opsObj, dbObj map[string]interface{}) (ScaledObject, error) {
-	mapping, err := getMapping(opsObj)
+	mapping, err := getMapping(opsObj, opsPathMapper)
 	if err != nil {
 		return nil, err
 	}
@@ -99,12 +91,8 @@ func getScalingType(opsObj map[string]interface{}) (string, error) {
 	return tp, nil
 }
 
-func getMapping(opsObj OpsReqObject) (map[OpsReqPath]ReferencedObjPath, error) {
+func getMapping(opsObj OpsReqObject, opsMapper OpsPathMapper) (map[OpsReqPath]ReferencedObjPath, error) {
 	scalingType, err := getScalingType(opsObj)
-	if err != nil {
-		return nil, err
-	}
-	opsMapper, err := LoadOpsPathMapper(opsObj)
 	if err != nil {
 		return nil, err
 	}

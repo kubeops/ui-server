@@ -82,7 +82,7 @@ func (m *ElasticsearchOpsRequest) GetReferencedDbObjectPath() []string {
 	return []string{"spec", "databaseRef", "referencedDB"}
 }
 
-func (m *ElasticsearchOpsRequest) GetGroupVersionKind() schema.GroupVersionKind {
+func (m *ElasticsearchOpsRequest) GroupVersionKind() schema.GroupVersionKind {
 	return schema.GroupVersionKind{
 		Group:   "ops.kubedb.com",
 		Version: "v1alpha1",

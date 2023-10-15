@@ -46,7 +46,7 @@ func (m *ProxySQLOpsRequest) GetReferencedDbObjectPath() []string {
 	return []string{"spec", "proxyRef", "referencedDB"}
 }
 
-func (m *ProxySQLOpsRequest) GetGroupVersionKind() schema.GroupVersionKind {
+func (m *ProxySQLOpsRequest) GroupVersionKind() schema.GroupVersionKind {
 	return schema.GroupVersionKind{
 		Group:   "ops.kubedb.com",
 		Version: "v1alpha1",

@@ -67,7 +67,7 @@ func (m *MongoDBOpsRequest) GetReferencedDbObjectPath() []string {
 	return []string{"spec", "databaseRef", "referencedDB"}
 }
 
-func (m *MongoDBOpsRequest) GetGroupVersionKind() schema.GroupVersionKind {
+func (m *MongoDBOpsRequest) GroupVersionKind() schema.GroupVersionKind {
 	return schema.GroupVersionKind{
 		Group:   "ops.kubedb.com",
 		Version: "v1alpha1",

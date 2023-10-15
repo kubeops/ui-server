@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 
 	core "k8s.io/api/core/v1"
@@ -36,8 +35,8 @@ func (r OpsResourceCalculator) ResourceCalculator() api.ResourceCalculator {
 		RoleReplicasFn:         r.roleReplicasFn,
 		ModeFn:                 r.modeFn,
 		UsesTLSFn:              r.usesTLSFn,
-		RoleResourceLimitsFn:   r.roleResourceLimitsFn(api.ResourceLimits),
-		RoleResourceRequestsFn: r.roleResourceRequestsFn(api.ResourceRequests),
+		RoleResourceLimitsFn:   r.roleResourceLimitsFn,
+		RoleResourceRequestsFn: r.roleResourceRequestsFn,
 	}
 }
 
@@ -46,12 +45,12 @@ func (r OpsResourceCalculator) roleReplicasFn(opsObj map[string]interface{}) (ap
 	if err != nil {
 		return nil, err
 	}
-	result, err := resourcemetrics.RoleReplicas(scaledObject)
+
+	c, err := api.Load(scaledObject)
 	if err != nil {
 		return nil, err
 	}
-
-	return result, nil
+	return c.RoleReplicas(scaledObject)
 }
 
 func (r OpsResourceCalculator) modeFn(opsObj map[string]interface{}) (string, error) {
@@ -59,12 +58,12 @@ func (r OpsResourceCalculator) modeFn(opsObj map[string]interface{}) (string, er
 	if err != nil {
 		return "", err
 	}
-	mode, err := resourcemetrics.Mode(scaledObject)
+
+	c, err := api.Load(scaledObject)
 	if err != nil {
 		return "", err
 	}
-
-	return mode, nil
+	return c.Mode(scaledObject)
 }
 
 func (r OpsResourceCalculator) usesTLSFn(opsObj map[string]interface{}) (bool, error) {
@@ -72,48 +71,36 @@ func (r OpsResourceCalculator) usesTLSFn(opsObj map[string]interface{}) (bool, e
 	if err != nil {
 		return false, err
 	}
-	isUsedTLS, err := resourcemetrics.UsesTLS(scaledObject)
+
+	c, err := api.Load(scaledObject)
 	if err != nil {
 		return false, err
 	}
-
-	return isUsedTLS, nil
+	return c.UsesTLS(scaledObject)
 }
 
-func (r OpsResourceCalculator) roleResourceLimitsFn(fn func(rr core.ResourceRequirements) core.ResourceList) func(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
-	return func(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
-		var rs map[api.PodRole]core.ResourceList
-		var err error
-
-		scaledObject, err := GetScaledObject(opsObj)
-		if err != nil {
-			return nil, err
-		}
-
-		rs, err = resourcemetrics.RoleResourceLimits(scaledObject)
-		if err != nil {
-			return nil, err
-		}
-
-		return rs, nil
+func (r OpsResourceCalculator) roleResourceLimitsFn(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
+	scaledObject, err := GetScaledObject(opsObj)
+	if err != nil {
+		return nil, err
 	}
+
+	c, err := api.Load(scaledObject)
+	if err != nil {
+		return nil, err
+	}
+	return c.RoleResourceLimits(scaledObject)
 }
 
-func (r OpsResourceCalculator) roleResourceRequestsFn(fn func(rr core.ResourceRequirements) core.ResourceList) func(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
-	return func(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
-		var rs map[api.PodRole]core.ResourceList
-		var err error
-
-		scaledObject, err := GetScaledObject(opsObj)
-		if err != nil {
-			return nil, err
-		}
-
-		rs, err = resourcemetrics.RoleResourceRequests(scaledObject)
-		if err != nil {
-			return nil, err
-		}
-
-		return rs, nil
+func (r OpsResourceCalculator) roleResourceRequestsFn(opsObj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
+	scaledObject, err := GetScaledObject(opsObj)
+	if err != nil {
+		return nil, err
 	}
+
+	c, err := api.Load(scaledObject)
+	if err != nil {
+		return nil, err
+	}
+	return c.RoleResourceRequests(scaledObject)
 }

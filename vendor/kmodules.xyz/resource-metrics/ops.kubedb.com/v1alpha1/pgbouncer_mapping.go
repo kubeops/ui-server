@@ -42,7 +42,7 @@ func (m *PgBouncerOpsRequest) GetReferencedDbObjectPath() []string {
 	return []string{"spec", "databaseRef", "referencedDB"}
 }
 
-func (m *PgBouncerOpsRequest) GetGroupVersionKind() schema.GroupVersionKind {
+func (m *PgBouncerOpsRequest) GroupVersionKind() schema.GroupVersionKind {
 	return schema.GroupVersionKind{
 		Group:   "ops.kubedb.com",
 		Version: "v1alpha1",

@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	"errors"
+	"sync"
 
 	"kmodules.xyz/resource-metrics/api"
 
@@ -29,7 +30,7 @@ type OpsPathMapper interface {
 	VerticalPathMapping() map[OpsReqPath]ReferencedObjPath
 	VolumeExpansionPathMapping() map[OpsReqPath]ReferencedObjPath
 	GetReferencedDbObjectPath() []string
-	GetGroupVersionKind() schema.GroupVersionKind
+	GroupVersionKind() schema.GroupVersionKind
 }
 
 type (
@@ -39,15 +40,23 @@ type (
 	OpsReqObject      map[string]interface{}
 )
 
-var PathMapperPlugin = map[schema.GroupVersionKind]OpsPathMapper{}
+var (
+	PathMapperPlugin = map[schema.GroupVersionKind]OpsPathMapper{}
+	lock             sync.RWMutex
+)
 
 func RegisterToPathMapperPlugin(opsObj OpsPathMapper) {
-	PathMapperPlugin[opsObj.GetGroupVersionKind()] = opsObj
+	lock.Lock()
+	defer lock.Unlock()
+	PathMapperPlugin[opsObj.GroupVersionKind()] = opsObj
 }
 
 func LoadOpsPathMapper(opsObj OpsReqObject) (OpsPathMapper, error) {
 	gvk := getGVK(opsObj)
+
+	lock.RLock()
 	opsMapperObj, found := PathMapperPlugin[gvk]
+	lock.RUnlock()
 	if !found {
 		return nil, errors.New("gvk not registered")
 	}
@@ -56,7 +65,9 @@ func LoadOpsPathMapper(opsObj OpsReqObject) (OpsPathMapper, error) {
 }
 
 func RegisterPathMapperPluginMembersWithApiPlugin(rc api.ResourceCalculator) {
-	for _, pm := range PathMapperPlugin {
-		api.Register(pm.GetGroupVersionKind(), rc)
+	lock.RLock()
+	defer lock.RUnlock()
+	for gvk := range PathMapperPlugin {
+		api.Register(gvk, rc)
 	}
 }

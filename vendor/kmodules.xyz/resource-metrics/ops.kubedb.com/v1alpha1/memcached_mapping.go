@@ -42,7 +42,7 @@ func (m *MemcachedOpsRequest) GetReferencedDbObjectPath() []string {
 	return []string{"spec", "databaseRef", "referencedDB"}
 }
 
-func (m *MemcachedOpsRequest) GetGroupVersionKind() schema.GroupVersionKind {
+func (m *MemcachedOpsRequest) GroupVersionKind() schema.GroupVersionKind {
 	return schema.GroupVersionKind{
 		Group:   "ops.kubedb.com",
 		Version: "v1alpha1",

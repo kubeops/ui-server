@@ -42,7 +42,7 @@ func (m *MariaDBOpsRequest) GetReferencedDbObjectPath() []string {
 	return []string{"spec", "databaseRef", "referencedDB"}
 }
 
-func (m *MariaDBOpsRequest) GetGroupVersionKind() schema.GroupVersionKind {
+func (m *MariaDBOpsRequest) GroupVersionKind() schema.GroupVersionKind {
 	return schema.GroupVersionKind{
 		Group:   "ops.kubedb.com",
 		Version: "v1alpha1",

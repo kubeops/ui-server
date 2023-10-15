@@ -50,7 +50,7 @@ func (m *MySqlOpsRequest) GetReferencedDbObjectPath() []string {
 	return []string{"spec", "databaseRef", "referencedDB"}
 }
 
-func (m *MySqlOpsRequest) GetGroupVersionKind() schema.GroupVersionKind {
+func (m *MySqlOpsRequest) GroupVersionKind() schema.GroupVersionKind {
 	return schema.GroupVersionKind{
 		Group:   "ops.kubedb.com",
 		Version: "v1alpha1",

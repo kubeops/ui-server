@@ -54,7 +54,7 @@ func (m *kafkaOpsRequest) GetReferencedDbObjectPath() []string {
 	return []string{"spec", "databaseRef", "referencedDB"}
 }
 
-func (m *kafkaOpsRequest) GetGroupVersionKind() schema.GroupVersionKind {
+func (m *kafkaOpsRequest) GroupVersionKind() schema.GroupVersionKind {
 	return schema.GroupVersionKind{
 		Group:   "ops.kubedb.com",
 		Version: "v1alpha1",
