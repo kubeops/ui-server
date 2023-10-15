@@ -54,7 +54,7 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaD
 		if err != nil {
 			return nil, err
 		}
-		if err := deductRefDbObjResourceUsageFromProjectQuota(obj, pq); err != nil {
+		if err := deductRefDbObjResourceUsageFromProjectQuota(dbObj, pq); err != nil {
 			return nil, err
 		}
 		gvk = getGVK(dbObj)
