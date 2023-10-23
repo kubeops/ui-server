@@ -19,92 +19,36 @@ package resourcecalculator
 import (
 	"context"
 	"errors"
-	"fmt"
+	"k8s.io/apimachinery/pkg/types"
 	"strings"
 
-	core "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/resource-metadata/apis/management/v1alpha1"
-	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metrics/api"
-	opsv1alpha1 "kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaDecision, error) {
-	qd := &rsapi.QuotaDecision{
-		Decision:   rsapi.DecisionAllow,
-		Violations: make([]string, 0),
-	}
-	if pq == nil {
-		qd.Decision = rsapi.DecisionNoOpinion
-		return qd, nil
-	}
+func deductOldDbObjectResourceUsageFromProjectQuota(kc client.Client, u unstructured.Unstructured, pq *v1alpha1.ProjectQuota) error {
+	oldDbObj := &unstructured.Unstructured{}
+	oldDbObj.SetGroupVersionKind(u.GroupVersionKind())
 
-	gvk := getGVK(obj)
-	if gvk.Group == "ops.kubedb.com" {
-		opsPathMapper, err := opsv1alpha1.LoadOpsPathMapper(obj)
-		if err != nil {
-			return nil, err
-		}
-		dbObj, err := extractReferencedObject(obj, opsPathMapper.GetReferencedDbObjectPath()...)
-		if err != nil {
-			return nil, err
-		}
-		if err := deductRefDbObjResourceUsageFromProjectQuota(dbObj, pq); err != nil {
-			return nil, err
-		}
-		gvk = getGVK(dbObj)
-	}
-
-	c, err := api.Load(obj)
+	err := kc.Get(context.TODO(), types.NamespacedName{Name: u.GetName(), Namespace: u.GetNamespace()}, oldDbObj)
 	if err != nil {
-		return nil, err
-	}
-	dbRequests, err := c.AppResourceRequests(obj)
-	if err != nil {
-		return nil, err
-	}
-	dbLimits, err := c.AppResourceLimits(obj)
-	if err != nil {
-		return nil, err
-	}
-	dbDemand := mergeRequestsLimits(dbRequests, dbLimits)
-
-	for _, quota := range pq.Status.Quotas {
-		if quota.Result != v1alpha1.ResultSuccess {
-			continue
-		}
-		if quota.Group == gvk.Group {
-			if quota.Kind != "" && quota.Kind != gvk.Kind {
-				continue
-			}
-			newUsed := api.AddResourceList(quota.Used, dbDemand)
-			for rk, newUsed := range newUsed {
-				hard, found := quota.Hard[rk]
-				if !found {
-					continue
-				}
-				if newUsed.Cmp(hard) > 0 {
-					dd := dbDemand[rk]
-					du := quota.Used[rk]
-					dh := quota.Hard[rk]
-
-					qd.Decision = rsapi.DecisionDeny
-					qd.Violations = append(qd.Violations,
-						fmt.Sprintf("Project quota exceeded. Requested: %s=%s, Used: %s=%s, Limited: %s=%s", rk, dd.String(), rk, du.String(), rk, dh.String()))
-				}
-			}
-		}
+		return err
 	}
 
-	return qd, nil
+	if err := deductDbObjResourceUsageFromProjectQuota(oldDbObj.UnstructuredContent(), pq); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func deductRefDbObjResourceUsageFromProjectQuota(dbObj map[string]interface{}, pq *v1alpha1.ProjectQuota) error {
+func deductDbObjResourceUsageFromProjectQuota(dbObj map[string]interface{}, pq *v1alpha1.ProjectQuota) error {
 	c, err := api.Load(dbObj)
 	if err != nil {
 		return err
@@ -136,8 +80,8 @@ func deductRefDbObjResourceUsageFromProjectQuota(dbObj map[string]interface{}, p
 	return nil
 }
 
-func mergeRequestsLimits(requests, limits core.ResourceList) core.ResourceList {
-	rl := make(core.ResourceList)
+func mergeRequestsLimits(requests, limits corev1.ResourceList) corev1.ResourceList {
+	rl := make(corev1.ResourceList)
 	for k, r := range requests {
 		_, _, found := strings.Cut(k.String(), ".")
 		if !found {
