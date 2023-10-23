@@ -24,7 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	opsv1alpha1 "kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1"
+	dbopsapi "kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -47,7 +47,7 @@ const (
 // object and wrap the DB object within it as 'referencedDB'
 func wrapReferencedDBResourceWithOpsReqObject(kc client.Client, u *unstructured.Unstructured) error {
 	opsReqObj := u.UnstructuredContent()
-	opsPathMapper, err := opsv1alpha1.LoadOpsPathMapper(u.UnstructuredContent())
+	opsPathMapper, err := dbopsapi.LoadOpsPathMapper(u.UnstructuredContent())
 	if err != nil {
 		return err
 	}

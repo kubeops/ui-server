@@ -21,7 +21,7 @@ import (
 	"errors"
 	"strings"
 
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -80,8 +80,8 @@ func deductDbObjResourceUsageFromProjectQuota(dbObj map[string]interface{}, pq *
 	return nil
 }
 
-func mergeRequestsLimits(requests, limits corev1.ResourceList) corev1.ResourceList {
-	rl := make(corev1.ResourceList)
+func mergeRequestsLimits(requests, limits core.ResourceList) core.ResourceList {
+	rl := make(core.ResourceList)
 	for k, r := range requests {
 		_, _, found := strings.Cut(k.String(), ".")
 		if !found {
