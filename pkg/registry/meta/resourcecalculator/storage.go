@@ -18,6 +18,7 @@ package resourcecalculator
 
 import (
 	"context"
+	"fmt"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,6 +33,7 @@ import (
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
+	opsv1alpha1 "kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -98,15 +100,19 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 	}
 	rid := kmapi.NewResourceID(mapping)
 
+	pq, err := getProjectQuota(r.kc, u.GetNamespace())
+	if err != nil {
+		return nil, err
+	}
 	// Wrap referenced db resource with the OpsRequest object
 	if rid.Group == "ops.kubedb.com" {
 		if err = wrapReferencedDBResourceWithOpsReqObject(r.kc, &u); err != nil {
 			return nil, err
 		}
-	}
-	pq, err := getProjectQuota(r.kc, u.GetNamespace())
-	if err != nil {
-		return nil, err
+	} else if in.Request.Edit {
+		if err := deductOldDbObjectResourceUsageFromProjectQuota(r.kc, u, pq); err != nil {
+			return nil, err
+		}
 	}
 
 	resp, err := ToGenericResource(&u, rid, pq)
@@ -205,4 +211,75 @@ func ToGenericResource(item *unstructured.Unstructured, apiType *kmapi.ResourceI
 		}
 	}
 	return &genres, nil
+}
+
+func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaDecision, error) {
+	qd := &rsapi.QuotaDecision{
+		Decision:   rsapi.DecisionAllow,
+		Violations: make([]string, 0),
+	}
+	if pq == nil {
+		qd.Decision = rsapi.DecisionNoOpinion
+		return qd, nil
+	}
+
+	gvk := getGVK(obj)
+	if gvk.Group == "ops.kubedb.com" {
+		opsPathMapper, err := opsv1alpha1.LoadOpsPathMapper(obj)
+		if err != nil {
+			return nil, err
+		}
+		dbObj, err := extractReferencedObject(obj, opsPathMapper.GetReferencedDbObjectPath()...)
+		if err != nil {
+			return nil, err
+		}
+		if err := deductDbObjResourceUsageFromProjectQuota(dbObj, pq); err != nil {
+			return nil, err
+		}
+		gvk = getGVK(dbObj)
+
+	}
+
+	c, err := api.Load(obj)
+	if err != nil {
+		return nil, err
+	}
+	dbRequests, err := c.AppResourceRequests(obj)
+	if err != nil {
+		return nil, err
+	}
+	dbLimits, err := c.AppResourceLimits(obj)
+	if err != nil {
+		return nil, err
+	}
+	dbDemand := mergeRequestsLimits(dbRequests, dbLimits)
+
+	for _, quota := range pq.Status.Quotas {
+		if quota.Result != v1alpha1.ResultSuccess {
+			continue
+		}
+		if quota.Group == gvk.Group {
+			if quota.Kind != "" && quota.Kind != gvk.Kind {
+				continue
+			}
+			newUsed := api.AddResourceList(quota.Used, dbDemand)
+			for rk, newUsed := range newUsed {
+				hard, found := quota.Hard[rk]
+				if !found {
+					continue
+				}
+				if newUsed.Cmp(hard) > 0 {
+					dd := dbDemand[rk]
+					du := quota.Used[rk]
+					dh := quota.Hard[rk]
+
+					qd.Decision = rsapi.DecisionDeny
+					qd.Violations = append(qd.Violations,
+						fmt.Sprintf("Project quota exceeded. Requested: %s=%s, Used: %s=%s, Limited: %s=%s", rk, dd.String(), rk, du.String(), rk, dh.String()))
+				}
+			}
+		}
+	}
+
+	return qd, nil
 }
