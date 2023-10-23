@@ -82,7 +82,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 	}
 
 	var u unstructured.Unstructured
-	err := json.Unmarshal(in.Request.Raw, &u)
+	err := json.Unmarshal(in.Request.Resource.Raw, &u)
 	if err != nil {
 		return nil, apierrors.NewInternalError(err)
 	}
