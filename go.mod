@@ -47,7 +47,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.11
 	kmodules.xyz/monitoring-agent-api v0.25.4
 	kmodules.xyz/resource-metadata v0.17.28-0.20231023062704-59b3555434ce
-	kmodules.xyz/resource-metrics v0.25.5
+	kmodules.xyz/resource-metrics v0.25.6
 	kmodules.xyz/sets v0.25.0
 	kubeops.dev/scanner v0.0.15
 	kubepack.dev/lib-helm v0.7.3

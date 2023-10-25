@@ -2153,8 +2153,8 @@ kmodules.xyz/offshoot-api v0.25.4 h1:IjJNvkphcdYUG8XO/pBwXpuP8W+jxAWJZ3yH8vgI/as
 kmodules.xyz/offshoot-api v0.25.4/go.mod h1:PUk4EuJFhhyQykCflHj7EgXcljGIqs9vi0IN0RpxtY4=
 kmodules.xyz/resource-metadata v0.17.28-0.20231023062704-59b3555434ce h1:04+H7IhbihQSxDSoRkD11Hv9tRBZPRJxBKjVZzspRsc=
 kmodules.xyz/resource-metadata v0.17.28-0.20231023062704-59b3555434ce/go.mod h1:4m4L4/EJ3XasyrN5KFHRJDrWd27WNREeuc3alUKUJ9E=
-kmodules.xyz/resource-metrics v0.25.5 h1:hQu6r2VtkmeiO7tpR5uYDWj7u7mKloaGZ1j8dH30b24=
-kmodules.xyz/resource-metrics v0.25.5/go.mod h1:y7pDmTWuVLNGSjwckKCwJFhCgi5fhbwS7PAcH2rmGcY=
+kmodules.xyz/resource-metrics v0.25.6 h1:zYl49zZ0KBdNPgaLJX1GaL8/lpmyZOshSC5Sg1eXihc=
+kmodules.xyz/resource-metrics v0.25.6/go.mod h1:y7pDmTWuVLNGSjwckKCwJFhCgi5fhbwS7PAcH2rmGcY=
 kmodules.xyz/sets v0.25.0 h1:belY/3trp/M/CKc1TEteA40jb2uCIdwKHhjpvrIxG+8=
 kmodules.xyz/sets v0.25.0/go.mod h1:ICWmplgCsxniWkImSBGlJrLT9npqOXKhX/Bwbc7bmEw=
 kubeops.dev/scanner v0.0.15 h1:u9hM2096LEa+BPlI/p7tcqvOv7A9fAFEw8AOEGHP5GY=
