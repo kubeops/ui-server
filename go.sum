@@ -1288,8 +1288,8 @@ github.com/yvasiyarov/newrelic_platform_go v0.0.0-20140908184405-b21fdbd4370f/go
 github.com/zeebo/assert v1.3.0 h1:g7C04CbJuIDKNPFHmsk4hwZDO5O+kntRxzaUoNXj+IQ=
 github.com/zeebo/xxh3 v1.0.2 h1:xZmwmqxHZA8AI603jOQ0tMqmBr9lPeFwGg6d+xy9DC0=
 github.com/zeebo/xxh3 v1.0.2/go.mod h1:5NWz9Sef7zIDm2JHfFlcQvNekmcEl9ekUZQQKCYaDcA=
-go.bytebuilders.dev/license-verifier v0.13.3 h1:/CnRn1N6qiFjdirydHVBDtOtSlCwOm8cgUi0plZNgjU=
-go.bytebuilders.dev/license-verifier v0.13.3/go.mod h1:PTTlWgokzoisBezn2zt+JeGkhTJZ0flvLzdhHVBy86M=
+go.bytebuilders.dev/license-verifier v0.13.4 h1:K4qSsTWTZc7lyRvRHfI23XRrbVrQVJ8Ew5afvSiMdBE=
+go.bytebuilders.dev/license-verifier v0.13.4/go.mod h1:lcmFhUSBHp5G0YeZop3I8tOUBRegBrDvkW1aTsIRGcU=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.5/go.mod h1:G5EMThwa9y8QZGBClrRx5EY+Yw9kAhnjy3bSjsnlVTQ=
@@ -2151,8 +2151,8 @@ kmodules.xyz/monitoring-agent-api v0.25.4 h1:OwkvtV23QhUy3f7o9lxPWaAW3jiJMGAMPPR
 kmodules.xyz/monitoring-agent-api v0.25.4/go.mod h1:3LhrLDGQKQXhxYcjA/WNaO4HPpopYQzOutsEp2i3008=
 kmodules.xyz/offshoot-api v0.25.4 h1:IjJNvkphcdYUG8XO/pBwXpuP8W+jxAWJZ3yH8vgI/as=
 kmodules.xyz/offshoot-api v0.25.4/go.mod h1:PUk4EuJFhhyQykCflHj7EgXcljGIqs9vi0IN0RpxtY4=
-kmodules.xyz/resource-metadata v0.17.28 h1:zNCRy8TxuXemsKRiRqOVaCPwRJpAsvNG2KhlMq+cJdU=
-kmodules.xyz/resource-metadata v0.17.28/go.mod h1:qA/yeimciDU7szGPyRT3jHDPIvm7uJiVOzcB5tIJgxE=
+kmodules.xyz/resource-metadata v0.17.29 h1:bB1omnXVkN5fWOpV/0a9wEjX0JdqaS5vCYUP0LHCzKI=
+kmodules.xyz/resource-metadata v0.17.29/go.mod h1:qA/yeimciDU7szGPyRT3jHDPIvm7uJiVOzcB5tIJgxE=
 kmodules.xyz/resource-metrics v0.25.7 h1:ne2cK/dlnfYcuu0+pHX15Y53rcKBQq9DuCtQVcx6rY8=
 kmodules.xyz/resource-metrics v0.25.7/go.mod h1:y7pDmTWuVLNGSjwckKCwJFhCgi5fhbwS7PAcH2rmGcY=
 kmodules.xyz/sets v0.25.0 h1:belY/3trp/M/CKc1TEteA40jb2uCIdwKHhjpvrIxG+8=

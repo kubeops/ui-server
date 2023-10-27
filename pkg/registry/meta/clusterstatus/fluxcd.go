@@ -23,11 +23,8 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-)
-
-const (
-	KeyACEManaged = "byte.builders/managed"
 )
 
 type FluxCDStatus struct {
@@ -86,7 +83,7 @@ func getFluxCDStatus(kc client.Client) (FluxCDStatus, error) {
 }
 
 func isFluxCDManaged(podLabels map[string]string) bool {
-	_, exists := podLabels[KeyACEManaged]
+	_, exists := podLabels[rsapi.KeyACEManaged]
 	return exists
 }
 
