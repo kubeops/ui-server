@@ -1839,7 +1839,7 @@ kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.25.4
 ## explicit; go 1.18
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.17.31-0.20231027225310-586904b1bb43
+# kmodules.xyz/resource-metadata v0.17.31
 ## explicit; go 1.18
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -1880,7 +1880,7 @@ kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1
 # kmodules.xyz/sets v0.25.0
 ## explicit; go 1.18
 kmodules.xyz/sets
-# kubeops.dev/scanner v0.0.15
+# kubeops.dev/scanner v0.0.16
 ## explicit; go 1.18
 kubeops.dev/scanner/apis/reports
 kubeops.dev/scanner/apis/reports/v1alpha1
