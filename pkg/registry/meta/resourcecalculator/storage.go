@@ -109,7 +109,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 		if err = wrapReferencedDBResourceWithOpsReqObject(r.kc, &u); err != nil {
 			return nil, err
 		}
-	} else if in.Request.Edit {
+	} else if in.Request.Edit && pq != nil {
 		if err := deductOldDbObjectResourceUsageFromProjectQuota(r.kc, u, pq); err != nil {
 			return nil, err
 		}
