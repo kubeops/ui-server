@@ -51,6 +51,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceblockdefinition"
 	resourcecalculatorstorage "kubeops.dev/ui-server/pkg/registry/meta/resourcecalculator"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcedescriptor"
+	"kubeops.dev/ui-server/pkg/registry/meta/resourceeditor"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcegraph"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcelayout"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceoutline"
@@ -96,6 +97,7 @@ import (
 	rsinstall "kmodules.xyz/resource-metadata/apis/meta/install"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
+	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	chartsapi "x-helm.dev/apimachinery/apis/charts/v1alpha1"
@@ -284,6 +286,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceOutlines] = resourceoutline.NewStorage()
+		v1alpha1storage[uiapi.ResourceResourceEditors] = resourceeditor.NewStorage()
 		v1alpha1storage[rsapi.ResourceResourceQueries] = resourcequery.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[rsapi.ResourceResourceTableDefinitions] = resourcetabledefinition.NewStorage()
 
