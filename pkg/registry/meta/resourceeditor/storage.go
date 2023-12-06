@@ -29,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/resource-metadata/apis/meta"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 )
@@ -48,14 +49,14 @@ var (
 func NewStorage() *Storage {
 	return &Storage{
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    uiapi.SchemeGroupVersion.Group,
+			Group:    rsapi.SchemeGroupVersion.Group,
 			Resource: uiapi.ResourceResourceEditors,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return uiapi.SchemeGroupVersion.WithKind(uiapi.ResourceKindResourceEditor)
+	return rsapi.SchemeGroupVersion.WithKind(uiapi.ResourceKindResourceEditor)
 }
 
 func (r *Storage) NamespaceScoped() bool {
