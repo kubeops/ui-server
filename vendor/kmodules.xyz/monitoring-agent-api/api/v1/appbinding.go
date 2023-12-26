@@ -69,5 +69,4 @@ type PrometheusContext struct {
 type GrafanaContext struct {
 	FolderID   *int64 `json:"folderID,omitempty"`
 	Datasource string `json:"datasource,omitempty"`
-	Token      string `json:"token,omitempty"`
 }

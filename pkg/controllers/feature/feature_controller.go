@@ -43,7 +43,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 // FeatureReconciler reconciles a Feature object
@@ -455,20 +454,20 @@ func (r *FeatureReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&uiapi.Feature{}).
 		Watches(
-			&source.Kind{Type: &uiapi.FeatureSet{}},
+			&uiapi.FeatureSet{},
 			handler.EnqueueRequestsFromMapFunc(r.findFeaturesForFeatureSet),
 			builder.WithPredicates(predicate.GenerationChangedPredicate{}),
 		).
 		Watches(
-			&source.Kind{Type: &fluxcd.HelmRelease{}},
+			&fluxcd.HelmRelease{},
 			handler.EnqueueRequestsFromMapFunc(r.findFeatureForHelmRelease),
 		).
 		Complete(r)
 }
 
-func (r *FeatureReconciler) findFeaturesForFeatureSet(featureSet client.Object) []reconcile.Request {
+func (r *FeatureReconciler) findFeaturesForFeatureSet(ctx context.Context, featureSet client.Object) []reconcile.Request {
 	featureList := &uiapi.FeatureList{}
-	err := r.List(context.Background(), featureList, &client.ListOptions{
+	err := r.List(ctx, featureList, &client.ListOptions{
 		FieldSelector: fields.OneTermEqualSelector(featureSetReferencePath, featureSet.GetName()),
 	})
 	if err != nil {
@@ -485,7 +484,7 @@ func (r *FeatureReconciler) findFeaturesForFeatureSet(featureSet client.Object) 
 	return requests
 }
 
-func (r *FeatureReconciler) findFeatureForHelmRelease(release client.Object) []reconcile.Request {
+func (r *FeatureReconciler) findFeatureForHelmRelease(ctx context.Context, release client.Object) []reconcile.Request {
 	featureName, err := meta_util.GetStringValueForKeys(release.GetLabels(), meta_util.ComponentLabelKey)
 	if err != nil {
 		return []reconcile.Request{}

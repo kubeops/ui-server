@@ -45,7 +45,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 type FileHash struct {
@@ -161,9 +160,9 @@ func (r *ClientBuilder) Setup() error {
 		return err
 	}
 
-	authHandler := handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
+	authHandler := handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, a client.Object) []reconcile.Request {
 		var appList appcatalog.AppBindingList
-		err := r.mgr.GetClient().List(context.TODO(), &appList, client.MatchingFields{
+		err := r.mgr.GetClient().List(ctx, &appList, client.MatchingFields{
 			mona.DefaultPrometheusKey: "true",
 		})
 		if err != nil {
@@ -188,7 +187,7 @@ func (r *ClientBuilder) Setup() error {
 			}
 			return false
 		}))).
-		Watches(&source.Kind{Type: &core.Secret{}}, authHandler).
+		Watches(&core.Secret{}, authHandler).
 		Complete(r)
 }
 

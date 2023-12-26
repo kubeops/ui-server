@@ -22,7 +22,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	audit "github.com/open-policy-agent/gatekeeper/pkg/audit"
+	audit "github.com/open-policy-agent/gatekeeper/v3/pkg/audit"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 

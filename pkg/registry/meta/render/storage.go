@@ -110,7 +110,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			req.Block.View.Columns = nil
 		}
 	} else {
-		renderBlocks := sets.NewString()
+		renderBlocks := sets.New[string]()
 		for _, k := range req.RenderBlocks {
 			renderBlocks.Insert(string(k))
 		}

@@ -10,9 +10,12 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strings"
+	"unicode"
 
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/internal/future"
+	"github.com/open-policy-agent/opa/types"
 )
 
 // Opts lets you control the code formatting via `AstWithOpts()`.
@@ -37,6 +40,7 @@ func Source(filename string, src []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	formatted, err := Ast(module)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", filename, err)
@@ -142,6 +146,7 @@ func AstWithOpts(x interface{}, opts Opts) ([]byte, error) {
 
 	w := &writer{
 		indent: "\t",
+		errs:   make([]*ast.Error, 0),
 	}
 
 	switch x := x.(type) {
@@ -178,6 +183,9 @@ func AstWithOpts(x interface{}, opts Opts) ([]byte, error) {
 		return nil, fmt.Errorf("not an ast element: %v", x)
 	}
 
+	if len(w.errs) > 0 {
+		return nil, w.errs
+	}
 	return squashTrailingNewlines(w.buf.Bytes()), nil
 }
 
@@ -228,6 +236,7 @@ type writer struct {
 	inline    bool
 	beforeEnd *ast.Comment
 	delay     bool
+	errs      ast.Errors
 }
 
 func (w *writer) writeModule(module *ast.Module, o fmtOpts) {
@@ -255,12 +264,11 @@ func (w *writer) writeModule(module *ast.Module, o fmtOpts) {
 		return locLess(comments[i], comments[j])
 	})
 
-	// XXX: The parser currently duplicates comments for some reason, so we need
-	// to remove duplicates here.
-	comments = dedupComments(comments)
 	sort.Slice(others, func(i, j int) bool {
 		return locLess(others[i], others[j])
 	})
+
+	comments = trimTrailingWhitespaceInComments(comments)
 
 	comments = w.writePackage(pkg, comments)
 	var imports []*ast.Import
@@ -278,6 +286,14 @@ func (w *writer) writeModule(module *ast.Module, o fmtOpts) {
 			w.write("\n")
 		}
 	}
+}
+
+func trimTrailingWhitespaceInComments(comments []*ast.Comment) []*ast.Comment {
+	for _, c := range comments {
+		c.Text = bytes.TrimRightFunc(c.Text, unicode.IsSpace)
+	}
+
+	return comments
 }
 
 func (w *writer) writePackage(pkg *ast.Package, comments []*ast.Comment) []*ast.Comment {
@@ -445,7 +461,7 @@ func (w *writer) writeElse(rule *ast.Rule, o fmtOpts, comments []*ast.Comment) [
 
 func (w *writer) writeHead(head *ast.Head, isDefault, isExpandedConst bool, o fmtOpts, comments []*ast.Comment) []*ast.Comment {
 	ref := head.Ref()
-	if head.Key != nil && head.Value == nil {
+	if head.Key != nil && head.Value == nil && !head.HasDynamicRef() {
 		ref = ref.GroundPrefix()
 	}
 	if o.refHeads || len(ref) == 1 {
@@ -587,7 +603,7 @@ func (w *writer) writeSomeDecl(decl *ast.SomeDecl, comments []*ast.Comment) []*a
 				w.write(",")
 			}
 		case ast.Call:
-			comments = w.writeInOperator(false, val[1:], comments)
+			comments = w.writeInOperator(false, val[1:], comments, decl.Location, ast.BuiltinMap[val[0].String()].Decl)
 		}
 	}
 
@@ -622,7 +638,7 @@ func (w *writer) writeFunctionCall(expr *ast.Expr, comments []*ast.Comment) []*a
 
 	switch operator {
 	case ast.Member.Name, ast.MemberWithKey.Name:
-		return w.writeInOperator(false, terms[1:], comments)
+		return w.writeInOperator(false, terms[1:], comments, terms[0].Location, ast.BuiltinMap[terms[0].String()].Decl)
 	}
 
 	bi, ok := ast.BuiltinMap[operator]
@@ -647,6 +663,9 @@ func (w *writer) writeFunctionCall(expr *ast.Expr, comments []*ast.Comment) []*a
 		comments = w.writeTerm(terms[2], comments)
 		return comments
 	}
+	// NOTE(Trolloldem): in this point we are operating with a built-in function with the
+	// wrong arity even when the assignment notation is used
+	w.errs = append(w.errs, ArityFormatMismatchError(terms[1:], terms[0].String(), terms[0].Location, bi.Decl))
 	return w.writeFunctionCallPlain(terms, comments)
 }
 
@@ -708,7 +727,7 @@ func (w *writer) writeTermParens(parens bool, term *ast.Term, comments []*ast.Co
 	case ast.Var:
 		w.write(w.formatVar(x))
 	case ast.Call:
-		comments = w.writeCall(parens, x, comments)
+		comments = w.writeCall(parens, x, term.Location, comments)
 	case fmt.Stringer:
 		w.write(x.String())
 	}
@@ -721,7 +740,12 @@ func (w *writer) writeTermParens(parens bool, term *ast.Term, comments []*ast.Co
 
 func (w *writer) writeRef(x ast.Ref) {
 	if len(x) > 0 {
-		w.writeTerm(x[0], nil)
+		parens := false
+		_, ok := x[0].Value.(ast.Call)
+		if ok {
+			parens = x[0].Location.Text[0] == 40 // Starts with "("
+		}
+		w.writeTermParens(parens, x[0], nil)
 		path := x[1:]
 		for _, t := range path {
 			switch p := t.Value.(type) {
@@ -760,7 +784,7 @@ func (w *writer) formatVar(v ast.Var) string {
 	return v.String()
 }
 
-func (w *writer) writeCall(parens bool, x ast.Call, comments []*ast.Comment) []*ast.Comment {
+func (w *writer) writeCall(parens bool, x ast.Call, loc *ast.Location, comments []*ast.Comment) []*ast.Comment {
 	bi, ok := ast.BuiltinMap[x[0].String()]
 	if !ok || bi.Infix == "" {
 		return w.writeFunctionCallPlain(x, comments)
@@ -769,13 +793,22 @@ func (w *writer) writeCall(parens bool, x ast.Call, comments []*ast.Comment) []*
 	if bi.Infix == "in" {
 		// NOTE(sr): `in` requires special handling, mirroring what happens in the parser,
 		// since there can be one or two lhs arguments.
-		return w.writeInOperator(true, x[1:], comments)
+		return w.writeInOperator(true, x[1:], comments, loc, bi.Decl)
 	}
 
 	// TODO(tsandall): improve to consider precedence?
 	if parens {
 		w.write("(")
 	}
+
+	// NOTE(Trolloldem): writeCall is only invoked when the function call is a term
+	// of another function. The only valid arity is the one of the
+	// built-in function
+	if len(bi.Decl.Args()) != len(x)-1 {
+		w.errs = append(w.errs, ArityFormatMismatchError(x[1:], x[0].String(), loc, bi.Decl))
+		return comments
+	}
+
 	comments = w.writeTermParens(true, x[1], comments)
 	w.write(" " + bi.Infix + " ")
 	comments = w.writeTermParens(true, x[2], comments)
@@ -786,7 +819,16 @@ func (w *writer) writeCall(parens bool, x ast.Call, comments []*ast.Comment) []*
 	return comments
 }
 
-func (w *writer) writeInOperator(parens bool, operands []*ast.Term, comments []*ast.Comment) []*ast.Comment {
+func (w *writer) writeInOperator(parens bool, operands []*ast.Term, comments []*ast.Comment, loc *ast.Location, f *types.Function) []*ast.Comment {
+	if len(operands) != len(f.Args()) {
+		// The number of operands does not math the arity of the `in` operator
+		operator := ast.Member.Name
+		if len(f.Args()) == 3 {
+			operator = ast.MemberWithKey.Name
+		}
+		w.errs = append(w.errs, ArityFormatMismatchError(operands, operator, loc, f))
+		return comments
+	}
 	kw := "in"
 	switch len(operands) {
 	case 2:
@@ -880,12 +922,17 @@ func (w *writer) writeObjectComprehension(object *ast.ObjectComprehension, loc *
 }
 
 func (w *writer) writeComprehension(open, close byte, term *ast.Term, body ast.Body, loc *ast.Location, comments []*ast.Comment) []*ast.Comment {
-	if term.Location.Row-loc.Row > 1 {
+	if term.Location.Row-loc.Row >= 1 {
 		w.endLine()
 		w.startLine()
 	}
 
-	comments = w.writeTerm(term, comments)
+	parens := false
+	_, ok := term.Value.(ast.Call)
+	if ok {
+		parens = term.Location.Text[0] == 40 // Starts with "("
+	}
+	comments = w.writeTermParens(parens, term, comments)
 	w.write(" |")
 
 	return w.writeComprehensionBody(open, close, body, term.Location, loc, comments)
@@ -1251,21 +1298,6 @@ func skipPast(open, close byte, loc *ast.Location) (int, int) {
 	return i, offset
 }
 
-func dedupComments(comments []*ast.Comment) []*ast.Comment {
-	if len(comments) == 0 {
-		return nil
-	}
-
-	filtered := []*ast.Comment{comments[0]}
-	for i := 1; i < len(comments); i++ {
-		if comments[i].Location.Equal(comments[i-1].Location) {
-			continue
-		}
-		filtered = append(filtered, comments[i])
-	}
-	return filtered
-}
-
 // startLine begins a line with the current indentation level.
 func (w *writer) startLine() {
 	w.inline = true
@@ -1355,4 +1387,37 @@ func ensureFutureKeywordImport(imps []*ast.Import, kw string) []*ast.Import {
 	}
 	imp.Location = defaultLocation(imp)
 	return append(imps, imp)
+}
+
+// ArgErrDetail but for `fmt` checks since compiler has not run yet.
+type ArityFormatErrDetail struct {
+	Have []string `json:"have"`
+	Want []string `json:"want"`
+}
+
+// arityMismatchError but for `fmt` checks since the compiler has not run yet.
+func ArityFormatMismatchError(operands []*ast.Term, operator string, loc *ast.Location, f *types.Function) *ast.Error {
+	want := make([]string, len(f.Args()))
+	for i := range f.Args() {
+		want[i] = types.Sprint(f.Args()[i])
+	}
+
+	have := make([]string, len(operands))
+	for i := 0; i < len(operands); i++ {
+		have[i] = ast.TypeName(operands[i].Value)
+	}
+	err := ast.NewError(ast.TypeErr, loc, "%s: %s", operator, "arity mismatch")
+	err.Details = &ArityFormatErrDetail{
+		Have: have,
+		Want: want,
+	}
+	return err
+}
+
+// Lines returns the string representation of the detail.
+func (d *ArityFormatErrDetail) Lines() []string {
+	return []string{
+		"have: " + "(" + strings.Join(d.Have, ",") + ")",
+		"want: " + "(" + strings.Join(d.Want, ",") + ")",
+	}
 }

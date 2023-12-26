@@ -26,10 +26,11 @@ import (
 )
 
 const (
-	DefaultPrometheusKey     = "monitoring.appscode.com/is-default-prometheus"
-	DefaultAlertmanagerKey   = "monitoring.appscode.com/is-default-alertmanager"
-	DefaultGrafanaKey        = "monitoring.appscode.com/is-default-grafana"
-	PrometheusKey            = "monitoring.appscode.com/prometheus"
+	GroupName                = "monitoring.appscode.com"
+	DefaultPrometheusKey     = GroupName + "/is-default-prometheus"
+	DefaultAlertmanagerKey   = GroupName + "/is-default-alertmanager"
+	DefaultGrafanaKey        = GroupName + "/is-default-grafana"
+	PrometheusKey            = GroupName + "/prometheus"
 	PrometheusValueAuto      = "auto"
 	PrometheusValueFederated = "federated"
 )
@@ -38,8 +39,8 @@ const (
 type AgentType string
 
 const (
-	KeyAgent   = "monitoring.appscode.com/agent"
-	KeyService = "monitoring.appscode.com/service"
+	KeyAgent   = GroupName + "/agent"
+	KeyService = GroupName + "/service"
 
 	VendorPrometheus = "prometheus.io"
 

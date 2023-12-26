@@ -46,7 +46,7 @@ func RenderLayout(
 	layoutName string, // optional
 	pageName string, // optional
 	convertToTable bool,
-	renderBlocks sets.String,
+	renderBlocks sets.Set[string],
 ) (*rsapi.ResourceView, error) {
 	srcRID, err := kmapi.ExtractResourceID(kc.RESTMapper(), src.Resource)
 	if err != nil {
@@ -183,7 +183,7 @@ func RenderLayout(
 	return &out, nil
 }
 
-func okToRender(kind rsapi.TableKind, renderBlocks sets.String) bool {
+func okToRender(kind rsapi.TableKind, renderBlocks sets.Set[string]) bool {
 	return renderBlocks.Len() == 0 || renderBlocks.Has(string(kind))
 }
 

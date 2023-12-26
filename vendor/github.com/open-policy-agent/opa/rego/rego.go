@@ -25,6 +25,7 @@ import (
 	"github.com/open-policy-agent/opa/ir"
 	"github.com/open-policy-agent/opa/loader"
 	"github.com/open-policy-agent/opa/metrics"
+	"github.com/open-policy-agent/opa/plugins"
 	"github.com/open-policy-agent/opa/resolver"
 	"github.com/open-policy-agent/opa/storage"
 	"github.com/open-policy-agent/opa/storage/inmem"
@@ -122,6 +123,55 @@ type EvalContext struct {
 	copyMaps               bool
 	printHook              print.Hook
 	capabilities           *ast.Capabilities
+	strictBuiltinErrors    bool
+}
+
+func (e *EvalContext) RawInput() *interface{} {
+	return e.rawInput
+}
+
+func (e *EvalContext) ParsedInput() ast.Value {
+	return e.parsedInput
+}
+
+func (e *EvalContext) Time() time.Time {
+	return e.time
+}
+
+func (e *EvalContext) Seed() io.Reader {
+	return e.seed
+}
+
+func (e *EvalContext) InterQueryBuiltinCache() cache.InterQueryCache {
+	return e.interQueryBuiltinCache
+}
+
+func (e *EvalContext) PrintHook() print.Hook {
+	return e.printHook
+}
+
+func (e *EvalContext) Metrics() metrics.Metrics {
+	return e.metrics
+}
+
+func (e *EvalContext) StrictBuiltinErrors() bool {
+	return e.strictBuiltinErrors
+}
+
+func (e *EvalContext) NDBCache() builtins.NDBCache {
+	return e.ndBuiltinCache
+}
+
+func (e *EvalContext) CompiledQuery() ast.Body {
+	return e.compiledQuery.query
+}
+
+func (e *EvalContext) Capabilities() *ast.Capabilities {
+	return e.capabilities
+}
+
+func (e *EvalContext) Transaction() storage.Transaction {
+	return e.txn
 }
 
 // EvalOption defines a function to set an option on an EvalConfig
@@ -314,23 +364,24 @@ func (pq preparedQuery) Modules() map[string]*ast.Module {
 // been opened.
 func (pq preparedQuery) newEvalContext(ctx context.Context, options []EvalOption) (*EvalContext, func(context.Context), error) {
 	ectx := &EvalContext{
-		hasInput:         false,
-		rawInput:         nil,
-		parsedInput:      nil,
-		metrics:          nil,
-		txn:              nil,
-		instrument:       false,
-		instrumentation:  nil,
-		partialNamespace: pq.r.partialNamespace,
-		queryTracers:     nil,
-		unknowns:         pq.r.unknowns,
-		parsedUnknowns:   pq.r.parsedUnknowns,
-		compiledQuery:    compiledQuery{},
-		indexing:         true,
-		earlyExit:        true,
-		resolvers:        pq.r.resolvers,
-		printHook:        pq.r.printHook,
-		capabilities:     pq.r.capabilities,
+		hasInput:            false,
+		rawInput:            nil,
+		parsedInput:         nil,
+		metrics:             nil,
+		txn:                 nil,
+		instrument:          false,
+		instrumentation:     nil,
+		partialNamespace:    pq.r.partialNamespace,
+		queryTracers:        nil,
+		unknowns:            pq.r.unknowns,
+		parsedUnknowns:      pq.r.parsedUnknowns,
+		compiledQuery:       compiledQuery{},
+		indexing:            true,
+		earlyExit:           true,
+		resolvers:           pq.r.resolvers,
+		printHook:           pq.r.printHook,
+		capabilities:        pq.r.capabilities,
+		strictBuiltinErrors: pq.r.strictBuiltinErrors,
 	}
 
 	for _, o := range options {
@@ -377,7 +428,9 @@ func (pq preparedQuery) newEvalContext(ctx context.Context, options []EvalOption
 			// Note that it could still be nil
 			ectx.rawInput = pq.r.rawInput
 		}
-		if pq.r.target != targetWasm {
+
+		if pq.r.targetPlugin(pq.r.target) == nil && // no plugin claims this target
+			pq.r.target != targetWasm {
 			ectx.parsedInput, err = pq.r.parseRawInput(ectx.rawInput, ectx.metrics)
 			if err != nil {
 				return nil, finishFunc, err
@@ -471,10 +524,10 @@ type queryType int
 // Define a query type for each of the top level Rego
 // API's that compile queries differently.
 const (
-	evalQueryType          queryType = iota
-	partialResultQueryType queryType = iota
-	partialQueryType       queryType = iota
-	compileQueryType       queryType = iota
+	evalQueryType queryType = iota
+	partialResultQueryType
+	partialQueryType
+	compileQueryType
 )
 
 type loadPaths struct {
@@ -528,6 +581,7 @@ type Rego struct {
 	interQueryBuiltinCache cache.InterQueryCache
 	ndBuiltinCache         builtins.NDBCache
 	strictBuiltinErrors    bool
+	builtinErrorList       *[]topdown.Error
 	resolvers              []refResolver
 	schemaSet              *ast.SchemaSet
 	target                 string // target type (wasm, rego, etc.)
@@ -537,6 +591,9 @@ type Rego struct {
 	enablePrintStatements  bool
 	distributedTacingOpts  tracing.Options
 	strict                 bool
+	pluginMgr              *plugins.Manager
+	plugins                []TargetPlugin
+	targetPrepState        TargetPluginEval
 }
 
 // Function represents a built-in function that is callable in Rego.
@@ -1055,6 +1112,13 @@ func StrictBuiltinErrors(yes bool) func(r *Rego) {
 	}
 }
 
+// BuiltinErrorList supplies an error slice to store built-in function errors.
+func BuiltinErrorList(list *[]topdown.Error) func(r *Rego) {
+	return func(r *Rego) {
+		r.builtinErrorList = list
+	}
+}
+
 // Resolver sets a Resolver for a specified ref path.
 func Resolver(ref ast.Ref, r resolver.Resolver) func(r *Rego) {
 	return func(rego *Rego) {
@@ -1147,7 +1211,8 @@ func New(options ...func(r *Rego)) *Rego {
 			WithSchemas(r.schemaSet).
 			WithCapabilities(r.capabilities).
 			WithEnablePrintStatements(r.enablePrintStatements).
-			WithStrict(r.strict)
+			WithStrict(r.strict).
+			WithUseTypeCheckAnnotations(true)
 	}
 
 	if r.store == nil {
@@ -1179,6 +1244,14 @@ func New(options ...func(r *Rego)) *Rego {
 		r.generateJSON = generateJSON
 	}
 
+	if r.pluginMgr != nil {
+		for _, name := range r.pluginMgr.Plugins() {
+			p := r.pluginMgr.Plugin(name)
+			if p0, ok := p.(TargetPlugin); ok {
+				r.plugins = append(r.plugins, p0)
+			}
+		}
+	}
 	return r
 }
 
@@ -1392,46 +1465,17 @@ func (r *Rego) Compile(ctx context.Context, opts ...CompileOption) (*CompileResu
 		queries = []ast.Body{r.compiledQueries[compileQueryType].query}
 	}
 
-	return r.compileWasm(modules, queries, compileQueryType)
+	if tgt := r.targetPlugin(r.target); tgt != nil {
+		return nil, fmt.Errorf("unsupported for rego target plugins")
+	}
+
+	return r.compileWasm(modules, queries, compileQueryType) // TODO(sr) control flow is funky here
 }
 
 func (r *Rego) compileWasm(modules []*ast.Module, queries []ast.Body, qType queryType) (*CompileResult, error) {
-	decls := make(map[string]*ast.Builtin, len(r.builtinDecls)+len(ast.BuiltinMap))
-
-	for k, v := range ast.BuiltinMap {
-		decls[k] = v
-	}
-
-	for k, v := range r.builtinDecls {
-		decls[k] = v
-	}
-
-	const queryName = "eval" // NOTE(tsandall): the query name is arbitrary
-
-	p := planner.New().
-		WithQueries([]planner.QuerySet{
-			{
-				Name:          queryName,
-				Queries:       queries,
-				RewrittenVars: r.compiledQueries[qType].compiler.RewrittenVars(),
-			},
-		}).
-		WithModules(modules).
-		WithBuiltinDecls(decls).
-		WithDebug(r.dump)
-	policy, err := p.Plan()
+	policy, err := r.planQuery(queries, qType)
 	if err != nil {
 		return nil, err
-	}
-
-	if r.dump != nil {
-		fmt.Fprintln(r.dump, "PLAN:")
-		fmt.Fprintln(r.dump, "-----")
-		err = ir.Pretty(r.dump, policy)
-		if err != nil {
-			return nil, err
-		}
-		fmt.Fprintln(r.dump)
 	}
 
 	m, err := wasm.New().WithPolicy(policy).Compile()
@@ -1440,16 +1484,13 @@ func (r *Rego) compileWasm(modules []*ast.Module, queries []ast.Body, qType quer
 	}
 
 	var out bytes.Buffer
-
 	if err := encoding.WriteModule(&out, m); err != nil {
 		return nil, err
 	}
 
-	result := &CompileResult{
+	return &CompileResult{
 		Bytes: out.Bytes(),
-	}
-
-	return result, nil
+	}, nil
 }
 
 // PrepareOption defines a function to set an option to control
@@ -1461,6 +1502,7 @@ type PrepareOption func(*PrepareConfig)
 type PrepareConfig struct {
 	doPartialEval   bool
 	disableInlining *[]string
+	builtinFuncs    map[string]*topdown.Builtin
 }
 
 // WithPartialEval configures an option for PrepareForEval
@@ -1477,6 +1519,25 @@ func WithNoInline(paths []string) PrepareOption {
 	return func(p *PrepareConfig) {
 		p.disableInlining = &paths
 	}
+}
+
+// WithBuiltinFuncs carries the rego.Function{1,2,3} per-query function definitions
+// to the target plugins.
+func WithBuiltinFuncs(bis map[string]*topdown.Builtin) PrepareOption {
+	return func(p *PrepareConfig) {
+		if p.builtinFuncs == nil {
+			p.builtinFuncs = make(map[string]*topdown.Builtin, len(bis))
+		}
+		for k, v := range bis {
+			p.builtinFuncs[k] = v
+		}
+	}
+}
+
+// BuiltinFuncs allows retrieving the builtin funcs set via PrepareOption
+// WithBuiltinFuncs.
+func (p *PrepareConfig) BuiltinFuncs() map[string]*topdown.Builtin {
+	return p.builtinFuncs
 }
 
 // PrepareForEval will parse inputs, modules, and query arguments in preparation
@@ -1532,7 +1593,8 @@ func (r *Rego) PrepareForEval(ctx context.Context, opts ...PrepareOption) (Prepa
 		return PreparedEvalQuery{}, err
 	}
 
-	if r.target == targetWasm {
+	switch r.target {
+	case targetWasm: // TODO(sr): make wasm a target plugin, too
 
 		if r.hasWasmModule() {
 			_ = txnClose(ctx, err) // Ignore error
@@ -1571,6 +1633,22 @@ func (r *Rego) PrepareForEval(ctx context.Context, opts ...PrepareOption) (Prepa
 			return PreparedEvalQuery{}, err
 		}
 		r.opa = o
+
+	case targetRego: // do nothing, don't lookup default plugin
+	default: // either a specific plugin target, or one that is default
+		if tgt := r.targetPlugin(r.target); tgt != nil {
+			queries := []ast.Body{r.compiledQueries[evalQueryType].query}
+			pol, err := r.planQuery(queries, evalQueryType)
+			if err != nil {
+				return PreparedEvalQuery{}, err
+			}
+			// always add the builtins provided via rego.FunctionN options
+			opts = append(opts, WithBuiltinFuncs(r.builtinFuncs))
+			r.targetPrepState, err = tgt.PrepareForEval(ctx, pol, opts...)
+			if err != nil {
+				return PreparedEvalQuery{}, err
+			}
+		}
 	}
 
 	txnErr := txnClose(ctx, err) // Always call closer
@@ -1684,18 +1762,18 @@ func (r *Rego) parseModules(ctx context.Context, txn storage.Transaction, m metr
 		return nil
 	}
 
-	m.Timer(metrics.RegoModuleParse).Start()
-	defer m.Timer(metrics.RegoModuleParse).Stop()
-	var errs Errors
-
-	// Parse any modules in the are saved to the store, but only if
-	// another compile step is going to occur (ie. we have parsed modules
-	// that need to be compiled).
 	ids, err := r.store.ListPolicies(ctx, txn)
 	if err != nil {
 		return err
 	}
 
+	m.Timer(metrics.RegoModuleParse).Start()
+	defer m.Timer(metrics.RegoModuleParse).Stop()
+	var errs Errors
+
+	// Parse any modules that are saved to the store, but only if
+	// another compile step is going to occur (ie. we have parsed modules
+	// that need to be compiled).
 	for _, id := range ids {
 		// if it is already on the compiler we're using
 		// then don't bother to re-parse it from source
@@ -1720,7 +1798,14 @@ func (r *Rego) parseModules(ctx context.Context, txn storage.Transaction, m metr
 	for _, module := range r.modules {
 		p, err := module.Parse()
 		if err != nil {
-			errs = append(errs, err)
+			switch errorWithType := err.(type) {
+			case ast.Errors:
+				for _, e := range errorWithType {
+					errs = append(errs, e)
+				}
+			default:
+				errs = append(errs, errorWithType)
+			}
 		}
 		r.parsedModules[module.filename] = p
 	}
@@ -1742,7 +1827,7 @@ func (r *Rego) loadFiles(ctx context.Context, txn storage.Transaction, m metrics
 
 	result, err := loader.NewFileLoader().
 		WithMetrics(m).
-		WithProcessAnnotation(r.schemaSet != nil).
+		WithProcessAnnotation(true).
 		Filtered(r.loadPaths.paths, r.loadPaths.filter)
 	if err != nil {
 		return err
@@ -1771,7 +1856,7 @@ func (r *Rego) loadBundles(ctx context.Context, txn storage.Transaction, m metri
 	for _, path := range r.bundlePaths {
 		bndl, err := loader.NewFileLoader().
 			WithMetrics(m).
-			WithProcessAnnotation(r.schemaSet != nil).
+			WithProcessAnnotation(true).
 			WithSkipBundleVerification(r.skipBundleVerification).
 			AsBundle(path)
 		if err != nil {
@@ -1941,8 +2026,20 @@ func (r *Rego) compileQuery(query ast.Body, imports []*ast.Import, m metrics.Met
 }
 
 func (r *Rego) eval(ctx context.Context, ectx *EvalContext) (ResultSet, error) {
-	if r.opa != nil {
+	switch {
+	case r.targetPrepState != nil: // target plugin flow
+		var val ast.Value
+		if r.runtime != nil {
+			val = r.runtime.Value
+		}
+		s, err := r.targetPrepState.Eval(ctx, ectx, val)
+		if err != nil {
+			return nil, err
+		}
+		return r.valueToQueryResult(s, ectx)
+	case r.target == targetWasm:
 		return r.evalWasm(ctx, ectx)
+	case r.target == targetRego: // continue
 	}
 
 	q := topdown.NewQuery(ectx.compiledQuery.query).
@@ -1958,6 +2055,7 @@ func (r *Rego) eval(ctx context.Context, ectx *EvalContext) (ResultSet, error) {
 		WithEarlyExit(ectx.earlyExit).
 		WithInterQueryBuiltinCache(ectx.interQueryBuiltinCache).
 		WithStrictBuiltinErrors(r.strictBuiltinErrors).
+		WithBuiltinErrorList(r.builtinErrorList).
 		WithSeed(ectx.seed).
 		WithPrintHook(ectx.printHook).
 		WithDistributedTracingOpts(r.distributedTacingOpts)
@@ -2038,7 +2136,11 @@ func (r *Rego) evalWasm(ctx context.Context, ectx *EvalContext) (ResultSet, erro
 		return nil, err
 	}
 
-	resultSet, ok := parsed.Value.(ast.Set)
+	return r.valueToQueryResult(parsed.Value, ectx)
+}
+
+func (r *Rego) valueToQueryResult(res ast.Value, ectx *EvalContext) (ResultSet, error) {
+	resultSet, ok := res.(ast.Set)
 	if !ok {
 		return nil, fmt.Errorf("illegal result type")
 	}
@@ -2048,7 +2150,7 @@ func (r *Rego) evalWasm(ctx context.Context, ectx *EvalContext) (ResultSet, erro
 	}
 
 	var rs ResultSet
-	err = resultSet.Iter(func(term *ast.Term) error {
+	err := resultSet.Iter(func(term *ast.Term) error {
 		obj, ok := term.Value.(ast.Object)
 		if !ok {
 			return fmt.Errorf("illegal result type")
@@ -2125,16 +2227,17 @@ func (r *Rego) partialResult(ctx context.Context, pCfg *PrepareConfig) (PartialR
 	}
 
 	ectx := &EvalContext{
-		parsedInput:      r.parsedInput,
-		metrics:          r.metrics,
-		txn:              r.txn,
-		partialNamespace: r.partialNamespace,
-		queryTracers:     r.queryTracers,
-		compiledQuery:    r.compiledQueries[partialResultQueryType],
-		instrumentation:  r.instrumentation,
-		indexing:         true,
-		resolvers:        r.resolvers,
-		capabilities:     r.capabilities,
+		parsedInput:         r.parsedInput,
+		metrics:             r.metrics,
+		txn:                 r.txn,
+		partialNamespace:    r.partialNamespace,
+		queryTracers:        r.queryTracers,
+		compiledQuery:       r.compiledQueries[partialResultQueryType],
+		instrumentation:     r.instrumentation,
+		indexing:            true,
+		resolvers:           r.resolvers,
+		capabilities:        r.capabilities,
+		strictBuiltinErrors: r.strictBuiltinErrors,
 	}
 
 	disableInlining := r.disableInlining
@@ -2237,7 +2340,7 @@ func (r *Rego) partial(ctx context.Context, ectx *EvalContext) (*PartialQueries,
 		WithSkipPartialNamespace(r.skipPartialNamespace).
 		WithShallowInlining(r.shallowInlining).
 		WithInterQueryBuiltinCache(ectx.interQueryBuiltinCache).
-		WithStrictBuiltinErrors(r.strictBuiltinErrors).
+		WithStrictBuiltinErrors(ectx.strictBuiltinErrors).
 		WithSeed(ectx.seed).
 		WithPrintHook(ectx.printHook)
 
@@ -2371,11 +2474,13 @@ func (r *Rego) rewriteEqualsForPartialQueryCompile(_ ast.QueryCompiler, query as
 
 func (r *Rego) generateTermVar() *ast.Term {
 	r.termVarID++
-
-	if r.target == targetWasm {
-		return ast.VarTerm(wasmVarPrefix + fmt.Sprintf("term%v", r.termVarID))
+	prefix := ast.WildcardPrefix
+	if p := r.targetPlugin(r.target); p != nil {
+		prefix = wasmVarPrefix
+	} else if r.target == targetWasm {
+		prefix = wasmVarPrefix
 	}
-	return ast.VarTerm(ast.WildcardPrefix + fmt.Sprintf("term%v", r.termVarID))
+	return ast.VarTerm(fmt.Sprintf("%sterm%v", prefix, r.termVarID))
 }
 
 func (r Rego) hasQuery() bool {
@@ -2558,17 +2663,19 @@ func finishFunction(name string, bctx topdown.BuiltinContext, result *ast.Term, 
 	if err != nil {
 		var e *HaltError
 		if errors.As(err, &e) {
-			return topdown.Halt{Err: &topdown.Error{
+			tdErr := &topdown.Error{
 				Code:     topdown.BuiltinErr,
 				Message:  fmt.Sprintf("%v: %v", name, e.Error()),
 				Location: bctx.Location,
-			}}
+			}
+			return topdown.Halt{Err: tdErr.Wrap(e)}
 		}
-		return &topdown.Error{
+		tdErr := &topdown.Error{
 			Code:     topdown.BuiltinErr,
 			Message:  fmt.Sprintf("%v: %v", name, err.Error()),
 			Location: bctx.Location,
 		}
+		return tdErr.Wrap(err)
 	}
 	if result == nil {
 		return nil
@@ -2597,4 +2704,50 @@ func generateJSON(term *ast.Term, ectx *EvalContext) (interface{}, error) {
 			SortSets: ectx.sortSets,
 			CopyMaps: ectx.copyMaps,
 		})
+}
+
+func (r *Rego) planQuery(queries []ast.Body, evalQueryType queryType) (*ir.Policy, error) {
+	modules := make([]*ast.Module, 0, len(r.compiler.Modules))
+	for _, module := range r.compiler.Modules {
+		modules = append(modules, module)
+	}
+
+	decls := make(map[string]*ast.Builtin, len(r.builtinDecls)+len(ast.BuiltinMap))
+
+	for k, v := range ast.BuiltinMap {
+		decls[k] = v
+	}
+
+	for k, v := range r.builtinDecls {
+		decls[k] = v
+	}
+
+	const queryName = "eval" // NOTE(tsandall): the query name is arbitrary
+
+	p := planner.New().
+		WithQueries([]planner.QuerySet{
+			{
+				Name:          queryName,
+				Queries:       queries,
+				RewrittenVars: r.compiledQueries[evalQueryType].compiler.RewrittenVars(),
+			},
+		}).
+		WithModules(modules).
+		WithBuiltinDecls(decls).
+		WithDebug(r.dump)
+
+	policy, err := p.Plan()
+	if err != nil {
+		return nil, err
+	}
+	if r.dump != nil {
+		fmt.Fprintln(r.dump, "PLAN:")
+		fmt.Fprintln(r.dump, "-----")
+		err = ir.Pretty(r.dump, policy)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Fprintln(r.dump)
+	}
+	return policy, nil
 }

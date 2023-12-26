@@ -136,6 +136,7 @@ var DefaultBuiltins = [...]*Builtin{
 
 	// Numbers
 	NumbersRange,
+	NumbersRangeStep,
 	RandIntn,
 
 	// Encoding
@@ -195,6 +196,7 @@ var DefaultBuiltins = [...]*Builtin{
 	ParseNanos,
 	ParseRFC3339Nanos,
 	ParseDurationNanos,
+	Format,
 	Date,
 	Clock,
 	Weekday,
@@ -209,10 +211,13 @@ var DefaultBuiltins = [...]*Builtin{
 	CryptoSha256,
 	CryptoX509ParseCertificateRequest,
 	CryptoX509ParseRSAPrivateKey,
+	CryptoX509ParseKeyPair,
+	CryptoParsePrivateKeys,
 	CryptoHmacMd5,
 	CryptoHmacSha1,
 	CryptoHmacSha256,
 	CryptoHmacSha512,
+	CryptoHmacEqual,
 
 	// Graphs
 	WalkBuiltin,
@@ -242,6 +247,10 @@ var DefaultBuiltins = [...]*Builtin{
 	GraphQLParseSchema,
 	GraphQLIsValid,
 	GraphQLSchemaIsValid,
+
+	// JSON Schema
+	JSONSchemaVerify,
+	JSONMatchSchema,
 
 	// Cloud Provider Helpers
 	ProvidersAWSSignReqObj,
@@ -277,6 +286,7 @@ var DefaultBuiltins = [...]*Builtin{
 
 	// UUIDs
 	UUIDRFC4122,
+	UUIDParse,
 
 	// SemVers
 	SemVerIsValid,
@@ -1339,6 +1349,23 @@ var NumbersRange = &Builtin{
 	),
 }
 
+var NumbersRangeStep = &Builtin{
+	Name: "numbers.range_step",
+	Description: `Returns an array of numbers in the given (inclusive) range incremented by a positive step.
+	If "a==b", then "range == [a]"; if "a > b", then "range" is in descending order.
+	If the provided "step" is less then 1, an error will be thrown.
+	If "b" is not in the range of the provided "step", "b" won't be included in the result.
+	`,
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("a", types.N),
+			types.Named("b", types.N),
+			types.Named("step", types.N),
+		),
+		types.Named("range", types.NewArray(nil, types.N)).Description("the range between `a` and `b` in `step` increments"),
+	),
+}
+
 /**
  * Units
  */
@@ -1390,6 +1417,19 @@ var UUIDRFC4122 = &Builtin{
 		types.Named("output", types.S).Description("a version 4 UUID; for any given `k`, the output will be consistent throughout a query evaluation"),
 	),
 	Nondeterministic: true,
+}
+
+var UUIDParse = &Builtin{
+	Name:        "uuid.parse",
+	Description: "Parses the string value as an UUID and returns an object with the well-defined fields of the UUID if valid.",
+	Categories:  nil,
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("uuid", types.S),
+		),
+		types.Named("result", types.NewObject(nil, types.NewDynamicProperty(types.S, types.A))).Description("Properties of UUID if valid (version, variant, etc). Undefined otherwise."),
+	),
+	Relation: false,
 }
 
 /**
@@ -2144,6 +2184,21 @@ var ParseDurationNanos = &Builtin{
 	),
 }
 
+var Format = &Builtin{
+	Name:        "time.format",
+	Description: "Returns the formatted timestamp for the nanoseconds since epoch.",
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("x", types.NewAny(
+				types.N,
+				types.NewArray([]types.Type{types.N, types.S}, nil),
+				types.NewArray([]types.Type{types.N, types.S, types.S}, nil),
+			)).Description("a number representing the nanoseconds since the epoch (UTC); or a two-element array of the nanoseconds, and a timezone string; or a three-element array of ns, timezone string and a layout string or golang defined formatting constant (see golang supported time formats)"),
+		),
+		types.Named("formatted timestamp", types.S).Description("the formatted timestamp represented for the nanoseconds since the epoch in the supplied timezone (or UTC)"),
+	),
+}
+
 var Date = &Builtin{
 	Name:        "time.date",
 	Description: "Returns the `[year, month, day]` for the nanoseconds since epoch.",
@@ -2189,7 +2244,7 @@ var Weekday = &Builtin{
 
 var AddDate = &Builtin{
 	Name:        "time.add_date",
-	Description: "Returns the nanoseconds since epoch after adding years, months and days to nanoseconds. `undefined` if the result would be outside the valid time range that can fit within an `int64`.",
+	Description: "Returns the nanoseconds since epoch after adding years, months and days to nanoseconds. Month & day values outside their usual ranges after the operation and will be normalized - for example, October 32 would become November 1. `undefined` if the result would be outside the valid time range that can fit within an `int64`.",
 	Decl: types.NewFunction(
 		types.Args(
 			types.Named("ns", types.N).Description("nanoseconds since the epoch"),
@@ -2224,8 +2279,12 @@ var Diff = &Builtin{
  */
 
 var CryptoX509ParseCertificates = &Builtin{
-	Name:        "crypto.x509.parse_certificates",
-	Description: "Returns one or more certificates from the given base64 encoded string containing DER encoded certificates that have been concatenated.",
+	Name: "crypto.x509.parse_certificates",
+	Description: `Returns zero or more certificates from the given encoded string containing
+DER certificate data.
+
+If the input is empty, the function will return null. The input string should be a list of one or more
+concatenated PEM blocks. The whole input of concatenated PEM blocks can optionally be Base64 encoded.`,
 	Decl: types.NewFunction(
 		types.Args(
 			types.Named("certs", types.S).Description("base64 encoded DER or PEM data containing one or more certificates or a PEM string of one or more certificates"),
@@ -2264,6 +2323,17 @@ var CryptoX509ParseCertificateRequest = &Builtin{
 	),
 }
 
+var CryptoX509ParseKeyPair = &Builtin{
+	Name:        "crypto.x509.parse_keypair",
+	Description: "Returns a valid key pair",
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("cert", types.S).Description("string containing PEM or base64 encoded DER certificates"),
+			types.Named("pem", types.S).Description("string containing PEM or base64 encoded DER keys"),
+		),
+		types.Named("output", types.NewObject(nil, types.NewDynamicProperty(types.S, types.A))).Description("if key pair is valid, returns the tls.certificate(https://pkg.go.dev/crypto/tls#Certificate) as an object. If the key pair is invalid, nil and an error are returned."),
+	),
+}
 var CryptoX509ParseRSAPrivateKey = &Builtin{
 	Name:        "crypto.x509.parse_rsa_private_key",
 	Description: "Returns a JWK for signing a JWT from the given PEM-encoded RSA private key.",
@@ -2272,6 +2342,19 @@ var CryptoX509ParseRSAPrivateKey = &Builtin{
 			types.Named("pem", types.S).Description("base64 string containing a PEM encoded RSA private key"),
 		),
 		types.Named("output", types.NewObject(nil, types.NewDynamicProperty(types.S, types.A))).Description("JWK as an object"),
+	),
+}
+
+var CryptoParsePrivateKeys = &Builtin{
+	Name: "crypto.parse_private_keys",
+	Description: `Returns zero or more private keys from the given encoded string containing DER certificate data.
+
+If the input is empty, the function will return null. The input string should be a list of one or more concatenated PEM blocks. The whole input of concatenated PEM blocks can optionally be Base64 encoded.`,
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("keys", types.S).Description("PEM encoded data containing one or more private keys as concatenated blocks. Optionally Base64 encoded."),
+		),
+		types.Named("output", types.NewArray(nil, types.NewObject(nil, types.NewDynamicProperty(types.S, types.A)))).Description("parsed private keys represented as objects"),
 	),
 }
 
@@ -2353,6 +2436,18 @@ var CryptoHmacSha512 = &Builtin{
 			types.Named("key", types.S).Description("key to use"),
 		),
 		types.Named("y", types.S).Description("SHA512-HMAC of `x`"),
+	),
+}
+
+var CryptoHmacEqual = &Builtin{
+	Name:        "crypto.hmac.equal",
+	Description: "Returns a boolean representing the result of comparing two MACs for equality without leaking timing information.",
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("mac1", types.S).Description("mac1 to compare"),
+			types.Named("mac2", types.S).Description("mac2 to compare"),
+		),
+		types.Named("result", types.B).Description("`true` if the MACs are equals, `false` otherwise"),
 	),
 }
 
@@ -2631,6 +2726,60 @@ var GraphQLSchemaIsValid = &Builtin{
 		),
 		types.Named("output", types.B).Description("`true` if the schema is a valid GraphQL schema. `false` otherwise."),
 	),
+}
+
+/**
+ * JSON Schema
+ */
+
+// JSONSchemaVerify returns empty string if the input is valid JSON schema
+// and returns error string for all other inputs.
+var JSONSchemaVerify = &Builtin{
+	Name:        "json.verify_schema",
+	Description: "Checks that the input is a valid JSON schema object. The schema can be either a JSON string or an JSON object.",
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("schema", types.NewAny(types.S, types.NewObject(nil, types.NewDynamicProperty(types.A, types.A)))).
+				Description("the schema to verify"),
+		),
+		types.Named("output", types.NewArray([]types.Type{
+			types.B,
+			types.NewAny(types.S, types.Null{}),
+		}, nil)).
+			Description("`output` is of the form `[valid, error]`. If the schema is valid, then `valid` is `true`, and `error` is `null`. Otherwise, `valid` is `false` and `error` is a string describing the error."),
+	),
+	Categories: objectCat,
+}
+
+// JSONMatchSchema returns empty array if the document matches the JSON schema,
+// and returns non-empty array with error objects otherwise.
+var JSONMatchSchema = &Builtin{
+	Name:        "json.match_schema",
+	Description: "Checks that the document matches the JSON schema.",
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("document", types.NewAny(types.S, types.NewObject(nil, types.NewDynamicProperty(types.A, types.A)))).
+				Description("document to verify by schema"),
+			types.Named("schema", types.NewAny(types.S, types.NewObject(nil, types.NewDynamicProperty(types.A, types.A)))).
+				Description("schema to verify document by"),
+		),
+		types.Named("output", types.NewArray([]types.Type{
+			types.B,
+			types.NewArray(
+				nil, types.NewObject(
+					[]*types.StaticProperty{
+						{Key: "error", Value: types.S},
+						{Key: "type", Value: types.S},
+						{Key: "field", Value: types.S},
+						{Key: "desc", Value: types.S},
+					},
+					nil,
+				),
+			),
+		}, nil)).
+			Description("`output` is of the form `[match, errors]`. If the document is valid given the schema, then `match` is `true`, and `errors` is an empty array. Otherwise, `match` is `false` and `errors` is an array of objects describing the error(s)."),
+	),
+	Categories: objectCat,
 }
 
 /**

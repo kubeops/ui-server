@@ -27,6 +27,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2/klogr"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
@@ -39,12 +40,16 @@ func NewClient() (client.Client, error) {
 	scheme := runtime.NewScheme()
 	_ = clientgoscheme.AddToScheme(scheme)
 
-	ctrl.SetLogger(klogr.New())
+	ctrl.SetLogger(klogr.New()) // nolint:staticcheck
 	cfg := ctrl.GetConfigOrDie()
 	cfg.QPS = 100
 	cfg.Burst = 100
 
-	mapper, err := apiutil.NewDynamicRESTMapper(cfg)
+	hc, err := rest.HTTPClientFor(cfg)
+	if err != nil {
+		return nil, err
+	}
+	mapper, err := apiutil.NewDynamicRESTMapper(cfg, hc)
 	if err != nil {
 		return nil, err
 	}

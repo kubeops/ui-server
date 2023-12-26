@@ -313,7 +313,7 @@ func FindSiblingAlertManagerForPrometheus(kc client.Client, key types.Namespaced
 		return nil, err
 	}
 	if len(list.Items) > 1 {
-		klog.Warningln("multiple alert manager found in namespace %s", key.Namespace)
+		klog.Warningf("multiple alert manager found in namespace %s", key.Namespace)
 	}
 	if len(list.Items) == 0 {
 		return nil, nil
