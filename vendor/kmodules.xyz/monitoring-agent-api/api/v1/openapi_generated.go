@@ -236,12 +236,6 @@ func schema_kmodulesxyz_monitoring_agent_api_api_v1_GrafanaContext(ref common.Re
 							Format: "",
 						},
 					},
-					"token": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
 				},
 			},
 		},

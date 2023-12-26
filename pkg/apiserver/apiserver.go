@@ -100,6 +100,7 @@ import (
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	chartsapi "x-helm.dev/apimachinery/apis/charts/v1alpha1"
 )
 
@@ -196,14 +197,13 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	}
 
 	// ctrl.SetLogger(...)
-	log.SetLogger(klogr.New())
+	log.SetLogger(klogr.New()) // nolint:staticcheck
 	setupLog := log.Log.WithName("setup")
 
 	cfg := c.ExtraConfig.ClientConfig
 	mgr, err := manager.New(cfg, manager.Options{
 		Scheme:                 Scheme,
-		MetricsBindAddress:     "",
-		Port:                   0,
+		Metrics:                metricsserver.Options{BindAddress: ""},
 		HealthProbeBindAddress: "",
 		LeaderElection:         false,
 		LeaderElectionID:       "5b87adeb.ui-server.kubeops.dev",

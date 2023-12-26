@@ -28,7 +28,7 @@ import (
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/shared"
 
-	"github.com/open-policy-agent/gatekeeper/pkg/audit"
+	"github.com/open-policy-agent/gatekeeper/v3/pkg/audit"
 	"gomodules.xyz/sets"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

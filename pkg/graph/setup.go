@@ -51,7 +51,7 @@ import (
 func PollNewResourceTypes(cfg *restclient.Config, pqr *projectquotacontroller.ProjectQuotaReconciler) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		kc := kubernetes.NewForConfigOrDie(cfg)
-		err := wait.PollImmediateUntil(60*time.Second, func() (done bool, err error) {
+		err := wait.PollUntilContextCancel(ctx, 60*time.Second, true, func(ctx context.Context) (done bool, err error) {
 			rsLists, err := kc.Discovery().ServerPreferredResources()
 			if err != nil && !discovery.IsGroupDiscoveryFailedError(err) {
 				klog.ErrorS(err, "failed to list server preferred resources")
@@ -111,7 +111,7 @@ func PollNewResourceTypes(cfg *restclient.Config, pqr *projectquotacontroller.Pr
 			ScannerInstalled.Store(scannerInstalled)
 
 			return false, nil
-		}, ctx.Done())
+		})
 		if err != nil {
 			return err
 		}

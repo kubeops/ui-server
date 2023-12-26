@@ -54,6 +54,7 @@ type Query struct {
 	interQueryBuiltinCache cache.InterQueryCache
 	ndBuiltinCache         builtins.NDBCache
 	strictBuiltinErrors    bool
+	builtinErrorList       *[]Error
 	strictObjects          bool
 	printHook              print.Hook
 	tracingOpts            tracing.Options
@@ -256,6 +257,14 @@ func (q *Query) WithStrictBuiltinErrors(yes bool) *Query {
 	return q
 }
 
+// WithBuiltinErrorList supplies a pointer to an Error slice to store built-in function errors
+// encountered during evaluation. This error slice can be inspected after evaluation to determine
+// which built-in function errors occurred.
+func (q *Query) WithBuiltinErrorList(list *[]Error) *Query {
+	q.builtinErrorList = list
+	return q
+}
+
 // WithResolver configures an external resolver to use for the given ref.
 func (q *Query) WithResolver(ref ast.Ref, r resolver.Resolver) *Query {
 	q.external.Put(ref, r)
@@ -419,8 +428,25 @@ func (q *Query) PartialRun(ctx context.Context) (partials []ast.Body, support []
 
 	support = e.saveSupport.List()
 
-	if q.strictBuiltinErrors && len(e.builtinErrors.errs) > 0 {
-		err = e.builtinErrors.errs[0]
+	if len(e.builtinErrors.errs) > 0 {
+		if q.strictBuiltinErrors {
+			err = e.builtinErrors.errs[0]
+		} else if q.builtinErrorList != nil {
+			// If a builtinErrorList has been supplied, we must use pointer indirection
+			// to append to it. builtinErrorList is a slice pointer so that errors can be
+			// appended to it without returning a new slice and changing the interface
+			// of PartialRun.
+			for _, err := range e.builtinErrors.errs {
+				if tdError, ok := err.(*Error); ok {
+					*(q.builtinErrorList) = append(*(q.builtinErrorList), *tdError)
+				} else {
+					*(q.builtinErrorList) = append(*(q.builtinErrorList), Error{
+						Code:    BuiltinErr,
+						Message: err.Error(),
+					})
+				}
+			}
+		}
 	}
 
 	for i := range support {
@@ -445,6 +471,14 @@ func (q *Query) Run(ctx context.Context) (QueryResultSet, error) {
 // Iter executes the query and invokes the iter function with query results
 // produced by evaluating the query.
 func (q *Query) Iter(ctx context.Context, iter func(QueryResult) error) error {
+	// Query evaluation must not be allowed if the compiler has errors and is in an undefined, possibly inconsistent state
+	if q.compiler != nil && len(q.compiler.Errors) > 0 {
+		return &Error{
+			Code:    InternalErr,
+			Message: "compiler has errors",
+		}
+	}
+
 	if q.seed == nil {
 		q.seed = rand.Reader
 	}
@@ -504,8 +538,25 @@ func (q *Query) Iter(ctx context.Context, iter func(QueryResult) error) error {
 		return iter(qr)
 	})
 
-	if q.strictBuiltinErrors && err == nil && len(e.builtinErrors.errs) > 0 {
-		err = e.builtinErrors.errs[0]
+	if len(e.builtinErrors.errs) > 0 {
+		if q.strictBuiltinErrors {
+			err = e.builtinErrors.errs[0]
+		} else if q.builtinErrorList != nil {
+			// If a builtinErrorList has been supplied, we must use pointer indirection
+			// to append to it. builtinErrorList is a slice pointer so that errors can be
+			// appended to it without returning a new slice and changing the interface
+			// of Iter.
+			for _, err := range e.builtinErrors.errs {
+				if tdError, ok := err.(*Error); ok {
+					*(q.builtinErrorList) = append(*(q.builtinErrorList), *tdError)
+				} else {
+					*(q.builtinErrorList) = append(*(q.builtinErrorList), Error{
+						Code:    BuiltinErr,
+						Message: err.Error(),
+					})
+				}
+			}
+		}
 	}
 
 	q.metrics.Timer(metrics.RegoQueryEval).Stop()

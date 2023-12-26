@@ -38,6 +38,7 @@ import (
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -54,6 +55,7 @@ type ProjectQuotaReconciler struct {
 
 	mu       sync.Mutex
 	ctrl     controller.Controller
+	cache    cache.Cache
 	regTypes map[schema.GroupVersionKind]bool
 }
 
@@ -345,6 +347,7 @@ func (r *ProjectQuotaReconciler) SetupWithManager(mgr ctrl.Manager) (*ProjectQuo
 		return nil, err
 	}
 	r.ctrl = ctrl
+	r.cache = mgr.GetCache()
 	return r, nil
 }
 
@@ -365,7 +368,7 @@ func (r *ProjectQuotaReconciler) StartWatcher(rid kmapi.ResourceID) {
 		var obj unstructured.Unstructured
 		obj.SetGroupVersionKind(gvk)
 		err := r.ctrl.Watch(
-			&source.Kind{Type: &obj},
+			source.Kind(r.cache, &obj),
 			handler.EnqueueRequestsFromMapFunc(ProjectQuotaForObjects(r.Client)),
 		)
 		if err != nil {
@@ -376,14 +379,14 @@ func (r *ProjectQuotaReconciler) StartWatcher(rid kmapi.ResourceID) {
 }
 
 // Obj -> ProjectQuota
-func ProjectQuotaForObjects(kc client.Client) func(_ client.Object) []reconcile.Request {
-	return func(obj client.Object) []reconcile.Request {
+func ProjectQuotaForObjects(kc client.Client) func(_ context.Context, _ client.Object) []reconcile.Request {
+	return func(ctx context.Context, obj client.Object) []reconcile.Request {
 		if obj.GetNamespace() == "" {
 			return nil
 		}
 
 		var ns core.Namespace
-		err := kc.Get(context.TODO(), client.ObjectKey{Name: obj.GetNamespace()}, &ns)
+		err := kc.Get(ctx, client.ObjectKey{Name: obj.GetNamespace()}, &ns)
 		if err != nil {
 			klog.Error(err)
 			return nil
