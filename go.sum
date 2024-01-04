@@ -1685,8 +1685,8 @@ github.com/klauspost/compress v1.17.0 h1:Rnbp4K9EjcDuVuHtd0dgA4qNuv9yKDYKK1ulpJw
 github.com/klauspost/compress v1.17.0/go.mod h1:ntbaceVETuRiXiv4DpjP66DpAtAGkEQskQzEyD//IeE=
 github.com/klauspost/cpuid/v2 v2.0.9 h1:lgaqFMSdTdQYdZ04uHyN2d/eKdOMyi2YLSvlQIBFYa4=
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
-github.com/kmodules/apiserver v0.29.1-0.20231224075222-50d5bb4aeb26 h1:Nb2bxGlc5VkRlIEiHzK7/0JxiAbivD4YxZ28ia5zEGI=
-github.com/kmodules/apiserver v0.29.1-0.20231224075222-50d5bb4aeb26/go.mod h1:31n78PsRKPmfpee7/l9NYEv67u6hOL6AfcE761HapDM=
+github.com/kmodules/apiserver v0.29.1-0.20240104121741-1fb217d4a573 h1:6v7bTFGH/Ha1idq1sLX9px2KJhcx6cpuMowuYRyCht4=
+github.com/kmodules/apiserver v0.29.1-0.20240104121741-1fb217d4a573/go.mod h1:31n78PsRKPmfpee7/l9NYEv67u6hOL6AfcE761HapDM=
 github.com/kmodules/controller-runtime v0.16.1-0.20240104120228-ef547cbd1b75 h1:GO6DKEv3cPm3FyunZlZYr6jbhZw2Yini2R4BQWAXveY=
 github.com/kmodules/controller-runtime v0.16.1-0.20240104120228-ef547cbd1b75/go.mod h1:7Nw5LkRkA6DpQkjiSnbtAix4lyYxMLYiKyQQfKV+8Rg=
 github.com/kmodules/kubernetes v1.30.0-alpha.0.0.20231224075822-3bd9a13c86db/go.mod h1:V78f/rAOcRUt4c3Dd4NbjY7u4VG9ApaovqIgNacJqBc=

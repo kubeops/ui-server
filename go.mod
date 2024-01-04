@@ -239,6 +239,6 @@ replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.6
 
-replace k8s.io/apiserver => github.com/kmodules/apiserver v0.29.1-0.20231224075222-50d5bb4aeb26
+replace k8s.io/apiserver => github.com/kmodules/apiserver v0.29.1-0.20240104121741-1fb217d4a573
 
 replace k8s.io/kubernetes => github.com/kmodules/kubernetes v1.30.0-alpha.0.0.20231224075822-3bd9a13c86db
