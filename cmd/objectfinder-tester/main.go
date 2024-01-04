@@ -21,25 +21,24 @@ import (
 	"context"
 	"fmt"
 
+	"kubeops.dev/ui-server/pkg/apiserver"
 	"kubeops.dev/ui-server/pkg/graph"
 
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2/klogr"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
+	"kmodules.xyz/resource-metadata/hub/resourceoutlines"
+	"kmodules.xyz/resource-metadata/pkg/layouts"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
 func NewClient() (client.Client, error) {
-	scheme := runtime.NewScheme()
-	_ = clientgoscheme.AddToScheme(scheme)
-
 	ctrl.SetLogger(klogr.New()) // nolint:staticcheck
 	cfg := ctrl.GetConfigOrDie()
 	cfg.QPS = 100
@@ -55,7 +54,7 @@ func NewClient() (client.Client, error) {
 	}
 
 	return client.New(cfg, client.Options{
-		Scheme: scheme,
+		Scheme: apiserver.Scheme,
 		Mapper: mapper,
 		//Opts: client.WarningHandlerOptions{
 		//	SuppressWarnings:   false,
@@ -65,9 +64,28 @@ func NewClient() (client.Client, error) {
 }
 
 func main() {
-	if err := findServiceForServiceMonitor(); err != nil {
+	if err := ListResourceLayouts(); err != nil {
 		panic(err)
 	}
+}
+
+func ListResourceLayouts() error {
+	kc, err := NewClient()
+	if err != nil {
+		return err
+	}
+
+	objs := resourceoutlines.List()
+
+	items := make([]rsapi.ResourceLayout, 0, len(objs))
+	for _, obj := range objs {
+		layout, err := layouts.GetResourceLayout(kc, &obj)
+		if err != nil {
+			return kerr.NewInternalError(err)
+		}
+		items = append(items, *layout)
+	}
+	return nil
 }
 
 func findConfigMapForPod() error {
