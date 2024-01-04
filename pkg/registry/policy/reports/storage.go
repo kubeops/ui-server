@@ -49,6 +49,7 @@ var (
 	_ rest.Scoper                   = &Storage{}
 	_ rest.Storage                  = &Storage{}
 	_ rest.Creater                  = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 )
 
 func NewStorage(kc client.Client) *Storage {
@@ -63,6 +64,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return false
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(policyapi.ResourceKindPolicyReport)
 }
 
 func (r *Storage) New() runtime.Object {

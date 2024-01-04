@@ -18,6 +18,7 @@ package chartpresetquery
 
 import (
 	"context"
+	"strings"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,6 +40,7 @@ var (
 	_ rest.Scoper                   = &Storage{}
 	_ rest.Storage                  = &Storage{}
 	_ rest.Creater                  = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 )
 
 func NewStorage(kc client.Client) *Storage {
@@ -53,6 +55,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return false
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(rsapi.ResourceKindChartPresetQuery)
 }
 
 func (r *Storage) New() runtime.Object {

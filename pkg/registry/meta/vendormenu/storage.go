@@ -18,6 +18,7 @@ package vendormenu
 
 import (
 	"context"
+	"strings"
 
 	"kubeops.dev/ui-server/pkg/menu"
 
@@ -44,6 +45,7 @@ var (
 	_ rest.Storage                  = &Storage{}
 	_ rest.Getter                   = &Storage{}
 	_ rest.Lister                   = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 )
 
 func NewStorage(kc client.Client, disco discovery.ServerResourcesInterface) *Storage {
@@ -63,6 +65,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return false
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(rsapi.ResourceKindMenu)
 }
 
 // Getter
