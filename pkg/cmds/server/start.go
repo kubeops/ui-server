@@ -128,16 +128,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	// Fixes https://github.com/Azure/AKS/issues/522
 	clientcmd.Fix(serverConfig.ClientConfig)
 
-	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
-		ou.GetDefinitions(
-			auditorv1alpha1.GetOpenAPIDefinitions,
-			identityv1alpha1.GetOpenAPIDefinitions,
-			rscoreapi.GetOpenAPIDefinitions,
-		),
-		openapi.NewDefinitionNamer(apiserver.Scheme))
-	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"
-	serverConfig.OpenAPIConfig.Info.Version = v.Version.Version
-	serverConfig.OpenAPIConfig.IgnorePrefixes = []string{
+	ignorePrefixes := []string{
 		"/swaggerapi",
 		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
 
@@ -169,6 +160,28 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 
 		fmt.Sprintf("/apis/%s/%s", rscoreapi.SchemeGroupVersion, rscoreapi.ResourceProjects),
 	}
+
+	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
+		ou.GetDefinitions(
+			auditorv1alpha1.GetOpenAPIDefinitions,
+			identityv1alpha1.GetOpenAPIDefinitions,
+			rscoreapi.GetOpenAPIDefinitions,
+		),
+		openapi.NewDefinitionNamer(apiserver.Scheme))
+	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"
+	serverConfig.OpenAPIConfig.Info.Version = v.Version.Version
+	serverConfig.OpenAPIConfig.IgnorePrefixes = ignorePrefixes
+
+	serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(
+		ou.GetDefinitions(
+			auditorv1alpha1.GetOpenAPIDefinitions,
+			identityv1alpha1.GetOpenAPIDefinitions,
+			rscoreapi.GetOpenAPIDefinitions,
+		),
+		openapi.NewDefinitionNamer(apiserver.Scheme))
+	serverConfig.OpenAPIV3Config.Info.Title = "kube-ui-server"
+	serverConfig.OpenAPIV3Config.Info.Version = v.Version.Version
+	serverConfig.OpenAPIV3Config.IgnorePrefixes = ignorePrefixes
 
 	extraConfig := apiserver.ExtraConfig{
 		ClientConfig: serverConfig.ClientConfig,
