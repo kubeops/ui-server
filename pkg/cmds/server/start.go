@@ -90,6 +90,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 	}
 	o.RecommendedOptions.Etcd = nil
 	o.RecommendedOptions.Admission = nil
+	o.RecommendedOptions.Features.EnablePriorityAndFairness = false
 	return o
 }
 

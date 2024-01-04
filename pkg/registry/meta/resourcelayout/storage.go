@@ -61,7 +61,7 @@ func NewStorage(kc client.Client) *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return rsapi.SchemeGroupVersion.WithKind(rsapi.ResourceKindResourceOutline)
+	return rsapi.SchemeGroupVersion.WithKind(rsapi.ResourceKindResourceLayout)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -69,7 +69,7 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) GetSingularName() string {
-	return strings.ToLower("ResourceLayout")
+	return strings.ToLower(rsapi.ResourceKindResourceLayout)
 }
 
 // Getter
