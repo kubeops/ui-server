@@ -19,6 +19,7 @@ package ResourceSummary
 import (
 	"context"
 	"sort"
+	"strings"
 	"time"
 
 	"kubeops.dev/ui-server/pkg/shared"
@@ -55,6 +56,7 @@ var (
 	_ rest.Scoper                   = &Storage{}
 	_ rest.Storage                  = &Storage{}
 	_ rest.Lister                   = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 )
 
 func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
@@ -75,6 +77,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return true
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(rscoreapi.ResourceKindResourceSummary)
 }
 
 func (r *Storage) New() runtime.Object {

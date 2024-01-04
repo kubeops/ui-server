@@ -18,6 +18,7 @@ package usermenu
 
 import (
 	"context"
+	"strings"
 
 	"kubeops.dev/ui-server/pkg/menu"
 
@@ -48,6 +49,7 @@ var (
 	_ rest.Getter                   = &Storage{}
 	_ rest.CreaterUpdater           = &Storage{}
 	_ rest.GracefulDeleter          = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 )
 
 func NewStorage(kc client.Client, disco discovery.ServerResourcesInterface, ns string) *Storage {
@@ -68,6 +70,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return false
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(rsapi.ResourceKindMenu)
 }
 
 func (r *Storage) New() runtime.Object {

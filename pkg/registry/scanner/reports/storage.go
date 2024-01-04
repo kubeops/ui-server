@@ -19,6 +19,7 @@ package reports
 import (
 	"context"
 	"sort"
+	"strings"
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
@@ -48,6 +49,7 @@ var (
 	_ rest.Scoper                   = &Storage{}
 	_ rest.Storage                  = &Storage{}
 	_ rest.Creater                  = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 )
 
 func NewStorage(kc client.Client) *Storage {
@@ -62,6 +64,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return false
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(reportsapi.ResourceKindCVEReport)
 }
 
 func (r *Storage) New() runtime.Object {

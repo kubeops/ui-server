@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metainternalversion "k8s.io/apimachinery/pkg/apis/meta/internalversion"
@@ -43,6 +44,7 @@ var (
 	_ rest.Storage                  = &Storage{}
 	_ rest.Getter                   = &Storage{}
 	_ rest.Lister                   = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 )
 
 func NewStorage() *Storage {
@@ -60,6 +62,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return false
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(rsapi.ResourceKindResourceDescriptor)
 }
 
 // Getter

@@ -19,6 +19,7 @@ package podview
 import (
 	"context"
 	"errors"
+	"strings"
 
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -52,6 +53,7 @@ var (
 	_ rest.Storage                  = &Storage{}
 	_ rest.Lister                   = &Storage{}
 	_ rest.Getter                   = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 )
 
 func NewStorage(kc client.Client, a authorizer.Authorizer, builder *promclient.ClientBuilder) *Storage {
@@ -77,6 +79,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return true
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(rscoreapi.ResourceKindPodView)
 }
 
 func (r *Storage) New() runtime.Object {

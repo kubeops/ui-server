@@ -54,6 +54,7 @@ var (
 	_ rest.Storage                  = &Storage{}
 	_ rest.Lister                   = &Storage{}
 	_ rest.Getter                   = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 
 	gr = schema.GroupResource{
 		Group:    rscoreapi.SchemeGroupVersion.Group,
@@ -75,6 +76,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return false
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(rscoreapi.ResourceKindProject)
 }
 
 func (r *Storage) New() runtime.Object {

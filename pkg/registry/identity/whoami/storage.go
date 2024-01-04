@@ -18,6 +18,7 @@ package whoami
 
 import (
 	"context"
+	"strings"
 
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
 
@@ -36,6 +37,7 @@ var (
 	_ rest.Scoper                   = &Storage{}
 	_ rest.Storage                  = &Storage{}
 	_ rest.Creater                  = &Storage{}
+	_ rest.SingularNameProvider     = &Storage{}
 )
 
 func NewStorage() *Storage {
@@ -48,6 +50,10 @@ func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKin
 
 func (r *Storage) NamespaceScoped() bool {
 	return false
+}
+
+func (r *Storage) GetSingularName() string {
+	return strings.ToLower(identityv1alpha1.ResourceKindWhoAmI)
 }
 
 func (r *Storage) New() runtime.Object {
