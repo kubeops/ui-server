@@ -85,6 +85,7 @@ func ListResourceLayouts() error {
 		}
 		items = append(items, *layout)
 	}
+	fmt.Println("Len:", len(items))
 	return nil
 }
 
