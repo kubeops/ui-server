@@ -46,7 +46,7 @@ require (
 	kmodules.xyz/custom-resources v0.29.0
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
-	kmodules.xyz/resource-metadata v0.18.2-0.20240104094612-5669bfe26200
+	kmodules.xyz/resource-metadata v0.18.2-0.20240105072614-e92a8a48d400
 	kmodules.xyz/resource-metrics v0.29.0
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/scanner v0.0.16
