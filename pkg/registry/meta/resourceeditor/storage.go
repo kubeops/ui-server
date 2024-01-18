@@ -29,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
+	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/resource-metadata/apis/meta"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
@@ -81,7 +82,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	if err != nil {
 		return nil, kerr.NewNotFound(schema.GroupResource{Group: meta.GroupName, Resource: uiapi.ResourceKindResourceEditor}, name)
 	}
-	return obj, err
+	return complete(obj.DeepCopy()), err
 }
 
 // Lister
@@ -115,10 +116,29 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		if options.LabelSelector != nil && !options.LabelSelector.Matches(labels.Set(obj.GetLabels())) {
 			continue
 		}
-		items = append(items, obj)
+		items = append(items, *complete(obj.DeepCopy()))
 	}
 
 	return &uiapi.ResourceEditorList{Items: items}, nil
+}
+
+var podNamespace = meta_util.PodNamespace()
+
+func complete(obj *uiapi.ResourceEditor) *uiapi.ResourceEditor {
+	if obj.Spec.UI == nil {
+		return obj
+	}
+	if obj.Spec.UI.Editor != nil {
+		if obj.Spec.UI.Editor.SourceRef.Namespace == "" {
+			obj.Spec.UI.Editor.SourceRef.Namespace = podNamespace
+		}
+	}
+	if obj.Spec.UI.Options != nil {
+		if obj.Spec.UI.Options.SourceRef.Namespace == "" {
+			obj.Spec.UI.Options.SourceRef.Namespace = podNamespace
+		}
+	}
+	return obj
 }
 
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
