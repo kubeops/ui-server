@@ -72,7 +72,7 @@ func (r *Storage) GetSingularName() string {
 
 // Getter
 func (r *Storage) New() runtime.Object {
-	return &uiapi.ResourceEditor{}
+	return &rsapi.ResourceEditor{}
 }
 
 func (r *Storage) Destroy() {}
@@ -87,7 +87,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 
 // Lister
 func (r *Storage) NewList() runtime.Object {
-	return &uiapi.ResourceEditorList{}
+	return &rsapi.ResourceEditorList{}
 }
 
 func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOptions) (runtime.Object, error) {
@@ -111,7 +111,7 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		objs = objs[:options.Limit]
 	}
 
-	items := make([]uiapi.ResourceEditor, 0, len(objs))
+	items := make([]rsapi.ResourceEditor, 0, len(objs))
 	for _, obj := range objs {
 		if options.LabelSelector != nil && !options.LabelSelector.Matches(labels.Set(obj.GetLabels())) {
 			continue
@@ -119,12 +119,12 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		items = append(items, *complete(obj.DeepCopy()))
 	}
 
-	return &uiapi.ResourceEditorList{Items: items}, nil
+	return &rsapi.ResourceEditorList{Items: items}, nil
 }
 
 var podNamespace = meta_util.PodNamespace()
 
-func complete(obj *uiapi.ResourceEditor) *uiapi.ResourceEditor {
+func complete(obj *rsapi.ResourceEditor) *rsapi.ResourceEditor {
 	if obj.Spec.UI == nil {
 		return obj
 	}

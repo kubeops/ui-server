@@ -118,7 +118,6 @@ func init() {
 	policyinstall.Install(Scheme)
 	costinstall.Install(Scheme)
 	rsinstall.Install(Scheme)
-	Scheme.AddKnownTypes(rsapi.SchemeGroupVersion, &uiapi.ResourceEditorList{}, &uiapi.ResourceEditor{})
 	uiinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
 	mgmtinstall.Install(Scheme)
