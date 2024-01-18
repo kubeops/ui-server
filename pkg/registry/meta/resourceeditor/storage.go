@@ -82,7 +82,10 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	if err != nil {
 		return nil, kerr.NewNotFound(schema.GroupResource{Group: meta.GroupName, Resource: uiapi.ResourceKindResourceEditor}, name)
 	}
-	return complete(obj.DeepCopy()), err
+	return complete(&rsapi.ResourceEditor{
+		ObjectMeta: obj.ObjectMeta,
+		Spec:       *obj.Spec.DeepCopy(),
+	}), err
 }
 
 // Lister
@@ -116,7 +119,10 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		if options.LabelSelector != nil && !options.LabelSelector.Matches(labels.Set(obj.GetLabels())) {
 			continue
 		}
-		items = append(items, *complete(obj.DeepCopy()))
+		items = append(items, *complete(&rsapi.ResourceEditor{
+			ObjectMeta: obj.ObjectMeta,
+			Spec:       *obj.Spec.DeepCopy(),
+		}))
 	}
 
 	return &rsapi.ResourceEditorList{Items: items}, nil
