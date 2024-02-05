@@ -52,6 +52,8 @@ type DashboardGroupRequest struct {
 	TimeRange *TimeRange `json:"timeRange,omitempty"`
 	// +optional
 	EmbeddedLink bool `json:"embeddedLink,omitempty"`
+	// +optional
+	App *kmapi.ObjectReference `json:"app,omitempty"`
 }
 
 type TimeRange struct {

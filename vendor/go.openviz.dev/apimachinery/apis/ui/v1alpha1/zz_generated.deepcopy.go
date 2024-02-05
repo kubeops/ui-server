@@ -76,6 +76,11 @@ func (in *DashboardGroupRequest) DeepCopyInto(out *DashboardGroupRequest) {
 		*out = new(TimeRange)
 		**out = **in
 	}
+	if in.App != nil {
+		in, out := &in.App, &out.App
+		*out = new(v1.ObjectReference)
+		**out = **in
+	}
 	return
 }
 

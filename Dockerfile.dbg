@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ghcr.io/appscode/dlv:1.20.1
+FROM ghcr.io/appscode/dlv:1.22.0
 
 FROM {ARG_FROM}
 

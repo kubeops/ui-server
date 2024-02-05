@@ -35,7 +35,7 @@ type Maintainer struct {
 // Validate checks valid data and sanitizes string characters.
 func (m *Maintainer) Validate() error {
 	if m == nil {
-		return ValidationError("maintainer cannot be an empty list")
+		return ValidationError("maintainers must not contain empty or null nodes")
 	}
 	m.Name = sanitizeString(m.Name)
 	m.Email = sanitizeString(m.Email)
@@ -128,10 +128,19 @@ func (md *Metadata) Validate() error {
 
 	// Aliases need to be validated here to make sure that the alias name does
 	// not contain any illegal characters.
+	dependencies := map[string]*Dependency{}
 	for _, dependency := range md.Dependencies {
 		if err := dependency.Validate(); err != nil {
 			return err
 		}
+		key := dependency.Name
+		if dependency.Alias != "" {
+			key = dependency.Alias
+		}
+		if dependencies[key] != nil {
+			return ValidationErrorf("more than one dependency with name or alias %q", key)
+		}
+		dependencies[key] = dependency
 	}
 	return nil
 }
