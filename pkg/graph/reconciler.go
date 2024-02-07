@@ -18,7 +18,9 @@ package graph
 
 import (
 	"context"
+	"time"
 
+	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -35,6 +37,8 @@ type Reconciler struct {
 	R      kmapi.ResourceID
 	Scheme *runtime.Scheme
 }
+
+var gvkService = core.SchemeGroupVersion.WithKind("Service")
 
 func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
 	log := logger.FromContext(ctx).WithValues("name", req.NamespacedName.Name)
@@ -60,6 +64,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 			// requeue (we'll need to wait for a new notification), and we can get them
 			// on deleted requests.
 			return reconcile.Result{}, client.IgnoreNotFound(err)
+		} else if gvk == gvkService && result[kmapi.EdgeLabelExposedBy].Len() == 0 {
+			return reconcile.Result{RequeueAfter: 2 * time.Minute}, nil
 		} else {
 			objGraph.Update(kmapi.NewObjectID(&obj).OID(), result)
 		}

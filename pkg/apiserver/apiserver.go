@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	scannerreports "kubeops.dev/scanner/apis/reports"
 	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
@@ -98,6 +99,7 @@ import (
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
@@ -200,6 +202,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	setupLog := log.Log.WithName("setup")
 
 	cfg := c.ExtraConfig.ClientConfig
+	syncPeriod := 1 * time.Hour
 	mgr, err := manager.New(cfg, manager.Options{
 		Scheme:                 Scheme,
 		Metrics:                metricsserver.Options{BindAddress: ""},
@@ -210,7 +213,9 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		//	&core.Pod{},
 		//},
 		NewClient: cu.NewClient,
-		// Default SyncPeriod is 10 Hours
+		Cache: cache.Options{
+			SyncPeriod: &syncPeriod, // Default SyncPeriod is 10 Hours
+		},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("unable to start manager, reason: %v", err)
