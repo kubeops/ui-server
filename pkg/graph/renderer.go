@@ -290,8 +290,9 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		var objs []unstructured.Unstructured
 
 		// handle FalcoEvent list call
-		if vars[sharedapi.GraphQueryVarTargetGroup] == falco.GroupName && vars[sharedapi.GraphQueryVarTargetKind] == falcov1alpha1.ResourceKindFalcoEvent {
-			objs, err = handleFalcoEventListCall(kc, block, srcID)
+		if vars[sharedapi.GraphQueryVarTargetGroup] == falco.GroupName &&
+			vars[sharedapi.GraphQueryVarTargetKind] == falcov1alpha1.ResourceKindFalcoEvent {
+			objs, err = listFalcoEvents(kc, block, srcID)
 			if err != nil {
 				return &out, err
 			}
@@ -348,34 +349,26 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 	return &out, nil
 }
 
-func handleFalcoEventListCall(kc client.Client, block *rsapi.PageBlockLayout, srcID *kmapi.ObjectID) ([]unstructured.Unstructured, error) {
-	var objs []unstructured.Unstructured
-
+func listFalcoEvents(kc client.Client, block *rsapi.PageBlockLayout, srcID *kmapi.ObjectID) ([]unstructured.Unstructured, error) {
+	var refs []kmapi.ObjectReference
+	var err error
 	if srcID.Kind == "Pod" {
-		selector := labels.SelectorFromSet(map[string]string{
-			"k8s.pod.name": srcID.Name,
-			"k8s.ns.name":  srcID.Namespace,
-		})
-
-		var list unstructured.UnstructuredList
-		list.SetGroupVersionKind(falcov1alpha1.SchemeGroupVersion.WithKind(falcov1alpha1.ResourceKindFalcoEvent))
-
-		err := kc.List(context.TODO(), &list, &client.ListOptions{LabelSelector: selector})
-		if meta.IsNoMatchError(err) {
-			return nil, err
-		} else if err == nil {
-			objs = append(objs, list.Items...)
+		refs = []kmapi.ObjectReference{
+			{
+				Name:      srcID.Name,
+				Namespace: srcID.Namespace,
+			},
 		}
-		return objs, nil
+	} else {
+		// list connected pods with this src
+		refs, err = listPods(block, srcID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	// list connected pods with this src
-	pods, err := listPods(block, srcID)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, pod := range pods {
+	var events []unstructured.Unstructured
+	for _, pod := range refs {
 		selector := labels.SelectorFromSet(map[string]string{
 			"k8s.pod.name": pod.Name,
 			"k8s.ns.name":  pod.Namespace,
@@ -383,16 +376,14 @@ func handleFalcoEventListCall(kc client.Client, block *rsapi.PageBlockLayout, sr
 
 		var list unstructured.UnstructuredList
 		list.SetGroupVersionKind(falcov1alpha1.SchemeGroupVersion.WithKind(falcov1alpha1.ResourceKindFalcoEvent))
-
 		err = kc.List(context.TODO(), &list, &client.ListOptions{LabelSelector: selector})
 		if meta.IsNoMatchError(err) {
 			return nil, err
 		} else if err == nil {
-			objs = append(objs, list.Items...)
+			events = append(events, list.Items...)
 		}
 	}
-
-	return objs, nil
+	return events, nil
 }
 
 func listPods(block *rsapi.PageBlockLayout, srcID *kmapi.ObjectID) ([]kmapi.ObjectReference, error) {
