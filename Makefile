@@ -534,7 +534,7 @@ clean:
 
 .PHONY: run
 run:
-	go run -mod=vendor ./cmd/ui-server run \
+	go run -mod=vendor ./cmd/kube-ui-server run \
 		--v=3 \
 		--secure-port=8443 \
 		--kubeconfig=$(KUBECONFIG) \

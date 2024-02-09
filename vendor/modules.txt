@@ -1958,7 +1958,7 @@ kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.29.0
 ## explicit; go 1.21.5
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.18.2-0.20240207094312-483c108adb08
+# kmodules.xyz/resource-metadata v0.18.2-0.20240209092240-01f2d51a9f27
 ## explicit; go 1.21.5
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -1999,6 +1999,10 @@ kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1
 # kmodules.xyz/sets v0.29.0
 ## explicit; go 1.21.5
 kmodules.xyz/sets
+# kubeops.dev/falco-ui-server v0.0.3
+## explicit; go 1.21.5
+kubeops.dev/falco-ui-server/apis/falco
+kubeops.dev/falco-ui-server/apis/falco/v1alpha1
 # kubeops.dev/scanner v0.0.17
 ## explicit; go 1.21.5
 kubeops.dev/scanner/apis/reports
