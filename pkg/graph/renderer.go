@@ -22,12 +22,15 @@ import (
 	"fmt"
 	"strings"
 
+	falco "kubeops.dev/falco-ui-server/apis/falco"
+	falcov1alpha1 "kubeops.dev/falco-ui-server/apis/falco/v1alpha1"
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/pkg/errors"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/sets"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -284,9 +287,19 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 	}
 
 	if block.Query.Type == sharedapi.GraphQLQuery {
-		objs, err := ExecGraphQLQuery(kc, q, vars)
-		if err != nil {
-			return &out, err
+		var objs []unstructured.Unstructured
+
+		// handle FalcoEvent list call
+		if vars[sharedapi.GraphQueryVarTargetGroup] == falco.GroupName && vars[sharedapi.GraphQueryVarTargetKind] == falcov1alpha1.ResourceKindFalcoEvent {
+			objs, err = handleFalcoEventListCall(kc, block, srcID)
+			if err != nil {
+				return &out, err
+			}
+		} else {
+			objs, err = ExecGraphQLQuery(kc, q, vars)
+			if err != nil {
+				return &out, err
+			}
 		}
 
 		if convertToTable {
@@ -333,4 +346,68 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		}
 	}
 	return &out, nil
+}
+
+func handleFalcoEventListCall(kc client.Client, block *rsapi.PageBlockLayout, srcID *kmapi.ObjectID) ([]unstructured.Unstructured, error) {
+	var objs []unstructured.Unstructured
+
+	if srcID.Kind == "Pod" {
+		selector := labels.SelectorFromSet(map[string]string{
+			"k8s.pod.name": srcID.Name,
+			"k8s.ns.name":  srcID.Namespace,
+		})
+
+		var list unstructured.UnstructuredList
+		list.SetGroupVersionKind(falcov1alpha1.SchemeGroupVersion.WithKind(falcov1alpha1.ResourceKindFalcoEvent))
+
+		err := kc.List(context.TODO(), &list, &client.ListOptions{LabelSelector: selector})
+		if meta.IsNoMatchError(err) {
+			return nil, err
+		} else if err == nil {
+			objs = append(objs, list.Items...)
+		}
+		return objs, nil
+	}
+
+	// list connected pods with this src
+	pods, err := listPods(block, srcID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, pod := range pods {
+		selector := labels.SelectorFromSet(map[string]string{
+			"k8s.pod.name": pod.Name,
+			"k8s.ns.name":  pod.Namespace,
+		})
+
+		var list unstructured.UnstructuredList
+		list.SetGroupVersionKind(falcov1alpha1.SchemeGroupVersion.WithKind(falcov1alpha1.ResourceKindFalcoEvent))
+
+		err = kc.List(context.TODO(), &list, &client.ListOptions{LabelSelector: selector})
+		if meta.IsNoMatchError(err) {
+			return nil, err
+		} else if err == nil {
+			objs = append(objs, list.Items...)
+		}
+	}
+
+	return objs, nil
+}
+
+func listPods(block *rsapi.PageBlockLayout, srcID *kmapi.ObjectID) ([]kmapi.ObjectReference, error) {
+	block.Query.ByLabel = kmapi.EdgeLabelOffshoot
+	podQ, podVars, err := block.GraphQuery(srcID.OID())
+	if err != nil {
+		return nil, err
+	}
+
+	podVars[sharedapi.GraphQueryVarTargetGroup] = ""
+	podVars[sharedapi.GraphQueryVarTargetKind] = "Pod"
+	pods, err := execRawGraphQLQuery(podQ, podVars)
+	if err != nil {
+		return nil, err
+	}
+
+	return pods, nil
 }

@@ -22,6 +22,7 @@ import (
 	"os"
 	"time"
 
+	falco "kubeops.dev/falco-ui-server/apis/falco/v1alpha1"
 	scannerreports "kubeops.dev/scanner/apis/reports"
 	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerscheme "kubeops.dev/scanner/client/clientset/versioned/scheme"
@@ -131,6 +132,7 @@ func init() {
 	utilruntime.Must(openvizapi.AddToScheme(Scheme))
 	utilruntime.Must(fluxsrc.AddToScheme(Scheme))
 	utilruntime.Must(monitoringv1.AddToScheme(Scheme))
+	utilruntime.Must(falco.AddToScheme(Scheme))
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this

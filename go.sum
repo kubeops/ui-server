@@ -1507,8 +1507,9 @@ github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38/go.mod h1:kpwsk12EmLe
 github.com/google/pprof v0.0.0-20210601050228-01bbb1931b22/go.mod h1:kpwsk12EmLew5upagYY7GY0pfYCcupk39gWOCRROcvE=
 github.com/google/pprof v0.0.0-20210609004039-a478d1d731e9/go.mod h1:kpwsk12EmLew5upagYY7GY0pfYCcupk39gWOCRROcvE=
 github.com/google/pprof v0.0.0-20210720184732-4bb14d4b1be1/go.mod h1:kpwsk12EmLew5upagYY7GY0pfYCcupk39gWOCRROcvE=
-github.com/google/pprof v0.0.0-20220318212150-b2ab0324ddda h1:KdHPvlgeNEDs8rae032MqFG8LVwcSEivcCjNdVOXRmg=
 github.com/google/pprof v0.0.0-20220318212150-b2ab0324ddda/go.mod h1:KgnwoLYCZ8IQu3XUZ8Nc/bM9CCZFOyjUNOSygVozoDg=
+github.com/google/pprof v0.0.0-20220608213341-c488b8fa1db3 h1:mpL/HvfIgIejhVwAfxBQkwEjlhP5o0O9RAeTAjpwzxc=
+github.com/google/pprof v0.0.0-20220608213341-c488b8fa1db3/go.mod h1:gSuNB+gJaOiQKLEZ+q+PK9Mq3SOzhRcw2GsGS/FhYDk=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
 github.com/google/s2a-go v0.1.0/go.mod h1:OJpEgntRZo8ugHpF9hkoLJbS5dSI20XZeXJ9JVywLlM=
 github.com/google/s2a-go v0.1.3/go.mod h1:Ej+mSEMGRnqRzjc7VtF+jdBwYG5fuJfiZ8ELkjEwM0A=
@@ -3477,12 +3478,14 @@ kmodules.xyz/monitoring-agent-api v0.29.0 h1:gpFl6OZrlMLb/ySMHdREI9EwGtnJ91oZBn9
 kmodules.xyz/monitoring-agent-api v0.29.0/go.mod h1:iNbvaMTgVFOI5q2LJtGK91j4Dmjv4ZRiRdasGmWLKQI=
 kmodules.xyz/offshoot-api v0.29.0 h1:GHLhxxT9jU1N8+FvOCCeJNyU5g0duYS46UGrs6AHNLY=
 kmodules.xyz/offshoot-api v0.29.0/go.mod h1:5NxhBblXoDHWStx9HCDJR2KFTwYjEZ7i1Id3jelIunw=
-kmodules.xyz/resource-metadata v0.18.2-0.20240207094312-483c108adb08 h1:AMiIDmXYnhj/hRb8GH80mltaRPYBgIYJTeiXvhuwYhU=
-kmodules.xyz/resource-metadata v0.18.2-0.20240207094312-483c108adb08/go.mod h1:I9HeSgkshwzwUy0IDhp4yIfRFbFQJ21syeSf4NsB04o=
+kmodules.xyz/resource-metadata v0.18.2-0.20240209092240-01f2d51a9f27 h1:MVAZE8rSaNNTDsnLCR/Pc3BCjeP92iNJFvl3gY3Gke4=
+kmodules.xyz/resource-metadata v0.18.2-0.20240209092240-01f2d51a9f27/go.mod h1:I9HeSgkshwzwUy0IDhp4yIfRFbFQJ21syeSf4NsB04o=
 kmodules.xyz/resource-metrics v0.29.0 h1:YBSVCbGdAugUqZK4igHu3fPhxvpYar4xejE6njryNM4=
 kmodules.xyz/resource-metrics v0.29.0/go.mod h1:OuG/QobZ7o8GFHl/u3lqaUR0fDZDegxtV8Vdh+MNBD4=
 kmodules.xyz/sets v0.29.0 h1:ZX/qOECzUob95JhhRtngJElHSlJ1UNNdwK4hTEy+nl0=
 kmodules.xyz/sets v0.29.0/go.mod h1:1oi3fR9c3SWywEjBLlHC8BBMCSz0b1/W+EofKmBoj3g=
+kubeops.dev/falco-ui-server v0.0.3 h1:QMSxPvbO/42o3gxzNNHg5Q6MdR0PNEHXo6c9T3ARCOA=
+kubeops.dev/falco-ui-server v0.0.3/go.mod h1:yZJGDnwVkT3Fu7nzn2znsY8/37zn6bzATfze9F90+54=
 kubeops.dev/scanner v0.0.17 h1:zaIggzl52gYDQAgtBJ+3hzGGkNJuVSwh0R4O7ZS3lSo=
 kubeops.dev/scanner v0.0.17/go.mod h1:tNs3FF3jeJ0VoOx8beePIfs3VxThweyu11YK0yc6OhE=
 kubepack.dev/lib-helm v0.29.3 h1:uVke42uI5ClhqRSD0kzgcsUXtXuSzuJ/wwpZ4tdclNw=
