@@ -127,7 +127,7 @@ func getGVK(obj map[string]interface{}) schema.GroupVersionKind {
 
 func extractReferencedObject(opsObj map[string]interface{}, refDbPath ...string) (map[string]interface{}, error) {
 	if len(refDbPath) == 0 {
-		refDbPath = []string{"spec", "databaseRef", "referencedDB"}
+		refDbPath = []string{"spec", "databaseRef"}
 	}
 	dbObj, found, _ := unstructured.NestedMap(opsObj, refDbPath...)
 	if !found {
