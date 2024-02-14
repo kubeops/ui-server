@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 
-	fluxcd "github.com/fluxcd/helm-controller/api/v2beta1"
+	fluxhelm "github.com/fluxcd/helm-controller/api/v2beta2"
 	"github.com/go-logr/logr"
 	"gomodules.xyz/pointer"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -242,22 +242,22 @@ func (r *frReconciler) resetFeatureStatus() {
 	r.feature.Status = uiapi.FeatureStatus{}
 }
 
-func (r *frReconciler) getHelmRelease(ctx context.Context) (fluxcd.HelmRelease, error) {
+func (r *frReconciler) getHelmRelease(ctx context.Context) (fluxhelm.HelmRelease, error) {
 	selector := labels.SelectorFromSet(map[string]string{
 		meta_util.ComponentLabelKey: r.feature.Name,
 		meta_util.PartOfLabelKey:    r.feature.Spec.FeatureSet,
 	})
 
-	releases := &fluxcd.HelmReleaseList{}
+	releases := &fluxhelm.HelmReleaseList{}
 	err := r.client.List(ctx, releases, &client.ListOptions{LabelSelector: selector})
 	if err != nil {
-		return fluxcd.HelmRelease{}, err
+		return fluxhelm.HelmRelease{}, err
 	}
 	if len(releases.Items) > 0 {
 		return releases.Items[0], nil
 	}
-	return fluxcd.HelmRelease{}, kerr.NewNotFound(schema.GroupResource{
-		Group:    fluxcd.GroupVersion.Group,
+	return fluxhelm.HelmRelease{}, kerr.NewNotFound(schema.GroupResource{
+		Group:    fluxhelm.GroupVersion.Group,
 		Resource: "helmreleases",
 	}, r.feature.Name)
 }
@@ -458,7 +458,7 @@ func (r *FeatureReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			builder.WithPredicates(predicate.GenerationChangedPredicate{}),
 		).
 		Watches(
-			&fluxcd.HelmRelease{},
+			&fluxhelm.HelmRelease{},
 			handler.EnqueueRequestsFromMapFunc(r.findFeatureForHelmRelease),
 		).
 		Complete(r)

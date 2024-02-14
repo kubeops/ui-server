@@ -32,7 +32,7 @@ import (
 	featurecontroller "kubeops.dev/ui-server/pkg/controllers/feature"
 	"kubeops.dev/ui-server/pkg/metricshandler"
 
-	fluxcd "github.com/fluxcd/helm-controller/api/v2beta1"
+	fluxhelm "github.com/fluxcd/helm-controller/api/v2beta2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
@@ -237,7 +237,7 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 	}
 
 	utilruntime.Must(ui.AddToScheme(server.Manager.GetScheme()))
-	utilruntime.Must(fluxcd.AddToScheme(server.Manager.GetScheme()))
+	utilruntime.Must(fluxhelm.AddToScheme(server.Manager.GetScheme()))
 	fr := &featurecontroller.FeatureReconciler{
 		Client:    server.Manager.GetClient(),
 		Scheme:    server.Manager.GetScheme(),

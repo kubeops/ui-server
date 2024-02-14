@@ -21,7 +21,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
 	github.com/zeebo/xxh3 v1.0.2
-	go.bytebuilders.dev/license-verifier v0.13.4
+	go.bytebuilders.dev/license-verifier v0.14.0
 	go.openviz.dev/apimachinery v0.0.7
 	golang.org/x/sync v0.5.0
 	gomodules.xyz/jsonpath v0.0.2
@@ -42,7 +42,7 @@ require (
 	k8s.io/kube-state-metrics/v2 v2.7.0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.0
-	kmodules.xyz/client-go v0.29.6
+	kmodules.xyz/client-go v0.29.7
 	kmodules.xyz/custom-resources v0.29.1
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
@@ -71,7 +71,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
-	github.com/PuerkitoBio/purell v1.2.0 // indirect
+	github.com/PuerkitoBio/purell v1.2.1 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df // indirect
@@ -236,7 +236,7 @@ require (
 
 replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8
 
-replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.16.1-0.20240104120228-ef547cbd1b75
+replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.17.2-0.20240213085617-b6aac9684c00
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.6
 

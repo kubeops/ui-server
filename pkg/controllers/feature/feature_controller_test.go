@@ -20,7 +20,7 @@ import (
 	"context"
 	"testing"
 
-	fluxcd "github.com/fluxcd/helm-controller/api/v2beta1"
+	fluxhelm "github.com/fluxcd/helm-controller/api/v2beta2"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"gomodules.xyz/pointer"
@@ -51,7 +51,7 @@ func TestFeatureEnableStatus(t *testing.T) {
 	testCases := map[string]struct {
 		feature               *uiapi.Feature
 		workload              *apps.Deployment
-		helmRelease           *fluxcd.HelmRelease
+		helmRelease           *fluxhelm.HelmRelease
 		expectedEnabledStatus bool
 		errorExpected         bool
 	}{
@@ -153,7 +153,7 @@ func TestFeatureReadyStatus(t *testing.T) {
 	testCases := map[string]struct {
 		feature             *uiapi.Feature
 		workload            *apps.Deployment
-		helmRelease         *fluxcd.HelmRelease
+		helmRelease         *fluxhelm.HelmRelease
 		expectedReadyStatus bool
 		errorExpected       bool
 	}{
@@ -221,7 +221,7 @@ func TestFeatureReadyStatus(t *testing.T) {
 				}
 			}),
 			workload: sampleDeployment(),
-			helmRelease: sampleHelmRelease(func(in *fluxcd.HelmRelease) {
+			helmRelease: sampleHelmRelease(func(in *fluxhelm.HelmRelease) {
 				in.Status.Conditions = []metav1.Condition{
 					{
 						Type:   "Ready",
@@ -245,7 +245,7 @@ func TestFeatureReadyStatus(t *testing.T) {
 				}
 			}),
 			workload: sampleDeployment(),
-			helmRelease: sampleHelmRelease(func(in *fluxcd.HelmRelease) {
+			helmRelease: sampleHelmRelease(func(in *fluxhelm.HelmRelease) {
 				in.Status.Conditions = []metav1.Condition{
 					{
 						Type:   "Ready",
@@ -305,7 +305,7 @@ func TestFeatureManagedStatus(t *testing.T) {
 	testCases := map[string]struct {
 		feature               *uiapi.Feature
 		workload              *apps.Deployment
-		helmRelease           *fluxcd.HelmRelease
+		helmRelease           *fluxhelm.HelmRelease
 		expectedManagedStatus bool
 		errorExpected         bool
 	}{
@@ -536,7 +536,7 @@ func TestFeatureSetGetDisabledWhenRequiredFeatureGetDeleted(t *testing.T) {
 func getFakeClient(t *testing.T, initObjs ...client.Object) client.WithWatch {
 	scheme := runtime.NewScheme()
 	assert.Nil(t, uiapi.AddToScheme(scheme))
-	assert.Nil(t, fluxcd.AddToScheme(scheme))
+	assert.Nil(t, fluxhelm.AddToScheme(scheme))
 	assert.Nil(t, apps.AddToScheme(scheme))
 
 	return fake.NewClientBuilder().WithScheme(scheme).WithObjects(initObjs...).Build()
@@ -579,8 +579,8 @@ func sampleFeatureSet(name string, transformFuncs ...func(in *uiapi.FeatureSet))
 	return fs
 }
 
-func sampleHelmRelease(transformFuncs ...func(in *fluxcd.HelmRelease)) *fluxcd.HelmRelease {
-	hr := &fluxcd.HelmRelease{
+func sampleHelmRelease(transformFuncs ...func(in *fluxhelm.HelmRelease)) *fluxhelm.HelmRelease {
+	hr := &fluxhelm.HelmRelease{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "sample-helm-release",
 			Namespace: "kubeops",
@@ -589,7 +589,7 @@ func sampleHelmRelease(transformFuncs ...func(in *fluxcd.HelmRelease)) *fluxcd.H
 				meta_util.PartOfLabelKey:    testFeatureSetName,
 			},
 		},
-		Spec: fluxcd.HelmReleaseSpec{},
+		Spec: fluxhelm.HelmReleaseSpec{},
 	}
 
 	for _, f := range transformFuncs {
