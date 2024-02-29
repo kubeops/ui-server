@@ -102,6 +102,11 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 
 	in.Response = resp
+
+	// resp sorted by constraints' names.
+	sort.Slice(resp.Constraints, func(i, j int) bool {
+		return in.Response.Constraints[i].Name < in.Response.Constraints[j].Name
+	})
 	return in, nil
 }
 
