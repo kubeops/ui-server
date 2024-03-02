@@ -669,8 +669,8 @@ github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
 ## explicit
 github.com/pmezard/go-difflib/difflib
-# github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.70.0
-## explicit; go 1.17
+# github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.71.2
+## explicit; go 1.21
 github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring
 github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1
 # github.com/prometheus/client_golang v1.18.0
@@ -1957,7 +1957,8 @@ kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.29.0
 ## explicit; go 1.21.5
 kmodules.xyz/offshoot-api/api/v1
-# kmodules.xyz/resource-metadata v0.18.2-0.20240228114218-160bf248cede
+kmodules.xyz/offshoot-api/api/v2
+# kmodules.xyz/resource-metadata v0.18.2-0.20240302130512-2f5a870e2648
 ## explicit; go 1.21.5
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -1984,7 +1985,7 @@ kmodules.xyz/resource-metadata/pkg/layouts
 kmodules.xyz/resource-metadata/pkg/tableconvertor
 kmodules.xyz/resource-metadata/pkg/tableconvertor/lib
 kmodules.xyz/resource-metadata/pkg/tableconvertor/printers
-# kmodules.xyz/resource-metrics v0.29.0
+# kmodules.xyz/resource-metrics v0.29.1
 ## explicit; go 1.21.5
 kmodules.xyz/resource-metrics
 kmodules.xyz/resource-metrics/api
@@ -2022,7 +2023,7 @@ sigs.k8s.io/apiserver-network-proxy/konnectivity-client/proto/client
 # sigs.k8s.io/cli-utils v0.34.0
 ## explicit; go 1.18
 sigs.k8s.io/cli-utils/pkg/kstatus/status
-# sigs.k8s.io/controller-runtime v0.17.0 => github.com/kmodules/controller-runtime v0.17.2-0.20240213085617-b6aac9684c00
+# sigs.k8s.io/controller-runtime v0.17.2 => github.com/kmodules/controller-runtime v0.17.2-0.20240213085617-b6aac9684c00
 ## explicit; go 1.21
 sigs.k8s.io/controller-runtime
 sigs.k8s.io/controller-runtime/pkg/builder

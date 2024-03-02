@@ -1971,8 +1971,8 @@ github.com/posener/complete v1.1.1/go.mod h1:em0nMJCgc9GFtwrmVmEMR/ZL6WyhyjMBndr
 github.com/posener/complete v1.2.3/go.mod h1:WZIdtGGp+qx0sLrYKtIRAruyNpv6hFCicSgv7Sy7s/s=
 github.com/pquerna/cachecontrol v0.1.0/go.mod h1:NrUG3Z7Rdu85UNR3vm7SOsl1nFIeSiQnrHV5K9mBcUI=
 github.com/prashantv/gostub v1.1.0/go.mod h1:A5zLQHz7ieHGG7is6LLXLz7I8+3LZzsrV0P1IAHhP5U=
-github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.70.0 h1:CFTvpkpVP4EXXZuaZuxpikAoma8xVha/IZKMDc9lw+Y=
-github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.70.0/go.mod h1:npfc20mPOAu7ViOVnATVMbI7PoXvW99EzgJVqkAomIQ=
+github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.71.2 h1:HZdPRm0ApWPg7F4sHgbqWkL+ddWfpTZsopm5HM/2g4o=
+github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.71.2/go.mod h1:3RiUkFmR9kmPZi9r/8a5jw0a9yg+LMmr7qa0wjqvSiI=
 github.com/prometheus/alertmanager v0.24.0/go.mod h1:r6fy/D7FRuZh5YbnX6J3MBY0eI4Pb5yPYS7/bPSXXqI=
 github.com/prometheus/client_golang v0.0.0-20180209125602-c332b6f63c06/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
@@ -3478,10 +3478,10 @@ kmodules.xyz/monitoring-agent-api v0.29.0 h1:gpFl6OZrlMLb/ySMHdREI9EwGtnJ91oZBn9
 kmodules.xyz/monitoring-agent-api v0.29.0/go.mod h1:iNbvaMTgVFOI5q2LJtGK91j4Dmjv4ZRiRdasGmWLKQI=
 kmodules.xyz/offshoot-api v0.29.0 h1:GHLhxxT9jU1N8+FvOCCeJNyU5g0duYS46UGrs6AHNLY=
 kmodules.xyz/offshoot-api v0.29.0/go.mod h1:5NxhBblXoDHWStx9HCDJR2KFTwYjEZ7i1Id3jelIunw=
-kmodules.xyz/resource-metadata v0.18.2-0.20240228114218-160bf248cede h1:n82hVzcTHypGCOjJXE7epIbJJextF7EI6gioM4J/zkI=
-kmodules.xyz/resource-metadata v0.18.2-0.20240228114218-160bf248cede/go.mod h1:nWzNouxIj4fvirSS1mkWO9sm1GHCQLcxJL+IzMCKQgE=
-kmodules.xyz/resource-metrics v0.29.0 h1:YBSVCbGdAugUqZK4igHu3fPhxvpYar4xejE6njryNM4=
-kmodules.xyz/resource-metrics v0.29.0/go.mod h1:OuG/QobZ7o8GFHl/u3lqaUR0fDZDegxtV8Vdh+MNBD4=
+kmodules.xyz/resource-metadata v0.18.2-0.20240302130512-2f5a870e2648 h1:apCWku1tjn5sYmOftoZzboglYvguxHLX5S+EoOPqPE0=
+kmodules.xyz/resource-metadata v0.18.2-0.20240302130512-2f5a870e2648/go.mod h1:/PzX1PGdN2IC7u4OMlZq11wlLHEePD+mynw6hwOozPk=
+kmodules.xyz/resource-metrics v0.29.1 h1:gP4SNosdDGFImpne52mnQtHacmnllYkTMcYL//p/ltM=
+kmodules.xyz/resource-metrics v0.29.1/go.mod h1:OuG/QobZ7o8GFHl/u3lqaUR0fDZDegxtV8Vdh+MNBD4=
 kmodules.xyz/sets v0.29.0 h1:ZX/qOECzUob95JhhRtngJElHSlJ1UNNdwK4hTEy+nl0=
 kmodules.xyz/sets v0.29.0/go.mod h1:1oi3fR9c3SWywEjBLlHC8BBMCSz0b1/W+EofKmBoj3g=
 kubeops.dev/falco-ui-server v0.0.3 h1:QMSxPvbO/42o3gxzNNHg5Q6MdR0PNEHXo6c9T3ARCOA=

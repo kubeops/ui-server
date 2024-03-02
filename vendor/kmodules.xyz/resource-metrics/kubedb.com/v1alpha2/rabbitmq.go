@@ -30,13 +30,13 @@ func init() {
 	api.Register(schema.GroupVersionKind{
 		Group:   "kubedb.com",
 		Version: "v1alpha2",
-		Kind:    "PgBouncer",
-	}, PgBouncer{}.ResourceCalculator())
+		Kind:    "RabbitMQ",
+	}, RabbitMQ{}.ResourceCalculator())
 }
 
-type PgBouncer struct{}
+type RabbitMQ struct{}
 
-func (r PgBouncer) ResourceCalculator() api.ResourceCalculator {
+func (r RabbitMQ) ResourceCalculator() api.ResourceCalculator {
 	return &api.ResourceCalculatorFuncs{
 		AppRoles:               []api.PodRole{api.PodRoleDefault},
 		RuntimeRoles:           []api.PodRole{api.PodRoleDefault, api.PodRoleExporter},
@@ -48,7 +48,7 @@ func (r PgBouncer) ResourceCalculator() api.ResourceCalculator {
 	}
 }
 
-func (r PgBouncer) roleReplicasFn(obj map[string]interface{}) (api.ReplicaList, error) {
+func (r RabbitMQ) roleReplicasFn(obj map[string]interface{}) (api.ReplicaList, error) {
 	replicas, found, err := unstructured.NestedInt64(obj, "spec", "replicas")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read spec.replicas %v: %w", obj, err)
@@ -59,7 +59,7 @@ func (r PgBouncer) roleReplicasFn(obj map[string]interface{}) (api.ReplicaList, 
 	return api.ReplicaList{api.PodRoleDefault: replicas}, nil
 }
 
-func (r PgBouncer) modeFn(obj map[string]interface{}) (string, error) {
+func (r RabbitMQ) modeFn(obj map[string]interface{}) (string, error) {
 	replicas, _, err := unstructured.NestedInt64(obj, "spec", "replicas")
 	if err != nil {
 		return "", err
@@ -70,14 +70,14 @@ func (r PgBouncer) modeFn(obj map[string]interface{}) (string, error) {
 	return DBModeStandalone, nil
 }
 
-func (r PgBouncer) usesTLSFn(obj map[string]interface{}) (bool, error) {
+func (r RabbitMQ) usesTLSFn(obj map[string]interface{}) (bool, error) {
 	_, found, err := unstructured.NestedFieldNoCopy(obj, "spec", "tls")
 	return found, err
 }
 
-func (r PgBouncer) roleResourceFn(fn func(rr core.ResourceRequirements) core.ResourceList) func(obj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
+func (r RabbitMQ) roleResourceFn(fn func(rr core.ResourceRequirements) core.ResourceList) func(obj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
 	return func(obj map[string]interface{}) (map[api.PodRole]core.ResourceList, error) {
-		container, replicas, err := api.AppNodeResources(obj, fn, "spec")
+		container, replicas, err := api.AppNodeResourcesV2(obj, fn, RabbitMQContainerName, "spec")
 		if err != nil {
 			return nil, err
 		}

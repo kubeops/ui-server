@@ -15,7 +15,7 @@ require (
 	github.com/graphql-go/handler v0.2.3
 	github.com/open-policy-agent/gatekeeper/v3 v3.14.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.70.0
+	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.71.2
 	github.com/prometheus/client_golang v1.18.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
@@ -46,14 +46,14 @@ require (
 	kmodules.xyz/custom-resources v0.29.1
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
-	kmodules.xyz/resource-metadata v0.18.2-0.20240228114218-160bf248cede
-	kmodules.xyz/resource-metrics v0.29.0
+	kmodules.xyz/resource-metadata v0.18.2-0.20240302130512-2f5a870e2648
+	kmodules.xyz/resource-metrics v0.29.1
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.3
 	kubeops.dev/scanner v0.0.17
 	kubepack.dev/lib-helm v0.29.3
 	sigs.k8s.io/cli-utils v0.34.0
-	sigs.k8s.io/controller-runtime v0.17.0
+	sigs.k8s.io/controller-runtime v0.17.2
 	sigs.k8s.io/yaml v1.4.0
 	x-helm.dev/apimachinery v0.0.16
 )
