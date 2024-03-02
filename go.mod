@@ -221,7 +221,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	helm.sh/helm/v3 v3.14.0 // indirect
+	helm.sh/helm/v3 v3.14.2 // indirect
 	k8s.io/cli-runtime v0.29.0 // indirect
 	k8s.io/component-helpers v0.29.0 // indirect
 	k8s.io/kms v0.29.0 // indirect
