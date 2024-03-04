@@ -1958,7 +1958,7 @@ kmodules.xyz/monitoring-agent-api/client
 ## explicit; go 1.21.5
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-# kmodules.xyz/resource-metadata v0.18.2-0.20240302130512-2f5a870e2648
+# kmodules.xyz/resource-metadata v0.18.2-0.20240304114827-d988f754b671
 ## explicit; go 1.21.5
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
