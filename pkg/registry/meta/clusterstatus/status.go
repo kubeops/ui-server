@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"gomodules.xyz/pointer"
+	"k8s.io/apimachinery/pkg/api/meta"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
@@ -31,11 +32,11 @@ const (
 	MessageRequiredComponentsMissing = "One or more core components are not ready. Please, reconnect to update the components."
 )
 
-func generateClusterStatusResponse(kc client.Client) *rsapi.ClusterStatusResponse {
+func generateClusterStatusResponse(kc client.Client, mapper meta.RESTMapper) *rsapi.ClusterStatusResponse {
 	var csr rsapi.ClusterStatusResponse
 	var err error
 
-	clusterManager := clustermeta.DetectClusterManager(kc)
+	clusterManager := clustermeta.DetectClusterManager(kc, mapper)
 	csr.ClusterManagers = clusterManager.Strings()
 	if clusterManager.ManagedByOCMMulticlusterControlplane() {
 		csr.Phase = rsapi.ClusterPhaseActive

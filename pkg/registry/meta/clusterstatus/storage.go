@@ -24,12 +24,16 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/restmapper"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Storage struct {
 	kc        client.Client
+	dc        discovery.DiscoveryInterface
 	convertor rest.TableConvertor
 }
 
@@ -41,9 +45,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, dc discovery.DiscoveryInterface) *Storage {
 	return &Storage{
 		kc: kc,
+		dc: dc,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    rsapi.SchemeGroupVersion.Group,
 			Resource: rsapi.ResourceClusterStatuses,
@@ -71,7 +76,8 @@ func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidation rest.ValidateObjectFunc, options *metav1.CreateOptions) (runtime.Object, error) {
 	in := obj.(*rsapi.ClusterStatus)
-	in.Response = generateClusterStatusResponse(r.kc)
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
+	in.Response = generateClusterStatusResponse(r.kc, mapper)
 
 	return in, nil
 }
