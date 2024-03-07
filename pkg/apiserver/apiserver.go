@@ -283,7 +283,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[rsapi.ResourceChartPresetQueries] = chartpresetquery.NewStorage(ctrlClient)
-		v1alpha1storage[rsapi.ResourceClusterStatuses] = clusterstatusstorage.NewStorage(ctrlClient)
+		v1alpha1storage[rsapi.ResourceClusterStatuses] = clusterstatusstorage.NewStorage(ctrlClient, disco)
 		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient, oc)
 		v1alpha1storage[rsapi.ResourceRenderRawGraphs] = renderrawgraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, oc, rbacAuthorizer)
