@@ -1693,8 +1693,8 @@ github.com/klauspost/cpuid/v2 v2.0.9 h1:lgaqFMSdTdQYdZ04uHyN2d/eKdOMyi2YLSvlQIBF
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/kmodules/apiserver v0.29.1-0.20240104121741-1fb217d4a573 h1:6v7bTFGH/Ha1idq1sLX9px2KJhcx6cpuMowuYRyCht4=
 github.com/kmodules/apiserver v0.29.1-0.20240104121741-1fb217d4a573/go.mod h1:31n78PsRKPmfpee7/l9NYEv67u6hOL6AfcE761HapDM=
-github.com/kmodules/controller-runtime v0.17.2-0.20240213085617-b6aac9684c00 h1:+2add9izgyGZb+ZOkMwPH/fswvgfIxWilUatbp2nPo8=
-github.com/kmodules/controller-runtime v0.17.2-0.20240213085617-b6aac9684c00/go.mod h1:+MngTvIQQQhfXtwfdGw/UOQ/aIaqsYywfCINOtwMO/s=
+github.com/kmodules/controller-runtime v0.17.1-0.20240128092212-43c4e15c56b1 h1:bnfR69VDcTESyOeSk4IQQovDnvzSSaAXXIp40AcOOCM=
+github.com/kmodules/controller-runtime v0.17.1-0.20240128092212-43c4e15c56b1/go.mod h1:+MngTvIQQQhfXtwfdGw/UOQ/aIaqsYywfCINOtwMO/s=
 github.com/kmodules/kubernetes v1.30.0-alpha.0.0.20231224075822-3bd9a13c86db/go.mod h1:V78f/rAOcRUt4c3Dd4NbjY7u4VG9ApaovqIgNacJqBc=
 github.com/kolo/xmlrpc v0.0.0-20201022064351-38db28db192b/go.mod h1:pcaDhQK0/NJZEvtCO0qQPPropqV0sJOJ6YW7X+9kRwM=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
