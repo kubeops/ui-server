@@ -17,7 +17,10 @@ limitations under the License.
 package menu
 
 import (
+	"fmt"
+	"regexp"
 	"sort"
+	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
@@ -57,6 +60,17 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInter
 				Name: menuoutlines.MenuSectionName(group),
 			},
 		}
+
+		// Kubedb -> KubeDB
+		if strings.Contains(strings.ToLower(sec.Name), "kubedb") {
+			sec.Name = strings.Replace(sec.Name, "Kubedb", "KubeDB", -1)
+			sec.Name = strings.Replace(sec.Name, "kubedb", "KubeDB", -1)
+		}
+
+		// Kubedb op -> KubeDB Ops and Kubedb Postgre -> KubeDB Postgres
+		sec.Name = replaceWord(sec.Name, "Op", "Ops")
+		sec.Name = replaceWord(sec.Name, "Postgre", "Postgres")
+
 		if icons, ok := sectionIcons[group]; ok {
 			sec.Icons = icons
 		} else {
@@ -88,4 +102,13 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInter
 			Sections: sections,
 		},
 	}, nil
+}
+
+func replaceWord(input, from, to string) string {
+	pattern := fmt.Sprintf("\\b%s\\b", from)
+	regexPattern := regexp.MustCompile(pattern)
+	if regexPattern.MatchString(input) {
+		return regexPattern.ReplaceAllString(input, to)
+	}
+	return input
 }
