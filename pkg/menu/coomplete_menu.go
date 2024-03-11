@@ -17,7 +17,9 @@ limitations under the License.
 package menu
 
 import (
+	"regexp"
 	"sort"
+	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
@@ -57,6 +59,20 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInter
 				Name: menuoutlines.MenuSectionName(group),
 			},
 		}
+
+		// Kubedb -> KubeDB
+		if strings.Contains(strings.ToLower(sec.Name), "kubedb") {
+			sec.Name = strings.Replace(sec.Name, "Kubedb", "KubeDB", -1)
+		}
+
+		// Kubedb op -> KubeDB Ops
+		// pattern to match "Op" as a standalone word
+		pattern := "\\bOp\\b"
+		regexp := regexp.MustCompile(pattern)
+		if regexp.MatchString(sec.Name) {
+			sec.Name = regexp.ReplaceAllString(sec.Name, "Ops")
+		}
+
 		if icons, ok := sectionIcons[group]; ok {
 			sec.Icons = icons
 		} else {
