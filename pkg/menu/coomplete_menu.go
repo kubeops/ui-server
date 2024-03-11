@@ -17,6 +17,7 @@ limitations under the License.
 package menu
 
 import (
+	"fmt"
 	"regexp"
 	"sort"
 	"strings"
@@ -66,20 +67,9 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInter
 			sec.Name = strings.Replace(sec.Name, "kubedb", "KubeDB", -1)
 		}
 
-		// Kubedb op -> KubeDB Ops
-		// pattern to match "Op" as a standalone word
-		pattern := "\\bOp\\b"
-		regexPattern := regexp.MustCompile(pattern)
-		if regexPattern.MatchString(sec.Name) {
-			sec.Name = regexPattern.ReplaceAllString(sec.Name, "Ops")
-		}
-
-		// Kubedb Postgre -> KubeDB Postgres
-		pattern = "\\bPostgre\\b"
-		regexPattern = regexp.MustCompile(pattern)
-		if regexPattern.MatchString(sec.Name) {
-			sec.Name = regexPattern.ReplaceAllString(sec.Name, "Postgres")
-		}
+		// Kubedb op -> KubeDB Ops and Kubedb Postgre -> KubeDB Postgres
+		sec.Name = replaceWord(sec.Name, "Op", "Ops")
+		sec.Name = replaceWord(sec.Name, "Postgre", "Postgres")
 
 		if icons, ok := sectionIcons[group]; ok {
 			sec.Icons = icons
@@ -112,4 +102,13 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInter
 			Sections: sections,
 		},
 	}, nil
+}
+
+func replaceWord(input, from, to string) string {
+	pattern := fmt.Sprintf("\\b%s\\b", from)
+	regexPattern := regexp.MustCompile(pattern)
+	if regexPattern.MatchString(input) {
+		return regexPattern.ReplaceAllString(input, to)
+	}
+	return input
 }
