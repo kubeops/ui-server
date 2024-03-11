@@ -63,14 +63,22 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInter
 		// Kubedb -> KubeDB
 		if strings.Contains(strings.ToLower(sec.Name), "kubedb") {
 			sec.Name = strings.Replace(sec.Name, "Kubedb", "KubeDB", -1)
+			sec.Name = strings.Replace(sec.Name, "kubedb", "KubeDB", -1)
 		}
 
 		// Kubedb op -> KubeDB Ops
 		// pattern to match "Op" as a standalone word
 		pattern := "\\bOp\\b"
-		regexp := regexp.MustCompile(pattern)
-		if regexp.MatchString(sec.Name) {
-			sec.Name = regexp.ReplaceAllString(sec.Name, "Ops")
+		regexPattern := regexp.MustCompile(pattern)
+		if regexPattern.MatchString(sec.Name) {
+			sec.Name = regexPattern.ReplaceAllString(sec.Name, "Ops")
+		}
+
+		// Kubedb Postgre -> KubeDB Postgres
+		pattern = "\\bPostgre\\b"
+		regexPattern = regexp.MustCompile(pattern)
+		if regexPattern.MatchString(sec.Name) {
+			sec.Name = regexPattern.ReplaceAllString(sec.Name, "Postgres")
 		}
 
 		if icons, ok := sectionIcons[group]; ok {
