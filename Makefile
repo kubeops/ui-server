@@ -68,7 +68,7 @@ ARCH := $(if $(GOARCH),$(GOARCH),$(shell go env GOARCH))
 
 # BASEIMAGE_PROD   ?= gcr.io/distroless/static-debian11
 BASEIMAGE_PROD   ?= alpine
-BASEIMAGE_DBG    ?= debian:bullseye
+BASEIMAGE_DBG    ?= debian:bookworm
 
 IMAGE            := $(REGISTRY)/$(BIN)
 VERSION_PROD     := $(VERSION)
@@ -79,7 +79,7 @@ TAG_DBG          := $(VERSION)-dbg_$(OS)_$(ARCH)
 
 GO_VERSION       ?= 1.22
 BUILD_IMAGE      ?= ghcr.io/appscode/golang-dev:$(GO_VERSION)
-CHART_TEST_IMAGE ?= quay.io/helmpack/chart-testing:v3.5.1
+CHART_TEST_IMAGE ?= quay.io/helmpack/chart-testing:v3.10.0
 
 OUTBIN = bin/$(OS)_$(ARCH)/$(BIN)
 ifeq ($(OS),windows)
