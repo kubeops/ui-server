@@ -21,6 +21,7 @@ import (
 
 	"gomodules.xyz/pointer"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/types"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
@@ -75,7 +76,7 @@ func checkClusterReadiness(kc client.Client) (bool, string, error) {
 		return false, MessageFluxCDMissing, nil
 	}
 
-	ready, err = areRequiredFeatureSetsReady(kc)
+	ready, err = isKubeUiServerReady(kc)
 	if err != nil {
 		return false, "", err
 	}
@@ -85,20 +86,15 @@ func checkClusterReadiness(kc client.Client) (bool, string, error) {
 	return true, "", nil
 }
 
-func areRequiredFeatureSetsReady(kc client.Client) (bool, error) {
-	var featureSets uiapi.FeatureSetList
-	err := kc.List(context.TODO(), &featureSets)
+func isKubeUiServerReady(kc client.Client) (bool, error) {
+	var feature uiapi.Feature
+	err := kc.Get(context.TODO(), types.NamespacedName{Name: "kube-ui-server"}, &feature)
 	if err != nil {
 		return false, err
 	}
-	if len(featureSets.Items) == 0 {
-		return false, nil
-	}
 
-	for _, fs := range featureSets.Items {
-		if len(fs.Spec.RequiredFeatures) > 0 && !pointer.Bool(fs.Status.Ready) {
-			return false, nil
-		}
+	if !pointer.Bool(feature.Status.Ready) {
+		return false, nil
 	}
 	return true, nil
 }
