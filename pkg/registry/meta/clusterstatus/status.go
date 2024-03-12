@@ -30,7 +30,7 @@ import (
 
 const (
 	MessageFluxCDMissing             = "FluxCD is not installed or not ready. Please, reconnect to install/update the component."
-	MessageRequiredComponentsMissing = "One or more core components are not ready. Please, reconnect to update the components."
+	MessageRequiredComponentsMissing = "Kube-ui-server is not ready. Please, reconnect to update the components."
 )
 
 func generateClusterStatusResponse(kc client.Client, mapper meta.RESTMapper) *rsapi.ClusterStatusResponse {
