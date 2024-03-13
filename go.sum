@@ -3490,13 +3490,13 @@ kmodules.xyz/monitoring-agent-api v0.29.0 h1:gpFl6OZrlMLb/ySMHdREI9EwGtnJ91oZBn9
 kmodules.xyz/monitoring-agent-api v0.29.0/go.mod h1:iNbvaMTgVFOI5q2LJtGK91j4Dmjv4ZRiRdasGmWLKQI=
 kmodules.xyz/offshoot-api v0.29.0 h1:GHLhxxT9jU1N8+FvOCCeJNyU5g0duYS46UGrs6AHNLY=
 kmodules.xyz/offshoot-api v0.29.0/go.mod h1:5NxhBblXoDHWStx9HCDJR2KFTwYjEZ7i1Id3jelIunw=
-kmodules.xyz/resource-metadata v0.18.2-0.20240313052239-425c691548da h1:DvWnRuaYJvMMAHweMRU5sISAOwmzItgqrpqkpGa2fIM=
-kmodules.xyz/resource-metadata v0.18.2-0.20240313052239-425c691548da/go.mod h1:Vb2bFCOX4uz2TsRRMzTkUqFWWOjJ261lY8Hs2HWgzh4=
+kmodules.xyz/resource-metadata v0.18.2-0.20240313070556-32538e598f18 h1:wF2kEA8xnXrqVF8xAYhk39VRxvxA9iaMebJx0g6STGU=
+kmodules.xyz/resource-metadata v0.18.2-0.20240313070556-32538e598f18/go.mod h1:Vb2bFCOX4uz2TsRRMzTkUqFWWOjJ261lY8Hs2HWgzh4=
 kmodules.xyz/resource-metrics v0.29.1 h1:gP4SNosdDGFImpne52mnQtHacmnllYkTMcYL//p/ltM=
 kmodules.xyz/resource-metrics v0.29.1/go.mod h1:OuG/QobZ7o8GFHl/u3lqaUR0fDZDegxtV8Vdh+MNBD4=
 kmodules.xyz/sets v0.29.0 h1:ZX/qOECzUob95JhhRtngJElHSlJ1UNNdwK4hTEy+nl0=
 kmodules.xyz/sets v0.29.0/go.mod h1:1oi3fR9c3SWywEjBLlHC8BBMCSz0b1/W+EofKmBoj3g=
-kubeops.dev/falco-ui-server v0.0.3 h1:QMSxPvbO/42o3gxzNNHg5Q6MdR0PNEHXo6c9T3ARCOA=
+kubeops.dev/falco-ui-server v0.0.3 h1:5ueKEUYEuOBEDC0TgyeCJ35JSA9ie5vid6OPbtPLvGo=
 kubeops.dev/falco-ui-server v0.0.3/go.mod h1:yZJGDnwVkT3Fu7nzn2znsY8/37zn6bzATfze9F90+54=
 kubeops.dev/scanner v0.0.17 h1:zaIggzl52gYDQAgtBJ+3hzGGkNJuVSwh0R4O7ZS3lSo=
 kubeops.dev/scanner v0.0.17/go.mod h1:tNs3FF3jeJ0VoOx8beePIfs3VxThweyu11YK0yc6OhE=
