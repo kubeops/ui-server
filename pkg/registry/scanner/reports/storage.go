@@ -299,7 +299,7 @@ func GenerateReports(images map[string]kmapi.ImageInfo, results map[string]resul
 	}
 
 	return &reportsapi.CVEReportResponse{
-		Images: sortImageInfosByImageName(imginfos),
+		Images: sortImageInfosByVulnerabilities(imginfos),
 		Vulnerabilities: reportsapi.VulnerabilityInfo{
 			Stats: getVulnerabilityStats(totalOccurrence, vuls),
 			CVEs:  getCVEsFromVulnerabilityInfoMap(vuls),
@@ -412,15 +412,25 @@ func getVulnerabilityStats(totalOccurrence map[string]int, vuls map[string]trivy
 	return stats
 }
 
-func sortImageInfosByImageName(imginfos map[string]reportsapi.ImageInfo) []reportsapi.ImageInfo {
+func sortImageInfosByVulnerabilities(imginfos map[string]reportsapi.ImageInfo) []reportsapi.ImageInfo {
 	images := make([]reportsapi.ImageInfo, 0, len(imginfos))
 	for _, ii := range imginfos {
 		images = append(images, ii)
 	}
 	sort.Slice(images, func(i, j int) bool {
-		return images[i].Image.Name < images[j].Image.Name
+		return calculateVulnerabilities(images[i].Stats) < calculateVulnerabilities(images[j].Stats)
 	})
 	return images
+}
+
+func calculateVulnerabilities(stats map[string]reportsapi.RiskStats) int {
+	count := 0
+	for _, key := range []string{"HIGH", "LOW", "MEDIUM", "CRITICAL", "UNKNOWN"} {
+		if val, ok := stats[key]; ok {
+			count += val.Count
+		}
+	}
+	return count
 }
 
 func getCVEsFromVulnerabilityInfoMap(vuls map[string]trivy.VulnerabilityInfo) []trivy.VulnerabilityInfo {
