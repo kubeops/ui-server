@@ -1694,8 +1694,8 @@ github.com/klauspost/cpuid/v2 v2.0.9 h1:lgaqFMSdTdQYdZ04uHyN2d/eKdOMyi2YLSvlQIBF
 github.com/klauspost/cpuid/v2 v2.0.9/go.mod h1:FInQzS24/EEf25PyTYn52gqo7WaD8xa0213Md/qVLRg=
 github.com/kmodules/apiserver v0.29.1-0.20240104121741-1fb217d4a573 h1:6v7bTFGH/Ha1idq1sLX9px2KJhcx6cpuMowuYRyCht4=
 github.com/kmodules/apiserver v0.29.1-0.20240104121741-1fb217d4a573/go.mod h1:31n78PsRKPmfpee7/l9NYEv67u6hOL6AfcE761HapDM=
-github.com/kmodules/controller-runtime v0.17.2-0.20240213085617-b6aac9684c00 h1:+2add9izgyGZb+ZOkMwPH/fswvgfIxWilUatbp2nPo8=
-github.com/kmodules/controller-runtime v0.17.2-0.20240213085617-b6aac9684c00/go.mod h1:+MngTvIQQQhfXtwfdGw/UOQ/aIaqsYywfCINOtwMO/s=
+github.com/kmodules/controller-runtime v0.17.4-0.20240410011645-f1b2f533ea66 h1:qutDfX9//kt8JiEM+blqRWTwE6Qt7vho0GY6oZfckmI=
+github.com/kmodules/controller-runtime v0.17.4-0.20240410011645-f1b2f533ea66/go.mod h1:N0jpP5Lo7lMTF9aL56Z/B2oWBJjey6StQM0jRbKQXtY=
 github.com/kmodules/kubernetes v1.30.0-alpha.0.0.20231224075822-3bd9a13c86db/go.mod h1:V78f/rAOcRUt4c3Dd4NbjY7u4VG9ApaovqIgNacJqBc=
 github.com/kolo/xmlrpc v0.0.0-20201022064351-38db28db192b/go.mod h1:pcaDhQK0/NJZEvtCO0qQPPropqV0sJOJ6YW7X+9kRwM=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
@@ -3490,10 +3490,10 @@ kmodules.xyz/monitoring-agent-api v0.29.0 h1:gpFl6OZrlMLb/ySMHdREI9EwGtnJ91oZBn9
 kmodules.xyz/monitoring-agent-api v0.29.0/go.mod h1:iNbvaMTgVFOI5q2LJtGK91j4Dmjv4ZRiRdasGmWLKQI=
 kmodules.xyz/offshoot-api v0.29.0 h1:GHLhxxT9jU1N8+FvOCCeJNyU5g0duYS46UGrs6AHNLY=
 kmodules.xyz/offshoot-api v0.29.0/go.mod h1:5NxhBblXoDHWStx9HCDJR2KFTwYjEZ7i1Id3jelIunw=
-kmodules.xyz/resource-metadata v0.18.3-0.20240405094550-baf126ca3cf8 h1:5rirBhllY9JK1WVzBxRiA8h71Ib8iSTIh3dN/s/kg9U=
-kmodules.xyz/resource-metadata v0.18.3-0.20240405094550-baf126ca3cf8/go.mod h1:BpiDz1s/0reTAvG1IgQgFGXTTgqS6TRf0VEGk5Z4tO4=
-kmodules.xyz/resource-metrics v0.29.1 h1:gP4SNosdDGFImpne52mnQtHacmnllYkTMcYL//p/ltM=
-kmodules.xyz/resource-metrics v0.29.1/go.mod h1:OuG/QobZ7o8GFHl/u3lqaUR0fDZDegxtV8Vdh+MNBD4=
+kmodules.xyz/resource-metadata v0.18.3 h1:h6UXehrElqq9CqJTIkD7E+33ga5IEj9H+CtpwS+K90M=
+kmodules.xyz/resource-metadata v0.18.3/go.mod h1:HY6FmDDzQOEHfIEHRiqwNXVyof3uRIDtLSu0Yi1mIBw=
+kmodules.xyz/resource-metrics v0.29.5 h1:ciuvRXuXsloLNW/JwkubqbYySsvHvHr6/nhkTL5Sf1o=
+kmodules.xyz/resource-metrics v0.29.5/go.mod h1:OuG/QobZ7o8GFHl/u3lqaUR0fDZDegxtV8Vdh+MNBD4=
 kmodules.xyz/sets v0.29.0 h1:ZX/qOECzUob95JhhRtngJElHSlJ1UNNdwK4hTEy+nl0=
 kmodules.xyz/sets v0.29.0/go.mod h1:1oi3fR9c3SWywEjBLlHC8BBMCSz0b1/W+EofKmBoj3g=
 kubeops.dev/falco-ui-server v0.0.3 h1:QMSxPvbO/42o3gxzNNHg5Q6MdR0PNEHXo6c9T3ARCOA=
