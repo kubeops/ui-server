@@ -15,3 +15,24 @@ spec:
     name: mssqlservers
     scope: Namespaced
     version: v1alpha2
+  ui:
+    editor:
+      name: kubedbcom-mssqlserver-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: v0.4.18
+    enforceQuota: true
+    options:
+      name: kubedbcom-mssqlserver-editor-options
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: v0.4.18
+  variants:
+  - name: default
+    selector:
+      matchLabels:
+        charts.x-helm.dev/is-default-preset: "true"
