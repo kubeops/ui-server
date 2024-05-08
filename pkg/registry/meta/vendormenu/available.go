@@ -32,7 +32,7 @@ import (
 
 type AvailableStorage struct {
 	kc    client.Client
-	disco discovery.ServerResourcesInterface
+	disco discovery.DiscoveryInterface
 }
 
 var (
@@ -41,7 +41,7 @@ var (
 	_ rest.Getter                   = &AvailableStorage{}
 )
 
-func NewAvailableStorage(kc client.Client, disco discovery.ServerResourcesInterface) *AvailableStorage {
+func NewAvailableStorage(kc client.Client, disco discovery.DiscoveryInterface) *AvailableStorage {
 	return &AvailableStorage{
 		kc:    kc,
 		disco: disco,

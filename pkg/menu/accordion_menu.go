@@ -34,7 +34,7 @@ import (
 	helmshared "x-helm.dev/apimachinery/apis/shared"
 )
 
-func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterface, menuName string) (*rsapi.Menu, error) {
+func RenderAccordionMenu(kc client.Client, disco discovery.DiscoveryInterface, menuName string) (*rsapi.Menu, error) {
 	mo, err := menuoutlines.LoadByName(menuName)
 	if err != nil {
 		return nil, err
@@ -76,14 +76,15 @@ func RenderAccordionMenu(kc client.Client, disco discovery.ServerResourcesInterf
 			items := make([]rsapi.MenuItem, 0, len(so.Items))
 			for _, item := range so.Items {
 				mi := rsapi.MenuItem{
-					Name:       item.Name,
-					Path:       item.Path,
-					Resource:   nil,
-					Missing:    true,
-					Required:   item.Required,
-					LayoutName: item.LayoutName,
-					Icons:      item.Icons,
-					Installer:  nil,
+					Name:        item.Name,
+					Path:        item.Path,
+					Resource:    nil,
+					Missing:     true,
+					Required:    item.Required,
+					LayoutName:  item.LayoutName,
+					Icons:       item.Icons,
+					Installer:   nil,
+					FeatureMode: item.FeatureMode,
 				}
 
 				if item.Type != nil {

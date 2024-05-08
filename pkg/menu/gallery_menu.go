@@ -20,8 +20,13 @@ import (
 	"fmt"
 	"sort"
 
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"kmodules.xyz/client-go/meta"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/restmapper"
+	mu "kmodules.xyz/client-go/meta"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -32,10 +37,12 @@ func GetGalleryMenu(driver *UserMenuDriver, opts *rsapi.RenderMenuRequest) (*rsa
 	if err != nil {
 		return nil, err
 	}
-	return RenderGalleryMenu(driver.GetClient(), menu, opts)
+	return RenderGalleryMenu(driver.GetClient(), driver.disco, menu, opts)
 }
 
-func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuRequest) (*rsapi.Menu, error) {
+func RenderGalleryMenu(kc client.Client, disco discovery.DiscoveryInterface, in *rsapi.Menu, opts *rsapi.RenderMenuRequest) (*rsapi.Menu, error) {
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(disco))
+
 	out := rsapi.Menu{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: rsapi.SchemeGroupVersion.String(),
@@ -56,20 +63,24 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 		items := make([]rsapi.MenuItem, 0)
 		for _, item := range so.Items {
 			mi := rsapi.MenuItem{
-				Name:       item.Name,
-				Path:       item.Path,
-				Resource:   item.Resource,
-				Missing:    item.Missing,
-				Required:   item.Required,
-				LayoutName: item.LayoutName,
-				Icons:      item.Icons,
-				Installer:  item.Installer,
+				Name:        item.Name,
+				Path:        item.Path,
+				Resource:    item.Resource,
+				Missing:     item.Missing,
+				Required:    item.Required,
+				LayoutName:  item.LayoutName,
+				Icons:       item.Icons,
+				Installer:   item.Installer,
+				FeatureMode: item.FeatureMode,
 			}
 
 			if mi.Resource != nil &&
 				opts.Type != nil &&
 				(opts.Type.Group != mi.Resource.Group || opts.Type.Kind != mi.Resource.Kind) {
 				continue
+			}
+			if mi.Resource.Kind != "" && !gkExists(mapper, item.Resource.GroupKind()) {
+				mi.Missing = true
 			}
 
 			ed, ok := resourceeditors.LoadByResourceID(kc, mi.Resource)
@@ -84,7 +95,7 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 
 				chartRef := ed.Spec.UI.Options
 				if chartRef.SourceRef.Namespace == "" {
-					chartRef.SourceRef.Namespace = meta.PodNamespace()
+					chartRef.SourceRef.Namespace = mu.PodNamespace()
 				}
 
 				for _, ref := range ed.Spec.Variants {
@@ -117,4 +128,14 @@ func RenderGalleryMenu(kc client.Client, in *rsapi.Menu, opts *rsapi.RenderMenuR
 	}
 
 	return &out, nil
+}
+
+func gkExists(mapper meta.RESTMapper, gk schema.GroupKind) bool {
+	if _, err := mapper.RESTMappings(schema.GroupKind{
+		Group: gk.Group,
+		Kind:  gk.Kind,
+	}); err == nil {
+		return true
+	}
+	return false
 }

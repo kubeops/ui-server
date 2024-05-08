@@ -43,7 +43,7 @@ func RenderMenu(driver *UserMenuDriver, req *rsapi.RenderMenuRequest) (*rsapi.Me
 	}
 }
 
-func GenerateMenuItems(kc client.Client, disco discovery.ServerResourcesInterface) (map[string]map[string]*rsapi.MenuItem, error) {
+func GenerateMenuItems(kc client.Client, disco discovery.DiscoveryInterface) (map[string]map[string]*rsapi.MenuItem, error) {
 	rsLists, err := disco.ServerPreferredResources()
 	if err != nil && !discovery.IsGroupDiscoveryFailedError(err) {
 		return nil, err

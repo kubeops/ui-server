@@ -38,7 +38,7 @@ var defaultIcons = []helmshared.ImageSpec{
 	},
 }
 
-func GenerateCompleteMenu(kc client.Client, disco discovery.ServerResourcesInterface) (*rsapi.Menu, error) {
+func GenerateCompleteMenu(kc client.Client, disco discovery.DiscoveryInterface) (*rsapi.Menu, error) {
 	sectionIcons := map[string][]helmshared.ImageSpec{}
 	for _, m := range menuoutlines.List() {
 		for _, sec := range m.Spec.Sections {

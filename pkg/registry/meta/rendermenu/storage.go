@@ -35,7 +35,7 @@ import (
 
 type Storage struct {
 	kc    client.Client
-	disco discovery.ServerResourcesInterface
+	disco discovery.DiscoveryInterface
 	ns    string
 }
 
@@ -47,7 +47,7 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, disco discovery.ServerResourcesInterface, ns string) *Storage {
+func NewStorage(kc client.Client, disco discovery.DiscoveryInterface, ns string) *Storage {
 	return &Storage{
 		kc:    kc,
 		disco: disco,
