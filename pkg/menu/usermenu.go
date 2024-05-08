@@ -38,12 +38,12 @@ import (
 
 type UserMenuDriver struct {
 	kc    client.Client
-	disco discovery.ServerResourcesInterface
+	disco discovery.DiscoveryInterface
 	ns    string
 	user  string
 }
 
-func NewUserMenuDriver(kc client.Client, disco discovery.ServerResourcesInterface, ns, user string) *UserMenuDriver {
+func NewUserMenuDriver(kc client.Client, disco discovery.DiscoveryInterface, ns, user string) *UserMenuDriver {
 	return &UserMenuDriver{
 		kc:    kc,
 		disco: disco,

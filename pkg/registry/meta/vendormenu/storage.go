@@ -35,7 +35,7 @@ import (
 
 type Storage struct {
 	kc        client.Client
-	disco     discovery.ServerResourcesInterface
+	disco     discovery.DiscoveryInterface
 	convertor rest.TableConvertor
 }
 
@@ -48,7 +48,7 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, disco discovery.ServerResourcesInterface) *Storage {
+func NewStorage(kc client.Client, disco discovery.DiscoveryInterface) *Storage {
 	return &Storage{
 		kc:    kc,
 		disco: disco,
