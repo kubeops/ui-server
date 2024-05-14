@@ -26,7 +26,7 @@ COMPRESS ?= no
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS          ?= "crd:crdVersions={v1},allowDangerousTypes=true"
 CODE_GENERATOR_IMAGE ?= ghcr.io/appscode/gengo:release-1.29
-API_GROUPS           ?= cost:v1alpha1 identity:v1alpha1 policy:v1alpha1
+API_GROUPS           ?= cost:v1alpha1 identity:v1alpha1 offline:v1alpha1 policy:v1alpha1
 
 # Where to push the docker image.
 REGISTRY ?= ghcr.io/appscode
