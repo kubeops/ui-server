@@ -763,8 +763,13 @@ github.com/yudai/golcs
 # github.com/zeebo/xxh3 v1.0.2
 ## explicit; go 1.17
 github.com/zeebo/xxh3
+# go.bytebuilders.dev/license-proxyserver v0.0.7-0.20240104215336-0d2ca8076699
+## explicit; go 1.21.5
+go.bytebuilders.dev/license-proxyserver/apis/proxyserver
+go.bytebuilders.dev/license-proxyserver/apis/proxyserver/v1alpha1
 # go.bytebuilders.dev/license-verifier v0.14.0
 ## explicit; go 1.21
+go.bytebuilders.dev/license-verifier
 go.bytebuilders.dev/license-verifier/apis/licenses
 go.bytebuilders.dev/license-verifier/apis/licenses/v1alpha1
 go.bytebuilders.dev/license-verifier/info

@@ -30,6 +30,7 @@ import (
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
@@ -44,6 +45,8 @@ import (
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
+	"kubeops.dev/ui-server/pkg/registry/license/addofflinelicense"
+	"kubeops.dev/ui-server/pkg/registry/license/offlinelicense"
 	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
 	clusterstatusstorage "kubeops.dev/ui-server/pkg/registry/meta/clusterstatus"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
@@ -304,6 +307,18 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceMenus] = vendormenu.NewStorage(ctrlClient, disco)
 		v1alpha1storage[rsapi.ResourceMenus+"/available"] = vendormenu.NewAvailableStorage(ctrlClient, disco)
 
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(licenseapi.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[licenseapi.ResourceOfflineLicenses] = offlinelicense.NewStorage(ctrlClient)
+		v1alpha1storage[licenseapi.ResourceAddOfflineLicenses] = addofflinelicense.NewStorage(ctrlClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

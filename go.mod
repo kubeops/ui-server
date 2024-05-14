@@ -23,6 +23,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/zeebo/xxh3 v1.0.2
+	go.bytebuilders.dev/license-proxyserver v0.0.7-0.20240104215336-0d2ca8076699
 	go.bytebuilders.dev/license-verifier v0.14.0
 	go.openviz.dev/apimachinery v0.0.7
 	golang.org/x/sync v0.5.0
