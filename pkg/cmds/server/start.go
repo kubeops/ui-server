@@ -82,7 +82,6 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 				rsapi.SchemeGroupVersion,
 				identityv1alpha1.GroupVersion,
 				rscoreapi.SchemeGroupVersion,
-				licenseapi.SchemeGroupVersion,
 			),
 		),
 		PrometheusOptions: promclient.NewPrometheusConfig(),
@@ -162,6 +161,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 
 		fmt.Sprintf("/apis/%s/%s", rscoreapi.SchemeGroupVersion, rscoreapi.ResourceProjects),
 
+		fmt.Sprintf("/apis/%s", licenseapi.SchemeGroupVersion),
 		fmt.Sprintf("/apis/%s/%s", licenseapi.SchemeGroupVersion, licenseapi.ResourceAddOfflineLicenses),
 		fmt.Sprintf("/apis/%s/%s", licenseapi.SchemeGroupVersion, licenseapi.ResourceOfflineLicenses),
 	}

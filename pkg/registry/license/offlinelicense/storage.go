@@ -13,7 +13,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
-	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -41,7 +40,7 @@ func NewStorage(kc client.Client) *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return rsapi.SchemeGroupVersion.WithKind(licenseapi.ResourceKindOfflineLicense)
+	return licenseapi.SchemeGroupVersion.WithKind(licenseapi.ResourceKindOfflineLicense)
 }
 
 func (r *Storage) NamespaceScoped() bool {

@@ -30,6 +30,7 @@ import (
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	licenseinstall "kubeops.dev/ui-server/apis/offline/install"
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
@@ -128,6 +129,7 @@ func init() {
 	rscoreinstall.Install(Scheme)
 	mgmtinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
+	licenseinstall.Install(Scheme)
 	utilruntime.Must(scannerscheme.AddToScheme(Scheme))
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
