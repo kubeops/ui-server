@@ -24,7 +24,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/license/addofflinelicense"
 
 	verifier "go.bytebuilders.dev/license-verifier"
-	v1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -171,13 +171,13 @@ func ignoreCertificateExpiredError(err error) error {
 	return err
 }
 
-func getLicenseSecret(ctx context.Context, kc client.Client) (*v1.Secret, error) {
-	var licenseSecret v1.Secret
+func getLicenseSecret(ctx context.Context, kc client.Client) (*core.Secret, error) {
+	var licenseSecret core.Secret
 	err := kc.Get(ctx, types.NamespacedName{Name: addofflinelicense.LicenseSecretName, Namespace: addofflinelicense.LicenseSecretNamespace}, &licenseSecret)
 	if err != nil && kerr.IsNotFound(err) {
-		return nil, nil
+		return &core.Secret{}, nil // never return nil
 	} else if err != nil {
-		return nil, err
+		return &core.Secret{}, err // never return nil
 	}
 	return &licenseSecret, nil
 }
