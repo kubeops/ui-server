@@ -18412,6 +18412,13 @@ func schema_ui_server_apis_offline_v1alpha1_AddOfflineLicenseRequest(ref common.
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
+					"namespace": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
 					"license": {
 						SchemaProps: spec.SchemaProps{
 							Default: "",
@@ -18420,7 +18427,7 @@ func schema_ui_server_apis_offline_v1alpha1_AddOfflineLicenseRequest(ref common.
 						},
 					},
 				},
-				Required: []string{"license"},
+				Required: []string{"namespace", "license"},
 			},
 		},
 	}

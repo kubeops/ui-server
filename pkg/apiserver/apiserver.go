@@ -30,6 +30,8 @@ import (
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	licenseinstall "kubeops.dev/ui-server/apis/offline/install"
+	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
@@ -61,6 +63,8 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcetabledefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
+	"kubeops.dev/ui-server/pkg/registry/offline/addofflinelicense"
+	"kubeops.dev/ui-server/pkg/registry/offline/offlinelicense"
 	policystorage "kubeops.dev/ui-server/pkg/registry/policy/reports"
 	imagestorage "kubeops.dev/ui-server/pkg/registry/scanner/image"
 	reportstorage "kubeops.dev/ui-server/pkg/registry/scanner/reports"
@@ -125,6 +129,7 @@ func init() {
 	rscoreinstall.Install(Scheme)
 	mgmtinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
+	licenseinstall.Install(Scheme)
 	utilruntime.Must(scannerscheme.AddToScheme(Scheme))
 	utilruntime.Must(chartsapi.AddToScheme(Scheme))
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
@@ -304,6 +309,18 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceMenus] = vendormenu.NewStorage(ctrlClient, disco)
 		v1alpha1storage[rsapi.ResourceMenus+"/available"] = vendormenu.NewAvailableStorage(ctrlClient, disco)
 
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(licenseapi.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[licenseapi.ResourceOfflineLicenses] = offlinelicense.NewStorage(ctrlClient)
+		v1alpha1storage[licenseapi.ResourceAddOfflineLicenses] = addofflinelicense.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
