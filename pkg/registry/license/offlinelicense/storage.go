@@ -112,10 +112,3 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
-
-func ignoreCertificateExpiredError(err error) error {
-	if strings.Contains(err.Error(), "x509: certificate has expired or is not yet valid") {
-		return nil
-	}
-	return err
-}
