@@ -21,16 +21,18 @@ import (
 	"strings"
 
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
-	"kubeops.dev/ui-server/pkg/registry/license/addofflinelicense"
+	"kubeops.dev/ui-server/pkg/registry/offline/addofflinelicense"
 
 	verifier "go.bytebuilders.dev/license-verifier"
 	core "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/client-go/util/cert"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -78,7 +80,12 @@ func (r *Storage) New() runtime.Object {
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
-	licenseSecret, err := getLicenseSecret(ctx, r.kc)
+	ns, ok := apirequest.NamespaceFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing namespace")
+	}
+
+	licenseSecret, err := getLicenseSecret(ctx, r.kc, ns)
 	if err != nil {
 		return &licenseapi.OfflineLicense{}, err
 	}
@@ -101,10 +108,17 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 
 			return &licenseapi.OfflineLicense{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: license.PlanName,
+					Name:      license.PlanName,
+					Namespace: licenseSecret.Namespace,
 				},
 				Status: licenseapi.OfflineLicenseStatus{
 					License: license,
+					SecretKeyRef: &core.SecretKeySelector{
+						LocalObjectReference: core.LocalObjectReference{
+							Name: licenseSecret.Name,
+						},
+						Key: product,
+					},
 				},
 			}, nil
 		}
@@ -119,15 +133,20 @@ func (r *Storage) NewList() runtime.Object {
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
+	ns, ok := apirequest.NamespaceFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing namespace")
+	}
+
 	var licenses []licenseapi.OfflineLicense
 	var err error
 
-	licenseSecret, err := getLicenseSecret(ctx, r.kc)
+	licenseSecret, err := getLicenseSecret(ctx, r.kc, ns)
 	if err != nil {
 		return &licenseapi.OfflineLicenseList{}, err
 	}
 
-	for _, lic := range licenseSecret.Data {
+	for product, lic := range licenseSecret.Data {
 		certs, err := cert.ParseCertsPEM(lic)
 		if err != nil {
 			return nil, err
@@ -144,10 +163,17 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 		licenses = append(licenses, licenseapi.OfflineLicense{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: license.PlanName,
+				Name:      license.PlanName,
+				Namespace: licenseSecret.Namespace,
 			},
 			Status: licenseapi.OfflineLicenseStatus{
 				License: license,
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
+						Name: licenseSecret.Name,
+					},
+					Key: product,
+				},
 			},
 		})
 	}
@@ -171,9 +197,9 @@ func ignoreCertificateExpiredError(err error) error {
 	return err
 }
 
-func getLicenseSecret(ctx context.Context, kc client.Client) (*core.Secret, error) {
+func getLicenseSecret(ctx context.Context, kc client.Client, ns string) (*core.Secret, error) {
 	var licenseSecret core.Secret
-	err := kc.Get(ctx, types.NamespacedName{Name: addofflinelicense.LicenseSecretName, Namespace: addofflinelicense.LicenseSecretNamespace}, &licenseSecret)
+	err := kc.Get(ctx, types.NamespacedName{Name: addofflinelicense.LicenseSecretName, Namespace: ns}, &licenseSecret)
 	if err != nil && kerr.IsNotFound(err) {
 		return &core.Secret{}, nil // never return nil
 	} else if err != nil {

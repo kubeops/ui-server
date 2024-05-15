@@ -28,6 +28,7 @@ const (
 )
 
 // +genclient
+// +genclient:nonNamespaced
 // +genclient:onlyVerbs=create
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
@@ -40,7 +41,8 @@ type AddOfflineLicense struct {
 }
 
 type AddOfflineLicenseRequest struct {
-	License string `json:"license"`
+	Namespace string `json:"namespace"`
+	License   string `json:"license"`
 }
 
 type AddOfflineLicenseResponse struct {

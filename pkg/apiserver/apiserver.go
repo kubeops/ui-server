@@ -46,8 +46,6 @@ import (
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
-	"kubeops.dev/ui-server/pkg/registry/license/addofflinelicense"
-	"kubeops.dev/ui-server/pkg/registry/license/offlinelicense"
 	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
 	clusterstatusstorage "kubeops.dev/ui-server/pkg/registry/meta/clusterstatus"
 	"kubeops.dev/ui-server/pkg/registry/meta/render"
@@ -65,6 +63,8 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcetabledefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
 	"kubeops.dev/ui-server/pkg/registry/meta/vendormenu"
+	"kubeops.dev/ui-server/pkg/registry/offline/addofflinelicense"
+	"kubeops.dev/ui-server/pkg/registry/offline/offlinelicense"
 	policystorage "kubeops.dev/ui-server/pkg/registry/policy/reports"
 	imagestorage "kubeops.dev/ui-server/pkg/registry/scanner/image"
 	reportstorage "kubeops.dev/ui-server/pkg/registry/scanner/reports"
@@ -320,7 +320,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[licenseapi.ResourceOfflineLicenses] = offlinelicense.NewStorage(ctrlClient)
-		v1alpha1storage[licenseapi.ResourceAddOfflineLicenses] = addofflinelicense.NewStorage(ctrlClient)
+		v1alpha1storage[licenseapi.ResourceAddOfflineLicenses] = addofflinelicense.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
