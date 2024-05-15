@@ -21,14 +21,18 @@ import (
 	"strings"
 
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
+	"kubeops.dev/ui-server/pkg/registry/license/addofflinelicense"
 
-	licstatus "go.bytebuilders.dev/license-proxyserver/apis/proxyserver/v1alpha1"
+	verifier "go.bytebuilders.dev/license-verifier"
+	v1 "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/client-go/util/cert"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -73,6 +77,42 @@ func (r *Storage) New() runtime.Object {
 
 func (r *Storage) Destroy() {}
 
+func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+	licenseSecret, err := getLicenseSecret(ctx, r.kc)
+	if err != nil {
+		return &licenseapi.OfflineLicense{}, err
+	}
+
+	for product, lic := range licenseSecret.Data {
+		if product == name {
+			certs, err := cert.ParseCertsPEM(lic)
+			if err != nil {
+				return nil, err
+			}
+
+			license, err := verifier.ParseLicense(verifier.ParserOptions{
+				ClusterUID: certs[0].Subject.CommonName,
+				CACert:     certs[0],
+				License:    lic,
+			})
+			if err != nil && ignoreCertificateExpiredError(err) != nil {
+				return nil, err
+			}
+
+			return &licenseapi.OfflineLicense{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: license.PlanName,
+				},
+				Status: licenseapi.OfflineLicenseStatus{
+					License: license,
+				},
+			}, nil
+		}
+	}
+
+	return &licenseapi.OfflineLicense{}, err
+}
+
 // Lister
 func (r *Storage) NewList() runtime.Object {
 	return &licenseapi.OfflineLicenseList{}
@@ -82,21 +122,32 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	var licenses []licenseapi.OfflineLicense
 	var err error
 
-	var licStatusList licstatus.LicenseStatusList
-	err = r.kc.List(ctx, &licStatusList)
-	if err != nil && kerr.IsNotFound(err) {
-		return &licenseapi.OfflineLicenseList{}, nil
-	} else if err != nil {
-		return nil, err
+	licenseSecret, err := getLicenseSecret(ctx, r.kc)
+	if err != nil {
+		return &licenseapi.OfflineLicenseList{}, err
 	}
 
-	for _, lic := range licStatusList.Items {
+	for _, lic := range licenseSecret.Data {
+		certs, err := cert.ParseCertsPEM(lic)
+		if err != nil {
+			return nil, err
+		}
+
+		license, err := verifier.ParseLicense(verifier.ParserOptions{
+			ClusterUID: certs[0].Subject.CommonName,
+			CACert:     certs[0],
+			License:    lic,
+		})
+		if err != nil && ignoreCertificateExpiredError(err) != nil {
+			return nil, err
+		}
+
 		licenses = append(licenses, licenseapi.OfflineLicense{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: lic.Status.License.PlanName,
+				Name: license.PlanName,
 			},
 			Status: licenseapi.OfflineLicenseStatus{
-				License: lic.Status.License,
+				License: license,
 			},
 		})
 	}
@@ -111,4 +162,22 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
+}
+
+func ignoreCertificateExpiredError(err error) error {
+	if strings.Contains(err.Error(), "x509: certificate has expired or is not yet valid") {
+		return nil
+	}
+	return err
+}
+
+func getLicenseSecret(ctx context.Context, kc client.Client) (*v1.Secret, error) {
+	var licenseSecret v1.Secret
+	err := kc.Get(ctx, types.NamespacedName{Name: addofflinelicense.LicenseSecretName, Namespace: addofflinelicense.LicenseSecretNamespace}, &licenseSecret)
+	if err != nil && kerr.IsNotFound(err) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	return &licenseSecret, nil
 }

@@ -18,7 +18,6 @@ package addofflinelicense
 
 import (
 	"context"
-	"encoding/base64"
 	"strings"
 
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
@@ -37,7 +36,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const LicenseSecretName = "license-proxyserver-licenses"
+const (
+	LicenseSecretName      = "license-proxyserver-licenses"
+	LicenseSecretNamespace = "kubeops"
+)
 
 type Storage struct {
 	kc client.Client
@@ -92,12 +94,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		licenseSecret := v1.Secret{}
 		err := r.kc.Get(ctx, types.NamespacedName{Name: LicenseSecretName, Namespace: ns}, &licenseSecret)
 		if err != nil && apierrors.IsNotFound(err) {
-			l, err := base64.StdEncoding.DecodeString(req.License)
-			if err != nil {
-				return nil, err
-			}
-
-			productKey, err := getProductKey(l)
+			productKey, err := getProductKey([]byte(req.License))
 			if err != nil {
 				return nil, err
 			}
@@ -105,10 +102,10 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			licenseSecret = v1.Secret{
 				ObjectMeta: controllerruntime.ObjectMeta{
 					Name:      LicenseSecretName,
-					Namespace: "kubeops",
+					Namespace: LicenseSecretNamespace,
 				},
 				Data: map[string][]byte{
-					productKey: l,
+					productKey: []byte(req.License),
 				},
 			}
 			if err = r.kc.Create(ctx, &licenseSecret); err != nil {
@@ -121,16 +118,11 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			return nil, err
 		}
 
-		l, err := base64.StdEncoding.DecodeString(req.License)
+		productKey, err := getProductKey([]byte(req.License))
 		if err != nil {
 			return nil, err
 		}
-
-		productKey, err := getProductKey(l)
-		if err != nil {
-			return nil, err
-		}
-		licenseSecret.Data[productKey] = l
+		licenseSecret.Data[productKey] = []byte(req.License)
 
 		_, err = cg.CreateOrPatch(ctx, r.kc, &licenseSecret, func(obj client.Object, createOp bool) client.Object {
 			in := obj.(*v1.Secret)
