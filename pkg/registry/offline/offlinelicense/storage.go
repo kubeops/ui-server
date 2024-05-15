@@ -23,6 +23,7 @@ import (
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	"kubeops.dev/ui-server/pkg/registry/offline/addofflinelicense"
 
+	"github.com/google/uuid"
 	verifier "go.bytebuilders.dev/license-verifier"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -108,8 +109,10 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 
 			return &licenseapi.OfflineLicense{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      license.PlanName,
-					Namespace: licenseSecret.Namespace,
+					Name:              license.PlanName,
+					Namespace:         licenseSecret.Namespace,
+					CreationTimestamp: *license.NotBefore,
+					UID:               types.UID(uuid.Must(uuid.NewUUID()).String()),
 				},
 				Status: licenseapi.OfflineLicenseStatus{
 					License: license,
@@ -141,41 +144,41 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	var licenses []licenseapi.OfflineLicense
 	var err error
 
-	licenseSecret, err := getLicenseSecret(ctx, r.kc, ns)
-	if err != nil {
-		return &licenseapi.OfflineLicenseList{}, err
-	}
+	list, err := listLicenseSecrets(ctx, r.kc, ns)
+	for _, licenseSecret := range list {
+		for product, lic := range licenseSecret.Data {
+			certs, err := cert.ParseCertsPEM(lic)
+			if err != nil {
+				return nil, err
+			}
 
-	for product, lic := range licenseSecret.Data {
-		certs, err := cert.ParseCertsPEM(lic)
-		if err != nil {
-			return nil, err
-		}
+			license, err := verifier.ParseLicense(verifier.ParserOptions{
+				ClusterUID: certs[0].Subject.CommonName,
+				CACert:     certs[0],
+				License:    lic,
+			})
+			if err != nil && ignoreCertificateExpiredError(err) != nil {
+				return nil, err
+			}
 
-		license, err := verifier.ParseLicense(verifier.ParserOptions{
-			ClusterUID: certs[0].Subject.CommonName,
-			CACert:     certs[0],
-			License:    lic,
-		})
-		if err != nil && ignoreCertificateExpiredError(err) != nil {
-			return nil, err
-		}
-
-		licenses = append(licenses, licenseapi.OfflineLicense{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      license.PlanName,
-				Namespace: licenseSecret.Namespace,
-			},
-			Status: licenseapi.OfflineLicenseStatus{
-				License: license,
-				SecretKeyRef: &core.SecretKeySelector{
-					LocalObjectReference: core.LocalObjectReference{
-						Name: licenseSecret.Name,
-					},
-					Key: product,
+			licenses = append(licenses, licenseapi.OfflineLicense{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:              license.PlanName,
+					Namespace:         licenseSecret.Namespace,
+					CreationTimestamp: *license.NotBefore,
+					UID:               types.UID(uuid.Must(uuid.NewUUID()).String()),
 				},
-			},
-		})
+				Status: licenseapi.OfflineLicenseStatus{
+					License: license,
+					SecretKeyRef: &core.SecretKeySelector{
+						LocalObjectReference: core.LocalObjectReference{
+							Name: licenseSecret.Name,
+						},
+						Key: product,
+					},
+				},
+			})
+		}
 	}
 
 	result := licenseapi.OfflineLicenseList{
@@ -206,4 +209,20 @@ func getLicenseSecret(ctx context.Context, kc client.Client, ns string) (*core.S
 		return &core.Secret{}, err // never return nil
 	}
 	return &licenseSecret, nil
+}
+
+func listLicenseSecrets(ctx context.Context, kc client.Client, ns string) ([]core.Secret, error) {
+	var list core.SecretList
+	err := kc.List(ctx, &list, client.InNamespace(ns))
+	if err != nil {
+		return nil, err
+	}
+
+	licenseSecrets := make([]core.Secret, 0, len(list.Items))
+	for _, secret := range list.Items {
+		if secret.Name == addofflinelicense.LicenseSecretName {
+			licenseSecrets = append(licenseSecrets, secret)
+		}
+	}
+	return licenseSecrets, nil
 }
