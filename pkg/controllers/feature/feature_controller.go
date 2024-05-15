@@ -132,7 +132,11 @@ func (r *frReconciler) reconcile(ctx context.Context) error {
 		return nil
 	}
 
-	enabled := r.isFeatureEnabled(status)
+	enabled, err := r.isFeatureEnabled(ctx, status)
+	if err != nil {
+		return err
+	}
+
 	if !enabled {
 		r.feature.Status.Enabled = pointer.BoolP(false)
 		return nil
@@ -262,8 +266,16 @@ func (r *frReconciler) getHelmRelease(ctx context.Context) (fluxhelm.HelmRelease
 	}, r.feature.Name)
 }
 
-func (r *frReconciler) isFeatureEnabled(status featureStatus) bool {
-	return isRequiredResourcesExist(status) && isWorkloadOrReleaseExist(status)
+func (r *frReconciler) isFeatureEnabled(ctx context.Context, status featureStatus) (bool, error) {
+	_, err := r.getHelmRelease(ctx)
+	if err != nil {
+		if kerr.IsNotFound(err) {
+			status.managed = false
+			return isRequiredResourcesExist(status) && isWorkloadOrReleaseExist(status), nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func (r *frReconciler) isFeatureReady(status featureStatus) (bool, string) {
