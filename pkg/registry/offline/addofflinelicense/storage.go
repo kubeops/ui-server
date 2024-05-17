@@ -19,7 +19,6 @@ package addofflinelicense
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
@@ -209,8 +208,9 @@ func getProductKey(lic []byte, clusterID string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if certs[0].Subject.CommonName != clusterID {
-		return "", fmt.Errorf("license is for cluster %s, expecting %s", certs[0].Subject.CommonName, clusterID)
-	}
+	// Note: This check does not work for ocm mode
+	//if certs[0].Subject.CommonName != clusterID {
+	//	return "", fmt.Errorf("license is for cluster %s, expecting %s", certs[0].Subject.CommonName, clusterID)
+	//}
 	return certs[0].Subject.OrganizationalUnit[0], nil
 }
