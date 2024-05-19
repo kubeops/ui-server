@@ -368,8 +368,10 @@ func (r *ProjectQuotaReconciler) StartWatcher(rid kmapi.ResourceID) {
 		var obj unstructured.Unstructured
 		obj.SetGroupVersionKind(gvk)
 		err := r.ctrl.Watch(
-			source.Kind(r.cache, &obj),
-			handler.EnqueueRequestsFromMapFunc(ProjectQuotaForObjects(r.Client)),
+			source.Kind[client.Object](
+				r.cache,
+				&obj,
+				handler.EnqueueRequestsFromMapFunc(ProjectQuotaForObjects(r.Client))),
 		)
 		if err != nil {
 			klog.Fatalln(err)

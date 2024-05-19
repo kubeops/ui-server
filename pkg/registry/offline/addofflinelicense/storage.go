@@ -49,9 +49,8 @@ var secretGR = schema.GroupResource{
 }
 
 type Storage struct {
-	kc        client.Client
-	clusterID string
-	a         authorizer.Authorizer
+	kc client.Client
+	a  authorizer.Authorizer
 }
 
 var (
@@ -62,11 +61,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
-		kc:        kc,
-		clusterID: clusterID,
-		a:         a,
+		kc: kc,
+		a:  a,
 	}
 }
 
@@ -128,7 +126,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			return nil, apierrors.NewForbidden(secretGR, LicenseSecretName, errors.New(why))
 		}
 
-		productKey, err := getProductKey([]byte(req.License), r.clusterID)
+		productKey, err := getProductKey([]byte(req.License))
 		if err != nil {
 			return nil, err
 		}
@@ -177,7 +175,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, apierrors.NewForbidden(secretGR, LicenseSecretName, errors.New(why))
 	}
 
-	productKey, err := getProductKey([]byte(req.License), r.clusterID)
+	productKey, err := getProductKey([]byte(req.License))
 	if err != nil {
 		return nil, err
 	}
@@ -203,14 +201,10 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	return in, nil
 }
 
-func getProductKey(lic []byte, clusterID string) (string, error) {
+func getProductKey(lic []byte) (string, error) {
 	certs, err := cert.ParseCertsPEM(lic)
 	if err != nil {
 		return "", err
 	}
-	// Note: This check does not work for ocm mode
-	//if certs[0].Subject.CommonName != clusterID {
-	//	return "", fmt.Errorf("license is for cluster %s, expecting %s", certs[0].Subject.CommonName, clusterID)
-	//}
 	return certs[0].Subject.OrganizationalUnit[0], nil
 }

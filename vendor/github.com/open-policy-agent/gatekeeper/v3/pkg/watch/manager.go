@@ -64,7 +64,7 @@ type AddFunction func(manager.Manager) error
 type RemovableCache interface {
 	GetInformer(_ context.Context, obj client.Object, opts ...cache.InformerGetOption) (cache.Informer, error)
 	List(ctx context.Context, list client.ObjectList, opts ...client.ListOption) error
-	Remove(obj client.Object) error
+	RemoveInformer(_ context.Context, obj client.Object) error
 }
 
 func New(c RemovableCache) (*Manager, error) {
@@ -177,7 +177,7 @@ func (wm *Manager) doAddWatch(ctx context.Context, r *Registrar, gvk schema.Grou
 	default:
 		u := &unstructured.Unstructured{}
 		u.SetGroupVersionKind(gvk)
-		informer, err := wm.cache.GetInformer(ctx, u, cache.InformerGetOption(cache.BlockUntilSynced(false)))
+		informer, err := wm.cache.GetInformer(ctx, u, cache.BlockUntilSynced(false))
 		if err != nil || informer == nil {
 			// This is expected to fail if a CRD is unregistered.
 			return fmt.Errorf("getting informer for kind: %+v %w", gvk, err)
@@ -238,7 +238,7 @@ func (wm *Manager) doRemoveWatch(ctx context.Context, r *Registrar, gvk schema.G
 
 	u := &unstructured.Unstructured{}
 	u.SetGroupVersionKind(gvk)
-	if err := wm.cache.Remove(u); err != nil {
+	if err := wm.cache.RemoveInformer(ctx, u); err != nil {
 		return fmt.Errorf("removing %+v: %w", gvk, err)
 	}
 	delete(wm.watchedKinds, gvk)
@@ -254,7 +254,7 @@ func (wm *Manager) replaceWatches(ctx context.Context, r *Registrar) error {
 	wm.watchedMux.Lock()
 	defer wm.watchedMux.Unlock()
 
-	var errlist errorList
+	errlist := NewErrorList()
 
 	desired := wm.managedKinds.Get()
 	for gvk := range wm.watchedKinds {
@@ -263,7 +263,7 @@ func (wm *Manager) replaceWatches(ctx context.Context, r *Registrar) error {
 			continue
 		}
 		if err := wm.doRemoveWatch(ctx, r, gvk); err != nil {
-			errlist = append(errlist, fmt.Errorf("removing watch for %+v %w", gvk, err))
+			errlist.RemoveGVKErr(gvk, fmt.Errorf("removing watch for %+v %w", gvk, err))
 		}
 	}
 
@@ -273,7 +273,7 @@ func (wm *Manager) replaceWatches(ctx context.Context, r *Registrar) error {
 			continue
 		}
 		if err := wm.doAddWatch(ctx, r, gvk); err != nil {
-			errlist = append(errlist, fmt.Errorf("adding watch for %+v %w", gvk, err))
+			errlist.AddGVKErr(gvk, fmt.Errorf("adding watch for %+v %w", gvk, err))
 		}
 	}
 
@@ -281,7 +281,7 @@ func (wm *Manager) replaceWatches(ctx context.Context, r *Registrar) error {
 		log.Error(err, "while trying to report gvk count metric")
 	}
 
-	if errlist != nil {
+	if errlist.Size() > 0 {
 		return errlist
 	}
 	return nil

@@ -133,6 +133,7 @@ var DefaultBuiltins = [...]*Builtin{
 	TrimSpace,
 	Sprintf,
 	StringReverse,
+	RenderTemplate,
 
 	// Numbers
 	NumbersRange,
@@ -206,6 +207,7 @@ var DefaultBuiltins = [...]*Builtin{
 	// Crypto
 	CryptoX509ParseCertificates,
 	CryptoX509ParseAndVerifyCertificates,
+	CryptoX509ParseAndVerifyCertificatesWithOptions,
 	CryptoMd5,
 	CryptoSha1,
 	CryptoSha256,
@@ -1317,6 +1319,20 @@ var StringReverse = &Builtin{
 	Categories: stringsCat,
 }
 
+var RenderTemplate = &Builtin{
+	Name: "strings.render_template",
+	Description: `Renders a templated string with given template variables injected. For a given templated string and key/value mapping, values will be injected into the template where they are referenced by key.
+	For examples of templating syntax, see https://pkg.go.dev/text/template`,
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("value", types.S).Description("a templated string"),
+			types.Named("vars", types.NewObject(nil, types.NewDynamicProperty(types.S, types.A))).Description("a mapping of template variable keys to values"),
+		),
+		types.Named("result", types.S).Description("rendered template with template variables injected"),
+	),
+	Categories: stringsCat,
+}
+
 /**
  * Numbers
  */
@@ -2312,6 +2328,31 @@ with all others being treated as intermediates.`,
 	),
 }
 
+var CryptoX509ParseAndVerifyCertificatesWithOptions = &Builtin{
+	Name: "crypto.x509.parse_and_verify_certificates_with_options",
+	Description: `Returns one or more certificates from the given string containing PEM
+or base64 encoded DER certificates after verifying the supplied certificates form a complete
+certificate chain back to a trusted root. A config option passed as the second argument can
+be used to configure the validation options used.
+
+The first certificate is treated as the root and the last is treated as the leaf,
+with all others being treated as intermediates.`,
+
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("certs", types.S).Description("base64 encoded DER or PEM data containing two or more certificates where the first is a root CA, the last is a leaf certificate, and all others are intermediate CAs"),
+			types.Named("options", types.NewObject(
+				nil,
+				types.NewDynamicProperty(types.S, types.A),
+			)).Description("object containing extra configs to verify the validity of certificates. `options` object supports four fields which maps to same fields in [x509.VerifyOptions struct](https://pkg.go.dev/crypto/x509#VerifyOptions). `DNSName`, `CurrentTime`: Nanoseconds since the Unix Epoch as a number, `MaxConstraintComparisons` and `KeyUsages`. `KeyUsages` is list and can have possible values as in: `\"KeyUsageAny\"`, `\"KeyUsageServerAuth\"`, `\"KeyUsageClientAuth\"`, `\"KeyUsageCodeSigning\"`, `\"KeyUsageEmailProtection\"`, `\"KeyUsageIPSECEndSystem\"`, `\"KeyUsageIPSECTunnel\"`, `\"KeyUsageIPSECUser\"`, `\"KeyUsageTimeStamping\"`, `\"KeyUsageOCSPSigning\"`, `\"KeyUsageMicrosoftServerGatedCrypto\"`, `\"KeyUsageNetscapeServerGatedCrypto\"`, `\"KeyUsageMicrosoftCommercialCodeSigning\"`, `\"KeyUsageMicrosoftKernelCodeSigning\"` "),
+		),
+		types.Named("output", types.NewArray([]types.Type{
+			types.B,
+			types.NewArray(nil, types.NewObject(nil, types.NewDynamicProperty(types.S, types.A))),
+		}, nil)).Description("array of `[valid, certs]`: if the input certificate chain could be verified then `valid` is `true` and `certs` is an array of X.509 certificates represented as objects; if the input certificate chain could not be verified then `valid` is `false` and `certs` is `[]`"),
+	),
+}
+
 var CryptoX509ParseCertificateRequest = &Builtin{
 	Name:        "crypto.x509.parse_certificate_request",
 	Description: "Returns a PKCS #10 certificate signing request from the given PEM-encoded PKCS#10 certificate signing request.",
@@ -2470,7 +2511,7 @@ var WalkBuiltin = &Builtin{
 				types.A,
 			},
 			nil,
-		)).Description("pairs of `path` and `value`: `path` is an array representing the pointer to `value` in `x`"),
+		)).Description("pairs of `path` and `value`: `path` is an array representing the pointer to `value` in `x`. If `path` is assigned a wildcard (`_`), the `walk` function will skip path creation entirely for faster evaluation."),
 	),
 	Categories: graphs,
 }
@@ -3226,6 +3267,21 @@ func category(cs ...string) []string {
 	return cs
 }
 
+// Minimal returns a shallow copy of b with the descriptions and categories and
+// named arguments stripped out.
+func (b *Builtin) Minimal() *Builtin {
+	cpy := *b
+	fargs := b.Decl.FuncArgs()
+	if fargs.Variadic != nil {
+		cpy.Decl = types.NewVariadicFunction(fargs.Args, fargs.Variadic, b.Decl.Result())
+	} else {
+		cpy.Decl = types.NewFunction(fargs.Args, b.Decl.Result())
+	}
+	cpy.Categories = nil
+	cpy.Description = ""
+	return &cpy
+}
+
 // IsDeprecated returns true if the Builtin function is deprecated and will be removed in a future release.
 func (b *Builtin) IsDeprecated() bool {
 	return b.deprecated
@@ -3272,7 +3328,7 @@ func (b *Builtin) Ref() Ref {
 // IsTargetPos returns true if a variable in the i-th position will be bound by
 // evaluating the call expression.
 func (b *Builtin) IsTargetPos(i int) bool {
-	return len(b.Decl.Args()) == i
+	return len(b.Decl.FuncArgs().Args) == i
 }
 
 func init() {
