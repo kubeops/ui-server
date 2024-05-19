@@ -21,6 +21,7 @@ import (
 	"hash"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/open-policy-agent/opa/internal/jwx/jwk"
 
@@ -56,12 +57,34 @@ func builtinCryptoX509ParseCertificates(_ BuiltinContext, operands []*ast.Term, 
 		return err
 	}
 
-	v, err := ast.InterfaceToValue(certs)
+	v, err := ast.InterfaceToValue(extendCertificates(certs))
 	if err != nil {
 		return err
 	}
 
 	return iter(ast.NewTerm(v))
+}
+
+// extendedCert is a wrapper around x509.Certificate that adds additional fields for JSON serialization.
+type extendedCert struct {
+	x509.Certificate
+	URIStrings []string
+}
+
+func extendCertificates(certs []*x509.Certificate) []extendedCert {
+	// add a field to certs containing the URIs as strings
+	processedCerts := make([]extendedCert, len(certs))
+
+	for i, cert := range certs {
+		processedCerts[i].Certificate = *cert
+		if cert.URIs != nil {
+			processedCerts[i].URIStrings = make([]string, len(cert.URIs))
+			for j, uri := range cert.URIs {
+				processedCerts[i].URIStrings[j] = uri.String()
+			}
+		}
+	}
+	return processedCerts
 }
 
 func builtinCryptoX509ParseAndVerifyCertificates(_ BuiltinContext, operands []*ast.Term, iter func(*ast.Term) error) error {
@@ -82,7 +105,70 @@ func builtinCryptoX509ParseAndVerifyCertificates(_ BuiltinContext, operands []*a
 		return iter(invalid)
 	}
 
-	verified, err := verifyX509CertificateChain(certs)
+	verified, err := verifyX509CertificateChain(certs, x509.VerifyOptions{})
+	if err != nil {
+		return iter(invalid)
+	}
+
+	value, err := ast.InterfaceToValue(extendCertificates(verified))
+	if err != nil {
+		return err
+	}
+
+	valid := ast.ArrayTerm(
+		ast.BooleanTerm(true),
+		ast.NewTerm(value),
+	)
+
+	return iter(valid)
+}
+
+var allowedKeyUsages = map[string]x509.ExtKeyUsage{
+	"KeyUsageAny":                            x509.ExtKeyUsageAny,
+	"KeyUsageServerAuth":                     x509.ExtKeyUsageServerAuth,
+	"KeyUsageClientAuth":                     x509.ExtKeyUsageClientAuth,
+	"KeyUsageCodeSigning":                    x509.ExtKeyUsageCodeSigning,
+	"KeyUsageEmailProtection":                x509.ExtKeyUsageEmailProtection,
+	"KeyUsageIPSECEndSystem":                 x509.ExtKeyUsageIPSECEndSystem,
+	"KeyUsageIPSECTunnel":                    x509.ExtKeyUsageIPSECTunnel,
+	"KeyUsageIPSECUser":                      x509.ExtKeyUsageIPSECUser,
+	"KeyUsageTimeStamping":                   x509.ExtKeyUsageTimeStamping,
+	"KeyUsageOCSPSigning":                    x509.ExtKeyUsageOCSPSigning,
+	"KeyUsageMicrosoftServerGatedCrypto":     x509.ExtKeyUsageMicrosoftServerGatedCrypto,
+	"KeyUsageNetscapeServerGatedCrypto":      x509.ExtKeyUsageNetscapeServerGatedCrypto,
+	"KeyUsageMicrosoftCommercialCodeSigning": x509.ExtKeyUsageMicrosoftCommercialCodeSigning,
+	"KeyUsageMicrosoftKernelCodeSigning":     x509.ExtKeyUsageMicrosoftKernelCodeSigning,
+}
+
+func builtinCryptoX509ParseAndVerifyCertificatesWithOptions(_ BuiltinContext, operands []*ast.Term, iter func(*ast.Term) error) error {
+
+	input, err := builtins.StringOperand(operands[0].Value, 1)
+	if err != nil {
+		return err
+	}
+
+	options, err := builtins.ObjectOperand(operands[1].Value, 2)
+	if err != nil {
+		return err
+	}
+
+	invalid := ast.ArrayTerm(
+		ast.BooleanTerm(false),
+		ast.NewTerm(ast.NewArray()),
+	)
+
+	certs, err := getX509CertsFromString(string(input))
+	if err != nil {
+		return iter(invalid)
+	}
+
+	// Collect the cert verification options
+	verifyOpt, err := extractVerifyOpts(options)
+	if err != nil {
+		return err
+	}
+
+	verified, err := verifyX509CertificateChain(certs, verifyOpt)
 	if err != nil {
 		return iter(invalid)
 	}
@@ -98,6 +184,90 @@ func builtinCryptoX509ParseAndVerifyCertificates(_ BuiltinContext, operands []*a
 	)
 
 	return iter(valid)
+}
+
+func extractVerifyOpts(options ast.Object) (verifyOpt x509.VerifyOptions, err error) {
+
+	for _, key := range options.Keys() {
+		k, err := ast.JSON(key.Value)
+		if err != nil {
+			return verifyOpt, err
+		}
+		k, ok := k.(string)
+		if !ok {
+			continue
+		}
+
+		switch k {
+		case "DNSName":
+			dns, ok := options.Get(key).Value.(ast.String)
+			if ok {
+				verifyOpt.DNSName = strings.Trim(string(dns), "\"")
+			} else {
+				return verifyOpt, fmt.Errorf("'DNSName' should be a string")
+			}
+		case "CurrentTime":
+			c, ok := options.Get(key).Value.(ast.Number)
+			if ok {
+				nanosecs, ok := c.Int64()
+				if ok {
+					verifyOpt.CurrentTime = time.Unix(0, nanosecs)
+				} else {
+					return verifyOpt, fmt.Errorf("'CurrentTime' should be a valid int64 number")
+				}
+			} else {
+				return verifyOpt, fmt.Errorf("'CurrentTime' should be a number")
+			}
+		case "MaxConstraintComparisons":
+			c, ok := options.Get(key).Value.(ast.Number)
+			if ok {
+				maxComparisons, ok := c.Int()
+				if ok {
+					verifyOpt.MaxConstraintComparisions = maxComparisons
+				} else {
+					return verifyOpt, fmt.Errorf("'MaxConstraintComparisons' should be a valid number")
+				}
+			} else {
+				return verifyOpt, fmt.Errorf("'MaxConstraintComparisons' should be a number")
+			}
+		case "KeyUsages":
+			type forEach interface {
+				Foreach(func(*ast.Term))
+			}
+			var ks forEach
+			switch options.Get(key).Value.(type) {
+			case *ast.Array:
+				ks = options.Get(key).Value.(*ast.Array)
+			case ast.Set:
+				ks = options.Get(key).Value.(ast.Set)
+			default:
+				return verifyOpt, fmt.Errorf("'KeyUsages' should be an Array or Set")
+			}
+
+			// Collect the x509.ExtKeyUsage values by looking up the
+			// mapping of key usage strings to x509.ExtKeyUsage
+			var invalidKUsgs []string
+			ks.Foreach(func(t *ast.Term) {
+				u, ok := t.Value.(ast.String)
+				if ok {
+					v := strings.Trim(string(u), "\"")
+					if k, ok := allowedKeyUsages[v]; ok {
+						verifyOpt.KeyUsages = append(verifyOpt.KeyUsages, k)
+					} else {
+						invalidKUsgs = append(invalidKUsgs, v)
+					}
+				}
+			})
+			if len(invalidKUsgs) > 0 {
+				return x509.VerifyOptions{}, fmt.Errorf("invalid entries for 'KeyUsages' found: %s", invalidKUsgs)
+			}
+		default:
+			return verifyOpt, fmt.Errorf("invalid key option")
+		}
+
+	}
+
+	return verifyOpt, nil
 }
 
 func builtinCryptoX509ParseKeyPair(_ BuiltinContext, operands []*ast.Term, iter func(*ast.Term) error) error {
@@ -358,6 +528,7 @@ func builtinCryptoHmacEqual(_ BuiltinContext, operands []*ast.Term, iter func(*a
 func init() {
 	RegisterBuiltinFunc(ast.CryptoX509ParseCertificates.Name, builtinCryptoX509ParseCertificates)
 	RegisterBuiltinFunc(ast.CryptoX509ParseAndVerifyCertificates.Name, builtinCryptoX509ParseAndVerifyCertificates)
+	RegisterBuiltinFunc(ast.CryptoX509ParseAndVerifyCertificatesWithOptions.Name, builtinCryptoX509ParseAndVerifyCertificatesWithOptions)
 	RegisterBuiltinFunc(ast.CryptoMd5.Name, builtinCryptoMd5)
 	RegisterBuiltinFunc(ast.CryptoSha1.Name, builtinCryptoSha1)
 	RegisterBuiltinFunc(ast.CryptoSha256.Name, builtinCryptoSha256)
@@ -372,7 +543,7 @@ func init() {
 	RegisterBuiltinFunc(ast.CryptoHmacEqual.Name, builtinCryptoHmacEqual)
 }
 
-func verifyX509CertificateChain(certs []*x509.Certificate) ([]*x509.Certificate, error) {
+func verifyX509CertificateChain(certs []*x509.Certificate, vo x509.VerifyOptions) ([]*x509.Certificate, error) {
 	if len(certs) < 2 {
 		return nil, builtins.NewOperandErr(1, "must supply at least two certificates to be able to verify")
 	}
@@ -392,8 +563,12 @@ func verifyX509CertificateChain(certs []*x509.Certificate) ([]*x509.Certificate,
 
 	// verify the cert chain back to the root
 	verifyOpts := x509.VerifyOptions{
-		Roots:         roots,
-		Intermediates: intermediates,
+		Roots:                     roots,
+		Intermediates:             intermediates,
+		DNSName:                   vo.DNSName,
+		CurrentTime:               vo.CurrentTime,
+		KeyUsages:                 vo.KeyUsages,
+		MaxConstraintComparisions: vo.MaxConstraintComparisions,
 	}
 	chains, err := leaf.Verify(verifyOpts)
 	if err != nil {
