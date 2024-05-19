@@ -1,5 +1,5 @@
 /*
-Copyright 2023 The Flux authors
+Copyright 2024 The Flux authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v2beta2
+package v2
 
 import (
 	"fmt"
@@ -138,6 +138,9 @@ type Snapshot struct {
 	// storage.
 	// +required
 	ChartVersion string `json:"chartVersion"`
+	// AppVersion is the chart app version of the release object in storage.
+	// +optional
+	AppVersion string `json:"appVersion,omitempty"`
 	// ConfigDigest is the checksum of the config (better known as
 	// "values") of the release object in storage.
 	// It has the format of `<algo>:<checksum>`.
@@ -156,6 +159,9 @@ type Snapshot struct {
 	// run by the controller.
 	// +optional
 	TestHooks *map[string]*TestHookStatus `json:"testHooks,omitempty"`
+	// OCIDigest is the digest of the OCI artifact associated with the release.
+	// +optional
+	OCIDigest string `json:"ociDigest,omitempty"`
 }
 
 // FullReleaseName returns the full name of the release in the format

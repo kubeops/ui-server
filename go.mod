@@ -6,8 +6,8 @@ toolchain go1.22.1
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
-	github.com/fluxcd/helm-controller/api v0.37.2
-	github.com/fluxcd/source-controller/api v1.2.3
+	github.com/fluxcd/helm-controller/api v1.0.1
+	github.com/fluxcd/source-controller/api v1.3.0
 	github.com/go-logr/logr v1.4.1
 	github.com/gobuffalo/flect v0.3.0
 	github.com/google/gofuzz v1.2.0
@@ -48,7 +48,7 @@ require (
 	kmodules.xyz/custom-resources v0.29.1
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
-	kmodules.xyz/resource-metadata v0.18.6-0.20240519060826-0f56f2586902
+	kmodules.xyz/resource-metadata v0.18.6-0.20240519125927-d558ba96f4da
 	kmodules.xyz/resource-metrics v0.29.5
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.3
@@ -99,9 +99,9 @@ require (
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/fluxcd/pkg/apis/acl v0.1.0 // indirect
-	github.com/fluxcd/pkg/apis/kustomize v1.2.0 // indirect
-	github.com/fluxcd/pkg/apis/meta v1.2.0 // indirect
+	github.com/fluxcd/pkg/apis/acl v0.3.0 // indirect
+	github.com/fluxcd/pkg/apis/kustomize v1.5.0 // indirect
+	github.com/fluxcd/pkg/apis/meta v1.5.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect

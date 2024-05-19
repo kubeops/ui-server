@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The Flux authors
+Copyright 2024 The Flux authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v2beta2
+package v2
 
 const (
 	// ReleasedCondition represents the status of the last release attempt
@@ -76,23 +76,7 @@ const (
 	// HelmRelease failed.
 	ArtifactFailedReason string = "ArtifactFailed"
 
-	// InitFailedReason represents the fact that the initialization of the Helm
-	// configuration failed.
-	InitFailedReason string = "InitFailed"
-
-	// GetLastReleaseFailedReason represents the fact that observing the last
-	// release failed.
-	GetLastReleaseFailedReason string = "GetLastReleaseFailed"
-
 	// DependencyNotReadyReason represents the fact that
 	// one of the dependencies is not ready.
 	DependencyNotReadyReason string = "DependencyNotReady"
-
-	// ReconciliationSucceededReason represents the fact that
-	// the reconciliation succeeded.
-	ReconciliationSucceededReason string = "ReconciliationSucceeded"
-
-	// ReconciliationFailedReason represents the fact that
-	// the reconciliation failed.
-	ReconciliationFailedReason string = "ReconciliationFailed"
 )

@@ -20,7 +20,7 @@ import (
 	"context"
 	"testing"
 
-	fluxhelm "github.com/fluxcd/helm-controller/api/v2beta2"
+	fluxhelm "github.com/fluxcd/helm-controller/api/v2"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"gomodules.xyz/pointer"

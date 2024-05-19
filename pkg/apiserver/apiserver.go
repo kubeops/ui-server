@@ -70,7 +70,7 @@ import (
 	imagestorage "kubeops.dev/ui-server/pkg/registry/scanner/image"
 	reportstorage "kubeops.dev/ui-server/pkg/registry/scanner/reports"
 
-	fluxsrc "github.com/fluxcd/source-controller/api/v1beta2"
+	fluxsrc "github.com/fluxcd/source-controller/api/v1"
 	"github.com/graphql-go/handler"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"

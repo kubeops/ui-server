@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 
-	fluxhelm "github.com/fluxcd/helm-controller/api/v2beta2"
+	fluxhelm "github.com/fluxcd/helm-controller/api/v2"
 	"github.com/go-logr/logr"
 	"gomodules.xyz/pointer"
 	kerr "k8s.io/apimachinery/pkg/api/errors"

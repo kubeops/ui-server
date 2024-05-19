@@ -33,7 +33,7 @@ import (
 	featurecontroller "kubeops.dev/ui-server/pkg/controllers/feature"
 	"kubeops.dev/ui-server/pkg/metricshandler"
 
-	fluxhelm "github.com/fluxcd/helm-controller/api/v2beta2"
+	fluxhelm "github.com/fluxcd/helm-controller/api/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
