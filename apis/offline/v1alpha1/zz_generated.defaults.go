@@ -29,5 +29,33 @@ import (
 // Public to allow building arbitrary schemes.
 // All generated defaulters are covering - they call all nested defaulters.
 func RegisterDefaults(scheme *runtime.Scheme) error {
+	scheme.AddTypeDefaultingFunc(&AddOfflineLicense{}, func(obj interface{}) { SetObjectDefaults_AddOfflineLicense(obj.(*AddOfflineLicense)) })
+	scheme.AddTypeDefaultingFunc(&OfflineLicense{}, func(obj interface{}) { SetObjectDefaults_OfflineLicense(obj.(*OfflineLicense)) })
+	scheme.AddTypeDefaultingFunc(&OfflineLicenseList{}, func(obj interface{}) { SetObjectDefaults_OfflineLicenseList(obj.(*OfflineLicenseList)) })
 	return nil
+}
+
+func SetObjectDefaults_AddOfflineLicense(in *AddOfflineLicense) {
+	if in.Response != nil {
+		if in.Response.SecretKeyRef != nil {
+			if in.Response.SecretKeyRef.LocalObjectReference.Name == "" {
+				in.Response.SecretKeyRef.LocalObjectReference.Name = ""
+			}
+		}
+	}
+}
+
+func SetObjectDefaults_OfflineLicense(in *OfflineLicense) {
+	if in.Status.SecretKeyRef != nil {
+		if in.Status.SecretKeyRef.LocalObjectReference.Name == "" {
+			in.Status.SecretKeyRef.LocalObjectReference.Name = ""
+		}
+	}
+}
+
+func SetObjectDefaults_OfflineLicenseList(in *OfflineLicenseList) {
+	for i := range in.Items {
+		a := &in.Items[i]
+		SetObjectDefaults_OfflineLicense(a)
+	}
 }
