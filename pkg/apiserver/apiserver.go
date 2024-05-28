@@ -45,6 +45,8 @@ import (
 	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/core/resourceservice"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
+	clusteridstorage "kubeops.dev/ui-server/pkg/registry/identity/clusteridentity"
+	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/inboxtokenrequest"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
 	clusterprofilestorage "kubeops.dev/ui-server/pkg/registry/meta/clusterprofile"
@@ -159,6 +161,10 @@ func init() {
 type ExtraConfig struct {
 	ClientConfig *restclient.Config
 	PromConfig   promclient.Config
+
+	BaseURL string
+	Token   string
+	CACert  []byte
 }
 
 // Config defines the config for the apiserver
@@ -344,6 +350,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[identityv1alpha1.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient)
+		v1alpha1storage[identityv1alpha1.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage()
 		v1alpha1storage[identityv1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
