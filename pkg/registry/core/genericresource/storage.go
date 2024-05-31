@@ -149,7 +149,6 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
-
 	selector := shared.NewGroupKindSelector(options.LabelSelector)
 
 	user, ok := apirequest.UserFrom(ctx)

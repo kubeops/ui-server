@@ -75,5 +75,8 @@ func (a APIAuthorizer) Authorize(ctx context.Context, attrs authorizer.Attribute
 	if sar.Status.Denied {
 		return authorizer.DecisionDeny, sar.Status.Reason, nil
 	}
-	return authorizer.DecisionNoOpinion, sar.Status.Reason, errors.New(sar.Status.EvaluationError)
+	if sar.Status.EvaluationError != "" {
+		return authorizer.DecisionNoOpinion, sar.Status.Reason, errors.New(sar.Status.EvaluationError)
+	}
+	return authorizer.DecisionNoOpinion, sar.Status.Reason, nil
 }
