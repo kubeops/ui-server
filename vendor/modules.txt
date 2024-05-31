@@ -1913,8 +1913,8 @@ k8s.io/utils/trace
 # kmodules.xyz/apiversion v0.2.0
 ## explicit; go 1.14
 kmodules.xyz/apiversion
-# kmodules.xyz/authorizer v0.29.0
-## explicit; go 1.21.5
+# kmodules.xyz/authorizer v0.29.1
+## explicit; go 1.22.0
 kmodules.xyz/authorizer
 kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac

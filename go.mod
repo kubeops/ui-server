@@ -43,7 +43,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20240430033511-f0e62f92d13f
 	k8s.io/kube-state-metrics/v2 v2.7.0
 	kmodules.xyz/apiversion v0.2.0
-	kmodules.xyz/authorizer v0.29.0
+	kmodules.xyz/authorizer v0.29.1
 	kmodules.xyz/client-go v0.30.0
 	kmodules.xyz/custom-resources v0.29.1
 	kmodules.xyz/go-containerregistry v0.0.12

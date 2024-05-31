@@ -157,6 +157,9 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		if err := r.kc.List(ctx, &list, client.InNamespace(ns)); err != nil {
 			return nil, err
 		}
+
+		// hasPermission to check if the user has permission to list the resources
+		hasPermission := false
 		for _, item := range list.Items {
 			attrs.Name = item.GetName()
 			attrs.Namespace = item.GetNamespace()
@@ -168,6 +171,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				continue
 			}
 
+			hasPermission = true
 			content := item.UnstructuredContent()
 			{
 				rv, err := resourcemetrics.TotalResourceRequests(content)
@@ -199,7 +203,9 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			}
 		}
 
-		summary.Spec.Count = len(list.Items)
+		if hasPermission {
+			summary.Spec.Count = len(list.Items)
+		}
 		items = append(items, summary)
 	}
 	sort.Slice(items, func(i, j int) bool {
