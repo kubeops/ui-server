@@ -20,15 +20,21 @@ import (
 	"context"
 	"strings"
 
-	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	authenticationapi "kubeops.dev/ui-server/apis/authentication/v1alpha1"
+	"kubeops.dev/ui-server/pkg/b3"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-type Storage struct{}
+type Storage struct {
+	kc         client.Client
+	bc         *b3.Client
+	clusterUID string
+}
 
 var (
 	_ rest.GroupVersionKindProvider = &Storage{}
@@ -38,12 +44,16 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage() *Storage {
-	return &Storage{}
+func NewStorage(kc client.Client, bc *b3.Client, clusterUID string) *Storage {
+	return &Storage{
+		kc:         kc,
+		bc:         bc,
+		clusterUID: clusterUID,
+	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return identityv1alpha1.GroupVersion.WithKind(identityv1alpha1.ResourceKindInboxTokenRequest)
+	return authenticationapi.GroupVersion.WithKind(authenticationapi.ResourceKindInboxTokenRequest)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -51,19 +61,19 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) GetSingularName() string {
-	return strings.ToLower(identityv1alpha1.ResourceKindInboxTokenRequest)
+	return strings.ToLower(authenticationapi.ResourceKindInboxTokenRequest)
 }
 
 func (r *Storage) New() runtime.Object {
-	return &identityv1alpha1.InboxTokenRequest{}
+	return &authenticationapi.InboxTokenRequest{}
 }
 
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
-	req := obj.(*identityv1alpha1.InboxTokenRequest)
+	req := obj.(*authenticationapi.InboxTokenRequest)
 
-	req.Response = &identityv1alpha1.InboxTokenRequestResponse{
+	req.Response = &authenticationapi.InboxTokenRequestResponse{
 		JmapJWTToken:  "your-jmap-token-here",
 		AdminJWTToken: "your-admin-token-here",
 	}

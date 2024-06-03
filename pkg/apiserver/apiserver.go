@@ -26,6 +26,8 @@ import (
 	scannerreports "kubeops.dev/scanner/apis/reports"
 	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerscheme "kubeops.dev/scanner/client/clientset/versioned/scheme"
+	authenticationinstall "kubeops.dev/ui-server/apis/authentication/install"
+	authenticationv1alpha1 "kubeops.dev/ui-server/apis/authentication/v1alpha1"
 	costinstall "kubeops.dev/ui-server/apis/cost/install"
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
 	identityinstall "kubeops.dev/ui-server/apis/identity/install"
@@ -34,19 +36,20 @@ import (
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
+	"kubeops.dev/ui-server/pkg/b3"
 	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/metricshandler"
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
+	clusteridstorage "kubeops.dev/ui-server/pkg/registry/authentication/clusteridentity"
+	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/authentication/inboxtokenrequest"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/core/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/core/podview"
 	projecttorage "kubeops.dev/ui-server/pkg/registry/core/project"
 	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/core/resourceservice"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
-	clusteridstorage "kubeops.dev/ui-server/pkg/registry/identity/clusteridentity"
-	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/inboxtokenrequest"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
 	clusterprofilestorage "kubeops.dev/ui-server/pkg/registry/meta/clusterprofile"
@@ -74,6 +77,7 @@ import (
 
 	fluxsrc "github.com/fluxcd/source-controller/api/v1"
 	"github.com/graphql-go/handler"
+	"github.com/pkg/errors"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
@@ -124,6 +128,7 @@ var (
 
 func init() {
 	auditorinstall.Install(Scheme)
+	authenticationinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
 	policyinstall.Install(Scheme)
 	costinstall.Install(Scheme)
@@ -347,11 +352,26 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		}
 	}
 	{
+		bc, err := b3.NewClient(c.ExtraConfig.BaseURL, c.ExtraConfig.Token, c.ExtraConfig.CACert)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create b3 api client")
+		}
+
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(authenticationv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[authenticationv1alpha1.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc, cid)
+		v1alpha1storage[authenticationv1alpha1.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage(ctrlClient, bc, cid)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
+	{
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[identityv1alpha1.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient)
-		v1alpha1storage[identityv1alpha1.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage()
 		v1alpha1storage[identityv1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
