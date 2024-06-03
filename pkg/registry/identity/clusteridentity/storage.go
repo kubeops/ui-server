@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	"kubeops.dev/ui-server/pkg/registry/identity"
 
 	"gomodules.xyz/sync"
 	core "k8s.io/api/core/v1"
@@ -31,13 +32,14 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/apiserver/pkg/registry/rest"
-	"kmodules.xyz/client-go/tools/clusterid"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Storage struct {
-	kc        client.Client
-	convertor rest.TableConvertor
+	kc         client.Client
+	bc         *identity.Client
+	clusterUID string
+	convertor  rest.TableConvertor
 
 	identity *identityapi.ClusterIdentity
 	once     sync.Once
@@ -55,9 +57,11 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, bc *identity.Client, clusterUID string) *Storage {
 	return &Storage{
-		kc: kc,
+		kc:         kc,
+		bc:         bc,
+		clusterUID: clusterUID,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    identityapi.GroupName,
 			Resource: identityapi.ResourceClusterIdentities,
@@ -101,7 +105,8 @@ func (r *Storage) knowThyself() {
 		if err != nil {
 			return err
 		}
-		cm, err := clusterid.ClusterMetadataForNamespace(&ns)
+
+		status, err := r.bc.Identify(r.clusterUID)
 		if err != nil {
 			return err
 		}
@@ -113,9 +118,7 @@ func (r *Storage) knowThyself() {
 				CreationTimestamp: ns.CreationTimestamp,
 				Generation:        1,
 			},
-			Status: identityapi.ClusterIdentityStatus{
-				ClusterMetadata: *cm,
-			},
+			Status: *status,
 		}
 		return nil
 	})

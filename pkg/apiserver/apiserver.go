@@ -45,6 +45,7 @@ import (
 	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/core/resourceservice"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
+	"kubeops.dev/ui-server/pkg/registry/identity"
 	clusteridstorage "kubeops.dev/ui-server/pkg/registry/identity/clusteridentity"
 	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/inboxtokenrequest"
 	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
@@ -74,6 +75,7 @@ import (
 
 	fluxsrc "github.com/fluxcd/source-controller/api/v1"
 	"github.com/graphql-go/handler"
+	"github.com/pkg/errors"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
 	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
@@ -350,7 +352,12 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[identityv1alpha1.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient)
+
+		bc, err := identity.NewClient(c.ExtraConfig.BaseURL, c.ExtraConfig.Token, c.ExtraConfig.CACert)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create b3 api client")
+		}
+		v1alpha1storage[identityv1alpha1.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc, cid)
 		v1alpha1storage[identityv1alpha1.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage()
 		v1alpha1storage[identityv1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
