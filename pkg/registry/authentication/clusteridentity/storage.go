@@ -20,7 +20,8 @@ import (
 	"context"
 	"strings"
 
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	authenticationapi "kubeops.dev/ui-server/apis/authentication/v1alpha1"
+	"kubeops.dev/ui-server/pkg/b3"
 
 	"gomodules.xyz/sync"
 	core "k8s.io/api/core/v1"
@@ -29,17 +30,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/apiserver/pkg/registry/rest"
-	"kmodules.xyz/client-go/tools/clusterid"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Storage struct {
-	kc        client.Client
-	convertor rest.TableConvertor
+	kc         client.Client
+	bc         *b3.Client
+	clusterUID string
+	convertor  rest.TableConvertor
 
-	identity *identityapi.ClusterIdentity
+	identity *authenticationapi.ClusterIdentity
 	once     sync.Once
 	idError  error
 }
@@ -51,22 +52,23 @@ var (
 	_ rest.Scoper                   = &Storage{}
 	_ rest.Storage                  = &Storage{}
 	_ rest.Lister                   = &Storage{}
-	_ rest.Watcher                  = &Storage{}
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, bc *b3.Client, clusterUID string) *Storage {
 	return &Storage{
-		kc: kc,
+		kc:         kc,
+		bc:         bc,
+		clusterUID: clusterUID,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    identityapi.GroupName,
-			Resource: identityapi.ResourceClusterIdentities,
+			Group:    authenticationapi.GroupName,
+			Resource: authenticationapi.ResourceClusterIdentities,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return identityapi.GroupVersion.WithKind(identityapi.ResourceKindClusterIdentity)
+	return authenticationapi.GroupVersion.WithKind(authenticationapi.ResourceKindClusterIdentity)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -74,18 +76,18 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) GetSingularName() string {
-	return strings.ToLower(identityapi.ResourceKindClusterIdentity)
+	return strings.ToLower(authenticationapi.ResourceKindClusterIdentity)
 }
 
 func (r *Storage) New() runtime.Object {
-	return &identityapi.ClusterIdentity{}
+	return &authenticationapi.ClusterIdentity{}
 }
 
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
 	if name != selfName {
-		return nil, apierrors.NewNotFound(schema.GroupResource{Group: identityapi.GroupName, Resource: identityapi.ResourceClusterIdentities}, name)
+		return nil, apierrors.NewNotFound(schema.GroupResource{Group: authenticationapi.GroupName, Resource: authenticationapi.ResourceClusterIdentities}, name)
 	}
 	r.knowThyself()
 	if r.idError != nil {
@@ -101,21 +103,20 @@ func (r *Storage) knowThyself() {
 		if err != nil {
 			return err
 		}
-		cm, err := clusterid.ClusterMetadataForNamespace(&ns)
+
+		status, err := r.bc.Identify(r.clusterUID)
 		if err != nil {
 			return err
 		}
 
-		r.identity = &identityapi.ClusterIdentity{
+		r.identity = &authenticationapi.ClusterIdentity{
 			ObjectMeta: metav1.ObjectMeta{
 				UID:               "cid-" + ns.UID,
 				Name:              selfName,
 				CreationTimestamp: ns.CreationTimestamp,
 				Generation:        1,
 			},
-			Status: identityapi.ClusterIdentityStatus{
-				ClusterMetadata: *cm,
-			},
+			Status: *status,
 		}
 		return nil
 	})
@@ -123,7 +124,7 @@ func (r *Storage) knowThyself() {
 
 // Lister
 func (r *Storage) NewList() runtime.Object {
-	return &identityapi.ClusterIdentityList{}
+	return &authenticationapi.ClusterIdentityList{}
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -132,19 +133,14 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, r.idError
 	}
 
-	result := identityapi.ClusterIdentityList{
+	result := authenticationapi.ClusterIdentityList{
 		TypeMeta: metav1.TypeMeta{},
-		Items: []identityapi.ClusterIdentity{
+		Items: []authenticationapi.ClusterIdentity{
 			*r.identity,
 		},
 	}
 
 	return &result, nil
-}
-
-func (r *Storage) Watch(ctx context.Context, options *internalversion.ListOptions) (watch.Interface, error) {
-	// TODO implement me
-	panic("implement me")
 }
 
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
