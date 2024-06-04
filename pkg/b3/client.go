@@ -24,7 +24,6 @@ import (
 	"path"
 
 	authenticationapi "kubeops.dev/ui-server/apis/authentication/v1alpha1"
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 
 	"go.bytebuilders.dev/license-verifier/info"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -91,7 +90,7 @@ func (c *Client) Identify(clusterUID string) (*authenticationapi.ClusterIdentity
 		return nil, apierrors.NewGenericServerResponse(
 			resp.StatusCode,
 			http.MethodGet,
-			schema.GroupResource{Group: identityapi.GroupName, Resource: authenticationapi.ResourceClusterIdentities},
+			schema.GroupResource{Group: authenticationapi.GroupName, Resource: authenticationapi.ResourceClusterIdentities},
 			"",
 			string(body),
 			0,

@@ -28,7 +28,7 @@ helm install kube-ui-server appscode/kube-ui-server
 ```console
 $ kubectl create -f artifacts/whoami.yaml -o yaml
 
-apiVersion: identity.k8s.appscode.com/v1alpha1
+apiVersion: authentication.k8s.appscode.com/v1alpha1
 kind: WhoAmI
 response:
   user:

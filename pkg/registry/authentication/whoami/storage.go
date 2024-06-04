@@ -20,7 +20,8 @@ import (
 	"context"
 	"strings"
 
-	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	"kubeops.dev/ui-server/apis/authentication/v1alpha1"
+	authenticationapi "kubeops.dev/ui-server/apis/authentication/v1alpha1"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -45,7 +46,7 @@ func NewStorage() *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return identityv1alpha1.GroupVersion.WithKind(identityv1alpha1.ResourceKindWhoAmI)
+	return authenticationapi.GroupVersion.WithKind(authenticationapi.ResourceKindWhoAmI)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -53,11 +54,11 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) GetSingularName() string {
-	return strings.ToLower(identityv1alpha1.ResourceKindWhoAmI)
+	return strings.ToLower(authenticationapi.ResourceKindWhoAmI)
 }
 
 func (r *Storage) New() runtime.Object {
-	return &identityv1alpha1.WhoAmI{}
+	return &authenticationapi.WhoAmI{}
 }
 
 func (r *Storage) Destroy() {}
@@ -67,14 +68,14 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing user info")
 	}
-	req := obj.(*identityv1alpha1.WhoAmI)
+	req := obj.(*authenticationapi.WhoAmI)
 
-	extra := make(map[string]identityv1alpha1.ExtraValue)
+	extra := make(map[string]authenticationapi.ExtraValue)
 	for k, v := range user.GetExtra() {
 		extra[k] = v
 	}
-	req.Response = &identityv1alpha1.WhoAmIResponse{
-		User: &identityv1alpha1.UserInfo{
+	req.Response = &authenticationapi.WhoAmIResponse{
+		User: &v1alpha1.UserInfo{
 			Username: user.GetName(),
 			UID:      user.GetUID(),
 			Groups:   user.GetGroups(),

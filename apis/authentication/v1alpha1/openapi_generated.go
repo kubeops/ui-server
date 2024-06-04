@@ -380,6 +380,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubeops.dev/ui-server/apis/authentication/v1alpha1.InboxTokenRequest":         schema_ui_server_apis_authentication_v1alpha1_InboxTokenRequest(ref),
 		"kubeops.dev/ui-server/apis/authentication/v1alpha1.InboxTokenRequestRequest":  schema_ui_server_apis_authentication_v1alpha1_InboxTokenRequestRequest(ref),
 		"kubeops.dev/ui-server/apis/authentication/v1alpha1.InboxTokenRequestResponse": schema_ui_server_apis_authentication_v1alpha1_InboxTokenRequestResponse(ref),
+		"kubeops.dev/ui-server/apis/authentication/v1alpha1.UserInfo":                  schema_ui_server_apis_authentication_v1alpha1_UserInfo(ref),
+		"kubeops.dev/ui-server/apis/authentication/v1alpha1.WhoAmI":                    schema_ui_server_apis_authentication_v1alpha1_WhoAmI(ref),
+		"kubeops.dev/ui-server/apis/authentication/v1alpha1.WhoAmIResponse":            schema_ui_server_apis_authentication_v1alpha1_WhoAmIResponse(ref),
 	}
 }
 
@@ -19435,5 +19438,126 @@ func schema_ui_server_apis_authentication_v1alpha1_InboxTokenRequestResponse(ref
 				Required: []string{"jmapJWTToken", "adminJWTToken"},
 			},
 		},
+	}
+}
+
+func schema_ui_server_apis_authentication_v1alpha1_UserInfo(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "UserInfo holds the information about the user needed to implement the user.Info interface.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"username": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The name that uniquely identifies this user among all active users.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"uid": {
+						SchemaProps: spec.SchemaProps{
+							Description: "A unique value that identifies this user across time. If this user is deleted and another user by the same name is added, they will have different UIDs.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"groups": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The names of groups this user is a part of.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"extra": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Any additional information provided by the authenticator.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type: []string{"array"},
+										Items: &spec.SchemaOrArray{
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Default: "",
+													Type:    []string{"string"},
+													Format:  "",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_ui_server_apis_authentication_v1alpha1_WhoAmI(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "WhoAmI is the Schema for the whoamis API",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"response": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Response describes the attributes for the identity response.",
+							Ref:         ref("kubeops.dev/ui-server/apis/authentication/v1alpha1.WhoAmIResponse"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/ui-server/apis/authentication/v1alpha1.WhoAmIResponse"},
+	}
+}
+
+func schema_ui_server_apis_authentication_v1alpha1_WhoAmIResponse(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "WhoAmIResponse describes an admission response.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"user": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Result contains extra details into why an admission request was denied. This field IS NOT consulted in any way if \"Allowed\" is \"true\".",
+							Ref:         ref("kubeops.dev/ui-server/apis/authentication/v1alpha1.UserInfo"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kubeops.dev/ui-server/apis/authentication/v1alpha1.UserInfo"},
 	}
 }
