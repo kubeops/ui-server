@@ -250,6 +250,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	if err != nil {
 		return nil, err
 	}
+	//clusterName, err := clustermeta.
 
 	rbacAuthorizer := authorizer.NewForManagerOrDie(ctx, mgr)
 
@@ -354,11 +355,12 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage := map[string]rest.Storage{}
 
 		bc, err := identity.NewClient(c.ExtraConfig.BaseURL, c.ExtraConfig.Token, c.ExtraConfig.CACert)
+
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create b3 api client")
 		}
 		v1alpha1storage[identityv1alpha1.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc, cid)
-		v1alpha1storage[identityv1alpha1.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage()
+		v1alpha1storage[identityv1alpha1.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage(ctrlClient, bc, cid) //send ctrlClient, bc, cid
 		v1alpha1storage[identityv1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 

@@ -20,8 +20,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io"
+	"k8s.io/klog/v2"
 	"net/http"
 	"path"
+	"time"
 
 	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 
@@ -39,6 +41,9 @@ type Client struct {
 }
 
 func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
+	klog.Info("==============================check base url and token====================================")
+	time.Sleep(100 * time.Millisecond)
+	klog.Info(baseURL, token)
 	c := &Client{
 		baseURL: baseURL,
 		token:   token,
@@ -60,6 +65,8 @@ func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
 }
 
 func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus, error) {
+
+	klog.Info("===================== Identity Status Called ===============")
 	u, err := info.APIServerAddress(c.baseURL)
 	if err != nil {
 		return nil, err
@@ -82,6 +89,9 @@ func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
+
+	klog.Info("========================================Identity Status Response: ============================================", string(body))
+
 	if err != nil {
 		return nil, err
 	}
@@ -104,4 +114,36 @@ func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus
 		return nil, err
 	}
 	return &ds, nil
+}
+
+func (c *Client) GetToken() string {
+	u, err := info.APIServerAddress(c.baseURL)
+	if err != nil {
+		return "nil"
+	}
+	u.Path = path.Join(u.Path, "api/v1/agent/token-test", c.token, "token")
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	if err != nil {
+		klog.Error("========================req 1 error==================================", err)
+		return ""
+	}
+	req.Header.Set("Content-Type", "application/json")
+	// add authorization header to the req
+	if c.token != "" {
+		req.Header.Add("Authorization", "Bearer "+c.token)
+	}
+	resp, err := c.client.Do(req)
+	if err != nil {
+		klog.Error("========================req 2 error==================================", err)
+		return ""
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	klog.Info("======================================================", string(body))
+	time.Sleep(5 * time.Second)
+	if err != nil {
+		klog.Error("========================req 3 error==================================", err)
+		return ""
+	}
+	return string(body)
 }

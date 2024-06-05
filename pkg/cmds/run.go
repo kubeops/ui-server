@@ -19,7 +19,6 @@ package cmds
 import (
 	"context"
 	"io"
-
 	"kubeops.dev/ui-server/pkg/cmds/server"
 
 	"github.com/spf13/cobra"
@@ -51,7 +50,6 @@ func NewCmdRun(ctx context.Context, out, errOut io.Writer) *cobra.Command {
 			return nil
 		},
 	}
-
 	flags := cmd.Flags()
 	o.AddFlags(flags)
 	utilfeature.DefaultMutableFeatureGate.AddFlag(flags)

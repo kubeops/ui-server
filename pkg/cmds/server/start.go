@@ -19,25 +19,12 @@ package server
 import (
 	"context"
 	"fmt"
-	"io"
-	"net"
-	"net/http"
-	"strconv"
-
-	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
-	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
-	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
-	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
-	"kubeops.dev/ui-server/pkg/apiserver"
-	featurecontroller "kubeops.dev/ui-server/pkg/controllers/feature"
-	"kubeops.dev/ui-server/pkg/metricshandler"
-
 	fluxhelm "github.com/fluxcd/helm-controller/api/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	v "gomodules.xyz/x/version"
+	"io"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
@@ -55,8 +42,20 @@ import (
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	ui "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
+	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
+	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
+	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
+	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
+	"kubeops.dev/ui-server/pkg/apiserver"
+	featurecontroller "kubeops.dev/ui-server/pkg/controllers/feature"
+	"kubeops.dev/ui-server/pkg/metricshandler"
+	"net"
+	"net/http"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	_ "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"strconv"
 )
 
 const defaultEtcdPathPrefix = "/registry/k8s.appscode.com"
@@ -97,6 +96,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 func (o UIServerOptions) AddFlags(fs *pflag.FlagSet) {
 	o.RecommendedOptions.AddFlags(fs)
 	o.PrometheusOptions.AddFlags(fs)
+	o.ExtraOptions.AddFlags(fs)
 }
 
 // Validate validates UIServerOptions
@@ -198,6 +198,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		ClientConfig: serverConfig.ClientConfig,
 		PromConfig:   *o.PrometheusOptions,
 	}
+
 	if err := o.ExtraOptions.ApplyTo(&extraConfig); err != nil {
 		return nil, err
 	}
@@ -206,6 +207,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		GenericConfig: serverConfig,
 		ExtraConfig:   extraConfig,
 	}
+
 	return config, nil
 }
 
@@ -215,7 +217,6 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
 	{
 		metricshandler.RegisterSelfMetrics()
 		telemetryMux := buildTelemetryServer(legacyregistry.DefaultGatherer)
@@ -231,6 +232,7 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 	}
 
 	server, err := config.Complete().New(ctx)
+
 	if err != nil {
 		return err
 	}
