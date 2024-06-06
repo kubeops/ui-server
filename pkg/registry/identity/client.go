@@ -19,16 +19,15 @@ package identity
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"go.bytebuilders.dev/license-verifier/info"
 	"io"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/klog/v2"
 	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"net/http"
 	"path"
-
-	"go.bytebuilders.dev/license-verifier/info"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/util/json"
 )
 
 type Client struct {
@@ -113,7 +112,7 @@ func (c *Client) GetToken() string {
 	if err != nil {
 		return "nil"
 	}
-	u.Path = path.Join(u.Path, "api/v1/agent/token-test", c.token, "token")
+	u.Path = path.Join(u.Path, "api/v1/agent/token-test", c.token, "token") //This c.token should be clusterUUID TODO
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
 		klog.Error("========================req 1 error==================================", err)
