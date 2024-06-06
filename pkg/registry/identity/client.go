@@ -21,11 +21,9 @@ import (
 	"crypto/x509"
 	"io"
 	"k8s.io/klog/v2"
+	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"net/http"
 	"path"
-	"time"
-
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 
 	"go.bytebuilders.dev/license-verifier/info"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -134,7 +132,7 @@ func (c *Client) GetToken() string {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	klog.Info("======================================================", string(body))
-	time.Sleep(5 * time.Second)
+	//time.Sleep(5 * time.Second)
 	if err != nil {
 		klog.Error("========================req 3 error==================================", err)
 		return ""
