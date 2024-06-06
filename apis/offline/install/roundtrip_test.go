@@ -19,13 +19,13 @@ package install
 import (
 	"testing"
 
-	identityfuzzer "kubeops.dev/ui-server/apis/identity/fuzzer"
+	"kubeops.dev/ui-server/apis/offline/fuzzer"
 
 	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )
 
 func TestRoundTripTypes(t *testing.T) {
-	roundtrip.RoundTripTestForAPIGroup(t, Install, identityfuzzer.Funcs)
+	roundtrip.RoundTripTestForAPIGroup(t, Install, fuzzer.Funcs)
 	// TODO: enable protobuf generation for the sample-apiserver
 	// roundtrip.RoundTripProtobufTestForAPIGroup(t, Install, identityfuzzer.Funcs)
 }
