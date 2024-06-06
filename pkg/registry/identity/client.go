@@ -41,9 +41,6 @@ type Client struct {
 }
 
 func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
-	klog.Info("==============================check base url and token====================================")
-	time.Sleep(100 * time.Millisecond)
-	klog.Info(baseURL, token)
 	c := &Client{
 		baseURL: baseURL,
 		token:   token,
@@ -66,7 +63,6 @@ func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
 
 func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus, error) {
 
-	klog.Info("===================== Identity Status Called ===============")
 	u, err := info.APIServerAddress(c.baseURL)
 	if err != nil {
 		return nil, err
@@ -89,8 +85,6 @@ func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
-
-	klog.Info("========================================Identity Status Response: ============================================", string(body))
 
 	if err != nil {
 		return nil, err

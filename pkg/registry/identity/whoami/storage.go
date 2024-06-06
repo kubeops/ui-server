@@ -18,7 +18,6 @@ package whoami
 
 import (
 	"context"
-	"k8s.io/klog/v2"
 	"strings"
 
 	identityv1alpha1 "kubeops.dev/ui-server/apis/identity/v1alpha1"
@@ -64,7 +63,6 @@ func (r *Storage) New() runtime.Object {
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
-	klog.Info("====================whoIam Called==========================")
 	user, ok := request.UserFrom(ctx)
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing user info")
