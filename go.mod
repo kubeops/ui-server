@@ -44,11 +44,11 @@ require (
 	k8s.io/kube-state-metrics/v2 v2.7.0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.30.0
+	kmodules.xyz/client-go v0.30.2
 	kmodules.xyz/custom-resources v0.29.1
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
-	kmodules.xyz/resource-metadata v0.18.7-0.20240606075826-3678251ac1f3
+	kmodules.xyz/resource-metadata v0.18.7-0.20240607010810-bb70dc0e8852
 	kmodules.xyz/resource-metrics v0.29.5
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.3
