@@ -18,7 +18,6 @@ package resourcecalculator
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	core "k8s.io/api/core/v1"
@@ -123,16 +122,4 @@ func getGVK(obj map[string]interface{}) schema.GroupVersionKind {
 	unObj.SetUnstructuredContent(obj)
 
 	return unObj.GroupVersionKind()
-}
-
-func extractReferencedObject(opsObj map[string]interface{}, refDbPath ...string) (map[string]interface{}, error) {
-	if len(refDbPath) == 0 {
-		refDbPath = []string{"spec", "databaseRef", "referencedDB"}
-	}
-	dbObj, found, _ := unstructured.NestedMap(opsObj, refDbPath...)
-	if !found {
-		return nil, errors.New("referenced db object not found")
-	}
-
-	return dbObj, nil
 }

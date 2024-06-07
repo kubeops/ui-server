@@ -18,6 +18,7 @@ package resourcecalculator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -35,6 +36,7 @@ import (
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
 	opsv1alpha1 "kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1"
+	"kmodules.xyz/resource-metrics/utils"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -112,7 +114,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 	}
 	// Wrap referenced db resource with the OpsRequest object
 	if rid.Group == "ops.kubedb.com" {
-		if err = wrapReferencedDBResourceWithOpsReqObject(r.kc, &u); err != nil {
+		if err = utils.ExpandReferencedAppInOpsObject(r.kc, &u); err != nil {
 			return nil, err
 		}
 	} else if in.Request.Edit && pq != nil {
@@ -235,9 +237,9 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaD
 		if err != nil {
 			return nil, err
 		}
-		dbObj, err := extractReferencedObject(obj, opsPathMapper.GetReferencedDbObjectPath()...)
-		if err != nil {
-			return nil, err
+		dbObj, found, _ := unstructured.NestedMap(obj, opsPathMapper.GetAppRefPath()...)
+		if !found {
+			return nil, errors.New("referenced db object not found")
 		}
 		if err := deductDbObjResourceUsageFromProjectQuota(dbObj, pq); err != nil {
 			return nil, err

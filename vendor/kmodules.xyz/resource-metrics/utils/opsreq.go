@@ -1,5 +1,5 @@
 /*
-Copyright AppsCode Inc. and Contributors.
+Copyright AppsCode Inc. and Contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package resourcecalculator
+package utils
 
 import (
 	"context"
@@ -22,41 +22,25 @@ import (
 	"strings"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	dbopsapi "kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
-// ReferencedObjInfo indicates the information about the referenced database
-// object by the kubedb OpsRequest object
-type ReferencedObjInfo struct {
-	group     string
-	version   string
-	kind      string
-	name      string
-	namespace string
-}
-
-const (
-	DBGroup   = "kubedb.com"
-	DBVersion = "v1alpha2"
-)
-
-// wrapReferencedDBResourceWithOpsReqObject get the DB resource reference by the OpsRequest
-// object and wrap the DB object within it as 'referencedDB'
-func wrapReferencedDBResourceWithOpsReqObject(kc client.Client, u *unstructured.Unstructured) error {
+// ExpandReferencedAppInOpsObject get the DB resource reference by the OpsRequest
+// object and wrap the DB object within it
+func ExpandReferencedAppInOpsObject(kc client.Client, u *unstructured.Unstructured) error {
 	opsReqObj := u.UnstructuredContent()
 	opsPathMapper, err := dbopsapi.LoadOpsPathMapper(u.UnstructuredContent())
 	if err != nil {
 		return err
 	}
-	refObjPath := opsPathMapper.GetReferencedDbObjectPath()
-	refObjNamePath := make([]string, len(refObjPath))
-	copy(refObjNamePath, refObjPath)
-	refObjNamePath[len(refObjNamePath)-1] = "name"
+	refObjPath := opsPathMapper.GetAppRefPath()
+	refObjNamePath := append(refObjPath, "name")
 
-	refObjInfo, err := getOpsRequestReferencedDbObjectInfo(u, refObjNamePath)
+	refObjInfo, err := getOpsRequestReferencedDbObjectInfo(kc, u, refObjNamePath)
 	if err != nil {
 		return err
 	}
@@ -74,7 +58,7 @@ func wrapReferencedDBResourceWithOpsReqObject(kc client.Client, u *unstructured.
 }
 
 // getOpsRequestReferencedDbObjectInfo extracts the referenced database information from OpsRequest object
-func getOpsRequestReferencedDbObjectInfo(u *unstructured.Unstructured, refObjNamePath []string) (*ReferencedObjInfo, error) {
+func getOpsRequestReferencedDbObjectInfo(kc client.Client, u *unstructured.Unstructured, refObjNamePath []string) (*kmapi.ObjectInfo, error) {
 	refDbName, ok, err := unstructured.NestedString(u.UnstructuredContent(), refObjNamePath...)
 	if err != nil {
 		return nil, err
@@ -83,27 +67,35 @@ func getOpsRequestReferencedDbObjectInfo(u *unstructured.Unstructured, refObjNam
 		return nil, errors.New("referenced database name not found")
 	}
 	ns := u.GetNamespace()
-	kind := strings.TrimSuffix(u.GetKind(), "OpsRequest")
 
-	return &ReferencedObjInfo{
-		group:     DBGroup,
-		version:   DBVersion,
-		kind:      kind,
-		name:      refDbName,
-		namespace: ns,
+	gvk, err := apiutil.GVKForObject(u, kc.Scheme())
+	if err != nil {
+		return nil, err
+	}
+
+	ri, err := kmapi.ExtractResourceID(kc.RESTMapper(), kmapi.ResourceID{
+		Group: strings.TrimPrefix(gvk.Group, "ops."),
+		Kind:  strings.TrimSuffix(gvk.Kind, "OpsRequest"),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &kmapi.ObjectInfo{
+		Resource: *ri,
+		Ref: kmapi.ObjectReference{
+			Namespace: ns,
+			Name:      refDbName,
+		},
 	}, nil
 }
 
 // getReferencedDBResource get the database object referenced by the OpsRequest object and returns it
-func getReferencedDBResource(kc client.Client, ri *ReferencedObjInfo) (*unstructured.Unstructured, error) {
+func getReferencedDBResource(kc client.Client, ri *kmapi.ObjectInfo) (*unstructured.Unstructured, error) {
 	dbRes := &unstructured.Unstructured{}
-	dbRes.SetGroupVersionKind(schema.GroupVersionKind{
-		Group:   ri.group,
-		Version: ri.version,
-		Kind:    ri.kind,
-	})
+	dbRes.SetGroupVersionKind(ri.Resource.GroupVersionKind())
 
-	err := kc.Get(context.TODO(), types.NamespacedName{Name: ri.name, Namespace: ri.namespace}, dbRes)
+	err := kc.Get(context.TODO(), types.NamespacedName{Name: ri.Ref.Name, Namespace: ri.Ref.Namespace}, dbRes)
 	if err != nil {
 		return nil, err
 	}

@@ -1,8 +1,6 @@
 module kubeops.dev/ui-server
 
-go 1.22.0
-
-toolchain go1.22.1
+go 1.22.4
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
@@ -49,13 +47,14 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
 	kmodules.xyz/resource-metadata v0.18.7-0.20240607010810-bb70dc0e8852
-	kmodules.xyz/resource-metrics v0.29.5
+	kmodules.xyz/resource-metrics v0.30.0
+	kmodules.xyz/resource-metrics/utils v0.30.0
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.3
 	kubeops.dev/scanner v0.0.17
 	kubepack.dev/lib-helm v0.29.6
 	sigs.k8s.io/cli-utils v0.34.0
-	sigs.k8s.io/controller-runtime v0.18.2
+	sigs.k8s.io/controller-runtime v0.18.4
 	sigs.k8s.io/yaml v1.4.0
 	x-helm.dev/apimachinery v0.0.16
 )
@@ -207,7 +206,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	gomodules.xyz/atomic-writer v0.0.2 // indirect
 	gomodules.xyz/clock v0.0.0-20200817085942-06523dba733f // indirect
-	gomodules.xyz/encoding v0.0.7 // indirect
+	gomodules.xyz/encoding v0.0.8 // indirect
 	gomodules.xyz/flags v0.1.3 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	gomodules.xyz/mergo v0.3.13 // indirect
@@ -227,7 +226,7 @@ require (
 	k8s.io/component-helpers v0.29.0 // indirect
 	k8s.io/kms v0.30.1 // indirect
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // indirect
-	kmodules.xyz/offshoot-api v0.29.0 // indirect
+	kmodules.xyz/offshoot-api v0.29.4 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.13.5-0.20230601165947-6ce0bf390ce3 // indirect
