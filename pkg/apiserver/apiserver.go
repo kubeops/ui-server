@@ -48,6 +48,7 @@ import (
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
 	clusteridstorage "kubeops.dev/ui-server/pkg/registry/identity/clusteridentity"
 	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/inboxtokenrequest"
+	"kubeops.dev/ui-server/pkg/registry/identity/selfsubjectnamespaceaccessreview"
 	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
 	clusterprofilestorage "kubeops.dev/ui-server/pkg/registry/meta/clusterprofile"
 	clusterstatusstorage "kubeops.dev/ui-server/pkg/registry/meta/clusterstatus"
@@ -236,7 +237,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, fmt.Errorf("unable to start manager, reason: %v", err)
 	}
 	ctrlClient := mgr.GetClient()
-	disco, err := kubernetes.NewForConfig(cfg)
+	kc, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create discovery client, reason: %v", err)
 	}
@@ -260,7 +261,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 
-	pqr, err := projectquotacontroller.NewReconciler(mgr.GetClient(), disco).SetupWithManager(mgr)
+	pqr, err := projectquotacontroller.NewReconciler(mgr.GetClient(), kc).SetupWithManager(mgr)
 	if err != nil {
 		klog.Error(err, "unable to create controller", "controller", "ProjectQuota")
 		os.Exit(1)
@@ -296,7 +297,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[rsapi.ResourceChartPresetQueries] = chartpresetquery.NewStorage(ctrlClient)
-		v1alpha1storage[rsapi.ResourceClusterStatuses] = clusterstatusstorage.NewStorage(ctrlClient, disco)
+		v1alpha1storage[rsapi.ResourceClusterStatuses] = clusterstatusstorage.NewStorage(ctrlClient, kc)
 		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient, oc)
 		v1alpha1storage[rsapi.ResourceRenderRawGraphs] = renderrawgraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, oc, rbacAuthorizer)
@@ -312,11 +313,11 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceResourceTableDefinitions] = resourcetabledefinition.NewStorage()
 
 		namespace := meta.PodNamespace()
-		v1alpha1storage[rsapi.ResourceRenderMenus] = rendermenu.NewStorage(ctrlClient, disco, namespace)
-		v1alpha1storage["usermenus"] = usermenu.NewStorage(ctrlClient, disco, namespace)
-		v1alpha1storage["usermenus/available"] = usermenu.NewAvailableStorage(ctrlClient, disco, namespace)
-		v1alpha1storage[rsapi.ResourceMenus] = vendormenu.NewStorage(ctrlClient, disco)
-		v1alpha1storage[rsapi.ResourceMenus+"/available"] = vendormenu.NewAvailableStorage(ctrlClient, disco)
+		v1alpha1storage[rsapi.ResourceRenderMenus] = rendermenu.NewStorage(ctrlClient, kc, namespace)
+		v1alpha1storage["usermenus"] = usermenu.NewStorage(ctrlClient, kc, namespace)
+		v1alpha1storage["usermenus/available"] = usermenu.NewAvailableStorage(ctrlClient, kc, namespace)
+		v1alpha1storage[rsapi.ResourceMenus] = vendormenu.NewStorage(ctrlClient, kc)
+		v1alpha1storage[rsapi.ResourceMenus+"/available"] = vendormenu.NewAvailableStorage(ctrlClient, kc)
 
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
@@ -358,6 +359,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[identityapi.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc, cid)
 		v1alpha1storage[identityapi.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage(ctrlClient, bc, cid)
+		v1alpha1storage[identityapi.ResourceSelfSubjectNamespaceAccessReviews] = selfsubjectnamespaceaccessreview.NewStorage(kc, ctrlClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
