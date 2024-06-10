@@ -26,10 +26,10 @@ import (
 	scannerreports "kubeops.dev/scanner/apis/reports"
 	scannerreportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	scannerscheme "kubeops.dev/scanner/client/clientset/versioned/scheme"
-	authenticationinstall "kubeops.dev/ui-server/apis/authentication/install"
-	authenticationv1alpha1 "kubeops.dev/ui-server/apis/authentication/v1alpha1"
 	costinstall "kubeops.dev/ui-server/apis/cost/install"
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
+	identityinstall "kubeops.dev/ui-server/apis/identity/install"
+	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	licenseinstall "kubeops.dev/ui-server/apis/offline/install"
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
@@ -40,15 +40,15 @@ import (
 	"kubeops.dev/ui-server/pkg/metricshandler"
 	"kubeops.dev/ui-server/pkg/registry"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
-	clusteridstorage "kubeops.dev/ui-server/pkg/registry/authentication/clusteridentity"
-	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/authentication/inboxtokenrequest"
-	whoamistorage "kubeops.dev/ui-server/pkg/registry/authentication/whoami"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/core/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/core/podview"
 	projecttorage "kubeops.dev/ui-server/pkg/registry/core/project"
 	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/core/resourceservice"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
+	clusteridstorage "kubeops.dev/ui-server/pkg/registry/identity/clusteridentity"
+	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/inboxtokenrequest"
+	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
 	clusterprofilestorage "kubeops.dev/ui-server/pkg/registry/meta/clusterprofile"
 	clusterstatusstorage "kubeops.dev/ui-server/pkg/registry/meta/clusterstatus"
@@ -126,7 +126,7 @@ var (
 
 func init() {
 	auditorinstall.Install(Scheme)
-	authenticationinstall.Install(Scheme)
+	identityinstall.Install(Scheme)
 	policyinstall.Install(Scheme)
 	costinstall.Install(Scheme)
 	rsinstall.Install(Scheme)
@@ -354,12 +354,12 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 			return nil, errors.Wrap(err, "failed to create b3 api client")
 		}
 
-		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(authenticationv1alpha1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityapi.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[authenticationv1alpha1.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc, cid)
-		v1alpha1storage[authenticationv1alpha1.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage(ctrlClient, bc, cid)
-		v1alpha1storage[authenticationv1alpha1.ResourceWhoAmIs] = whoamistorage.NewStorage()
+		v1alpha1storage[identityapi.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc, cid)
+		v1alpha1storage[identityapi.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage(ctrlClient, bc, cid)
+		v1alpha1storage[identityapi.ResourceWhoAmIs] = whoamistorage.NewStorage()
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

@@ -6,7 +6,7 @@ metadata:
   creationTimestamp: null
   name: clusteridentitys.authentication.k8s.appscode.com
 spec:
-  group: authentication.k8s.appscode.com
+  group: identity.k8s.appscode.com
   names:
     kind: ClusterIdentity
     listKind: ClusterIdentityList

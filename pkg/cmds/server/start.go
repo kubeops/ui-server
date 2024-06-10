@@ -25,8 +25,8 @@ import (
 	"strconv"
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
-	authenticationapi "kubeops.dev/ui-server/apis/authentication/v1alpha1"
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
+	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
@@ -80,7 +80,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 			apiserver.Codecs.LegacyCodec(
 				auditorv1alpha1.SchemeGroupVersion,
 				rsapi.SchemeGroupVersion,
-				authenticationapi.GroupVersion,
+				identityapi.GroupVersion,
 				rscoreapi.SchemeGroupVersion,
 			),
 		),
@@ -166,16 +166,16 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", licenseapi.SchemeGroupVersion, licenseapi.ResourceAddOfflineLicenses),
 		fmt.Sprintf("/apis/%s/%s", licenseapi.SchemeGroupVersion, licenseapi.ResourceOfflineLicenses),
 
-		fmt.Sprintf("/apis/%s", authenticationapi.GroupVersion),
-		fmt.Sprintf("/apis/%s/%s", authenticationapi.GroupVersion, authenticationapi.ResourceClusterIdentities),
-		fmt.Sprintf("/apis/%s/%s", authenticationapi.GroupVersion, authenticationapi.ResourceInboxTokenRequests),
-		fmt.Sprintf("/apis/%s/%s", authenticationapi.GroupVersion, authenticationapi.ResourceWhoAmIs),
+		fmt.Sprintf("/apis/%s", identityapi.GroupVersion),
+		fmt.Sprintf("/apis/%s/%s", identityapi.GroupVersion, identityapi.ResourceClusterIdentities),
+		fmt.Sprintf("/apis/%s/%s", identityapi.GroupVersion, identityapi.ResourceInboxTokenRequests),
+		fmt.Sprintf("/apis/%s/%s", identityapi.GroupVersion, identityapi.ResourceWhoAmIs),
 	}
 
 	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
 		ou.GetDefinitions(
 			auditorv1alpha1.GetOpenAPIDefinitions,
-			authenticationapi.GetOpenAPIDefinitions,
+			identityapi.GetOpenAPIDefinitions,
 			rscoreapi.GetOpenAPIDefinitions,
 		),
 		openapi.NewDefinitionNamer(apiserver.Scheme))
@@ -186,7 +186,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(
 		ou.GetDefinitions(
 			auditorv1alpha1.GetOpenAPIDefinitions,
-			authenticationapi.GetOpenAPIDefinitions,
+			identityapi.GetOpenAPIDefinitions,
 			rscoreapi.GetOpenAPIDefinitions,
 		),
 		openapi.NewDefinitionNamer(apiserver.Scheme))

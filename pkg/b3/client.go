@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"path"
 
-	authenticationapi "kubeops.dev/ui-server/apis/authentication/v1alpha1"
+	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 
 	"go.bytebuilders.dev/license-verifier/info"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -59,7 +59,7 @@ func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) Identify(clusterUID string) (*authenticationapi.ClusterIdentityStatus, error) {
+func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus, error) {
 	u, err := info.APIServerAddress(c.baseURL)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (c *Client) Identify(clusterUID string) (*authenticationapi.ClusterIdentity
 		return nil, apierrors.NewGenericServerResponse(
 			resp.StatusCode,
 			http.MethodGet,
-			schema.GroupResource{Group: authenticationapi.GroupName, Resource: authenticationapi.ResourceClusterIdentities},
+			schema.GroupResource{Group: identityapi.GroupName, Resource: identityapi.ResourceClusterIdentities},
 			"",
 			string(body),
 			0,
@@ -98,7 +98,7 @@ func (c *Client) Identify(clusterUID string) (*authenticationapi.ClusterIdentity
 		)
 	}
 
-	var ds authenticationapi.ClusterIdentityStatus
+	var ds identityapi.ClusterIdentityStatus
 	err = json.Unmarshal(body, &ds)
 	if err != nil {
 		return nil, err

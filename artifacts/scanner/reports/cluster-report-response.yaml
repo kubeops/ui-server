@@ -922,7 +922,7 @@ response:
           target: registry.k8s.io/kube-proxy:v1.25.3 (debian 11.4)
           type: debian
       severity: LOW
-      title: 'openssl: RSA authentication weakness'
+      title: 'openssl: RSA identity weakness'
       vulnerabilityID: CVE-2010-0928
     - results:
       - image: index.docker.io/kindest/kindnetd:v20221004-44d545d1

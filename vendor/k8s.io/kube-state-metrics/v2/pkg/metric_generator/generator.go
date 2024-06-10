@@ -57,14 +57,10 @@ func NewFamilyGeneratorWithStability(name string, help string, metricType metric
 	return f
 }
 
-// NewFamilyGenerator creates new FamilyGenerator instances.
-func NewFamilyGenerator(name string, help string, metricType metric.Type, deprecatedVersion string, generateFunc func(obj interface{}) *metric.Family) *FamilyGenerator {
-	return NewFamilyGeneratorWithStability(name, help, metricType, basemetrics.ALPHA, deprecatedVersion, generateFunc)
-}
-
 // NewOptInFamilyGenerator creates new FamilyGenerator instances for opt-in metric families.
-func NewOptInFamilyGenerator(name string, help string, metricType metric.Type, deprecatedVersion string, generateFunc func(obj interface{}) *metric.Family) *FamilyGenerator {
-	f := NewFamilyGenerator(name, help, metricType, deprecatedVersion, generateFunc)
+func NewOptInFamilyGenerator(name string, help string, metricType metric.Type, stabilityLevel basemetrics.StabilityLevel, deprecatedVersion string, generateFunc func(obj interface{}) *metric.Family) *FamilyGenerator {
+	f := NewFamilyGeneratorWithStability(name, help, metricType, stabilityLevel,
+		deprecatedVersion, generateFunc)
 	f.OptIn = true
 	return f
 }
@@ -85,8 +81,6 @@ func (g *FamilyGenerator) generateHeader() string {
 	header.WriteString("# HELP ")
 	header.WriteString(g.Name)
 	header.WriteByte(' ')
-	// TODO(#1833): remove if-else after all metrics are attached with right
-	// StabilityLevel.
 	if g.StabilityLevel == basemetrics.STABLE {
 		header.WriteString(fmt.Sprintf("[%v] %v", g.StabilityLevel, g.Help))
 	} else {
