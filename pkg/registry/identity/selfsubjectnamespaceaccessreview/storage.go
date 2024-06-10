@@ -18,6 +18,7 @@ package selfsubjectnamespaceaccessreview
 
 import (
 	"context"
+	"sort"
 
 	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 
@@ -30,6 +31,7 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/client-go/kubernetes"
+	clustermeta "kmodules.xyz/client-go/cluster"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -92,7 +94,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, err
 	}
 
-	allowedNs := make([]string, 0, len(list.Items))
+	allowedNs := make([]core.Namespace, 0, len(list.Items))
 	for _, ns := range list.Items {
 		allowed := true
 
@@ -145,10 +147,30 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		}
 
 		if allowed {
-			allowedNs = append(allowedNs, ns.Name)
+			allowedNs = append(allowedNs, ns)
 		}
 	}
 
-	in.Status.Namespaces = allowedNs
+	if clustermeta.IsRancherManaged(r.rtc.RESTMapper()) {
+		projects := map[string][]string{}
+		for _, ns := range allowedNs {
+			projectId := ns.Labels[clustermeta.LabelKeyRancherFieldProjectId]
+			projects[projectId] = append(projects[projectId], ns.Name)
+		}
+
+		for projectId, namespaces := range projects {
+			sort.Strings(namespaces)
+			projects[projectId] = namespaces
+		}
+	} else {
+		namespaces := make([]string, 0, len(allowedNs))
+		for _, ns := range allowedNs {
+			namespaces = append(namespaces, ns.Name)
+		}
+
+		sort.Strings(namespaces)
+		in.Status.Namespaces = namespaces
+	}
+
 	return in, nil
 }
