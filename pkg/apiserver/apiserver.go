@@ -48,7 +48,6 @@ import (
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
 	clusteridstorage "kubeops.dev/ui-server/pkg/registry/identity/clusteridentity"
 	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/inboxtokenrequest"
-	whoamistorage "kubeops.dev/ui-server/pkg/registry/identity/whoami"
 	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
 	clusterprofilestorage "kubeops.dev/ui-server/pkg/registry/meta/clusterprofile"
 	clusterstatusstorage "kubeops.dev/ui-server/pkg/registry/meta/clusterstatus"
@@ -359,7 +358,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[identityapi.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc, cid)
 		v1alpha1storage[identityapi.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage(ctrlClient, bc, cid)
-		v1alpha1storage[identityapi.ResourceWhoAmIs] = whoamistorage.NewStorage()
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

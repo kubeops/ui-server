@@ -1,2 +1,2 @@
-apiVersion: identity.k8s.appscode.com/v1alpha1
-kind: WhoAmI
+apiVersion: authentication.k8s.io/v1
+kind: SelfSubjectReview
