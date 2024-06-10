@@ -169,6 +169,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s", identityapi.GroupVersion),
 		fmt.Sprintf("/apis/%s/%s", identityapi.GroupVersion, identityapi.ResourceClusterIdentities),
 		fmt.Sprintf("/apis/%s/%s", identityapi.GroupVersion, identityapi.ResourceInboxTokenRequests),
+		fmt.Sprintf("/apis/%s/%s", identityapi.GroupVersion, identityapi.ResourceSelfSubjectNamespaceAccessReviews),
 	}
 
 	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(

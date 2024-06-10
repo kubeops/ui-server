@@ -1,0 +1,15 @@
+apiVersion: authorization.k8s.io/v1
+kind: LocalSubjectAccessReview
+metadata:
+  namespace: default
+spec:
+  resourceAttributes:
+    verb: "get"
+    group: apps
+    version: "*"
+    resource: "deployments"
+    namespace: default
+  groups:
+  - kubeadm:cluster-admins
+  - system:authenticated
+  user: kubernetes-admin

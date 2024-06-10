@@ -1,0 +1,10 @@
+apiVersion: identity.k8s.appscode.com/v1alpha1
+kind: SelfSubjectNamespaceAccessReview
+metadata:
+  name: "abc"
+spec:
+  resourceAttributes:
+    - verb: "get"
+      group: apps
+      version: "*"
+      resource: "deployments"
