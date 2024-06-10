@@ -38,8 +38,6 @@ import (
 	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/metricshandler"
-	"kubeops.dev/ui-server/pkg/registry"
-	siteinfostorage "kubeops.dev/ui-server/pkg/registry/auditor/siteinfo"
 	genericresourcestorage "kubeops.dev/ui-server/pkg/registry/core/genericresource"
 	podviewstorage "kubeops.dev/ui-server/pkg/registry/core/podview"
 	projecttorage "kubeops.dev/ui-server/pkg/registry/core/project"
@@ -98,9 +96,6 @@ import (
 	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/client-go/meta"
 	appcatalogapi "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	"kmodules.xyz/custom-resources/apis/auditor"
-	auditorinstall "kmodules.xyz/custom-resources/apis/auditor/install"
-	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
 	promclient "kmodules.xyz/monitoring-agent-api/client"
 	rscoreinstall "kmodules.xyz/resource-metadata/apis/core/install"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
@@ -125,7 +120,6 @@ var (
 )
 
 func init() {
-	auditorinstall.Install(Scheme)
 	identityinstall.Install(Scheme)
 	policyinstall.Install(Scheme)
 	costinstall.Install(Scheme)
@@ -331,17 +325,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[licenseapi.ResourceOfflineLicenses] = offlinelicense.NewStorage(ctrlClient)
 		v1alpha1storage[licenseapi.ResourceAddOfflineLicenses] = addofflinelicense.NewStorage(ctrlClient, rbacAuthorizer)
-		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
-
-		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-			return nil, err
-		}
-	}
-	{
-		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(auditor.GroupName, Scheme, metav1.ParameterCodec, Codecs)
-
-		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[auditorv1alpha1.ResourceSiteInfos] = registry.RESTInPeace(siteinfostorage.NewStorage(mgr.GetConfig(), ctrlClient))
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

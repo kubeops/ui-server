@@ -49,7 +49,6 @@ import (
 	"k8s.io/klog/v2"
 	ou "kmodules.xyz/client-go/openapi"
 	"kmodules.xyz/client-go/tools/clientcmd"
-	auditorv1alpha1 "kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
 	promclient "kmodules.xyz/monitoring-agent-api/client"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -78,7 +77,6 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
 			apiserver.Codecs.LegacyCodec(
-				auditorv1alpha1.SchemeGroupVersion,
 				rsapi.SchemeGroupVersion,
 				identityapi.GroupVersion,
 				rscoreapi.SchemeGroupVersion,
@@ -131,7 +129,6 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 
 	ignorePrefixes := []string{
 		"/swaggerapi",
-		fmt.Sprintf("/apis/%s/%s", auditorv1alpha1.SchemeGroupVersion, auditorv1alpha1.ResourceSiteInfos),
 
 		fmt.Sprintf("/apis/%s/%s", costapi.SchemeGroupVersion, costapi.ResourceCostReports),
 
@@ -174,7 +171,6 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 
 	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
 		ou.GetDefinitions(
-			auditorv1alpha1.GetOpenAPIDefinitions,
 			identityapi.GetOpenAPIDefinitions,
 			rscoreapi.GetOpenAPIDefinitions,
 		),
@@ -185,7 +181,6 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 
 	serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(
 		ou.GetDefinitions(
-			auditorv1alpha1.GetOpenAPIDefinitions,
 			identityapi.GetOpenAPIDefinitions,
 			rscoreapi.GetOpenAPIDefinitions,
 		),
