@@ -19,7 +19,6 @@ package apiserver
 import (
 	"context"
 	"fmt"
-	"kmodules.xyz/client-go/tools/clusterid"
 	"os"
 	"time"
 
@@ -248,15 +247,11 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	}
 
 	cid, err := clustermeta.ClusterUID(mgr.GetAPIReader())
-	clustername := clusterid.ClusterName()
-
-	klog.Info("=====================madrid ", clustername, "       hala madrid =====================", cid, " hala halaaaaaaaaaa ")
-	//time.Sleep(100 * time.Second)
+	//clustername := clusterid.ClusterName()
 
 	if err != nil {
 		return nil, err
 	}
-	//clusterName, err := clustermeta.
 
 	rbacAuthorizer := authorizer.NewForManagerOrDie(ctx, mgr)
 

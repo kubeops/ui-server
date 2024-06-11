@@ -18,10 +18,9 @@ package clusteridentity
 
 import (
 	"context"
-	"strings"
-
 	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/registry/identity"
+	"strings"
 
 	"gomodules.xyz/sync"
 	core "k8s.io/api/core/v1"
@@ -105,12 +104,10 @@ func (r *Storage) knowThyself() {
 		if err != nil {
 			return err
 		}
-
 		status, err := r.bc.Identify(r.clusterUID)
 		if err != nil {
-			return err
+			//TODO
 		}
-
 		r.identity = &identityapi.ClusterIdentity{
 			ObjectMeta: metav1.ObjectMeta{
 				UID:               "cid-" + ns.UID,
@@ -120,6 +117,7 @@ func (r *Storage) knowThyself() {
 			},
 			Status: *status,
 		}
+		identity.Identity = r.identity // set identity for further use in client.go (GetToken method)
 		return nil
 	})
 }
@@ -134,20 +132,18 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	if r.idError != nil {
 		return nil, r.idError
 	}
-
 	result := identityapi.ClusterIdentityList{
 		TypeMeta: metav1.TypeMeta{},
 		Items: []identityapi.ClusterIdentity{
 			*r.identity,
 		},
 	}
-
 	return &result, nil
 }
 
 func (r *Storage) Watch(ctx context.Context, options *internalversion.ListOptions) (watch.Interface, error) {
-	// TODO implement me
-	panic("implement me")
+	r.Get(ctx, "self", nil)
+	return nil, nil
 }
 
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {

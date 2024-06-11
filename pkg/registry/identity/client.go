@@ -24,7 +24,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/json"
-	"k8s.io/klog/v2"
 	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"net/http"
 	"path"
@@ -36,6 +35,8 @@ type Client struct {
 	caCert  []byte
 	client  *http.Client
 }
+
+var Identity *identityapi.ClusterIdentity
 
 func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
 	c := &Client{
@@ -62,13 +63,13 @@ func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus
 
 	u, err := info.APIServerAddress(c.baseURL)
 	if err != nil {
-		return nil, err
+		return nil, err //TODO
 	}
-	u.Path = path.Join(u.Path, "api/v1/clusters", clusterUID)
+	u.Path = path.Join(u.Path, "api/v1/clustersv2/identity", clusterUID)
 
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
-		return nil, err
+		return nil, err //TODO
 	}
 	req.Header.Set("Content-Type", "application/json")
 	// add authorization header to the req
@@ -77,14 +78,14 @@ func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus
 	}
 	resp, err := c.client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, err //TODO
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		return nil, err
+		return nil, err //TODO
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -98,7 +99,6 @@ func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus
 			false,
 		)
 	}
-
 	var ds identityapi.ClusterIdentityStatus
 	err = json.Unmarshal(body, &ds)
 	if err != nil {
@@ -110,13 +110,15 @@ func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus
 func (c *Client) GetToken() string {
 	u, err := info.APIServerAddress(c.baseURL)
 	if err != nil {
-		return "nil"
+		return "" //TODO
 	}
-	u.Path = path.Join(u.Path, "api/v1/agent/token-test", c.token, "token") //This c.token should be clusterUUID TODO
+	clusterID := Identity.UID
+	clusterName := Identity.Name
+	u.Path = path.Join(u.Path, "api/v1/agent", clusterName, string(clusterID), "token")
+
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
-		klog.Error("========================req 1 error==================================", err)
-		return ""
+		return "" //TODO
 	}
 	req.Header.Set("Content-Type", "application/json")
 	// add authorization header to the req
@@ -125,16 +127,12 @@ func (c *Client) GetToken() string {
 	}
 	resp, err := c.client.Do(req)
 	if err != nil {
-		klog.Error("========================req 2 error==================================", err)
-		return ""
+		return "" //TODO
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
-	klog.Info("======================================================", string(body))
-	//time.Sleep(5 * time.Second)
 	if err != nil {
-		klog.Error("========================req 3 error==================================", err)
-		return ""
+		return "" //TODO
 	}
 	return string(body)
 }
