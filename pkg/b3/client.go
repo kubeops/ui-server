@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"path"
 
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 
 	"go.bytebuilders.dev/license-verifier/info"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"

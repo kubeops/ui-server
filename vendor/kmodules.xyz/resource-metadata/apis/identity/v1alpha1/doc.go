@@ -14,16 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package install
+// Package v1alpha1 contains API Schema definitions for the identity v1alpha1 API group
 
-import (
-	"kubeops.dev/ui-server/apis/identity/v1alpha1"
-
-	"k8s.io/apimachinery/pkg/runtime"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-)
-
-// Install registers the API group and adds types to a scheme
-func Install(scheme *runtime.Scheme) {
-	utilruntime.Must(v1alpha1.AddToScheme(scheme))
-}
+// +k8s:openapi-gen=true
+// +k8s:deepcopy-gen=package
+// +k8s:defaulter-gen=TypeMeta
+// +groupName=identity.k8s.appscode.com
+package v1alpha1 // import "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"

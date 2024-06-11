@@ -20,7 +20,7 @@ import (
 	"context"
 	"strings"
 
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/b3"
 
 	"gomodules.xyz/sync"

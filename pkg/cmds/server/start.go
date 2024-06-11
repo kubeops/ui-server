@@ -26,7 +26,7 @@ import (
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"

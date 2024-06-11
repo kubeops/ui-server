@@ -20,7 +20,7 @@ import (
 	"context"
 	"sort"
 
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 
 	authorization "k8s.io/api/authorization/v1"
 	core "k8s.io/api/core/v1"
