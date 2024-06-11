@@ -23,12 +23,11 @@ import (
 	"net/http"
 	"path"
 
-	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
-
 	"go.bytebuilders.dev/license-verifier/info"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/json"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 )
 
 type Client struct {

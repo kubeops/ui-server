@@ -26,7 +26,6 @@ import (
 
 	reportsapi "kubeops.dev/scanner/apis/reports/v1alpha1"
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
-	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	"kubeops.dev/ui-server/pkg/apiserver"
@@ -47,10 +46,12 @@ import (
 	"k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/component-base/metrics/legacyregistry"
 	"k8s.io/klog/v2"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	ou "kmodules.xyz/client-go/openapi"
 	"kmodules.xyz/client-go/tools/clientcmd"
 	promclient "kmodules.xyz/monitoring-agent-api/client"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	ui "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
@@ -78,7 +79,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 			defaultEtcdPathPrefix,
 			apiserver.Codecs.LegacyCodec(
 				rsapi.SchemeGroupVersion,
-				identityapi.GroupVersion,
+				identityapi.SchemeGroupVersion,
 				rscoreapi.SchemeGroupVersion,
 			),
 		),
@@ -163,14 +164,15 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", licenseapi.SchemeGroupVersion, licenseapi.ResourceAddOfflineLicenses),
 		fmt.Sprintf("/apis/%s/%s", licenseapi.SchemeGroupVersion, licenseapi.ResourceOfflineLicenses),
 
-		fmt.Sprintf("/apis/%s", identityapi.GroupVersion),
-		fmt.Sprintf("/apis/%s/%s", identityapi.GroupVersion, identityapi.ResourceClusterIdentities),
-		fmt.Sprintf("/apis/%s/%s", identityapi.GroupVersion, identityapi.ResourceInboxTokenRequests),
-		fmt.Sprintf("/apis/%s/%s", identityapi.GroupVersion, identityapi.ResourceSelfSubjectNamespaceAccessReviews),
+		fmt.Sprintf("/apis/%s", identityapi.SchemeGroupVersion),
+		fmt.Sprintf("/apis/%s/%s", identityapi.SchemeGroupVersion, identityapi.ResourceClusterIdentities),
+		fmt.Sprintf("/apis/%s/%s", identityapi.SchemeGroupVersion, identityapi.ResourceInboxTokenRequests),
+		fmt.Sprintf("/apis/%s/%s", identityapi.SchemeGroupVersion, identityapi.ResourceSelfSubjectNamespaceAccessReviews),
 	}
 
 	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
 		ou.GetDefinitions(
+			kmapi.GetOpenAPIDefinitions,
 			identityapi.GetOpenAPIDefinitions,
 			rscoreapi.GetOpenAPIDefinitions,
 		),

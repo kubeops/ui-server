@@ -20,8 +20,6 @@ import (
 	"context"
 	"sort"
 
-	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
-
 	authorization "k8s.io/api/authorization/v1"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -32,6 +30,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/client-go/kubernetes"
 	clustermeta "kmodules.xyz/client-go/cluster"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -56,7 +55,7 @@ func NewStorage(kc kubernetes.Interface, rtc client.Client) *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return identityapi.GroupVersion.WithKind(identityapi.ResourceKindSelfSubjectNamespaceAccessReview)
+	return identityapi.SchemeGroupVersion.WithKind(identityapi.ResourceKindSelfSubjectNamespaceAccessReview)
 }
 
 func (r *Storage) NamespaceScoped() bool {

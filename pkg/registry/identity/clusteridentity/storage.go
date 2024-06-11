@@ -20,7 +20,6 @@ import (
 	"context"
 	"strings"
 
-	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/b3"
 
 	"gomodules.xyz/sync"
@@ -31,6 +30,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -68,7 +68,7 @@ func NewStorage(kc client.Client, bc *b3.Client, clusterUID string) *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return identityapi.GroupVersion.WithKind(identityapi.ResourceKindClusterIdentity)
+	return identityapi.SchemeGroupVersion.WithKind(identityapi.ResourceKindClusterIdentity)
 }
 
 func (r *Storage) NamespaceScoped() bool {
