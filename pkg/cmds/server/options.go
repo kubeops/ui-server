@@ -55,7 +55,7 @@ func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
 
 	fs.StringVar(&s.BaseURL, "baseURL", s.BaseURL, "License server base url")
 	fs.StringVar(&s.Token, "token", s.Token, "License server token")
-	fs.StringVar(&s.CAFile, "platform-ca-file", s.Token, "Path to platform CA cert file")
+	fs.StringVar(&s.CAFile, "platform-ca-file", s.CAFile, "Path to platform CA cert file")
 }
 
 func (s *ExtraOptions) ApplyTo(cfg *apiserver.ExtraConfig) error {

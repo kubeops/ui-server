@@ -20,8 +20,7 @@ import (
 	"context"
 	"strings"
 
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
-	"kubeops.dev/ui-server/pkg/registry/identity"
+	"kubeops.dev/ui-server/pkg/b3"
 
 	"gomodules.xyz/sync"
 	core "k8s.io/api/core/v1"
@@ -30,14 +29,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/apiserver/pkg/registry/rest"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Storage struct {
 	kc         client.Client
-	bc         *identity.Client
+	bc         *b3.Client
 	clusterUID string
 	convertor  rest.TableConvertor
 
@@ -53,11 +52,10 @@ var (
 	_ rest.Scoper                   = &Storage{}
 	_ rest.Storage                  = &Storage{}
 	_ rest.Lister                   = &Storage{}
-	_ rest.Watcher                  = &Storage{}
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, bc *identity.Client, clusterUID string) *Storage {
+func NewStorage(kc client.Client, bc *b3.Client, clusterUID string) *Storage {
 	return &Storage{
 		kc:         kc,
 		bc:         bc,
@@ -70,7 +68,7 @@ func NewStorage(kc client.Client, bc *identity.Client, clusterUID string) *Stora
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return identityapi.GroupVersion.WithKind(identityapi.ResourceKindClusterIdentity)
+	return identityapi.SchemeGroupVersion.WithKind(identityapi.ResourceKindClusterIdentity)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -105,6 +103,7 @@ func (r *Storage) knowThyself() {
 		if err != nil {
 			return err
 		}
+
 		status, err := r.bc.Identify(r.clusterUID)
 		if err != nil {
 			// TODO
@@ -118,7 +117,7 @@ func (r *Storage) knowThyself() {
 			},
 			Status: *status,
 		}
-		identity.Identity = r.identity // set identity for further use in client.go (GetToken method)
+		b3.Identity = r.identity // set identity for further use in client.go (GetToken method)
 		return nil
 	})
 }
@@ -140,11 +139,6 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		},
 	}
 	return &result, nil
-}
-
-func (r *Storage) Watch(ctx context.Context, options *internalversion.ListOptions) (watch.Interface, error) {
-	r.Get(ctx, "self", nil)
-	return nil, nil
 }
 
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
