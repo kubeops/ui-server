@@ -17,9 +17,10 @@ limitations under the License.
 package main
 
 import (
-	"kubeops.dev/ui-server/pkg/cmds"
 	"os"
 	"runtime"
+
+	"kubeops.dev/ui-server/pkg/cmds"
 
 	_ "go.bytebuilders.dev/license-verifier/info"
 	"gomodules.xyz/logs"

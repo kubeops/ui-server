@@ -18,16 +18,18 @@ package inboxtokenrequest
 
 import (
 	"context"
+	"strings"
+	"sync"
+
+	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
+	"kubeops.dev/ui-server/pkg/registry/identity"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
 	_ "k8s.io/klog/v2"
-	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
-	"kubeops.dev/ui-server/pkg/registry/identity"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
-	"sync"
 )
 
 type Storage struct {

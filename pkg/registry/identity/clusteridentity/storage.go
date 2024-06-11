@@ -18,9 +18,10 @@ package clusteridentity
 
 import (
 	"context"
+	"strings"
+
 	identityapi "kubeops.dev/ui-server/apis/identity/v1alpha1"
 	"kubeops.dev/ui-server/pkg/registry/identity"
-	"strings"
 
 	"gomodules.xyz/sync"
 	core "k8s.io/api/core/v1"
@@ -106,7 +107,7 @@ func (r *Storage) knowThyself() {
 		}
 		status, err := r.bc.Identify(r.clusterUID)
 		if err != nil {
-			//TODO
+			// TODO
 		}
 		r.identity = &identityapi.ClusterIdentity{
 			ObjectMeta: metav1.ObjectMeta{
