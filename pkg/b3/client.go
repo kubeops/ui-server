@@ -69,6 +69,7 @@ func (c *Client) Identify(clusterUID string) (*kmapi.ClusterMetadata, error) {
 	if err != nil {
 		return nil, err // TODO
 	}
+	apiEndpoint := u.String()
 	u.Path = path.Join(u.Path, "api/v1/clustersv2/identity", clusterUID)
 
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
@@ -107,6 +108,10 @@ func (c *Client) Identify(clusterUID string) (*kmapi.ClusterMetadata, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	md.APIEndpoint = apiEndpoint
+	md.CABundle = string(c.caCert)
+
 	return &md, nil
 }
 
@@ -155,8 +160,8 @@ var (
 
 func (c *Client) GetIdentity() (*identityapi.ClusterIdentity, error) {
 	once.Do(func() error {
-		var status *kmapi.ClusterMetadata
-		status, idError = c.Identify(c.clusterUID)
+		var md *kmapi.ClusterMetadata
+		md, idError = c.Identify(c.clusterUID)
 		if idError != nil {
 			return idError
 		}
@@ -167,7 +172,7 @@ func (c *Client) GetIdentity() (*identityapi.ClusterIdentity, error) {
 				CreationTimestamp: creationTimestamp,
 				Generation:        1,
 			},
-			Status: *status,
+			Status: *md,
 		}
 		idError = nil
 		return idError

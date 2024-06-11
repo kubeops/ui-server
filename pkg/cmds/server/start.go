@@ -196,7 +196,6 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		ClientConfig: serverConfig.ClientConfig,
 		PromConfig:   *o.PrometheusOptions,
 	}
-
 	if err := o.ExtraOptions.ApplyTo(&extraConfig); err != nil {
 		return nil, err
 	}
@@ -205,7 +204,6 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		GenericConfig: serverConfig,
 		ExtraConfig:   extraConfig,
 	}
-
 	return config, nil
 }
 
@@ -215,6 +213,7 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	{
 		metricshandler.RegisterSelfMetrics()
 		telemetryMux := buildTelemetryServer(legacyregistry.DefaultGatherer)

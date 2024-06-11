@@ -33,6 +33,7 @@ import (
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	"kubeops.dev/ui-server/pkg/b3"
+	clustermetacontroller "kubeops.dev/ui-server/pkg/controllers/clustermetadata"
 	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/metricshandler"
@@ -90,6 +91,7 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 	"kmodules.xyz/authorizer"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	cu "kmodules.xyz/client-go/client"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/client-go/meta"
@@ -255,6 +257,11 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 
+	bc, err := b3.NewClient(c.ExtraConfig.BaseURL, c.ExtraConfig.Token, c.ExtraConfig.CACert, cid)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create b3 api client")
+	}
+
 	pqr, err := projectquotacontroller.NewReconciler(mgr.GetClient(), kc).SetupWithManager(mgr)
 	if err != nil {
 		klog.Error(err, "unable to create controller", "controller", "ProjectQuota")
@@ -268,6 +275,22 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 	if err := mgr.Add(manager.RunnableFunc(graph.SetupGraphReconciler(mgr))); err != nil {
 		setupLog.Error(err, "unable to set up resource reconciler configurator")
+		os.Exit(1)
+	}
+
+	if err := mgr.Add(manager.RunnableFunc(func(ctx context.Context) error {
+		md, err := bc.Identify(cid)
+		if err != nil {
+			return err
+		}
+		return clustermeta.UpsertClusterMetadata(mgr.GetClient(), md)
+	})); err != nil {
+		setupLog.Error(err, fmt.Sprintf("unable to upsert cluster metadata into configmap %s/%s", metav1.NamespacePublic, kmapi.AceInfoConfigMapName))
+		os.Exit(1)
+	}
+	err = clustermetacontroller.NewReconciler(mgr.GetClient(), bc).SetupWithManager(mgr)
+	if err != nil {
+		klog.Error(err, "unable to create controller", "controller", "ConfigMap")
 		os.Exit(1)
 	}
 
@@ -332,11 +355,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		}
 	}
 	{
-		bc, err := b3.NewClient(c.ExtraConfig.BaseURL, c.ExtraConfig.Token, c.ExtraConfig.CACert, cid)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to create b3 api client")
-		}
-
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityapi.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
