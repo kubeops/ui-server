@@ -22,8 +22,6 @@ import (
 
 	"kubeops.dev/ui-server/pkg/b3"
 
-	"gomodules.xyz/sync"
-	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,17 +33,10 @@ import (
 )
 
 type Storage struct {
-	kc         client.Client
-	bc         *b3.Client
-	clusterUID string
-	convertor  rest.TableConvertor
-
-	identity *identityapi.ClusterIdentity
-	once     sync.Once
-	idError  error
+	kc        client.Client
+	bc        *b3.Client
+	convertor rest.TableConvertor
 }
-
-const selfName = "self"
 
 var (
 	_ rest.GroupVersionKindProvider = &Storage{}
@@ -55,11 +46,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, bc *b3.Client, clusterUID string) *Storage {
+func NewStorage(kc client.Client, bc *b3.Client) *Storage {
 	return &Storage{
-		kc:         kc,
-		bc:         bc,
-		clusterUID: clusterUID,
+		kc: kc,
+		bc: bc,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    identityapi.GroupName,
 			Resource: identityapi.ResourceClusterIdentities,
@@ -86,40 +76,10 @@ func (r *Storage) New() runtime.Object {
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
-	if name != selfName {
+	if name != b3.SelfName {
 		return nil, apierrors.NewNotFound(schema.GroupResource{Group: identityapi.GroupName, Resource: identityapi.ResourceClusterIdentities}, name)
 	}
-	r.knowThyself()
-	if r.idError != nil {
-		return nil, r.idError
-	}
-	return r.identity, nil
-}
-
-func (r *Storage) knowThyself() {
-	r.once.Do(func() error {
-		var ns core.Namespace
-		err := r.kc.Get(context.TODO(), client.ObjectKey{Name: metav1.NamespaceSystem}, &ns)
-		if err != nil {
-			return err
-		}
-
-		status, err := r.bc.Identify(r.clusterUID)
-		if err != nil {
-			// TODO
-		}
-		r.identity = &identityapi.ClusterIdentity{
-			ObjectMeta: metav1.ObjectMeta{
-				UID:               "cid-" + ns.UID,
-				Name:              selfName,
-				CreationTimestamp: ns.CreationTimestamp,
-				Generation:        1,
-			},
-			Status: *status,
-		}
-		b3.Identity = r.identity // set identity for further use in client.go (GetToken method)
-		return nil
-	})
+	return r.bc.GetIdentity()
 }
 
 // Lister
@@ -128,14 +88,14 @@ func (r *Storage) NewList() runtime.Object {
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
-	r.knowThyself()
-	if r.idError != nil {
-		return nil, r.idError
+	id, err := r.bc.GetIdentity()
+	if err != nil {
+		return nil, err
 	}
 	result := identityapi.ClusterIdentityList{
 		TypeMeta: metav1.TypeMeta{},
 		Items: []identityapi.ClusterIdentity{
-			*r.identity,
+			*id,
 		},
 	}
 	return &result, nil

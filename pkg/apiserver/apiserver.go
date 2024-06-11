@@ -241,7 +241,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	}
 
 	cid, err := clustermeta.ClusterUID(mgr.GetAPIReader())
-	// clustername := clusterid.ClusterName()
 	if err != nil {
 		return nil, err
 	}
@@ -333,7 +332,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		}
 	}
 	{
-		bc, err := b3.NewClient(c.ExtraConfig.BaseURL, c.ExtraConfig.Token, c.ExtraConfig.CACert)
+		bc, err := b3.NewClient(c.ExtraConfig.BaseURL, c.ExtraConfig.Token, c.ExtraConfig.CACert, cid)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to create b3 api client")
 		}
@@ -341,9 +340,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(identityapi.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-
-		v1alpha1storage[identityapi.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc, cid)
-		v1alpha1storage[identityapi.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage(ctrlClient, bc, cid)
+		v1alpha1storage[identityapi.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc)
+		v1alpha1storage[identityapi.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage(ctrlClient, bc)
 		v1alpha1storage[identityapi.ResourceSelfSubjectNamespaceAccessReviews] = selfsubjectnamespaceaccessreview.NewStorage(kc, ctrlClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 

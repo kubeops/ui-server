@@ -19,7 +19,6 @@ package inboxtokenrequest
 import (
 	"context"
 	"strings"
-	"sync"
 
 	"kubeops.dev/ui-server/pkg/b3"
 
@@ -32,14 +31,8 @@ import (
 )
 
 type Storage struct {
-	kc         client.Client
-	bc         *b3.Client
-	clusterUID string
-	convertor  rest.TableConvertor
-
-	identity *identityapi.ClusterIdentity
-	idError  error
-	once     sync.Once
+	kc client.Client
+	bc *b3.Client
 }
 
 var (
@@ -50,11 +43,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, bc *b3.Client, clusterUID string) *Storage {
+func NewStorage(kc client.Client, bc *b3.Client) *Storage {
 	return &Storage{
-		kc:         kc,
-		bc:         bc,
-		clusterUID: clusterUID,
+		kc: kc,
+		bc: bc,
 	}
 }
 

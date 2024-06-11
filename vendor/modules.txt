@@ -1921,7 +1921,7 @@ kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.30.2
+# kmodules.xyz/client-go v0.30.3-0.20240611195846-3c1fd4efca12
 ## explicit; go 1.22.0
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
@@ -1938,7 +1938,6 @@ kmodules.xyz/client-go/openapi
 kmodules.xyz/client-go/pointer
 kmodules.xyz/client-go/policy/secomp
 kmodules.xyz/client-go/tools/clientcmd
-kmodules.xyz/client-go/tools/clusterid
 # kmodules.xyz/custom-resources v0.29.1
 ## explicit; go 1.21.5
 kmodules.xyz/custom-resources/apis/appcatalog
@@ -1955,7 +1954,7 @@ kmodules.xyz/monitoring-agent-api/client
 ## explicit; go 1.22.0
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-# kmodules.xyz/resource-metadata v0.18.7-0.20240611095753-2d0e25f92b9a
+# kmodules.xyz/resource-metadata v0.18.7-0.20240611202519-4f1ddd09edb6
 ## explicit; go 1.22.0
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1

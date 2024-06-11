@@ -24,9 +24,13 @@ import (
 	"path"
 
 	"go.bytebuilders.dev/license-verifier/info"
+	"gomodules.xyz/sync"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/json"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 )
 
@@ -35,11 +39,11 @@ type Client struct {
 	token   string
 	caCert  []byte
 	client  *http.Client
+
+	clusterUID string
 }
 
-var Identity *identityapi.ClusterIdentity
-
-func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
+func NewClient(baseURL, token string, caCert []byte, clusterUID string) (*Client, error) {
 	c := &Client{
 		baseURL: baseURL,
 		token:   token,
@@ -60,7 +64,7 @@ func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus, error) {
+func (c *Client) Identify(clusterUID string) (*kmapi.ClusterMetadata, error) {
 	u, err := info.APIServerAddress(c.baseURL)
 	if err != nil {
 		return nil, err // TODO
@@ -98,12 +102,12 @@ func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus
 			false,
 		)
 	}
-	var ds identityapi.ClusterIdentityStatus
-	err = json.Unmarshal(body, &ds)
+	var md kmapi.ClusterMetadata
+	err = json.Unmarshal(body, &md)
 	if err != nil {
 		return nil, err
 	}
-	return &ds, nil
+	return &md, nil
 }
 
 func (c *Client) GetToken() string {
@@ -111,9 +115,13 @@ func (c *Client) GetToken() string {
 	if err != nil {
 		return "" // TODO
 	}
-	clusterID := Identity.UID
-	clusterName := Identity.Name
-	u.Path = path.Join(u.Path, "api/v1/agent", clusterName, string(clusterID), "token")
+
+	id, err := c.GetIdentity()
+	if err != nil {
+		return "" // TODO
+	}
+
+	u.Path = path.Join(u.Path, "api/v1/agent", id.Status.Name, id.Status.UID, "token")
 
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
@@ -134,4 +142,35 @@ func (c *Client) GetToken() string {
 		return "" // TODO
 	}
 	return string(body)
+}
+
+const SelfName = "self"
+
+var (
+	identity          *identityapi.ClusterIdentity
+	once              sync.Once
+	idError           error
+	creationTimestamp = metav1.Now()
+)
+
+func (c *Client) GetIdentity() (*identityapi.ClusterIdentity, error) {
+	once.Do(func() error {
+		var status *kmapi.ClusterMetadata
+		status, idError = c.Identify(c.clusterUID)
+		if idError != nil {
+			return idError
+		}
+		identity = &identityapi.ClusterIdentity{
+			ObjectMeta: metav1.ObjectMeta{
+				UID:               types.UID("cid-" + c.clusterUID),
+				Name:              SelfName,
+				CreationTimestamp: creationTimestamp,
+				Generation:        1,
+			},
+			Status: *status,
+		}
+		idError = nil
+		return idError
+	})
+	return identity, idError
 }
