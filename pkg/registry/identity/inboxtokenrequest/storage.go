@@ -20,19 +20,18 @@ import (
 	"context"
 	"strings"
 
-	"kubeops.dev/ui-server/pkg/b3"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
 	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
+	identitylib "kmodules.xyz/resource-metadata/pkg/identity"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Storage struct {
 	kc client.Client
-	bc *b3.Client
+	bc *identitylib.Client
 }
 
 var (
@@ -43,7 +42,7 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, bc *b3.Client) *Storage {
+func NewStorage(kc client.Client, bc *identitylib.Client) *Storage {
 	return &Storage{
 		kc: kc,
 		bc: bc,
@@ -70,8 +69,12 @@ func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	req := obj.(*identityapi.InboxTokenRequest)
+	token, err := r.bc.GetToken()
+	if err != nil {
+		return nil, err
+	}
 	req.Response = &identityapi.InboxTokenRequestResponse{
-		AdminJWTToken: r.bc.GetToken(),
+		AdminJWTToken: token,
 	}
 	return req, nil
 }

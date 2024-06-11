@@ -19,12 +19,11 @@ package clustermetadata
 import (
 	"context"
 
-	"kubeops.dev/ui-server/pkg/b3"
-
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
+	identitylib "kmodules.xyz/resource-metadata/pkg/identity"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -36,13 +35,13 @@ import (
 // ClusterMetadataReconciler reconciles a ClusterMetadata object
 type ClusterMetadataReconciler struct {
 	kc        client.Client
-	bc        *b3.Client
+	bc        *identitylib.Client
 	clusterID string
 }
 
 var _ reconcile.Reconciler = &ClusterMetadataReconciler{}
 
-func NewReconciler(kc client.Client, bc *b3.Client) *ClusterMetadataReconciler {
+func NewReconciler(kc client.Client, bc *identitylib.Client) *ClusterMetadataReconciler {
 	return &ClusterMetadataReconciler{
 		kc: kc,
 		bc: bc,
