@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package b3
+package identity
 
 import (
 	"crypto/tls"
@@ -23,11 +23,17 @@ import (
 	"net/http"
 	"path"
 
+	kmapi "kmodules.xyz/client-go/api/v1"
+	clustermeta "kmodules.xyz/client-go/cluster"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
+
 	"go.bytebuilders.dev/license-verifier/info"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/json"
-	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Client struct {
@@ -35,13 +41,16 @@ type Client struct {
 	token   string
 	caCert  []byte
 	client  *http.Client
+
+	kc client.Reader
 }
 
-func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
+func NewClient(baseURL, token string, caCert []byte, kc client.Reader) (*Client, error) {
 	c := &Client{
 		baseURL: baseURL,
 		token:   token,
 		caCert:  caCert,
+		kc:      kc,
 	}
 	if len(caCert) == 0 {
 		c.client = http.DefaultClient
@@ -58,12 +67,13 @@ func NewClient(baseURL, token string, caCert []byte) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus, error) {
+func (c *Client) Identify(clusterUID string) (*kmapi.ClusterMetadata, error) {
 	u, err := info.APIServerAddress(c.baseURL)
 	if err != nil {
 		return nil, err
 	}
-	u.Path = path.Join(u.Path, "api/v1/clusters", clusterUID)
+	apiEndpoint := u.String()
+	u.Path = path.Join(u.Path, "api/v1/clustersv2/identity", clusterUID)
 
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
@@ -96,11 +106,65 @@ func (c *Client) Identify(clusterUID string) (*identityapi.ClusterIdentityStatus
 			false,
 		)
 	}
-
-	var ds identityapi.ClusterIdentityStatus
-	err = json.Unmarshal(body, &ds)
+	var md kmapi.ClusterMetadata
+	err = json.Unmarshal(body, &md)
 	if err != nil {
 		return nil, err
 	}
-	return &ds, nil
+
+	md.APIEndpoint = apiEndpoint
+	md.CABundle = string(c.caCert)
+
+	return &md, nil
+}
+
+func (c *Client) GetToken() (string, error) {
+	u, err := info.APIServerAddress(c.baseURL)
+	if err != nil {
+		return "", err
+	}
+
+	id, err := c.GetIdentity()
+	if err != nil {
+		return "", err
+	}
+
+	u.Path = path.Join(u.Path, "api/v1/agent", id.Status.Name, id.Status.UID, "token")
+
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	// add authorization header to the req
+	if c.token != "" {
+		req.Header.Add("Authorization", "Bearer "+c.token)
+	}
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
+}
+
+const SelfName = "self"
+
+func (c *Client) GetIdentity() (*identityapi.ClusterIdentity, error) {
+	md, err := clustermeta.ClusterMetadata(c.kc)
+	if err != nil {
+		return nil, err
+	}
+	return &identityapi.ClusterIdentity{
+		ObjectMeta: metav1.ObjectMeta{
+			UID:        types.UID("cid-" + md.UID),
+			Name:       SelfName,
+			Generation: 1,
+		},
+		Status: *md,
+	}, nil
 }

@@ -96,6 +96,7 @@ func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
 func (o UIServerOptions) AddFlags(fs *pflag.FlagSet) {
 	o.RecommendedOptions.AddFlags(fs)
 	o.PrometheusOptions.AddFlags(fs)
+	o.ExtraOptions.AddFlags(fs)
 }
 
 // Validate validates UIServerOptions
@@ -168,6 +169,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", identityapi.SchemeGroupVersion, identityapi.ResourceClusterIdentities),
 		fmt.Sprintf("/apis/%s/%s", identityapi.SchemeGroupVersion, identityapi.ResourceInboxTokenRequests),
 		fmt.Sprintf("/apis/%s/%s", identityapi.SchemeGroupVersion, identityapi.ResourceSelfSubjectNamespaceAccessReviews),
+		fmt.Sprintf("/apis/%s/%s", identityapi.SchemeGroupVersion, identityapi.ResourceSiteInfos),
 	}
 
 	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
