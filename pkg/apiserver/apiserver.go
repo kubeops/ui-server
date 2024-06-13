@@ -291,7 +291,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 			os.Exit(1)
 		}
 
-		err = clustermetacontroller.NewReconciler(mgr.GetClient(), bc).SetupWithManager(mgr)
+		err = clustermetacontroller.NewReconciler(mgr.GetClient(), bc, cid).SetupWithManager(mgr)
 		if err != nil {
 			klog.Error(err, "unable to create controller", "controller", "ConfigMap")
 			os.Exit(1)
