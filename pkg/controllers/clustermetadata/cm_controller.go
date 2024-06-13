@@ -41,10 +41,11 @@ type ClusterMetadataReconciler struct {
 
 var _ reconcile.Reconciler = &ClusterMetadataReconciler{}
 
-func NewReconciler(kc client.Client, bc *identitylib.Client) *ClusterMetadataReconciler {
+func NewReconciler(kc client.Client, bc *identitylib.Client, clusterId string) *ClusterMetadataReconciler {
 	return &ClusterMetadataReconciler{
-		kc: kc,
-		bc: bc,
+		kc:        kc,
+		bc:        bc,
+		clusterID: clusterId,
 	}
 }
 
