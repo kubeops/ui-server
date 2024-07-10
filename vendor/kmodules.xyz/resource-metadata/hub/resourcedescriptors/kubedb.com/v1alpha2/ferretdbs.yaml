@@ -168,17 +168,23 @@ spec:
                   type: boolean
                 linkedDB:
                   type: string
-                postgresRef:
+                postgres:
                   properties:
-                    name:
+                    service:
+                      properties:
+                        name:
+                          type: string
+                        namespace:
+                          type: string
+                        pgPort:
+                          format: int32
+                          type: integer
+                      type: object
+                    url:
                       type: string
-                    namespace:
+                    version:
                       type: string
-                  required:
-                  - name
                   type: object
-                version:
-                  type: string
               required:
               - externallyManaged
               type: object

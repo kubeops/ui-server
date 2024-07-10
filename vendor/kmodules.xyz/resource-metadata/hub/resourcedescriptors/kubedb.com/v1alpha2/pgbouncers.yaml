@@ -135,7 +135,7 @@ spec:
                   default: md5
                   enum:
                   - md5
-                  - scram-sha-256
+                  - scram
                   - cert
                   type: string
                 defaultPoolSize:
