@@ -12,7 +12,7 @@ require (
 	github.com/gobuffalo/flect v1.0.2
 	github.com/google/gofuzz v1.2.0
 	github.com/google/uuid v1.6.0
-	github.com/gorilla/schema v1.3.0
+	github.com/gorilla/schema v1.4.1
 	github.com/graphql-go/graphql v0.8.1
 	github.com/graphql-go/handler v0.2.4
 	github.com/open-policy-agent/gatekeeper/v3 v3.0.0-00010101000000-000000000000
