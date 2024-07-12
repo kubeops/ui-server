@@ -39,6 +39,7 @@ import (
 	clustermeta "kmodules.xyz/client-go/cluster"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	"kmodules.xyz/resource-metrics/api"
+	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -161,10 +162,18 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewInternalError(err)
 	}
 
+	universe := ksets.NewGroupKind()
+
 	items := make([]rscoreapi.GenericResource, 0)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
 			continue
+		}
+		gk := gvk.GroupKind()
+		if universe.Has(gk) {
+			continue
+		} else {
+			universe.Insert(gk)
 		}
 
 		mapping, err := r.kc.RESTMapper().RESTMapping(gvk.GroupKind(), gvk.Version)
