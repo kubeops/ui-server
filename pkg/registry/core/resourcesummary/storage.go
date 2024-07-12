@@ -41,6 +41,7 @@ import (
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
+	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -111,10 +112,19 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	selector := shared.NewGroupKindSelector(options.LabelSelector)
 	now := time.Now()
 
+	universe := ksets.NewGroupKind()
+
 	items := make([]rscoreapi.ResourceSummary, 0)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
 			continue
+		}
+
+		gk := gvk.GroupKind()
+		if universe.Has(gk) {
+			continue
+		} else {
+			universe.Insert(gk)
 		}
 
 		mapping, err := r.kc.RESTMapper().RESTMapping(gvk.GroupKind(), gvk.Version)
