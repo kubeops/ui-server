@@ -109,7 +109,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 					User:                  user.GetName(),
 					Groups:                user.GetGroups(),
 					Extra:                 extra,
-					UID:                   user.GetName(),
+					UID:                   user.GetUID(),
 				},
 			}
 			review, err = r.kc.AuthorizationV1().LocalSubjectAccessReviews(ns.Name).Create(ctx, review, metav1.CreateOptions{})
@@ -132,7 +132,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 					User:                  user.GetName(),
 					Groups:                user.GetGroups(),
 					Extra:                 extra,
-					UID:                   user.GetName(),
+					UID:                   user.GetUID(),
 				},
 			}
 			review, err = r.kc.AuthorizationV1().LocalSubjectAccessReviews(ns.Name).Create(ctx, review, metav1.CreateOptions{})
@@ -161,6 +161,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			sort.Strings(namespaces)
 			projects[projectId] = namespaces
 		}
+		in.Status.Projects = projects
 	} else {
 		namespaces := make([]string, 0, len(allowedNs))
 		for _, ns := range allowedNs {
