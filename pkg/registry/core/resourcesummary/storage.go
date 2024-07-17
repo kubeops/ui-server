@@ -116,11 +116,11 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 	items := make([]rscoreapi.ResourceSummary, 0)
 	for _, gvk := range api.RegisteredTypes() {
-		if !selector.Matches(gvk.GroupKind()) {
+		gk := gvk.GroupKind()
+
+		if !selector.Matches(gk) {
 			continue
 		}
-
-		gk := gvk.GroupKind()
 		if universe.Has(gk) {
 			continue
 		} else {
