@@ -23,12 +23,19 @@ import (
 
 	"kubeops.dev/ui-server/pkg/apiserver"
 	"kubeops.dev/ui-server/pkg/graph"
+	"kubeops.dev/ui-server/pkg/registry/identity/selfsubjectnamespaceaccessreview"
 
+	authorization "k8s.io/api/authorization/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authentication/user"
+	"k8s.io/apiserver/pkg/endpoints/request"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2/klogr"
+	"kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
 	"kmodules.xyz/resource-metadata/hub/resourceoutlines"
@@ -38,7 +45,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
-func NewClient() (client.Client, error) {
+func NewClient() (kubernetes.Interface, client.Client, error) {
 	ctrl.SetLogger(klogr.New()) // nolint:staticcheck
 	cfg := ctrl.GetConfigOrDie()
 	cfg.QPS = 100
@@ -46,14 +53,15 @@ func NewClient() (client.Client, error) {
 
 	hc, err := rest.HTTPClientFor(cfg)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	mapper, err := apiutil.NewDynamicRESTMapper(cfg, hc)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return client.New(cfg, client.Options{
+	kc := kubernetes.NewForConfigOrDie(cfg)
+	rtc, err := client.New(cfg, client.Options{
 		Scheme: apiserver.Scheme,
 		Mapper: mapper,
 		//Opts: client.WarningHandlerOptions{
@@ -61,16 +69,63 @@ func NewClient() (client.Client, error) {
 		//	AllowDuplicateLogs: false,
 		//},
 	})
+	return kc, rtc, err
 }
 
 func main() {
+	kc, rtc, err := NewClient()
+	if err != nil {
+		panic(err)
+	}
+	s := selfsubjectnamespaceaccessreview.NewStorage(kc, rtc)
+
+	ctx := context.Background()
+	ctx = request.WithUser(ctx, &user.DefaultInfo{
+		Name: "system:serviceaccount:kube-system:lke-admin",
+		UID:  "ea0d4e91-3630-4c36-a0a4-43a27b3a6db8",
+		Groups: []string{
+			"system:serviceaccounts",
+			"system:serviceaccounts:kube-system",
+			"system:authenticated",
+		},
+		Extra: nil,
+	})
+
+	in := v1alpha1.SelfSubjectNamespaceAccessReview{
+		TypeMeta:   metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{},
+		Spec: v1alpha1.SelfSubjectNamespaceAccessReviewSpec{
+			ResourceAttributes: []authorization.ResourceAttributes{
+				{
+					Namespace:   "",
+					Verb:        "get",
+					Group:       "apps",
+					Version:     "v1",
+					Resource:    "deployments",
+					Subresource: "",
+					Name:        "",
+				},
+			},
+			NonResourceAttributes: nil,
+		},
+		Status: v1alpha1.SubjectAccessNamespaceReviewStatus{},
+	}
+
+	out, err := s.Create(ctx, &in, nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+v\n", out)
+}
+
+func main_() {
 	if err := ListResourceLayouts(); err != nil {
 		panic(err)
 	}
 }
 
 func ListResourceLayouts() error {
-	kc, err := NewClient()
+	_, kc, err := NewClient()
 	if err != nil {
 		return err
 	}
@@ -90,7 +145,7 @@ func ListResourceLayouts() error {
 }
 
 func findConfigMapForPod() error {
-	kc, err := NewClient()
+	_, kc, err := NewClient()
 	if err != nil {
 		return err
 	}
@@ -132,7 +187,7 @@ func findConfigMapForPod() error {
 }
 
 func findServiceForServiceMonitor() error {
-	kc, err := NewClient()
+	_, kc, err := NewClient()
 	if err != nil {
 		return err
 	}
@@ -178,7 +233,7 @@ func findServiceForServiceMonitor() error {
 }
 
 func findServiceMonitorForPrometheus() error {
-	kc, err := NewClient()
+	_, kc, err := NewClient()
 	if err != nil {
 		return err
 	}
