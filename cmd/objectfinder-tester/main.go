@@ -34,11 +34,12 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/klog/v2/klogr"
+	"k8s.io/klog/v2"
 	"kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
 	"kmodules.xyz/resource-metadata/hub/resourceoutlines"
+	identitylib "kmodules.xyz/resource-metadata/pkg/identity"
 	"kmodules.xyz/resource-metadata/pkg/layouts"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -46,7 +47,7 @@ import (
 )
 
 func NewClient() (kubernetes.Interface, client.Client, error) {
-	ctrl.SetLogger(klogr.New()) // nolint:staticcheck
+	ctrl.SetLogger(klog.NewKlogr())
 	cfg := ctrl.GetConfigOrDie()
 	cfg.QPS = 100
 	cfg.Burst = 100
@@ -73,6 +74,43 @@ func NewClient() (kubernetes.Interface, client.Client, error) {
 }
 
 func main() {
+	baseURL := "https://172.104.39.12/"
+	token := "5311e401d"
+	caCert := []byte(`-----BEGIN CERTIFICATE-----
+MIIC9TCCAd2gAwIBAgIBADANBgkqhkiG9w0BAQsFADAbMQwwCgYDVQQKEwNhY2Ux
+CzAJBgNVBAMTAmNhMCAXDTI0MDcyNTAzNTAyMFoYDzIxMjQwNzAxMDM1MDIwWjAb
+MQwwCgYDVQQKEwNhY2UxCzAJBgNVBAMTAmNhMIIBIjANBgkqhkiG9w0BAQEFAAOC
+AQ8AMIIBCgKCAQEAt//puENhcL2DP7vOpedQ+qfMcOSnj7fk1oUAJGtQAVDW1NZl
+fsbHMlIXp04kqU20Iy4Fxg5jSR5O/gPbNSlpI+B14xW2+ZbosfBA7hcJcTd8sdid
+J5tTyMq/SgxGlPZEYd+1vYHAsdfhBmf3J9IysKXvDDKfQycs5Nd9ymLH17PwGjNV
+GuSKQdhHqEYdWVuTuC480T2vjSlwZc9naUSrhyTXW0xFuAoiLz84f4PgFznY32qv
+4OldAA8E+B4pIQ9r+0A9LZXA4z7+hV47KbvN4JdZ3f3XRPtCeJvs7dWBdshSsifT
+6Nm6JgClv5nDh3J+W6/J3+AT0rdZCVHO8DF0bwIDAQABo0IwQDAOBgNVHQ8BAf8E
+BAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUr0qn1KuM3aGIvSdjOoc2
+78QukW4wDQYJKoZIhvcNAQELBQADggEBADe+WwgUloYkCVZsdKUHj/GOv5w7aCMe
+qfj8uV+UR7d8N3R8IXXkTEFqGsQsmQiE2H8U/+DjkMAFSJpG78QPZjv3VkSSfseT
+Wd/aaLFe/l6jsAj+w2ey1NpFgzym5nq/b03NQt3E8fi3x0V6OeTzolQ7m8F81AeF
+GbN24WwIEOfNRm6J/6kf5gJJ9q295sfUxL9UAjgLOKvITDxHRECZngYBReuO/VFv
+z/a8um5nj/IwBclvfKVnJxacjA+988adIevA2lnhSI3d++GxIbzAdLtpVuF6Ka5N
+3dOk8RQa4cBpEFstpLKRm//vVHEuT0DOModkrZEO/DLjeEELmsWt12I=
+-----END CERTIFICATE-----`)
+
+	_, rtc, err := NewClient()
+	if err != nil {
+		panic(err)
+	}
+	bc, err := identitylib.NewClient(baseURL, token, caCert, rtc)
+	if err != nil {
+		panic(err)
+	}
+	md, err := bc.Identify("d43e6dde-5c7a-4379-a9ca-2b61b435112f")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+v\n", *md)
+}
+
+func main_old() {
 	kc, rtc, err := NewClient()
 	if err != nil {
 		panic(err)
