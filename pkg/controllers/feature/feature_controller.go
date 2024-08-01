@@ -332,38 +332,83 @@ func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (boo
 }
 
 func (r *frReconciler) checkRequiredWorkloadExistence(ctx context.Context) (*requirementStatus, error) {
-	status := &requirementStatus{}
+	groups := map[string][]uiapi.WorkloadInfo{}
 	for _, w := range r.feature.Spec.ReadinessChecks.Workloads {
-		objList := unstructured.UnstructuredList{}
-		objList.SetGroupVersionKind(schema.GroupVersionKind{
-			Group:   w.Group,
-			Version: w.Version,
-			Kind:    w.Kind,
-		})
-		selector := labels.SelectorFromSet(w.Selector)
-		if err := r.apiReader.List(ctx, &objList, &client.ListOptions{Limit: 1, LabelSelector: selector}); err != nil {
-			if meta.IsNoMatchError(err) {
-				status.reason = fmt.Sprintf("Required resource %q is not registered.", w.String())
-				return status, nil
-			}
-			return nil, err
+		groups[w.Optional] = append(groups[w.Optional], w)
+	}
+
+	const requiredGroup = ""
+	for group, workloads := range groups {
+		var found, ready bool
+		if group == requiredGroup {
+			found, ready = true, true
 		}
-		if len(objList.Items) == 0 {
-			status.reason = "Required workload does not exist"
-			return status, nil
+		for _, w := range workloads {
+			status, err := r.checkWorkload(ctx, w)
+			if err != nil {
+				return status, err
+			}
+			if group == requiredGroup {
+				found = found && status.found
+				ready = ready && status.ready
+			} else {
+				found = found || status.found
+				ready = ready || status.ready
+			}
 		}
 
-		if !isWorkLoadsReady(objList) {
-			status.found = true
-			status.reason = "Required workload is not ready"
-			return status, nil
+		if !found {
+			return &requirementStatus{
+				found:  false,
+				ready:  false,
+				reason: "Required workload does not exist",
+			}, nil
+		} else if !ready {
+			return &requirementStatus{
+				found:  true,
+				ready:  false,
+				reason: "Required workload is not ready",
+			}, nil
 		}
+	}
+
+	return &requirementStatus{
+		found: true,
+		ready: true,
+	}, nil
+}
+
+func (r *frReconciler) checkWorkload(ctx context.Context, w uiapi.WorkloadInfo) (*requirementStatus, error) {
+	var status requirementStatus
+
+	objList := unstructured.UnstructuredList{}
+	objList.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   w.Group,
+		Version: w.Version,
+		Kind:    w.Kind,
+	})
+	selector := labels.SelectorFromSet(w.Selector)
+	if err := r.apiReader.List(ctx, &objList, &client.ListOptions{Limit: 1, LabelSelector: selector}); err != nil {
+		if meta.IsNoMatchError(err) {
+			status.reason = fmt.Sprintf("Required resource %q is not registered.", w.String())
+			return &status, nil
+		}
+		return nil, err
+	}
+	if len(objList.Items) == 0 {
+		status.reason = "Required workload does not exist"
+		return &status, nil
+	}
+
+	if !isWorkLoadsReady(objList) {
+		status.found = true
+		status.reason = "Required workload is not ready"
+		return &status, nil
 	}
 
 	status.ready = true
 	status.found = true
-
-	return status, nil
+	return &status, nil
 }
 
 func (r *frReconciler) updateFeatureSetAndRemoveFinalizer(ctx context.Context) error {
