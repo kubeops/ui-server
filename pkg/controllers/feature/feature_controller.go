@@ -338,25 +338,22 @@ func (r *frReconciler) checkRequiredWorkloadExistence(ctx context.Context) (*req
 	}
 
 	const requiredGroup = ""
-	for _, w := range groups[requiredGroup] {
-		status, err := r.checkWorkload(ctx, w)
-		if err != nil || !status.found || !status.ready {
-			return status, err
-		}
-	}
-	for _, workloads := range groups {
+	for group, workloads := range groups {
 		var found, ready bool
+		if group == requiredGroup {
+			found, ready = true, true
+		}
 		for _, w := range workloads {
 			status, err := r.checkWorkload(ctx, w)
 			if err != nil {
 				return status, err
-			} else if status.found && status.ready {
-				found = true
-				ready = true
-				break
 			}
-			if status.found {
-				found = true
+			if group == requiredGroup {
+				found = found && status.found
+				ready = ready && status.ready
+			} else {
+				found = found || status.found
+				ready = ready || status.ready
 			}
 		}
 
