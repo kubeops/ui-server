@@ -120,6 +120,7 @@ var DefaultBuiltins = [...]*Builtin{
 	Lower,
 	Upper,
 	Contains,
+	StringCount,
 	StartsWith,
 	EndsWith,
 	Split,
@@ -142,6 +143,7 @@ var DefaultBuiltins = [...]*Builtin{
 
 	// Encoding
 	JSONMarshal,
+	JSONMarshalWithOptions,
 	JSONUnmarshal,
 	JSONIsValid,
 	Base64Encode,
@@ -1108,6 +1110,19 @@ var Contains = &Builtin{
 	Categories: stringsCat,
 }
 
+var StringCount = &Builtin{
+	Name:        "strings.count",
+	Description: "Returns the number of non-overlapping instances of a substring in a string.",
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("search", types.S).Description("string to search in"),
+			types.Named("substring", types.S).Description("substring to look for"),
+		),
+		types.Named("output", types.N).Description("count of occurrences, `0` if not found"),
+	),
+	Categories: stringsCat,
+}
+
 var StartsWith = &Builtin{
 	Name:        "startswith",
 	Description: "Returns true if the search string begins with the base string.",
@@ -1703,6 +1718,27 @@ var JSONMarshal = &Builtin{
 			types.Named("x", types.A).Description("the term to serialize"),
 		),
 		types.Named("y", types.S).Description("the JSON string representation of `x`"),
+	),
+	Categories: encoding,
+}
+
+var JSONMarshalWithOptions = &Builtin{
+	Name: "json.marshal_with_options",
+	Description: "Serializes the input term JSON, with additional formatting options via the `opts` parameter. " +
+		"`opts` accepts keys `pretty` (enable multi-line/formatted JSON), `prefix` (string to prefix lines with, default empty string) and `indent` (string to indent with, default `\\t`).",
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("x", types.A).Description("the term to serialize"),
+			types.Named("opts", types.NewObject(
+				[]*types.StaticProperty{
+					types.NewStaticProperty("pretty", types.B),
+					types.NewStaticProperty("indent", types.S),
+					types.NewStaticProperty("prefix", types.S),
+				},
+				types.NewDynamicProperty(types.S, types.A),
+			)).Description("encoding options"),
+		),
+		types.Named("y", types.S).Description("the JSON string representation of `x`, with configured prefix/indent string(s) as appropriate"),
 	),
 	Categories: encoding,
 }
