@@ -50,7 +50,7 @@ import (
 
 type Storage struct {
 	kc        client.Client
-	mapper    *restmapper.DeferredDiscoveryRESTMapper
+	dc        discovery.DiscoveryInterface
 	clusterID string
 	a         authorizer.Authorizer
 	convertor rest.TableConvertor
@@ -67,7 +67,7 @@ var (
 func NewStorage(kc client.Client, dc discovery.DiscoveryInterface, clusterID string, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc:        kc,
-		mapper:    restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(dc)),
+		dc:        dc,
 		clusterID: clusterID,
 		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
@@ -114,6 +114,8 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewInternalError(err)
 	}
 
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
+
 	selector := shared.NewGroupKindSelector(options.LabelSelector)
 	now := time.Now()
 
@@ -138,7 +140,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			continue
 		}
 
-		mapping, err := r.mapper.RESTMapping(gk, v)
+		mapping, err := mapper.RESTMapping(gk, v)
 		if meta.IsNoMatchError(err) {
 			continue
 		} else if err != nil {

@@ -47,7 +47,7 @@ import (
 
 type Storage struct {
 	kc        client.Client
-	mapper    *restmapper.DeferredDiscoveryRESTMapper
+	dc        discovery.DiscoveryInterface
 	clusterID string
 	a         authorizer.Authorizer
 	convertor rest.TableConvertor
@@ -65,7 +65,7 @@ var (
 func NewStorage(kc client.Client, dc discovery.DiscoveryInterface, clusterID string, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc:        kc,
-		mapper:    restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(dc)),
+		dc:        dc,
 		clusterID: clusterID,
 		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
@@ -112,11 +112,13 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, apierrors.NewInternalError(err)
 	}
 
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
+
 	objName, gk, err := rscoreapi.ParseGenericResourceName(name)
 	if err != nil {
 		return nil, apierrors.NewBadRequest(err.Error())
 	}
-	mapping, err := r.mapper.RESTMapping(gk)
+	mapping, err := mapper.RESTMapping(gk)
 	if err != nil {
 		return nil, apierrors.NewInternalError(err)
 	}
@@ -166,6 +168,8 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewInternalError(err)
 	}
 
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
+
 	gvks := make(map[schema.GroupKind]string)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
@@ -183,7 +187,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 	items := make([]rscoreapi.GenericResource, 0)
 	for gk, v := range gvks {
-		mapping, err := r.mapper.RESTMapping(gk, v)
+		mapping, err := mapper.RESTMapping(gk, v)
 		if meta.IsNoMatchError(err) {
 			continue
 		} else if err != nil {
