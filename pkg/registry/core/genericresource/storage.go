@@ -34,17 +34,20 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/restmapper"
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	"kmodules.xyz/resource-metrics/api"
-	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Storage struct {
 	kc        client.Client
+	dc        discovery.DiscoveryInterface
 	clusterID string
 	a         authorizer.Authorizer
 	convertor rest.TableConvertor
@@ -59,9 +62,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
+func NewStorage(kc client.Client, dc discovery.DiscoveryInterface, clusterID string, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc:        kc,
+		dc:        dc,
 		clusterID: clusterID,
 		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
@@ -108,11 +112,13 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, apierrors.NewInternalError(err)
 	}
 
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
+
 	objName, gk, err := rscoreapi.ParseGenericResourceName(name)
 	if err != nil {
 		return nil, apierrors.NewBadRequest(err.Error())
 	}
-	mapping, err := r.kc.RESTMapper().RESTMapping(gk)
+	mapping, err := mapper.RESTMapping(gk)
 	if err != nil {
 		return nil, apierrors.NewInternalError(err)
 	}
@@ -162,21 +168,22 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewInternalError(err)
 	}
 
-	universe := ksets.NewGroupKind()
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
 
-	items := make([]rscoreapi.GenericResource, 0)
+	gvks := make(map[schema.GroupKind]string)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
 			continue
 		}
 		gk := gvk.GroupKind()
-		if universe.Has(gk) {
-			continue
-		} else {
-			universe.Insert(gk)
+		if v, exists := gvks[gk]; !exists || apiversion.MustCompare(v, gvk.Version) < 0 {
+			gvks[gk] = gvk.Version
 		}
+	}
 
-		mapping, err := r.kc.RESTMapper().RESTMapping(gvk.GroupKind(), gvk.Version)
+	items := make([]rscoreapi.GenericResource, 0)
+	for gk, v := range gvks {
+		mapping, err := mapper.RESTMapping(gk, v)
 		if meta.IsNoMatchError(err) {
 			continue
 		} else if err != nil {
@@ -195,7 +202,11 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		}
 
 		var list unstructured.UnstructuredList
-		list.SetGroupVersionKind(gvk)
+		list.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   gk.Group,
+			Version: v,
+			Kind:    gk.Kind,
+		})
 		if err := r.kc.List(ctx, &list, client.InNamespace(ns)); err != nil {
 			return nil, err
 		}

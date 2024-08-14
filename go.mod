@@ -48,8 +48,8 @@ require (
 	kmodules.xyz/custom-resources v0.30.0
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
-	kmodules.xyz/resource-metadata v0.18.11-0.20240801195527-995886d0c0e5
-	kmodules.xyz/resource-metrics v0.30.2-0.20240711131537-5e9d22977a2c
+	kmodules.xyz/resource-metadata v0.18.11-0.20240814043703-81f80582e37c
+	kmodules.xyz/resource-metrics v0.30.2-0.20240809125122-4c04e13dfc80
 	kmodules.xyz/resource-metrics/utils v0.30.1
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.4

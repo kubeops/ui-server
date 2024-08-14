@@ -377,10 +377,10 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[rscoreapi.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
-		v1alpha1storage[rscoreapi.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[rscoreapi.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, kc, cid, rbacAuthorizer)
 		v1alpha1storage[rscoreapi.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, builder)
 		v1alpha1storage[rscoreapi.ResourceProjects] = projecttorage.NewStorage(ctrlClient)
-		v1alpha1storage[rscoreapi.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[rscoreapi.ResourceResourceSummaries] = resourcesummarystorage.NewStorage(ctrlClient, kc, cid, rbacAuthorizer)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
