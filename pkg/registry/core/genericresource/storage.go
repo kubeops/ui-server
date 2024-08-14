@@ -34,6 +34,9 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/restmapper"
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
@@ -44,6 +47,7 @@ import (
 
 type Storage struct {
 	kc        client.Client
+	mapper    *restmapper.DeferredDiscoveryRESTMapper
 	clusterID string
 	a         authorizer.Authorizer
 	convertor rest.TableConvertor
@@ -58,9 +62,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
+func NewStorage(kc client.Client, dc discovery.DiscoveryInterface, clusterID string, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc:        kc,
+		mapper:    restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(dc)),
 		clusterID: clusterID,
 		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
@@ -111,7 +116,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	if err != nil {
 		return nil, apierrors.NewBadRequest(err.Error())
 	}
-	mapping, err := r.kc.RESTMapper().RESTMapping(gk)
+	mapping, err := r.mapper.RESTMapping(gk)
 	if err != nil {
 		return nil, apierrors.NewInternalError(err)
 	}
@@ -178,7 +183,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 	items := make([]rscoreapi.GenericResource, 0)
 	for gk, v := range gvks {
-		mapping, err := r.kc.RESTMapper().RESTMapping(gk, v)
+		mapping, err := r.mapper.RESTMapping(gk, v)
 		if meta.IsNoMatchError(err) {
 			continue
 		} else if err != nil {
