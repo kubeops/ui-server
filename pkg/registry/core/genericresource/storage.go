@@ -176,11 +176,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 			continue
 		}
 		gk := gvk.GroupKind()
-		if v, exists := gvks[gk]; exists {
-			if apiversion.MustCompare(v, gvk.Version) < 0 {
-				gvks[gk] = gvk.Version
-			}
-		} else {
+		if v, exists := gvks[gk]; !exists || apiversion.MustCompare(v, gvk.Version) < 0 {
 			gvks[gk] = gvk.Version
 		}
 	}
