@@ -36,12 +36,12 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	resourcemetrics "kmodules.xyz/resource-metrics"
 	"kmodules.xyz/resource-metrics/api"
-	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -112,22 +112,28 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	selector := shared.NewGroupKindSelector(options.LabelSelector)
 	now := time.Now()
 
-	universe := ksets.NewGroupKind()
+	gvks := make(map[schema.GroupKind]string)
+	for _, gvk := range api.RegisteredTypes() {
+		if !selector.Matches(gvk.GroupKind()) {
+			continue
+		}
+		gk := gvk.GroupKind()
+		if v, exists := gvks[gk]; exists {
+			if apiversion.MustCompare(v, gvk.Version) < 0 {
+				gvks[gk] = gvk.Version
+			}
+		} else {
+			gvks[gk] = gvk.Version
+		}
+	}
 
 	items := make([]rscoreapi.ResourceSummary, 0)
-	for _, gvk := range api.RegisteredTypes() {
-		gk := gvk.GroupKind()
-
+	for gk, v := range gvks {
 		if !selector.Matches(gk) {
 			continue
 		}
-		if universe.Has(gk) {
-			continue
-		} else {
-			universe.Insert(gk)
-		}
 
-		mapping, err := r.kc.RESTMapper().RESTMapping(gvk.GroupKind(), gvk.Version)
+		mapping, err := r.kc.RESTMapper().RESTMapping(gk, v)
 		if meta.IsNoMatchError(err) {
 			continue
 		} else if err != nil {
@@ -148,7 +154,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		summary := rscoreapi.ResourceSummary{
 			TypeMeta: metav1.TypeMeta{},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:              gvk.GroupKind().String(),
+				Name:              gk.String(),
 				Namespace:         ns,
 				CreationTimestamp: metav1.NewTime(now),
 				UID:               types.UID(uuid.Must(uuid.NewUUID()).String()),
@@ -163,7 +169,11 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		}
 
 		var list unstructured.UnstructuredList
-		list.SetGroupVersionKind(gvk)
+		list.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   gk.Group,
+			Version: v,
+			Kind:    gk.Kind,
+		})
 		if err := r.kc.List(ctx, &list, client.InNamespace(ns)); err != nil {
 			return nil, err
 		}

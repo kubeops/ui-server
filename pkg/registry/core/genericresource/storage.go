@@ -39,7 +39,6 @@ import (
 	clustermeta "kmodules.xyz/client-go/cluster"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	"kmodules.xyz/resource-metrics/api"
-	ksets "kmodules.xyz/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -162,21 +161,24 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewInternalError(err)
 	}
 
-	universe := ksets.NewGroupKind()
-
-	items := make([]rscoreapi.GenericResource, 0)
+	gvks := make(map[schema.GroupKind]string)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
 			continue
 		}
 		gk := gvk.GroupKind()
-		if universe.Has(gk) {
-			continue
+		if v, exists := gvks[gk]; exists {
+			if apiversion.MustCompare(v, gvk.Version) < 0 {
+				gvks[gk] = gvk.Version
+			}
 		} else {
-			universe.Insert(gk)
+			gvks[gk] = gvk.Version
 		}
+	}
 
-		mapping, err := r.kc.RESTMapper().RESTMapping(gvk.GroupKind(), gvk.Version)
+	items := make([]rscoreapi.GenericResource, 0)
+	for gk, v := range gvks {
+		mapping, err := r.kc.RESTMapper().RESTMapping(gk, v)
 		if meta.IsNoMatchError(err) {
 			continue
 		} else if err != nil {
@@ -195,7 +197,11 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		}
 
 		var list unstructured.UnstructuredList
-		list.SetGroupVersionKind(gvk)
+		list.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   gk.Group,
+			Version: v,
+			Kind:    gk.Kind,
+		})
 		if err := r.kc.List(ctx, &list, client.InNamespace(ns)); err != nil {
 			return nil, err
 		}
