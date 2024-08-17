@@ -49,6 +49,11 @@ func generateClusterStatusResponse(kc client.Client, mapper meta.RESTMapper) *rs
 		return &csr
 	}
 
+	csr.ClusterMetadata, err = clustermeta.ClusterMetadata(kc)
+	if err != nil {
+		return &csr
+	}
+
 	ready, msg, err := checkClusterReadiness(kc)
 	if err != nil {
 		csr.Phase = rsapi.ClusterPhaseInactive
