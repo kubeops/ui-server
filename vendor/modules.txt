@@ -673,7 +673,7 @@ github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
 ## explicit
 github.com/pmezard/go-difflib/difflib
-# github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.75.1
+# github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.75.2
 ## explicit; go 1.22.0
 github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring
 github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1
@@ -1951,7 +1951,7 @@ kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.30.11
+# kmodules.xyz/client-go v0.30.12
 ## explicit; go 1.22.0
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
@@ -1985,7 +1985,7 @@ kmodules.xyz/monitoring-agent-api/client
 ## explicit; go 1.22.0
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-# kmodules.xyz/resource-metadata v0.18.11-0.20240817062810-5a2d02326dbb
+# kmodules.xyz/resource-metadata v0.18.11
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2016,7 +2016,7 @@ kmodules.xyz/resource-metadata/pkg/layouts
 kmodules.xyz/resource-metadata/pkg/tableconvertor
 kmodules.xyz/resource-metadata/pkg/tableconvertor/lib
 kmodules.xyz/resource-metadata/pkg/tableconvertor/printers
-# kmodules.xyz/resource-metrics v0.30.2-0.20240809125122-4c04e13dfc80
+# kmodules.xyz/resource-metrics v0.30.2
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metrics
 kmodules.xyz/resource-metrics/api

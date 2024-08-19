@@ -4,10 +4,10 @@ metadata:
   creationTimestamp: null
   labels:
     k8s.io/group: core.kubestash.com
-    k8s.io/kind: RestoreSession
-    k8s.io/resource: restoresessions
+    k8s.io/kind: BackupSession
+    k8s.io/resource: backupsessions
     k8s.io/version: v1alpha1
-  name: core.kubestash.com-v1alpha1-restoresessions
+  name: core.kubestash.com-v1alpha1-backupsessions
 spec:
   blocks:
   - actions:
@@ -16,7 +16,7 @@ spec:
     kind: Connection
     name: Target
     query:
-      byLabel: restore_into
+      byLabel: backup_via
       type: GraphQL
     ref:
       group: appcatalog.appscode.com
@@ -27,18 +27,18 @@ spec:
       create: Never
     displayMode: Field
     kind: Connection
-    name: Repository
+    name: Backup Configuration
     query:
       byLabel: offshoot
       type: GraphQL
     ref:
-      group: storage.kubestash.com
-      kind: Repository
+      group: core.kubestash.com
+      kind: BackupConfiguration
     view:
-      name: storage.kubestash.com-v1alpha1-repositories
+      name: core.kubestash.com-v1alpha1-backupconfigurations
   resource:
     group: core.kubestash.com
-    kind: RestoreSession
-    name: restoresessions
+    kind: BackupSession
+    name: backupsessions
     scope: Namespaced
     version: v1alpha1
