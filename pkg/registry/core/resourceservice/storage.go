@@ -39,6 +39,9 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/restmapper"
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
@@ -55,6 +58,7 @@ import (
 
 type Storage struct {
 	kc        client.Client
+	dc        discovery.DiscoveryInterface
 	clusterID string
 	a         authorizer.Authorizer
 	convertor rest.TableConvertor
@@ -69,9 +73,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, clusterID string, a authorizer.Authorizer) *Storage {
+func NewStorage(kc client.Client, dc discovery.DiscoveryInterface, clusterID string, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc:        kc,
+		dc:        dc,
 		clusterID: clusterID,
 		a:         a,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
@@ -173,13 +178,25 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewInternalError(err)
 	}
 
-	items := make([]rscoreapi.GenericResourceService, 0)
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
+	gvks := make(map[schema.GroupKind]string)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {
 			continue
 		}
+		gk := gvk.GroupKind()
+		if v, exists := gvks[gk]; !exists || apiversion.MustCompare(v, gvk.Version) < 0 {
+			gvks[gk] = gvk.Version
+		}
+	}
 
-		mapping, err := r.kc.RESTMapper().RESTMapping(gvk.GroupKind(), gvk.Version)
+	items := make([]rscoreapi.GenericResourceService, 0)
+	for gk, v := range gvks {
+		if !selector.Matches(gk) {
+			continue
+		}
+
+		mapping, err := mapper.RESTMapping(gk, v)
 		if meta.IsNoMatchError(err) {
 			continue
 		} else if err != nil {
@@ -198,7 +215,11 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		}
 
 		var list unstructured.UnstructuredList
-		list.SetGroupVersionKind(gvk)
+		list.SetGroupVersionKind(schema.GroupVersionKind{
+			Group:   gk.Group,
+			Version: v,
+			Kind:    gk.Kind,
+		})
 		if err := r.kc.List(ctx, &list, client.InNamespace(ns)); err != nil {
 			return nil, err
 		}
