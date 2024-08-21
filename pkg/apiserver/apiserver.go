@@ -376,7 +376,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(rscoreapi.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[rscoreapi.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
+		v1alpha1storage[rscoreapi.ResourceGenericResourceServices] = resourcesservicestorage.NewStorage(ctrlClient, kc, cid, rbacAuthorizer)
 		v1alpha1storage[rscoreapi.ResourceGenericResources] = genericresourcestorage.NewStorage(ctrlClient, kc, cid, rbacAuthorizer)
 		v1alpha1storage[rscoreapi.ResourcePodViews] = podviewstorage.NewStorage(ctrlClient, rbacAuthorizer, builder)
 		v1alpha1storage[rscoreapi.ResourceProjects] = projecttorage.NewStorage(ctrlClient)
