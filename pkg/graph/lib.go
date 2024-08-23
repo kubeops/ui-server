@@ -94,7 +94,7 @@ func (finder ObjectFinder) ListConnectedResources(src *unstructured.Unstructured
 
 	for dstGVR, e := range edges {
 		objects, err := finder.ResourcesFor(src, e)
-		if kerr.IsNotFound(err) || len(objects) == 0 {
+		if kerr.IsNotFound(err) || meta.IsNoMatchError(err) || (err == nil && len(objects) == 0) {
 			continue
 		} else if err != nil {
 			return nil, err
@@ -110,7 +110,7 @@ func (finder ObjectFinder) ListConnectedPartials(src *unstructured.Unstructured,
 
 	for dstGVR, e := range edges {
 		objects, err := finder.ResourcesFor(src, e)
-		if kerr.IsNotFound(err) || len(objects) == 0 {
+		if kerr.IsNotFound(err) || meta.IsNoMatchError(err) || (err == nil && len(objects) == 0) {
 			continue
 		} else if err != nil {
 			return nil, err
