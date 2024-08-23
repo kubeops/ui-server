@@ -168,7 +168,7 @@ func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured
 			Connection: conns[0].ResourceConnectionSpec,
 			Forward:    true,
 		})
-		if kerr.IsNotFound(err) || (err == nil && len(objects) == 0) {
+		if kerr.IsNotFound(err) || meta.IsNoMatchError(err) || (err == nil && len(objects) == 0) {
 			continue
 		} else if err != nil {
 			return nil, err
