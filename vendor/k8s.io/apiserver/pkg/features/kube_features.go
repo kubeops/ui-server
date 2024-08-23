@@ -337,7 +337,7 @@ var defaultKubernetesFeatureGates = map[featuregate.Feature]featuregate.FeatureS
 
 	APIServingWithRoutine: {Default: true, PreRelease: featuregate.Beta},
 
-	ValidatingAdmissionPolicy: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.32
+	ValidatingAdmissionPolicy: {Default: false, PreRelease: featuregate.Beta}, // remove in 1.32
 
 	CustomResourceValidationExpressions: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.31
 

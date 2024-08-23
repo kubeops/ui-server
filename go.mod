@@ -238,15 +238,16 @@ require (
 	sigs.k8s.io/kustomize/api v0.16.0 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.17.1 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
+
 )
 
 replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8
 
-replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.18.3-0.20240518022955-f5b0bfc2bdf1
+replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.18.4-0.20240603164526-fa88ec2314fe
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.6
 
-replace k8s.io/apiserver => github.com/kmodules/apiserver v0.30.3-0.20240710215914-588ed1f51176
+replace k8s.io/apiserver => github.com/kmodules/apiserver v0.30.3-0.20240717062442-8d4dcc0bdd0b
 
 replace github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.16.0
 
