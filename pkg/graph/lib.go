@@ -871,12 +871,19 @@ func ParseResourceRefs(records [][]string) ([]ResourceRef, error) {
 	var refs []ResourceRef
 
 	var cols int
+NEXT:
 	for i, rec := range records {
 		n := len(rec)
 		if i == 0 {
 			cols = n
 		} else if cols != n {
 			return nil, errors.New("all rows must have same number of columns")
+		}
+
+		for _, v := range rec {
+			if v == "" {
+				continue NEXT
+			}
 		}
 
 		switch n {

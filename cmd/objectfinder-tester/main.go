@@ -73,7 +73,7 @@ func NewClient() (kubernetes.Interface, client.Client, error) {
 	return kc, rtc, err
 }
 
-func main() {
+func main_5() {
 	baseURL := "https://172.104.39.12/"
 	token := "5311e401d"
 	caCert := []byte(`-----BEGIN CERTIFICATE-----
@@ -313,5 +313,71 @@ func findServiceMonitorForPrometheus() error {
 			fmt.Printf("%+v\n", result)
 		}
 	}
+	return nil
+}
+
+func main() {
+	//_, kc, err := NewClient()
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//var result unstructured.UnstructuredList
+	//result.SetGroupVersionKind(schema.GroupVersionKind{
+	//	Group:   "policy",
+	//	Version: "v1beta1",
+	//	Kind:    "PodSecurityPolicy.",
+	//})
+	//err = kc.List(context.TODO(), &result)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//fmt.Printf("%+v\n", result)
+
+	err := findForPostgres()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func findForPostgres() error {
+	_, kc, err := NewClient()
+	if err != nil {
+		return err
+	}
+
+	/*
+		apiVersion: monitoring.coreos.com/v1
+		kind: Prometheus
+	*/
+	rd, err := resourcedescriptors.LoadByGVR(schema.GroupVersionResource{
+		Group:    "kubedb.com",
+		Version:  "v1",
+		Resource: "postgreses",
+	})
+	if err != nil {
+		return err
+	}
+
+	var src unstructured.Unstructured
+	src.SetAPIVersion("kubedb.com/v1")
+	src.SetKind("Postgres")
+
+	key := client.ObjectKey{
+		Namespace: "ace",
+		Name:      "ace-db",
+	}
+	err = kc.Get(context.TODO(), key, &src)
+	if err != nil {
+		return err
+	}
+
+	finder := graph.ObjectFinder{Client: kc}
+
+	result, err := finder.ListConnectedObjectIDs(&src, rd.Spec.Connections)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%+v\n", result)
 	return nil
 }
