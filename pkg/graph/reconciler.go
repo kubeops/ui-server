@@ -18,11 +18,13 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/discovery"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -59,7 +61,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 			Client: r.Client,
 		}
 		if result, err := finder.ListConnectedObjectIDs(&obj, rd.Spec.Connections); err != nil {
-			log.Error(err, "unable to list connections", "group", r.R.Group, "kind", r.R.Kind)
+			// In case of discovery error, we don't return error because errors are rate limited.
+			// We need to keep trying until the reconciliation is successful.
+			if errors.Is(err, &discovery.ErrGroupDiscoveryFailed{}) {
+				log.Error(err, "unable to list connections", "group", r.R.Group, "kind", r.R.Kind)
+				return reconcile.Result{RequeueAfter: 500 * time.Millisecond}, nil
+			}
 			// we'll ignore not-found errors, since they can't be fixed by an immediate
 			// requeue (we'll need to wait for a new notification), and we can get them
 			// on deleted requests.
