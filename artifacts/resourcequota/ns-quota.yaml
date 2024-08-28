@@ -1,0 +1,13 @@
+apiVersion: management.k8s.appscode.com/v1alpha1
+kind: ProjectQuota
+metadata:
+  name: demo
+spec:
+  quotas:
+  - group: kubedb.com
+    kind: Postgres
+    hard:
+      limits.memory: 1Gi
+  - group: kubedb.com
+    hard:
+      limits.memory: 1Gi

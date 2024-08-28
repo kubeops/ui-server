@@ -73,7 +73,6 @@ func (r *ProjectQuotaReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	var pj v1alpha1.ProjectQuota
 	if err := r.Get(ctx, req.NamespacedName, &pj); err != nil {
-		log.Error(err, "unable to fetch ProjectQuota")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -164,10 +163,7 @@ type QuotaResult struct {
 }
 
 func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) error {
-	var nsList core.NamespaceList
-	err := r.List(context.TODO(), &nsList, client.MatchingLabels{
-		clustermeta.LabelKeyRancherFieldProjectId: pj.Name,
-	})
+	nsList, err := r.getNamespaceList(pj.Name)
 	if err != nil {
 		return err
 	}
@@ -264,6 +260,29 @@ func (r *ProjectQuotaReconciler) CalculateStatus(pj *v1alpha1.ProjectQuota) erro
 	}
 
 	return nil
+}
+
+func (r *ProjectQuotaReconciler) getNamespaceList(name string) (*core.NamespaceList, error) {
+	var nsList core.NamespaceList
+	if clustermeta.IsRancherManaged(r.RESTMapper()) {
+		err := r.List(context.TODO(), &nsList, client.MatchingLabels{
+			clustermeta.LabelKeyRancherFieldProjectId: name,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if len(nsList.Items) > 0 {
+			return &nsList, nil
+		}
+	}
+
+	err := r.List(context.TODO(), &nsList, client.MatchingLabels{
+		core.LabelMetadataName: name,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &nsList, nil
 }
 
 func (r *ProjectQuotaReconciler) UsedQuota(ns string, typeInfo APIType) (core.ResourceList, *QuotaResult, error) {
@@ -394,12 +413,19 @@ func ProjectQuotaForObjects(kc client.Client) func(_ context.Context, _ client.O
 			return nil
 		}
 
-		projectId, found := ns.Labels[clustermeta.LabelKeyRancherFieldProjectId]
-		if !found {
-			return nil
+		var req []reconcile.Request
+
+		if clustermeta.IsRancherManaged(kc.RESTMapper()) {
+			projectId, found := ns.Labels[clustermeta.LabelKeyRancherFieldProjectId]
+			if found {
+				req = append(req, reconcile.Request{
+					NamespacedName: types.NamespacedName{Name: projectId},
+				})
+			}
 		}
-		return []reconcile.Request{
-			{NamespacedName: types.NamespacedName{Name: projectId}},
-		}
+		req = append(req, reconcile.Request{
+			NamespacedName: types.NamespacedName{Name: ns.Name},
+		})
+		return req
 	}
 }
