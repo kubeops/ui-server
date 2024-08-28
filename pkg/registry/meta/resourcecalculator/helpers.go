@@ -21,7 +21,6 @@ import (
 	"strings"
 
 	core "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -101,20 +100,28 @@ func mergeRequestsLimits(requests, limits core.ResourceList) core.ResourceList {
 	return rl
 }
 
-func getProjectQuota(kc client.Client, ns string) (*v1alpha1.ProjectQuota, error) {
-	projectId, _, err := clustermeta.GetProjectId(kc, ns)
-	if err != nil {
-		return nil, err
-	}
-	var pj v1alpha1.ProjectQuota
-	err = kc.Get(context.TODO(), client.ObjectKey{Name: projectId}, &pj)
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, nil
+func getApplicableQuotas(kc client.Client, ns string) ([]*v1alpha1.ProjectQuota, error) {
+	var names []string
+	if clustermeta.IsRancherManaged(kc.RESTMapper()) {
+		projectId, _, err := clustermeta.GetProjectId(kc, ns)
+		if err != nil {
+			return nil, err
 		}
-		return nil, err
+		names = append(names, projectId)
 	}
-	return &pj, nil
+	names = append(names, ns)
+
+	var result []*v1alpha1.ProjectQuota
+	for _, name := range names {
+		var pj v1alpha1.ProjectQuota
+		err := kc.Get(context.TODO(), client.ObjectKey{Name: name}, &pj)
+		if client.IgnoreNotFound(err) != nil {
+			return nil, err
+		} else if err == nil {
+			result = append(result, &pj)
+		}
+	}
+	return result, nil
 }
 
 func getGVK(obj map[string]interface{}) schema.GroupVersionKind {

@@ -108,24 +108,38 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, createValidati
 	}
 	rid := kmapi.NewResourceID(mapping)
 
-	pq, err := getProjectQuota(r.kc, u.GetNamespace())
-	if err != nil {
-		return nil, err
-	}
-	// Wrap referenced db resource with the OpsRequest object
 	if rid.Group == "ops.kubedb.com" {
 		if err = utils.ExpandReferencedAppInOpsObject(r.kc, &u); err != nil {
 			return nil, err
 		}
-	} else if in.Request.Edit && pq != nil {
-		if err := deductOldDbObjectResourceUsageFromProjectQuota(r.kc, u, pq); err != nil {
-			return nil, err
-		}
 	}
 
-	resp, err := ToGenericResource(&u, rid, pq)
+	resp, err := ToGenericResource(&u, rid)
 	if err != nil {
 		return nil, apierrors.NewInternalError(err)
+	}
+
+	quotas, err := getApplicableQuotas(r.kc, u.GetNamespace())
+	if err != nil {
+		return nil, err
+	}
+	// Wrap referenced db resource with the OpsRequest object
+	for i := range quotas {
+		pq := quotas[i]
+		if rid.Group != "ops.kubedb.com" && in.Request.Edit {
+			if err := deductOldDbObjectResourceUsageFromProjectQuota(r.kc, u, pq); err != nil {
+				return nil, err
+			}
+		}
+
+		rv, err := quota(u.UnstructuredContent(), pq)
+		if err != nil {
+			return nil, err
+		}
+		resp.Quota = *rv
+		if rv.Decision == rsapi.DecisionDeny {
+			break
+		}
 	}
 
 	in.Response = resp
@@ -136,7 +150,7 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
 
-func ToGenericResource(item *unstructured.Unstructured, apiType *kmapi.ResourceID, pq *v1alpha1.ProjectQuota) (*rsapi.ResourceCalculatorResponse, error) {
+func ToGenericResource(item *unstructured.Unstructured, apiType *kmapi.ResourceID) (*rsapi.ResourceCalculatorResponse, error) {
 	content := item.UnstructuredContent()
 
 	var genres rsapi.ResourceCalculatorResponse
@@ -209,13 +223,6 @@ func ToGenericResource(item *unstructured.Unstructured, apiType *kmapi.ResourceI
 				return nil, err
 			}
 			genres.RoleResourceLimits = rv
-		}
-		{
-			rv, err := quota(content, pq)
-			if err != nil {
-				return nil, err
-			}
-			genres.Quota = *rv
 		}
 	}
 	return &genres, nil
