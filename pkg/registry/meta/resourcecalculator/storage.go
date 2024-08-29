@@ -290,7 +290,7 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaD
 
 					qd.Decision = rsapi.DecisionDeny
 					qd.Violations = append(qd.Violations,
-						fmt.Sprintf("ProjectQuota %s rule %s exceeded, Requested: %s=%s, Used: %s=%s, Limit: %s=%s", pq.Name, ruleName(quota.ResourceQuotaSpec), rk, dd.String(), rk, du.String(), rk, dh.String()))
+						fmt.Sprintf("ProjectQuota %q rule %q exceeded, Requested: %s=%s, Used: %s=%s, Limit: %s=%s", pq.Name, ruleName(quota.ResourceQuotaSpec), rk, dd.String(), rk, du.String(), rk, dh.String()))
 				}
 			}
 		}
