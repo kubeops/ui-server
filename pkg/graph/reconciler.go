@@ -49,7 +49,14 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 	var obj unstructured.Unstructured
 	obj.SetGroupVersionKind(gvk)
 	if err := r.Get(context.TODO(), req.NamespacedName, &obj); err != nil {
-		log.Error(err, "unable to fetch", "group", r.R.Group, "kind", r.R.Kind)
+		oid := kmapi.ObjectID{
+			Group:     gvk.Group,
+			Kind:      gvk.Kind,
+			Namespace: req.Namespace,
+			Name:      req.Name,
+		}
+		objGraph.Delete(oid.OID())
+
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
 		// on deleted requests.
