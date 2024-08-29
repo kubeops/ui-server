@@ -28,6 +28,7 @@ import (
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/pkg/errors"
+	catalogapi "go.bytebuilders.dev/catalog/api/v1alpha1"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -385,9 +386,47 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			genres.Spec.Facilities.Exposed.Usage = rscoreapi.FacilityUnused
 		}
 	}
+	if apiType.Group == "kubedb.com" && genres.Spec.Facilities.Exposed.Usage == rscoreapi.FacilityUnused {
+		rid, objs, err := graph.ExecQuery(r.kc, oid, sharedapi.ResourceLocator{
+			Ref: metav1.GroupKind{
+				Group: "catalog.appscode.com",
+				Kind:  apiType.Kind + "Binding",
+			},
+			Query: sharedapi.ResourceQuery{
+				Type:    sharedapi.GraphQLQuery,
+				ByLabel: kmapi.EdgeLabelExposedBy,
+			},
+		})
+		if err == nil {
+			var isExposed bool
+			var refs []kmapi.ObjectReference
+			for _, obj := range objs {
+				var binding catalogapi.GenericBinding
+				if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.UnstructuredContent(), &binding); err != nil {
+					return nil, err
+				}
+				if binding.Status.Gateway != nil &&
+					(binding.Status.Gateway.Hostname != "" || binding.Status.Gateway.IP != "") {
+					isExposed = true
+					refs = append(refs, kmapi.ObjectReference{
+						Namespace: binding.Status.Gateway.Namespace,
+						Name:      binding.Status.Gateway.Name,
+					})
+					break
+				}
+			}
+			if isExposed {
+				genres.Spec.Facilities.Exposed.Usage = rscoreapi.FacilityUsed
+				genres.Spec.Facilities.Exposed.Resource = rid
+				genres.Spec.Facilities.Exposed.Refs = refs
+			}
+		} else if !meta.IsNoMatchError(err) {
+			return nil, err
+		}
+	}
 	{
 		yes, err := resourcemetrics.UsesTLS(content)
-		if err != nil {
+		if err != nil && !errors.Is(err, api.ErrMissingRefObject) {
 			return nil, err
 		}
 		if yes {
@@ -416,14 +455,31 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		       }`,
 			},
 		})
-		if err == nil {
-			if len(refs) > 0 {
-				genres.Spec.Facilities.Backup.Usage = rscoreapi.FacilityUsed
-				genres.Spec.Facilities.Backup.Resource = rid
-				genres.Spec.Facilities.Backup.Refs = refs
-			} else {
-				genres.Spec.Facilities.Backup.Usage = rscoreapi.FacilityUnused
-			}
+		if len(refs) > 0 {
+			genres.Spec.Facilities.Backup.Usage = rscoreapi.FacilityUsed
+			genres.Spec.Facilities.Backup.Resource = rid
+			genres.Spec.Facilities.Backup.Refs = refs
+		} else if err != nil && !meta.IsNoMatchError(err) {
+			return nil, err
+		}
+	}
+	if genres.Spec.Facilities.Backup.Usage == rscoreapi.FacilityUnknown {
+		rid, refs, err := graph.ExecRawQuery(r.kc, oid, sharedapi.ResourceLocator{
+			Ref: metav1.GroupKind{
+				Group: "core.kubestash.com",
+				Kind:  "BackupConfiguration",
+			},
+			Query: sharedapi.ResourceQuery{
+				Type:    sharedapi.GraphQLQuery,
+				ByLabel: kmapi.EdgeLabelBackupVia,
+			},
+		})
+		if len(refs) > 0 {
+			genres.Spec.Facilities.Backup.Usage = rscoreapi.FacilityUsed
+			genres.Spec.Facilities.Backup.Resource = rid
+			genres.Spec.Facilities.Backup.Refs = refs
+		} else if err == nil {
+			genres.Spec.Facilities.Backup.Usage = rscoreapi.FacilityUnused
 		} else if !meta.IsNoMatchError(err) {
 			return nil, err
 		}
@@ -448,13 +504,11 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		         }`,
 			},
 		})
-		if err == nil {
-			if len(refs) > 0 {
-				genres.Spec.Facilities.Monitoring.Usage = rscoreapi.FacilityUsed
-				genres.Spec.Facilities.Monitoring.Resource = rid
-				genres.Spec.Facilities.Monitoring.Refs = refs
-			}
-		} else if !meta.IsNoMatchError(err) {
+		if len(refs) > 0 {
+			genres.Spec.Facilities.Monitoring.Usage = rscoreapi.FacilityUsed
+			genres.Spec.Facilities.Monitoring.Resource = rid
+			genres.Spec.Facilities.Monitoring.Refs = refs
+		} else if err != nil && !meta.IsNoMatchError(err) {
 			return nil, err
 		}
 
@@ -478,14 +532,12 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		         }`,
 				},
 			})
-			if err == nil {
-				if len(refs) > 0 {
-					genres.Spec.Facilities.Monitoring.Usage = rscoreapi.FacilityUsed
-					genres.Spec.Facilities.Monitoring.Resource = rid
-					genres.Spec.Facilities.Monitoring.Refs = refs
-				} else {
-					genres.Spec.Facilities.Monitoring.Usage = rscoreapi.FacilityUnused
-				}
+			if len(refs) > 0 {
+				genres.Spec.Facilities.Monitoring.Usage = rscoreapi.FacilityUsed
+				genres.Spec.Facilities.Monitoring.Resource = rid
+				genres.Spec.Facilities.Monitoring.Refs = refs
+			} else if err == nil {
+				genres.Spec.Facilities.Monitoring.Usage = rscoreapi.FacilityUnused
 			} else if !meta.IsNoMatchError(err) {
 				return nil, err
 			}

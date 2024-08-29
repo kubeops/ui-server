@@ -23,6 +23,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/zeebo/xxh3 v1.0.2
+	go.bytebuilders.dev/catalog v0.0.7
 	go.bytebuilders.dev/license-verifier v0.14.1
 	go.openviz.dev/apimachinery v0.0.7
 	golang.org/x/sync v0.7.0
@@ -48,9 +49,9 @@ require (
 	kmodules.xyz/custom-resources v0.30.0
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
-	kmodules.xyz/resource-metadata v0.18.13-0.20240829025444-b72d620479e5
-	kmodules.xyz/resource-metrics v0.30.2
-	kmodules.xyz/resource-metrics/utils v0.30.1
+	kmodules.xyz/resource-metadata v0.18.13-0.20240829103836-604e102fc093
+	kmodules.xyz/resource-metrics v0.30.3
+	kmodules.xyz/resource-metrics/utils v0.30.3
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.4
 	kubeops.dev/scanner v0.0.18
@@ -155,6 +156,7 @@ require (
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
+	github.com/onsi/gomega v1.34.1 // indirect
 	github.com/open-policy-agent/frameworks/constraint v0.0.0-20240802234259-aa99306df54e // indirect
 	github.com/open-policy-agent/opa v0.67.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -232,7 +234,8 @@ require (
 	k8s.io/component-helpers v0.29.0 // indirect
 	k8s.io/kms v0.30.3 // indirect
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // indirect
-	kmodules.xyz/offshoot-api v0.29.4 // indirect
+	kmodules.xyz/offshoot-api v0.30.0 // indirect
+	kubevault.dev/apimachinery v0.18.3 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.16.0 // indirect
