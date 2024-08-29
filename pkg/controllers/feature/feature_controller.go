@@ -323,7 +323,7 @@ func (r *frReconciler) checkRequiredResourcesExistence(ctx context.Context) (boo
 		})
 		if err := r.apiReader.List(ctx, &objList, &client.ListOptions{Limit: 1}); err != nil {
 			if meta.IsNoMatchError(err) {
-				return false, fmt.Sprintf("Required resource %q is not registered.", gvk.String()), err
+				return false, err.Error(), nil
 			}
 			return false, "", err
 		}
