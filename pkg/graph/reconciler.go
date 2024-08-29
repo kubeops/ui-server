@@ -97,10 +97,7 @@ func IsDiscoveryError(err error) bool {
 		return true
 	}
 	var errRDF *apiutil.ErrResourceDiscoveryFailed
-	if errors.As(err, &errRDF) {
-		return true
-	}
-	return false
+	return errors.As(err, &errRDF)
 }
 
 // SetupWithManager sets up the controller with the Manager.
