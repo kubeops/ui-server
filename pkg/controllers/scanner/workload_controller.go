@@ -27,7 +27,7 @@ import (
 	apps "k8s.io/api/apps/v1"
 	batch "k8s.io/api/batch/v1"
 	core "k8s.io/api/core/v1"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -113,7 +113,7 @@ func (r *WorkloadReconciler) shouldScan(ref string) (bool, error) {
 	err := r.Get(context.TODO(), types.NamespacedName{
 		Name: scannerapi.GetReportName(ref),
 	}, &rep)
-	if kerr.IsNotFound(err) {
+	if apierrors.IsNotFound(err) {
 		return true, nil
 	}
 	if err != nil {

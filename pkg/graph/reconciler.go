@@ -22,6 +22,7 @@ import (
 	"time"
 
 	core "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/discovery"
@@ -49,13 +50,15 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 	var obj unstructured.Unstructured
 	obj.SetGroupVersionKind(gvk)
 	if err := r.Get(context.TODO(), req.NamespacedName, &obj); err != nil {
-		oid := kmapi.ObjectID{
-			Group:     gvk.Group,
-			Kind:      gvk.Kind,
-			Namespace: req.Namespace,
-			Name:      req.Name,
+		if apierrors.IsNotFound(err) {
+			oid := kmapi.ObjectID{
+				Group:     gvk.Group,
+				Kind:      gvk.Kind,
+				Namespace: req.Namespace,
+				Name:      req.Name,
+			}
+			objGraph.Delete(oid.OID())
 		}
-		objGraph.Delete(oid.OID())
 
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them

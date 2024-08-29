@@ -26,7 +26,7 @@ import (
 	"gomodules.xyz/pointer"
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -397,7 +397,7 @@ func TestFeatureSetStatus(t *testing.T) {
 		expectedReadyStatus  *bool
 	}{
 		"Should return not found error when FeatureSet does not exist": {
-			expectedErr: kerr.NewNotFound(
+			expectedErr: apierrors.NewNotFound(
 				schema.GroupResource{
 					Group:    uiapi.SchemeGroupVersion.Group,
 					Resource: uiapi.ResourceFeatureSets,
@@ -478,7 +478,7 @@ func TestFeatureSetStatus(t *testing.T) {
 			err = r.updateFeatureSetEntry(context.Background())
 			if tt.expectedErr != nil {
 				if assert.NotNil(t, err) {
-					assert.True(t, kerr.IsNotFound(err))
+					assert.True(t, apierrors.IsNotFound(err))
 				}
 				return
 			}

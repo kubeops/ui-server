@@ -23,7 +23,7 @@ import (
 	fluxhelm "github.com/fluxcd/helm-controller/api/v2"
 	"github.com/go-logr/logr"
 	"gomodules.xyz/pointer"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -86,14 +86,14 @@ func (r *FeatureReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	if fr.feature.DeletionTimestamp != nil {
 		err = fr.updateFeatureSetAndRemoveFinalizer(ctx)
-		if err != nil && kerr.IsNotFound(err) {
+		if err != nil && apierrors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{}, nil
 	}
 
 	err = fr.reconcile(ctx)
-	if err != nil && !kerr.IsNotFound(err) {
+	if err != nil && !apierrors.IsNotFound(err) {
 		logger.Error(err, "failed to reconcile")
 		return ctrl.Result{}, nil
 	}
@@ -103,7 +103,7 @@ func (r *FeatureReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	err = fr.updateFeatureSetEntry(ctx)
-	if err != nil && !kerr.IsNotFound(err) {
+	if err != nil && !apierrors.IsNotFound(err) {
 		return ctrl.Result{}, err
 	}
 
@@ -224,7 +224,7 @@ func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error
 
 	release, err := r.getHelmRelease(ctx)
 	if err != nil {
-		if kerr.IsNotFound(err) {
+		if apierrors.IsNotFound(err) {
 			status.managed = false
 			return status, nil
 		}
@@ -260,7 +260,7 @@ func (r *frReconciler) getHelmRelease(ctx context.Context) (fluxhelm.HelmRelease
 	if len(releases.Items) > 0 {
 		return releases.Items[0], nil
 	}
-	return fluxhelm.HelmRelease{}, kerr.NewNotFound(schema.GroupResource{
+	return fluxhelm.HelmRelease{}, apierrors.NewNotFound(schema.GroupResource{
 		Group:    fluxhelm.GroupVersion.Group,
 		Resource: "helmreleases",
 	}, r.feature.Name)
@@ -269,7 +269,7 @@ func (r *frReconciler) getHelmRelease(ctx context.Context) (fluxhelm.HelmRelease
 func (r *frReconciler) isFeatureEnabled(ctx context.Context, status featureStatus) (bool, error) {
 	_, err := r.getHelmRelease(ctx)
 	if err != nil {
-		if kerr.IsNotFound(err) {
+		if apierrors.IsNotFound(err) {
 			status.managed = false
 			return isRequiredResourcesExist(status) && isWorkloadOrReleaseExist(status), nil
 		}
@@ -297,7 +297,7 @@ func (r *frReconciler) checkDependencyExistence(ctx context.Context) (*requireme
 	for _, d := range r.feature.Spec.Requirements.Features {
 		f := &uiapi.Feature{}
 		if err := r.client.Get(ctx, types.NamespacedName{Name: d}, f); err != nil {
-			if kerr.IsNotFound(err) {
+			if apierrors.IsNotFound(err) {
 				status.reason = fmt.Sprintf("Dependency not satisfied. Feature %q does not exist.", d)
 				return status, nil
 			}
@@ -413,7 +413,7 @@ func (r *frReconciler) checkWorkload(ctx context.Context, w uiapi.WorkloadInfo) 
 
 func (r *frReconciler) updateFeatureSetAndRemoveFinalizer(ctx context.Context) error {
 	if err := r.updateFeatureSetEntry(ctx); err != nil {
-		if !kerr.IsNotFound(err) {
+		if !apierrors.IsNotFound(err) {
 			return err
 		}
 	}

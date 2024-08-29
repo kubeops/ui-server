@@ -21,7 +21,7 @@ import (
 
 	"gomodules.xyz/pointer"
 	"gomodules.xyz/sets"
-	"k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	cu "kmodules.xyz/client-go/client"
 	"kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
@@ -34,7 +34,7 @@ func (r *frReconciler) updateAllFeatureSetDependencies(ctx context.Context) erro
 	for _, name := range r.feature.Spec.Requirements.Features {
 		f := &v1alpha1.Feature{}
 		if err := r.client.Get(ctx, types.NamespacedName{Name: name}, f); err != nil {
-			if errors.IsNotFound(err) {
+			if apierrors.IsNotFound(err) {
 				// required feature isn't available yet
 				continue
 			}
