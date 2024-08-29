@@ -29,6 +29,7 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	logger "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -73,7 +74,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 		if result, err := finder.ListConnectedObjectIDs(&obj, rd.Spec.Connections); err != nil {
 			// In case of discovery error, we don't return error because errors are rate limited.
 			// We need to keep trying until the reconciliation is successful.
-			if errors.Is(err, &discovery.ErrGroupDiscoveryFailed{}) {
+			if IsDiscoveryError(err) {
 				log.Error(err, "unable to list connections", "group", r.R.Group, "kind", r.R.Kind)
 				return reconcile.Result{RequeueAfter: 500 * time.Millisecond}, nil
 			}
@@ -89,6 +90,17 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 	}
 
 	return reconcile.Result{}, nil
+}
+
+func IsDiscoveryError(err error) bool {
+	if errors.Is(err, &discovery.ErrGroupDiscoveryFailed{}) {
+		return true
+	}
+	var errRDF *apiutil.ErrResourceDiscoveryFailed
+	if errors.As(err, &errRDF) {
+		return true
+	}
+	return false
 }
 
 // SetupWithManager sets up the controller with the Manager.

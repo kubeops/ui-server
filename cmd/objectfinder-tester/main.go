@@ -19,6 +19,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"kubeops.dev/ui-server/pkg/apiserver"
@@ -35,6 +36,7 @@ import (
 	"k8s.io/apiserver/pkg/authentication/user"
 	"k8s.io/apiserver/pkg/endpoints/request"
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
@@ -78,7 +80,7 @@ func NewClient() (kubernetes.Interface, client.Client, error) {
 	return kc, rtc, err
 }
 
-func main_5() {
+func main_1() {
 	baseURL := "https://172.104.39.12/"
 	token := "5311e401d"
 	caCert := []byte(`-----BEGIN CERTIFICATE-----
@@ -115,7 +117,7 @@ z/a8um5nj/IwBclvfKVnJxacjA+988adIevA2lnhSI3d++GxIbzAdLtpVuF6Ka5N
 	fmt.Printf("%+v\n", *md)
 }
 
-func main_old() {
+func main_2() {
 	kc, rtc, err := NewClient()
 	if err != nil {
 		panic(err)
@@ -161,7 +163,7 @@ func main_old() {
 	fmt.Printf("%+v\n", out)
 }
 
-func main_() {
+func main_3() {
 	if err := ListResourceLayouts(); err != nil {
 		panic(err)
 	}
@@ -321,7 +323,7 @@ func findServiceMonitorForPrometheus() error {
 	return nil
 }
 
-func main_34() {
+func main() {
 	//_, kc, err := NewClient()
 	//if err != nil {
 	//	panic(err)
@@ -380,14 +382,25 @@ func findForPostgres() error {
 	finder := graph.ObjectFinder{Client: kc}
 
 	result, err := finder.ListConnectedObjectIDs(&src, rd.Spec.Connections)
+	if errors.Is(err, &discovery.ErrGroupDiscoveryFailed{}) {
+		fmt.Println(err)
+	}
+
+	var errRDF *apiutil.ErrResourceDiscoveryFailed
+	if errors.As(err, &errRDF) {
+		fmt.Println(err)
+	}
 	if err != nil {
 		return err
 	}
+	// kerr.IsServiceUnavailable()
+	// kerr.IsNotFound()
+
 	fmt.Printf("%+v\n", result)
 	return nil
 }
 
-func main() {
+func main_5() {
 	kc, rtc, err := NewClient()
 	if err != nil {
 		panic(err)
@@ -416,7 +429,7 @@ func main() {
 	fmt.Printf("%+v\n", result)
 }
 
-func main_List_ResourceService() {
+func main_6() {
 	kc, rtc, err := NewClient()
 	if err != nil {
 		panic(err)
