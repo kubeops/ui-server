@@ -23,18 +23,23 @@ import (
 
 	"kubeops.dev/ui-server/pkg/apiserver"
 	"kubeops.dev/ui-server/pkg/graph"
+	"kubeops.dev/ui-server/pkg/registry/core/resourceservice"
 	"kubeops.dev/ui-server/pkg/registry/identity/selfsubjectnamespaceaccessreview"
 
 	authorization "k8s.io/api/authorization/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/authentication/user"
 	"k8s.io/apiserver/pkg/endpoints/request"
+	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
+	rbacauthz "kmodules.xyz/authorizer/apiserver"
+	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
@@ -316,7 +321,7 @@ func findServiceMonitorForPrometheus() error {
 	return nil
 }
 
-func main() {
+func main_34() {
 	//_, kc, err := NewClient()
 	//if err != nil {
 	//	panic(err)
@@ -380,4 +385,62 @@ func findForPostgres() error {
 	}
 	fmt.Printf("%+v\n", result)
 	return nil
+}
+
+func main() {
+	kc, rtc, err := NewClient()
+	if err != nil {
+		panic(err)
+	}
+
+	cid, err := clustermeta.ClusterUID(rtc)
+	if err != nil {
+		panic(err)
+	}
+
+	rbacAuthorizer := rbacauthz.New(rtc)
+
+	s := resourceservice.NewStorage(rtc, kc.Discovery(), cid, rbacAuthorizer)
+
+	ctx := context.TODO()
+	ctx = apirequest.WithNamespace(ctx, "ace")
+	ctx = apirequest.WithUser(ctx, &user.DefaultInfo{
+		Name:   "system:admin",
+		Groups: []string{"system:masters", "system:authenticated"},
+	})
+
+	result, err := s.Get(ctx, "ace-db~Postgres.kubedb.com", &metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+v\n", result)
+}
+
+func main_List_ResourceService() {
+	kc, rtc, err := NewClient()
+	if err != nil {
+		panic(err)
+	}
+
+	cid, err := clustermeta.ClusterUID(rtc)
+	if err != nil {
+		panic(err)
+	}
+
+	rbacAuthorizer := rbacauthz.New(rtc)
+
+	s := resourceservice.NewStorage(rtc, kc.Discovery(), cid, rbacAuthorizer)
+
+	ctx := context.TODO()
+	ctx = apirequest.WithNamespace(ctx, "ace")
+	ctx = apirequest.WithUser(ctx, &user.DefaultInfo{
+		Name:   "system:admin",
+		Groups: []string{"system:masters", "system:authenticated"},
+	})
+
+	result, err := s.List(ctx, &internalversion.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+v\n", result)
 }

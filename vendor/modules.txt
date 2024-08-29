@@ -504,6 +504,18 @@ github.com/munnerz/goautoneg
 # github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f
 ## explicit
 github.com/mwitkow/go-conntrack
+# github.com/onsi/gomega v1.34.1
+## explicit; go 1.20
+github.com/onsi/gomega
+github.com/onsi/gomega/format
+github.com/onsi/gomega/internal
+github.com/onsi/gomega/internal/gutil
+github.com/onsi/gomega/matchers
+github.com/onsi/gomega/matchers/support/goraph/bipartitegraph
+github.com/onsi/gomega/matchers/support/goraph/edge
+github.com/onsi/gomega/matchers/support/goraph/node
+github.com/onsi/gomega/matchers/support/goraph/util
+github.com/onsi/gomega/types
 # github.com/open-policy-agent/frameworks/constraint v0.0.0-20240802234259-aa99306df54e
 ## explicit; go 1.22.0
 github.com/open-policy-agent/frameworks/constraint/pkg/apis/constraints
@@ -759,6 +771,10 @@ github.com/yudai/golcs
 # github.com/zeebo/xxh3 v1.0.2
 ## explicit; go 1.17
 github.com/zeebo/xxh3
+# go.bytebuilders.dev/catalog v0.0.7
+## explicit; go 1.22.0
+go.bytebuilders.dev/catalog/api/v1alpha1
+go.bytebuilders.dev/catalog/crds
 # go.bytebuilders.dev/license-verifier v0.14.1
 ## explicit; go 1.21
 go.bytebuilders.dev/license-verifier
@@ -957,6 +973,9 @@ golang.org/x/exp/slices
 # golang.org/x/net v0.27.0
 ## explicit; go 1.18
 golang.org/x/net/context
+golang.org/x/net/html
+golang.org/x/net/html/atom
+golang.org/x/net/html/charset
 golang.org/x/net/http/httpguts
 golang.org/x/net/http/httpproxy
 golang.org/x/net/http2
@@ -997,8 +1016,14 @@ golang.org/x/term
 # golang.org/x/text v0.16.0
 ## explicit; go 1.18
 golang.org/x/text/encoding
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/htmlindex
 golang.org/x/text/encoding/internal
 golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/korean
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
 golang.org/x/text/encoding/unicode
 golang.org/x/text/feature/plural
 golang.org/x/text/internal
@@ -1961,6 +1986,7 @@ kmodules.xyz/client-go/client
 kmodules.xyz/client-go/client/apiutil
 kmodules.xyz/client-go/client/duck
 kmodules.xyz/client-go/cluster
+kmodules.xyz/client-go/conditions
 kmodules.xyz/client-go/core/v1
 kmodules.xyz/client-go/discovery
 kmodules.xyz/client-go/meta
@@ -1981,11 +2007,11 @@ kmodules.xyz/go-containerregistry/name
 ## explicit; go 1.21.5
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/client
-# kmodules.xyz/offshoot-api v0.29.4
+# kmodules.xyz/offshoot-api v0.30.0
 ## explicit; go 1.22.0
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-# kmodules.xyz/resource-metadata v0.18.13-0.20240829025444-b72d620479e5
+# kmodules.xyz/resource-metadata v0.18.13-0.20240829103836-604e102fc093
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2016,7 +2042,7 @@ kmodules.xyz/resource-metadata/pkg/layouts
 kmodules.xyz/resource-metadata/pkg/tableconvertor
 kmodules.xyz/resource-metadata/pkg/tableconvertor/lib
 kmodules.xyz/resource-metadata/pkg/tableconvertor/printers
-# kmodules.xyz/resource-metrics v0.30.2
+# kmodules.xyz/resource-metrics v0.30.3
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metrics
 kmodules.xyz/resource-metrics/api
@@ -2029,7 +2055,7 @@ kmodules.xyz/resource-metrics/kubedb.com/v1
 kmodules.xyz/resource-metrics/kubedb.com/v1alpha2
 kmodules.xyz/resource-metrics/kubevault.com/v1alpha2
 kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1
-# kmodules.xyz/resource-metrics/utils v0.30.1
+# kmodules.xyz/resource-metrics/utils v0.30.3
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metrics/utils
 # kmodules.xyz/sets v0.29.0
@@ -2050,6 +2076,9 @@ kubeops.dev/scanner/client/clientset/versioned/scheme
 # kubepack.dev/lib-helm v0.29.10
 ## explicit; go 1.22.1
 kubepack.dev/lib-helm/pkg/values
+# kubevault.dev/apimachinery v0.18.3
+## explicit; go 1.22.0
+kubevault.dev/apimachinery/apis
 # sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0
 ## explicit; go 1.20
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client/pkg/client
