@@ -64,6 +64,20 @@ func (g *ObjectGraph) render(src kmapi.OID) (*runtime.RawExtension, error) {
 	}, nil
 }
 
+func (g *ObjectGraph) Delete(src kmapi.OID) {
+	g.m.Lock()
+	defer g.m.Unlock()
+
+	for lbl, connMap := range g.Edges[src] {
+		for to := range connMap {
+			g.delEdge(to, src, lbl)
+		}
+	}
+
+	delete(g.Edges, src)
+	delete(g.IDs, src)
+}
+
 func (g *ObjectGraph) Update(src kmapi.OID, connsPerLabel map[kmapi.EdgeLabel]ksets.OID) {
 	g.m.Lock()
 	defer g.m.Unlock()
