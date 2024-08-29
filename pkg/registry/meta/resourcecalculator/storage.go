@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -252,7 +253,6 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaD
 			return nil, err
 		}
 		gvk = getGVK(dbObj)
-
 	}
 
 	c, err := api.Load(obj)
@@ -290,11 +290,21 @@ func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaD
 
 					qd.Decision = rsapi.DecisionDeny
 					qd.Violations = append(qd.Violations,
-						fmt.Sprintf("Project quota exceeded. Requested: %s=%s, Used: %s=%s, Limited: %s=%s", rk, dd.String(), rk, du.String(), rk, dh.String()))
+						fmt.Sprintf("ProjectQuota %s rule %s exceeded, Requested: %s=%s, Used: %s=%s, Limit: %s=%s", pq.Name, ruleName(quota.ResourceQuotaSpec), rk, dd.String(), rk, du.String(), rk, dh.String()))
 				}
 			}
 		}
 	}
+	sort.Strings(qd.Violations)
 
 	return qd, nil
+}
+
+func ruleName(spec v1alpha1.ResourceQuotaSpec) string {
+	if spec.Group != "" && spec.Kind != "" {
+		return fmt.Sprintf("%s/%s", spec.Group, spec.Kind)
+	} else if spec.Group != "" {
+		return spec.Group
+	}
+	return spec.Kind
 }
