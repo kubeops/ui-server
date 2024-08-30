@@ -93,11 +93,11 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 }
 
 func IsDiscoveryError(err error) bool {
-	if errors.Is(err, &discovery.ErrGroupDiscoveryFailed{}) {
+	var errRDF *apiutil.ErrResourceDiscoveryFailed
+	if errors.As(err, &errRDF) {
 		return true
 	}
-	var errRDF *apiutil.ErrResourceDiscoveryFailed
-	return errors.As(err, &errRDF)
+	return errors.Is(err, &discovery.ErrGroupDiscoveryFailed{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
