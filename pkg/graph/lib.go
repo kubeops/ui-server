@@ -880,31 +880,40 @@ NEXT:
 			return nil, errors.New("all rows must have same number of columns")
 		}
 
-		for _, v := range rec {
-			if v == "" {
-				continue NEXT
-			}
+		if n == 0 {
+			return nil, errors.New("must have at least one column")
+		}
+		// name is always required
+		if rec[0] == "" {
+			continue NEXT
 		}
 
 		switch n {
-		case 0:
-			return nil, errors.New("must have at least one column")
 		case 1:
 			refs = append(refs, ResourceRef{
 				Name: rec[0],
 			})
 		case 2:
+			// namespace rec[1] is not required
 			refs = append(refs, ResourceRef{
 				Name:      rec[0],
 				Namespace: rec[1],
 			})
 		case 3:
+			// Kind is required
+			if rec[2] == "" {
+				continue NEXT
+			}
 			refs = append(refs, ResourceRef{
 				Name:      rec[0],
 				Namespace: rec[1],
 				Kind:      rec[2],
 			})
 		case 4:
+			// Kind is required
+			if rec[2] == "" {
+				continue NEXT
+			}
 			gv := rec[3]
 			idx := strings.Index(gv, "/")
 			if idx == -1 {
