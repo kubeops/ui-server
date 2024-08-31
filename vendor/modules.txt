@@ -771,7 +771,7 @@ github.com/yudai/golcs
 # github.com/zeebo/xxh3 v1.0.2
 ## explicit; go 1.17
 github.com/zeebo/xxh3
-# go.bytebuilders.dev/catalog v0.0.7
+# go.bytebuilders.dev/catalog v0.0.8-0.20240831022339-c58880360336
 ## explicit; go 1.22.0
 go.bytebuilders.dev/catalog/api/v1alpha1
 go.bytebuilders.dev/catalog/crds
@@ -2011,7 +2011,7 @@ kmodules.xyz/monitoring-agent-api/client
 ## explicit; go 1.22.0
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-# kmodules.xyz/resource-metadata v0.18.13-0.20240831011752-f53d8b2924e9
+# kmodules.xyz/resource-metadata v0.18.13-0.20240831034342-29e8d9296762
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1

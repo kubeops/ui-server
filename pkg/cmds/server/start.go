@@ -36,6 +36,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
+	catalogapi "go.bytebuilders.dev/catalog/api/v1alpha1"
 	v "gomodules.xyz/x/version"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -177,6 +178,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 			kmapi.GetOpenAPIDefinitions,
 			identityapi.GetOpenAPIDefinitions,
 			rscoreapi.GetOpenAPIDefinitions,
+			catalogapi.GetOpenAPIDefinitions,
 		),
 		openapi.NewDefinitionNamer(apiserver.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"

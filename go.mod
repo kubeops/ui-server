@@ -23,7 +23,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/zeebo/xxh3 v1.0.2
-	go.bytebuilders.dev/catalog v0.0.7
+	go.bytebuilders.dev/catalog v0.0.8-0.20240831022339-c58880360336
 	go.bytebuilders.dev/license-verifier v0.14.1
 	go.openviz.dev/apimachinery v0.0.7
 	golang.org/x/sync v0.7.0
@@ -49,7 +49,7 @@ require (
 	kmodules.xyz/custom-resources v0.30.0
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
-	kmodules.xyz/resource-metadata v0.18.13-0.20240831011752-f53d8b2924e9
+	kmodules.xyz/resource-metadata v0.18.13-0.20240831034342-29e8d9296762
 	kmodules.xyz/resource-metrics v0.30.4
 	kmodules.xyz/resource-metrics/utils v0.30.4
 	kmodules.xyz/sets v0.29.0
