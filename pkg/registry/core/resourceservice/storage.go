@@ -386,7 +386,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			genres.Spec.Facilities.Exposed.Usage = rscoreapi.FacilityUnused
 		}
 	}
-	if apiType.Group == "kubedb.com" && genres.Spec.Facilities.Exposed.Usage == rscoreapi.FacilityUnused {
+	if apiType.Group == "kubedb.com" {
 		rid, objs, err := graph.ExecQuery(r.kc, oid, sharedapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "catalog.appscode.com",
@@ -398,27 +398,37 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			},
 		})
 		if err == nil {
-			var isExposed bool
-			var refs []kmapi.ObjectReference
+			var gw *catalogapi.Gateway
 			for _, obj := range objs {
-				var binding catalogapi.GenericBinding
-				if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.UnstructuredContent(), &binding); err != nil {
-					return nil, err
-				}
-				if binding.Status.Gateway != nil &&
-					(binding.Status.Gateway.Hostname != "" || binding.Status.Gateway.IP != "") {
-					isExposed = true
-					refs = append(refs, kmapi.ObjectReference{
-						Namespace: binding.Status.Gateway.Namespace,
-						Name:      binding.Status.Gateway.Name,
-					})
-					break
+				if gw == nil || obj.GetNamespace() == item.GetNamespace() {
+					var binding catalogapi.GenericBinding
+					if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.UnstructuredContent(), &binding); err != nil {
+						return nil, err
+					}
+
+					if binding.Status.Gateway != nil {
+						// prefer root binding
+						if obj.GetNamespace() == item.GetNamespace() {
+							gw = binding.Status.Gateway
+							break
+						}
+						// otherwise keep the first not nil gateway
+						gw = binding.Status.Gateway
+					}
 				}
 			}
-			if isExposed {
+			if gw != nil &&
+				(gw.Hostname != "" || gw.IP != "") &&
+				genres.Spec.Facilities.Exposed.Usage == rscoreapi.FacilityUnused {
+
 				genres.Spec.Facilities.Exposed.Usage = rscoreapi.FacilityUsed
 				genres.Spec.Facilities.Exposed.Resource = rid
-				genres.Spec.Facilities.Exposed.Refs = refs
+				genres.Spec.Facilities.Exposed.Refs = []kmapi.ObjectReference{
+					{
+						Namespace: gw.Namespace,
+						Name:      gw.Name,
+					},
+				}
 			}
 		} else if !meta.IsNoMatchError(err) {
 			return nil, err
