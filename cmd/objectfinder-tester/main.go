@@ -323,7 +323,7 @@ func findServiceMonitorForPrometheus() error {
 	return nil
 }
 
-func main() {
+func main_4() {
 	//_, kc, err := NewClient()
 	//if err != nil {
 	//	panic(err)
@@ -400,7 +400,7 @@ func findForPostgres() error {
 	return nil
 }
 
-func main_5() {
+func main() {
 	kc, rtc, err := NewClient()
 	if err != nil {
 		panic(err)
@@ -416,13 +416,13 @@ func main_5() {
 	s := resourceservice.NewStorage(rtc, kc.Discovery(), cid, rbacAuthorizer)
 
 	ctx := context.TODO()
-	ctx = apirequest.WithNamespace(ctx, "ace")
+	ctx = apirequest.WithNamespace(ctx, "default")
 	ctx = apirequest.WithUser(ctx, &user.DefaultInfo{
 		Name:   "system:admin",
 		Groups: []string{"system:masters", "system:authenticated"},
 	})
 
-	result, err := s.Get(ctx, "ace-db~Postgres.kubedb.com", &metav1.GetOptions{})
+	result, err := s.Get(ctx, "pgc~Postgres.kubedb.com", &metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}

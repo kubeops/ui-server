@@ -417,6 +417,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 					}
 				}
 			}
+			genres.Spec.Facilities.Gateway = gw
 			if gw != nil &&
 				(gw.Hostname != "" || gw.IP != "") &&
 				genres.Spec.Facilities.Exposed.Usage == rscoreapi.FacilityUnused {
