@@ -26,6 +26,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/jmespath/go-jmespath"
 	"gomodules.xyz/jsonpath"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -304,25 +305,19 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 			// TODO: check that namespacePath must be empty
 
 			var out []*unstructured.Unstructured
-
 			for _, reference := range e.Connection.References {
-				j := jsonpath.New("jsonpath")
-				j.AllowMissingKeys(true)
-				err := j.Parse(reference)
-				if err != nil {
-					return nil, fmt.Errorf("fails to parse reference %q between %s -> %s. err:%v", e.Connection.References, e.Src, e.Dst, err)
-				}
-				buf := new(bytes.Buffer)
-				err = j.Execute(buf, src.Object)
-				if err != nil {
-					return nil, fmt.Errorf("fails to execute reference %q between %s -> %s. err:%v", e.Connection.References, e.Src, e.Dst, err)
-				}
-				r := csv.NewReader(buf)
-				// Mapper.Comma = ';'
-				r.Comment = '#'
-				records, err := r.ReadAll()
-				if err != nil {
-					return nil, err
+				var records [][]string
+				var err error
+				if strings.HasPrefix(reference, "jmes:") {
+					records, err = execJmesPath(src.Object, reference[5:], e.Src, e.Dst)
+					if err != nil {
+						return nil, err
+					}
+				} else {
+					records, err = execJsonPath(src.Object, reference, e.Src, e.Dst)
+					if err != nil {
+						return nil, err
+					}
 				}
 				refs, err := ParseResourceRefs(records)
 				if err != nil {
@@ -509,25 +504,18 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 				rs := result.Items[i]
 
 				for _, reference := range e.Connection.References {
-
-					j := jsonpath.New("jsonpath")
-					j.AllowMissingKeys(true)
-					err := j.Parse(reference)
-					if err != nil {
-						return nil, fmt.Errorf("fails to parse reference %q between %s -> %s. err:%v", e.Connection.References, e.Src, e.Dst, err)
-					}
-
-					buf := new(bytes.Buffer)
-					err = j.Execute(buf, rs.Object)
-					if err != nil {
-						return nil, fmt.Errorf("fails to execute reference %q between %s -> %s. err:%v", e.Connection.References, e.Src, e.Dst, err)
-					}
-					r := csv.NewReader(buf)
-					// Mapper.Comma = ';'
-					r.Comment = '#'
-					records, err := r.ReadAll()
-					if err != nil {
-						return nil, err
+					var records [][]string
+					var err error
+					if strings.HasPrefix(reference, "jmes:") {
+						records, err = execJmesPath(rs.Object, reference[5:], e.Src, e.Dst)
+						if err != nil {
+							return nil, err
+						}
+					} else {
+						records, err = execJsonPath(rs.Object, reference, e.Src, e.Dst)
+						if err != nil {
+							return nil, err
+						}
 					}
 					refs, err := ParseResourceRefs(records)
 					if err != nil {
@@ -579,6 +567,44 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 	}
 
 	return nil, nil
+}
+
+func execJmesPath(data any, reference string, src, dst schema.GroupVersionKind) ([][]string, error) {
+	result, err := jmespath.Search(reference, data)
+	if err != nil {
+		return nil, fmt.Errorf("fails to execute jmes reference %q between %s -> %s. err:%w", reference, src, dst, err)
+	}
+	switch v := result.(type) {
+	case string:
+		return [][]string{{v}}, nil
+	case []string:
+		out := make([][]string, len(v))
+		for i, s := range v {
+			out[i] = []string{s}
+		}
+		return out, nil
+	case [][]string:
+		return v, nil
+	}
+	return nil, fmt.Errorf("invalid result type %T for jmes reference %q between %s -> %s", result, reference, src, dst)
+}
+
+func execJsonPath(data any, reference string, src, dst schema.GroupVersionKind) ([][]string, error) {
+	j := jsonpath.New("jsonpath")
+	j.AllowMissingKeys(true)
+	err := j.Parse(reference)
+	if err != nil {
+		return nil, fmt.Errorf("fails to parse reference %q between %s -> %s. err:%v", reference, src, dst, err)
+	}
+	buf := new(bytes.Buffer)
+	err = j.Execute(buf, data)
+	if err != nil {
+		return nil, fmt.Errorf("fails to execute reference %q between %s -> %s. err:%v", reference, src, dst, err)
+	}
+	r := csv.NewReader(buf)
+	// Mapper.Comma = ';'
+	r.Comment = '#'
+	return r.ReadAll()
 }
 
 func isConnected(conn rsapi.OwnershipLevel, obj *unstructured.Unstructured, owner *unstructured.Unstructured) bool {
