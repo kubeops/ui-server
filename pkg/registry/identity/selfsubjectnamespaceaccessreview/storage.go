@@ -96,7 +96,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 
 	allowedNs := make([]core.Namespace, 0, len(list.Items))
 	for _, ns := range list.Items {
-		allowed, err := r.hasNamespaceResourceAccess(ctx, in, ns, user, extra)
+		allowed, err := r.hasNamespaceResourceAccess(ctx, in, ns.Name, user, extra)
 		if err != nil {
 			return nil, err
 		}
@@ -186,12 +186,12 @@ func (r *Storage) hasAllNamespaceResourceAccess(ctx context.Context, in *identit
 	return true, nil
 }
 
-func (r *Storage) hasNamespaceResourceAccess(ctx context.Context, in *identityapi.SelfSubjectNamespaceAccessReview, ns core.Namespace, user user.Info, extra map[string]authorization.ExtraValue) (bool, error) {
+func (r *Storage) hasNamespaceResourceAccess(ctx context.Context, in *identityapi.SelfSubjectNamespaceAccessReview, ns string, user user.Info, extra map[string]authorization.ExtraValue) (bool, error) {
 	for _, attr := range in.Spec.ResourceAttributes {
-		attr.Namespace = ns.Name
+		attr.Namespace = ns
 		review := &authorization.LocalSubjectAccessReview{
 			ObjectMeta: metav1.ObjectMeta{
-				Namespace: ns.Name,
+				Namespace: ns,
 			},
 			Spec: authorization.SubjectAccessReviewSpec{
 				ResourceAttributes:    &attr,
@@ -202,7 +202,7 @@ func (r *Storage) hasNamespaceResourceAccess(ctx context.Context, in *identityap
 				UID:                   user.GetUID(),
 			},
 		}
-		review, err := r.kc.AuthorizationV1().LocalSubjectAccessReviews(ns.Name).Create(ctx, review, metav1.CreateOptions{})
+		review, err := r.kc.AuthorizationV1().LocalSubjectAccessReviews(ns).Create(ctx, review, metav1.CreateOptions{})
 		if err != nil {
 			return false, err
 		}
