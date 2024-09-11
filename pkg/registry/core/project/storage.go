@@ -136,7 +136,7 @@ func ListRancherProjects(kc client.Client) ([]rscoreapi.Project, error) {
 	for _, ns := range list.Items {
 		projectId, exists := ns.Labels[clustermeta.LabelKeyRancherFieldProjectId]
 		if !exists {
-			continue
+			projectId = clustermeta.FakeRancherProjectId
 		}
 
 		project, exists := projects[projectId]
