@@ -26,6 +26,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authentication/user"
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/client-go/kubernetes"
@@ -95,65 +96,37 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 
 	allowedNs := make([]core.Namespace, 0, len(list.Items))
 	for _, ns := range list.Items {
-		allowed := true
-
-		for _, attr := range in.Spec.ResourceAttributes {
-			attr.Namespace = ns.Name
-			review := &authorization.LocalSubjectAccessReview{
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace: ns.Name,
-				},
-				Spec: authorization.SubjectAccessReviewSpec{
-					ResourceAttributes:    &attr,
-					NonResourceAttributes: nil,
-					User:                  user.GetName(),
-					Groups:                user.GetGroups(),
-					Extra:                 extra,
-					UID:                   user.GetUID(),
-				},
-			}
-			review, err = r.kc.AuthorizationV1().LocalSubjectAccessReviews(ns.Name).Create(ctx, review, metav1.CreateOptions{})
-			if err != nil {
-				return nil, err
-			}
-			if !review.Status.Allowed {
-				allowed = false
-				break
-			}
+		allowed, err := r.hasNamespaceResourceAccess(ctx, in, ns, user, extra)
+		if err != nil {
+			return nil, err
 		}
-		for _, attr := range in.Spec.NonResourceAttributes {
-			review := &authorization.LocalSubjectAccessReview{
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace: ns.Name,
-				},
-				Spec: authorization.SubjectAccessReviewSpec{
-					ResourceAttributes:    nil,
-					NonResourceAttributes: &attr,
-					User:                  user.GetName(),
-					Groups:                user.GetGroups(),
-					Extra:                 extra,
-					UID:                   user.GetUID(),
-				},
-			}
-			review, err = r.kc.AuthorizationV1().LocalSubjectAccessReviews(ns.Name).Create(ctx, review, metav1.CreateOptions{})
-			if err != nil {
-				return nil, err
-			}
-			if !review.Status.Allowed {
-				allowed = false
-				break
-			}
-		}
-
 		if allowed {
 			allowedNs = append(allowedNs, ns)
 		}
 	}
 
+	// check for all namespaces
+	{
+		allowed, err := r.hasAllNamespaceResourceAccess(ctx, in)
+		if err != nil {
+			return nil, err
+		}
+		if allowed {
+			allowed, err = r.hasNonResourceAccess(ctx, in)
+			if err != nil {
+				return nil, err
+			}
+		}
+		in.Status.AllNamespaces = allowed
+	}
+
 	if clustermeta.IsRancherManaged(r.rtc.RESTMapper()) {
 		projects := map[string][]string{}
 		for _, ns := range allowedNs {
-			projectId := ns.Labels[clustermeta.LabelKeyRancherFieldProjectId]
+			projectId, exists := ns.Labels[clustermeta.LabelKeyRancherFieldProjectId]
+			if !exists {
+				projectId = clustermeta.FakeRancherProjectId
+			}
 			projects[projectId] = append(projects[projectId], ns.Name)
 		}
 
@@ -173,4 +146,69 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 
 	return in, nil
+}
+
+func (r *Storage) hasNonResourceAccess(ctx context.Context, in *identityapi.SelfSubjectNamespaceAccessReview) (bool, error) {
+	for _, attr := range in.Spec.NonResourceAttributes {
+		review := &authorization.SelfSubjectAccessReview{
+			Spec: authorization.SelfSubjectAccessReviewSpec{
+				NonResourceAttributes: &attr,
+			},
+		}
+		review, err := r.kc.AuthorizationV1().SelfSubjectAccessReviews().Create(ctx, review, metav1.CreateOptions{})
+		if err != nil {
+			return false, err
+		}
+		if !review.Status.Allowed {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+func (r *Storage) hasAllNamespaceResourceAccess(ctx context.Context, in *identityapi.SelfSubjectNamespaceAccessReview) (bool, error) {
+	for _, attr := range in.Spec.ResourceAttributes {
+		attr.Namespace = ""
+		review := &authorization.SelfSubjectAccessReview{
+			Spec: authorization.SelfSubjectAccessReviewSpec{
+				ResourceAttributes:    &attr,
+				NonResourceAttributes: nil,
+			},
+		}
+		review, err := r.kc.AuthorizationV1().SelfSubjectAccessReviews().Create(ctx, review, metav1.CreateOptions{})
+		if err != nil {
+			return false, err
+		}
+		if !review.Status.Allowed {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+func (r *Storage) hasNamespaceResourceAccess(ctx context.Context, in *identityapi.SelfSubjectNamespaceAccessReview, ns core.Namespace, user user.Info, extra map[string]authorization.ExtraValue) (bool, error) {
+	for _, attr := range in.Spec.ResourceAttributes {
+		attr.Namespace = ns.Name
+		review := &authorization.LocalSubjectAccessReview{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: ns.Name,
+			},
+			Spec: authorization.SubjectAccessReviewSpec{
+				ResourceAttributes:    &attr,
+				NonResourceAttributes: nil,
+				User:                  user.GetName(),
+				Groups:                user.GetGroups(),
+				Extra:                 extra,
+				UID:                   user.GetUID(),
+			},
+		}
+		review, err := r.kc.AuthorizationV1().LocalSubjectAccessReviews(ns.Name).Create(ctx, review, metav1.CreateOptions{})
+		if err != nil {
+			return false, err
+		}
+		if !review.Status.Allowed {
+			return false, nil
+		}
+	}
+	return true, nil
 }
