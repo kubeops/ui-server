@@ -107,12 +107,12 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 
 	// check for all namespaces
 	{
-		allowed, err := r.hasAllNamespaceResourceAccess(ctx, in)
+		allowed, err := r.hasAllNamespaceResourceAccess(ctx, in, user, extra)
 		if err != nil {
 			return nil, err
 		}
 		if allowed {
-			allowed, err = r.hasNonResourceAccess(ctx, in)
+			allowed, err = r.hasNonResourceAccess(ctx, in, user, extra)
 			if err != nil {
 				return nil, err
 			}
@@ -148,14 +148,18 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	return in, nil
 }
 
-func (r *Storage) hasNonResourceAccess(ctx context.Context, in *identityapi.SelfSubjectNamespaceAccessReview) (bool, error) {
+func (r *Storage) hasNonResourceAccess(ctx context.Context, in *identityapi.SelfSubjectNamespaceAccessReview, user user.Info, extra map[string]authorization.ExtraValue) (bool, error) {
 	for _, attr := range in.Spec.NonResourceAttributes {
-		review := &authorization.SelfSubjectAccessReview{
-			Spec: authorization.SelfSubjectAccessReviewSpec{
+		review := &authorization.SubjectAccessReview{
+			Spec: authorization.SubjectAccessReviewSpec{
 				NonResourceAttributes: &attr,
+				User:                  user.GetName(),
+				Groups:                user.GetGroups(),
+				Extra:                 extra,
+				UID:                   user.GetUID(),
 			},
 		}
-		review, err := r.kc.AuthorizationV1().SelfSubjectAccessReviews().Create(ctx, review, metav1.CreateOptions{})
+		review, err := r.kc.AuthorizationV1().SubjectAccessReviews().Create(ctx, review, metav1.CreateOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -166,16 +170,19 @@ func (r *Storage) hasNonResourceAccess(ctx context.Context, in *identityapi.Self
 	return true, nil
 }
 
-func (r *Storage) hasAllNamespaceResourceAccess(ctx context.Context, in *identityapi.SelfSubjectNamespaceAccessReview) (bool, error) {
+func (r *Storage) hasAllNamespaceResourceAccess(ctx context.Context, in *identityapi.SelfSubjectNamespaceAccessReview, user user.Info, extra map[string]authorization.ExtraValue) (bool, error) {
 	for _, attr := range in.Spec.ResourceAttributes {
 		attr.Namespace = ""
-		review := &authorization.SelfSubjectAccessReview{
-			Spec: authorization.SelfSubjectAccessReviewSpec{
-				ResourceAttributes:    &attr,
-				NonResourceAttributes: nil,
+		review := &authorization.SubjectAccessReview{
+			Spec: authorization.SubjectAccessReviewSpec{
+				ResourceAttributes: &attr,
+				User:               user.GetName(),
+				Groups:             user.GetGroups(),
+				Extra:              extra,
+				UID:                user.GetUID(),
 			},
 		}
-		review, err := r.kc.AuthorizationV1().SelfSubjectAccessReviews().Create(ctx, review, metav1.CreateOptions{})
+		review, err := r.kc.AuthorizationV1().SubjectAccessReviews().Create(ctx, review, metav1.CreateOptions{})
 		if err != nil {
 			return false, err
 		}
