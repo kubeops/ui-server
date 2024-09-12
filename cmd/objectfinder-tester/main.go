@@ -19,6 +19,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -43,6 +44,7 @@ import (
 	rbacauthz "kmodules.xyz/authorizer/apiserver"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	"kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
+	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
 	"kmodules.xyz/resource-metadata/hub/resourceoutlines"
@@ -400,7 +402,7 @@ func findForPostgres() error {
 	return nil
 }
 
-func main() {
+func main_5() {
 	kc, rtc, err := NewClient()
 	if err != nil {
 		panic(err)
@@ -456,4 +458,55 @@ func main_6() {
 		panic(err)
 	}
 	fmt.Printf("%+v\n", result)
+}
+
+func main() {
+	// /Users/tamal/Downloads/rancher-spoke.yaml
+
+	kc, rtc, err := NewClient()
+	if err != nil {
+		panic(err)
+	}
+
+	s := selfsubjectnamespaceaccessreview.NewStorage(kc, rtc)
+
+	ctx := context.TODO()
+	ctx = apirequest.WithNamespace(ctx, "ace")
+	ctx = apirequest.WithUser(ctx, &user.DefaultInfo{
+		Name: "u-ct92n",
+		UID:  "",
+		Groups: []string{
+			"system:authenticated",
+			"system:cattle:authenticated",
+		},
+		Extra: map[string][]string{
+			"principalid": {"local://u-ct92n"},
+			"username":    {"tamal-project-a"},
+		},
+	})
+
+	in := &identityapi.SelfSubjectNamespaceAccessReview{
+		TypeMeta:   metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{},
+		Spec: identityapi.SelfSubjectNamespaceAccessReviewSpec{
+			ResourceAttributes: []authorization.ResourceAttributes{
+				{
+					Namespace:   "",
+					Verb:        "list",
+					Group:       "kubedb.com",
+					Version:     "*",
+					Resource:    "kafkas",
+					Subresource: "",
+					Name:        "",
+				},
+			},
+		},
+	}
+
+	result, err := s.Create(ctx, in, nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	data, _ := json.MarshalIndent(result, "", "  ")
+	fmt.Printf("%+v\n", string(data))
 }
