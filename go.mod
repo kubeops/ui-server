@@ -2,7 +2,7 @@ module kubeops.dev/ui-server
 
 go 1.22.1
 
-toolchain go1.22.4
+toolchain go1.23.1
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
@@ -23,8 +23,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/zeebo/xxh3 v1.0.2
-	go.bytebuilders.dev/catalog v0.0.8-0.20240831022339-c58880360336
-	go.bytebuilders.dev/license-verifier v0.14.1
+	go.bytebuilders.dev/catalog v0.0.8
+	go.bytebuilders.dev/license-verifier v0.14.2
 	go.openviz.dev/apimachinery v0.0.7
 	golang.org/x/sync v0.8.0
 	gomodules.xyz/jsonpath v0.0.2
@@ -49,7 +49,8 @@ require (
 	kmodules.xyz/custom-resources v0.30.0
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.29.0
-	kmodules.xyz/resource-metadata v0.18.13-0.20240912044132-8bf124f5e3eb
+	kmodules.xyz/offshoot-api v0.30.1
+	kmodules.xyz/resource-metadata v0.18.14-0.20240913220708-9705253451ba
 	kmodules.xyz/resource-metrics v0.30.4
 	kmodules.xyz/resource-metrics/utils v0.30.4
 	kmodules.xyz/sets v0.29.0
@@ -99,8 +100,8 @@ require (
 	github.com/docker/docker-credential-helpers v0.8.0 // indirect
 	github.com/dominikbraun/graph v0.16.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/emicklei/go-restful/v3 v3.12.0 // indirect
-	github.com/evanphx/json-patch v5.7.0+incompatible // indirect
+	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
+	github.com/evanphx/json-patch v5.9.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -202,7 +203,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.starlark.net v0.0.0-20231121155337-90ade8b19d09 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.26.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/net v0.27.0 // indirect
@@ -234,8 +235,8 @@ require (
 	k8s.io/component-helpers v0.29.0 // indirect
 	k8s.io/kms v0.30.3 // indirect
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // indirect
-	kmodules.xyz/offshoot-api v0.30.0 // indirect
 	kubevault.dev/apimachinery v0.18.3 // indirect
+	moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.16.0 // indirect

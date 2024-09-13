@@ -47,6 +47,7 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	mu "kmodules.xyz/client-go/meta"
+	ofst "kmodules.xyz/offshoot-api/api/v1"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
@@ -398,7 +399,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 			},
 		})
 		if err == nil {
-			var gw *catalogapi.Gateway
+			var gw *ofst.Gateway
 			for _, obj := range objs {
 				if gw == nil || obj.GetNamespace() == item.GetNamespace() {
 					var binding catalogapi.GenericBinding
