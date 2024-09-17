@@ -69,12 +69,11 @@ func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	req := obj.(*identityapi.InboxTokenRequest)
-	token, err := r.bc.GetToken()
+	resp, err := r.bc.GetToken()
 	if err != nil {
 		return nil, err
 	}
-	req.Response = &identityapi.InboxTokenRequestResponse{
-		AdminJWTToken: token,
-	}
+	req.Response = resp
+
 	return req, nil
 }
