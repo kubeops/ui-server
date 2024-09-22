@@ -39,53 +39,50 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 	promMemoryQuery := fmt.Sprintf(`sum(container_memory_working_set_bytes{namespace="%s", pod="%s", container!="", image!=""})`, obj.Namespace, obj.Name)
 	promStorageQuery := fmt.Sprintf(`avg(container_blkio_device_usage_total{namespace="%s", pod="%s"})`, obj.Namespace, obj.Name)
 
-	res, err := getPromQueryResult(pc, promCPUQuery)
-	if err != nil {
-		klog.Errorf("failed to get prometheus cpu query result, reason: %v", err)
-		return resUsage
+	if res, err := getPromQueryResult(pc, promCPUQuery); err == nil {
+		cpu := float64(0)
+		for _, v := range res {
+			cpu += v
+		}
+		cpuQuantity, err := resource.ParseQuantity(fmt.Sprintf("%.3f", cpu))
+		if err != nil {
+			klog.Errorf("failed to parse CPU quantity, reason: %v", err)
+			return resUsage
+		}
+		resUsage[core.ResourceCPU] = cpuQuantity
+	} else {
+		klog.ErrorS(err, "failed to get prometheus cpu query result")
 	}
-	cpu := float64(0)
-	for _, v := range res {
-		cpu += v
-	}
-	cpuQuantity, err := resource.ParseQuantity(fmt.Sprintf("%.3f", cpu))
-	if err != nil {
-		klog.Errorf("failed to parse CPU quantity, reason: %v", err)
-		return resUsage
-	}
-	resUsage[core.ResourceCPU] = cpuQuantity
 
-	memory := float64(0)
-	res, err = getPromQueryResult(pc, promMemoryQuery)
-	if err != nil {
-		klog.Errorf("failed to get prometheus memory query result, reason: %v", err)
-		return resUsage
+	if res, err := getPromQueryResult(pc, promMemoryQuery); err == nil {
+		memory := float64(0)
+		for _, v := range res {
+			memory += v
+		}
+		memQuantity, err := resource.ParseQuantity(convertBytesToSize(memory))
+		if err != nil {
+			klog.Errorf("failed to parse memory quantity, reason: %v", err)
+			return resUsage
+		}
+		resUsage[core.ResourceMemory] = memQuantity
+	} else {
+		klog.ErrorS(err, "failed to get prometheus memory query result")
 	}
-	for _, v := range res {
-		memory += v
-	}
-	memQuantity, err := resource.ParseQuantity(convertBytesToSize(memory))
-	if err != nil {
-		klog.Errorf("failed to parse memory quantity, reason: %v", err)
-		return resUsage
-	}
-	resUsage[core.ResourceMemory] = memQuantity
 
-	storage := float64(0)
-	res, err = getPromQueryResult(pc, promStorageQuery)
-	if err != nil {
-		klog.Errorf("failed to get prometheus storage query result, reason: %v", err)
-		return resUsage
+	if res, err := getPromQueryResult(pc, promStorageQuery); err == nil {
+		storage := float64(0)
+		for _, v := range res {
+			storage += v
+		}
+		storageQuantity, err := resource.ParseQuantity(convertBytesToSize(storage))
+		if err != nil {
+			klog.Errorf("failed to parse memory quantity, reason: %v", err)
+			return resUsage
+		}
+		resUsage[core.ResourceStorage] = storageQuantity
+	} else {
+		klog.ErrorS(err, "failed to get prometheus storage query result")
 	}
-	for _, v := range res {
-		storage += v
-	}
-	storageQuantity, err := resource.ParseQuantity(convertBytesToSize(storage))
-	if err != nil {
-		klog.Errorf("failed to parse memory quantity, reason: %v", err)
-		return resUsage
-	}
-	resUsage[core.ResourceStorage] = storageQuantity
 
 	return resUsage
 }
