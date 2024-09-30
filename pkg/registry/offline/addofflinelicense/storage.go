@@ -33,7 +33,9 @@ import (
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/client-go/util/cert"
+	kutil "kmodules.xyz/client-go"
 	cg "kmodules.xyz/client-go/client"
+	"kmodules.xyz/client-go/meta"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -104,6 +106,17 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, apierrors.NewBadRequest("missing license info")
 	}
 
+	var vt kutil.VerbType
+	defer func() {
+		if vt != kutil.VerbUnchanged {
+			// restart license-proxyserver pods
+			_ = r.kc.DeleteAllOf(ctx, &core.Pod{}, client.InNamespace(meta.PodNamespace()), client.MatchingLabels{
+				"app.kubernetes.io/instance": "license-proxyserver",
+				"app.kubernetes.io/name":     "license-proxyserver",
+			})
+		}
+	}()
+
 	var licenseSecret core.Secret
 	err := r.kc.Get(ctx, types.NamespacedName{Name: LicenseSecretName, Namespace: req.Namespace}, &licenseSecret)
 	if err != nil && apierrors.IsNotFound(err) {
@@ -142,6 +155,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		if err = r.kc.Create(ctx, &licenseSecret); err != nil {
 			return nil, err
 		}
+		vt = kutil.VerbCreated
 
 		in.Response = &licenseapi.AddOfflineLicenseResponse{
 			SecretKeyRef: &core.SecretKeySelector{
@@ -179,7 +193,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, err
 	}
 
-	_, err = cg.CreateOrPatch(ctx, r.kc, &licenseSecret, func(obj client.Object, createOp bool) client.Object {
+	vt, err = cg.CreateOrPatch(ctx, r.kc, &licenseSecret, func(obj client.Object, createOp bool) client.Object {
 		in := obj.(*core.Secret)
 		if in.Data == nil {
 			in.Data = map[string][]byte{}
