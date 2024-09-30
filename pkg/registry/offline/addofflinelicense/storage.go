@@ -24,7 +24,6 @@ import (
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 
 	core "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -105,7 +104,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, apierrors.NewBadRequest("missing license info")
 	}
 
-	licenseSecret := v1.Secret{}
+	var licenseSecret core.Secret
 	err := r.kc.Get(ctx, types.NamespacedName{Name: LicenseSecretName, Namespace: req.Namespace}, &licenseSecret)
 	if err != nil && apierrors.IsNotFound(err) {
 		// check permission
@@ -131,7 +130,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			return nil, err
 		}
 
-		licenseSecret = v1.Secret{
+		licenseSecret = core.Secret{
 			ObjectMeta: controllerruntime.ObjectMeta{
 				Name:      LicenseSecretName,
 				Namespace: req.Namespace,
@@ -179,11 +178,13 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	if err != nil {
 		return nil, err
 	}
-	licenseSecret.Data[productKey] = []byte(req.License)
 
 	_, err = cg.CreateOrPatch(ctx, r.kc, &licenseSecret, func(obj client.Object, createOp bool) client.Object {
-		in := obj.(*v1.Secret)
-		in.Data = licenseSecret.Data
+		in := obj.(*core.Secret)
+		if in.Data == nil {
+			in.Data = map[string][]byte{}
+		}
+		in.Data[productKey] = []byte(req.License)
 		return in
 	})
 	if err != nil {
