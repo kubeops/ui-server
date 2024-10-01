@@ -35,7 +35,18 @@ import (
 func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList {
 	resUsage := core.ResourceList{}
 
-	promCPUQuery := fmt.Sprintf(`sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="%s", pod="%s", container!=""})`, obj.Namespace, obj.Name)
+	// Previous way: sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="%s", pod="%s", container!=""})
+	promCPUQuery := fmt.Sprintf(`sum(
+		sum by (namespace, pod, container) (
+			irate(container_cpu_usage_seconds_total{image!="",metrics_path="/metrics/cadvisor",namespace="%s", pod="%s"}[5m])
+		)
+		* on (namespace, pod) group_left (node)
+		topk by (namespace, pod) (1,
+			max by (namespace, pod, node) (
+				kube_pod_info{node!="",namespace="%s", pod="%s"}
+			)
+		)
+	) by (pod)`, obj.Namespace, obj.Name, obj.Namespace, obj.Name)
 	promMemoryQuery := fmt.Sprintf(`sum(container_memory_working_set_bytes{namespace="%s", pod="%s", container!="", image!=""})`, obj.Namespace, obj.Name)
 	promStorageQuery := fmt.Sprintf(`avg(container_blkio_device_usage_total{namespace="%s", pod="%s"})`, obj.Namespace, obj.Name)
 
