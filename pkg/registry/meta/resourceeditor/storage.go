@@ -34,9 +34,11 @@ import (
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourceeditors"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Storage struct {
+	kc        client.Client
 	convertor rest.TableConvertor
 }
 
@@ -49,8 +51,9 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage() *Storage {
+func NewStorage(kc client.Client) *Storage {
 	return &Storage{
+		kc: kc,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
 			Group:    rsapi.SchemeGroupVersion.Group,
 			Resource: uiapi.ResourceResourceEditors,
@@ -78,7 +81,7 @@ func (r *Storage) New() runtime.Object {
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
-	obj, err := resourceeditors.LoadByName(name)
+	obj, err := resourceeditors.LoadByName(r.kc, name)
 	if err != nil {
 		return nil, kerr.NewNotFound(schema.GroupResource{Group: meta.GroupName, Resource: uiapi.ResourceKindResourceEditor}, name)
 	}

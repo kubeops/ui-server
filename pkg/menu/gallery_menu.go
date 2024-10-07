@@ -83,16 +83,10 @@ func RenderGalleryMenu(kc client.Client, disco discovery.DiscoveryInterface, in 
 				mi.Missing = true
 			}
 
-			ed, ok := resourceeditors.LoadByResourceID(kc, mi.Resource)
-			if !ok || ed.Spec.UI == nil || ed.Spec.UI.Options == nil || len(ed.Spec.Variants) == 0 {
+			ed, err := resourceeditors.LoadByResourceID(kc, mi.Resource)
+			if err != nil || ed.Spec.UI == nil || ed.Spec.UI.Options == nil || len(ed.Spec.Variants) == 0 {
 				items = append(items, mi)
-			} else if mi.Resource != nil {
-				gvr := mi.Resource.GroupVersionResource()
-				ed, ok := resourceeditors.LoadByGVR(kc, gvr)
-				if !ok {
-					return nil, fmt.Errorf("ResourceEditor not defined for %+v", gvr)
-				}
-
+			} else {
 				chartRef := ed.Spec.UI.Options
 				if chartRef.SourceRef.Namespace == "" {
 					chartRef.SourceRef.Namespace = mu.PodNamespace()
