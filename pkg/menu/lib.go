@@ -92,7 +92,7 @@ func GenerateMenuItems(kc client.Client, disco discovery.DiscoveryInterface) (ma
 				// Icons:    rd.Spec.Icons,
 				// Installer:  rd.Spec.Installer,
 			}
-			if ed, ok := resourceeditors.LoadByGVR(kc, gvr); ok {
+			if ed, err := resourceeditors.LoadByGVR(kc, gvr); err == nil {
 				me.Icons = ed.Spec.Icons
 				me.Installer = ed.Spec.Installer
 

@@ -329,7 +329,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceOutlines] = resourceoutline.NewStorage()
 		v1alpha1storage[rsapi.ResourceClusterProfiles] = clusterprofilestorage.NewStorage()
-		v1alpha1storage[uiapi.ResourceResourceEditors] = resourceeditor.NewStorage()
+		v1alpha1storage[uiapi.ResourceResourceEditors] = resourceeditor.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceQueries] = resourcequery.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[rsapi.ResourceResourceTableDefinitions] = resourcetabledefinition.NewStorage()
 

@@ -68,7 +68,7 @@ github.com/PuerkitoBio/purell
 # github.com/agnivade/levenshtein v1.1.1
 ## explicit; go 1.13
 github.com/agnivade/levenshtein
-# github.com/alessio/shellescape v1.4.1
+# github.com/alessio/shellescape v1.4.2
 ## explicit; go 1.14
 github.com/alessio/shellescape
 # github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df
@@ -161,7 +161,7 @@ github.com/dapr/go-sdk/version
 # github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/docker/cli v25.0.1+incompatible
+# github.com/docker/cli v26.1.3+incompatible
 ## explicit
 github.com/docker/cli/cli/config
 github.com/docker/cli/cli/config/configfile
@@ -1283,8 +1283,8 @@ gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
-# helm.sh/helm/v3 v3.14.3
-## explicit; go 1.21
+# helm.sh/helm/v3 v3.15.0
+## explicit; go 1.22.0
 helm.sh/helm/v3/internal/sympath
 helm.sh/helm/v3/internal/version
 helm.sh/helm/v3/pkg/chart
@@ -2041,7 +2041,7 @@ kmodules.xyz/monitoring-agent-api/client
 ## explicit; go 1.22.0
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-# kmodules.xyz/resource-metadata v0.18.16-0.20240929130110-f5f4e27aae5b
+# kmodules.xyz/resource-metadata v0.18.16
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2103,7 +2103,7 @@ kubeops.dev/scanner/apis/scanner
 kubeops.dev/scanner/apis/scanner/v1alpha1
 kubeops.dev/scanner/apis/trivy
 kubeops.dev/scanner/client/clientset/versioned/scheme
-# kubepack.dev/lib-helm v0.29.10
+# kubepack.dev/lib-helm v0.29.11
 ## explicit; go 1.22.1
 kubepack.dev/lib-helm/pkg/values
 # kubevault.dev/apimachinery v0.18.3
