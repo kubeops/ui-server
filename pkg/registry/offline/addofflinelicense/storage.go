@@ -33,6 +33,7 @@ import (
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/client-go/util/cert"
+	"k8s.io/klog/v2"
 	kutil "kmodules.xyz/client-go"
 	cg "kmodules.xyz/client-go/client"
 	"kmodules.xyz/client-go/meta"
@@ -110,10 +111,11 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	defer func() {
 		if vt != kutil.VerbUnchanged {
 			// restart license-proxyserver pods
-			_ = r.kc.DeleteAllOf(ctx, &core.Pod{}, client.InNamespace(meta.PodNamespace()), client.MatchingLabels{
+			e2 := r.kc.DeleteAllOf(ctx, &core.Pod{}, client.InNamespace(meta.PodNamespace()), client.MatchingLabels{
 				"app.kubernetes.io/instance": "license-proxyserver",
 				"app.kubernetes.io/name":     "license-proxyserver",
 			})
+			klog.InfoS("restarted license-proxyserver pods", "err", e2)
 		}
 	}()
 
