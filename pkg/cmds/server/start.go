@@ -142,7 +142,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, "usermenus"),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceChartPresetQueries),
-		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceClusterProfiles),
+		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, uiapi.ResourceClusterProfiles),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceClusterStatuses),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceMenus),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceRenderDashboards),
