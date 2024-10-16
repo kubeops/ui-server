@@ -62,7 +62,7 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 		}
 		resUsage[core.ResourceCPU] = cpuQuantity
 	} else {
-		klog.ErrorS(err, "failed to get prometheus cpu query result")
+		klog.Infoln("failed to execute prometheus cpu query")
 	}
 
 	if res, err := getPromQueryResult(pc, promMemoryQuery); err == nil {
@@ -77,7 +77,7 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 		}
 		resUsage[core.ResourceMemory] = memQuantity
 	} else {
-		klog.ErrorS(err, "failed to get prometheus memory query result")
+		klog.Infoln("failed to execute prometheus memory query")
 	}
 
 	if res, err := getPromQueryResult(pc, promStorageQuery); err == nil {
@@ -92,7 +92,7 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 		}
 		resUsage[core.ResourceStorage] = storageQuantity
 	} else {
-		klog.ErrorS(err, "failed to get prometheus storage query result")
+		klog.Infoln("failed to execute prometheus storage query")
 	}
 
 	return resUsage
