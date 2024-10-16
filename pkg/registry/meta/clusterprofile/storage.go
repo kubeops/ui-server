@@ -30,6 +30,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/resource-metadata/apis/meta"
+	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/clusterprofiles"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -53,14 +54,14 @@ func NewStorage(kc client.Reader) *Storage {
 	return &Storage{
 		kc: kc,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    uiapi.SchemeGroupVersion.Group,
+			Group:    rsapi.SchemeGroupVersion.Group,
 			Resource: uiapi.ResourceClusterProfiles,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return uiapi.SchemeGroupVersion.WithKind(uiapi.ResourceKindClusterProfile)
+	return rsapi.SchemeGroupVersion.WithKind(uiapi.ResourceKindClusterProfile)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -73,7 +74,7 @@ func (r *Storage) GetSingularName() string {
 
 // Getter
 func (r *Storage) New() runtime.Object {
-	return &uiapi.ClusterProfile{}
+	return &rsapi.ClusterProfile{}
 }
 
 func (r *Storage) Destroy() {}
@@ -83,12 +84,15 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	if err != nil {
 		return nil, kerr.NewNotFound(schema.GroupResource{Group: meta.GroupName, Resource: uiapi.ResourceKindClusterProfile}, name)
 	}
-	return obj, err
+	return &rsapi.ClusterProfile{
+		ObjectMeta: obj.ObjectMeta,
+		Spec:       obj.Spec,
+	}, err
 }
 
 // Lister
 func (r *Storage) NewList() runtime.Object {
-	return &uiapi.ClusterProfileList{}
+	return &rsapi.ClusterProfileList{}
 }
 
 func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOptions) (runtime.Object, error) {
@@ -114,15 +118,18 @@ func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOpt
 		objs = objs[:options.Limit]
 	}
 
-	items := make([]uiapi.ClusterProfile, 0, len(objs))
+	items := make([]rsapi.ClusterProfile, 0, len(objs))
 	for _, obj := range objs {
 		if options.LabelSelector != nil && !options.LabelSelector.Matches(labels.Set(obj.GetLabels())) {
 			continue
 		}
-		items = append(items, obj)
+		items = append(items, rsapi.ClusterProfile{
+			ObjectMeta: obj.ObjectMeta,
+			Spec:       obj.Spec,
+		})
 	}
 
-	return &uiapi.ClusterProfileList{Items: items}, nil
+	return &rsapi.ClusterProfileList{Items: items}, nil
 }
 
 func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
