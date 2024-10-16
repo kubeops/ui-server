@@ -53,14 +53,14 @@ func NewStorage(kc client.Reader) *Storage {
 	return &Storage{
 		kc: kc,
 		convertor: rest.NewDefaultTableConvertor(schema.GroupResource{
-			Group:    uiapi.SchemeGroupVersion.Group,
+			Group:    rsapi.SchemeGroupVersion.Group,
 			Resource: uiapi.ResourceClusterProfiles,
 		}),
 	}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return uiapi.SchemeGroupVersion.WithKind(uiapi.ResourceKindClusterProfile)
+	return rsapi.SchemeGroupVersion.WithKind(uiapi.ResourceKindClusterProfile)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -73,7 +73,7 @@ func (r *Storage) GetSingularName() string {
 
 // Getter
 func (r *Storage) New() runtime.Object {
-	return &uiapi.ClusterProfile{}
+	return &rsapi.ClusterProfile{}
 }
 
 func (r *Storage) Destroy() {}
@@ -88,7 +88,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 
 // Lister
 func (r *Storage) NewList() runtime.Object {
-	return &uiapi.ClusterProfileList{}
+	return &rsapi.ClusterProfileList{}
 }
 
 func (r *Storage) List(ctx context.Context, options *metainternalversion.ListOptions) (runtime.Object, error) {
