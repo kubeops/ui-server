@@ -1,4 +1,4 @@
-apiVersion: meta.k8s.appscode.com/v1alpha1
+apiVersion: ui.k8s.appscode.com/v1alpha1
 kind: ClusterProfile
 metadata:
   creationTimestamp: null
@@ -8,7 +8,6 @@ spec:
   provider: eks
   requiredFeatureSets:
     capi-capa:
-    - capa-vpc-peering-operator
     - cluster-autoscaler
     capi-core:
     - cluster-presets
