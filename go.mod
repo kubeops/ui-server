@@ -45,12 +45,12 @@ require (
 	k8s.io/kube-state-metrics/v2 v2.12.0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.30.28
+	kmodules.xyz/client-go v0.30.29
 	kmodules.xyz/custom-resources v0.30.0
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.30.2
 	kmodules.xyz/offshoot-api v0.30.1
-	kmodules.xyz/resource-metadata v0.20.0
+	kmodules.xyz/resource-metadata v0.20.1-0.20241018204417-8452f7858fab
 	kmodules.xyz/resource-metrics v0.30.4
 	kmodules.xyz/resource-metrics/utils v0.30.4
 	kmodules.xyz/sets v0.29.0
