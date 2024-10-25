@@ -30,6 +30,12 @@ import (
 )
 
 func main() {
+	if err := realMain(); err != nil {
+		klog.Fatalln("Error in kube-ui-server Main:", err)
+	}
+}
+
+func realMain() error {
 	rootCmd := cmds.NewRootCmd()
 	logs.Init(rootCmd, true)
 	defer logs.FlushLogs()
@@ -38,7 +44,5 @@ func main() {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 	}
 
-	if err := rootCmd.Execute(); err != nil {
-		klog.Fatalln("Error in kube-ui-server Main:", err)
-	}
+	return rootCmd.Execute()
 }
