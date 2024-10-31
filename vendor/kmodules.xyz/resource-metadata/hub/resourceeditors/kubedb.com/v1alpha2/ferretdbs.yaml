@@ -29,7 +29,21 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.8.0
+          version: v0.9.0
+        enforceQuota: false
+        flow: standalone-create
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/version.svg
+          type: image/svg+xml
+        name: Update Version
+        operationId: create-opsrequest-upgrade
+      - editor:
+          name: opskubedbcom-ferretdbopsrequest-editor
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: v0.9.0
         enforceQuota: false
         flow: standalone-create
         icons:
@@ -37,20 +51,6 @@ spec:
           type: image/svg+xml
         name: Restart
         operationId: create-opsrequest-restart
-      - editor:
-          name: opskubedbcom-ferretdbopsrequest-editor
-          sourceRef:
-            apiGroup: source.toolkit.fluxcd.io
-            kind: HelmRepository
-            name: appscode-charts-oci
-          version: v0.8.0
-        enforceQuota: false
-        flow: standalone-create
-        icons:
-        - src: https://cdn.appscode.com/k8s/icons/action-icons/reconfigure.svg
-          type: image/svg+xml
-        name: Reconfigure
-        operationId: create-opsrequest-reconfigure
       name: Operations
     - items:
       - disabledTemplate: |
@@ -61,7 +61,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.8.0
+          version: v0.9.0
         enforceQuota: true
         flow: standalone-create
         icons:
@@ -75,7 +75,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.8.0
+          version: v0.9.0
         enforceQuota: true
         flow: standalone-create
         icons:
@@ -83,21 +83,23 @@ spec:
           type: image/svg+xml
         name: Vertical Scale
         operationId: create-opsrequest-verticalscaling
+      name: Scaling
+    - items:
       - editor:
-          name: opskubedbcom-ferretdbopsrequest-editor
+          name: autoscalingkubedbcom-ferretdbautoscaler-editor
           sourceRef:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.8.0
+          version: v0.9.0
         enforceQuota: true
         flow: standalone-create
         icons:
-        - src: https://cdn.appscode.com/k8s/icons/action-icons/expand.svg
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/compute.svg
           type: image/svg+xml
-        name: Expand Volume
-        operationId: create-opsrequest-volumeexpansion
-      name: Scaling
+        name: Compute
+        operationId: create-opsrequest-compute
+      name: Autoscaling
     - items:
       - editor:
           name: opskubedbcom-ferretdbopsrequest-editor
@@ -105,7 +107,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.8.0
+          version: v0.9.0
         enforceQuota: false
         flow: standalone-create
         icons:
@@ -119,7 +121,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.8.0
+          version: v0.9.0
         enforceQuota: false
         flow: standalone-edit
         icons:
@@ -134,7 +136,7 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.8.0
+      version: v0.9.0
     enforceQuota: true
     options:
       name: kubedbcom-ferretdb-editor-options
@@ -142,7 +144,7 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.8.0
+      version: v0.9.0
   variants:
   - name: default
     selector:
