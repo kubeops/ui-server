@@ -934,10 +934,10 @@ kmodules.xyz/monitoring-agent-api v0.30.2 h1:sAgz5P5EXZqhlj1NzJ+QltAgeIx5bGSMj+a
 kmodules.xyz/monitoring-agent-api v0.30.2/go.mod h1:BoZFPDDRB7J39CcUsSDlzgW8PQCwik4ILPleyUob+Mg=
 kmodules.xyz/offshoot-api v0.30.1 h1:TrulAYO+oBsXe9sZZGTmNWIuI8qD2izMpgcTSPvgAmI=
 kmodules.xyz/offshoot-api v0.30.1/go.mod h1:T3mpjR6fui0QzOcmQvIuANytW48fe9ytmy/1cgx6D4g=
-kmodules.xyz/resource-metadata v0.21.1-0.20241101060818-82302d83f0de h1:VnyZFHRT4Rhb3HVFN5UrYxtFGUm2EA5pCnJkfWV8W2A=
-kmodules.xyz/resource-metadata v0.21.1-0.20241101060818-82302d83f0de/go.mod h1:pdge27Crf30IeiBGhy1QIveRiUtJ/QnSSOaO2VxHAmI=
-kmodules.xyz/resource-metrics v0.30.4 h1:8HBPtYmo9ETY91gsc55JE8Z986+3ZuRq57M0wZ9npqI=
-kmodules.xyz/resource-metrics v0.30.4/go.mod h1:w9+rz7/s/kGP1GWzYSuRdCn+l7EwpesmESSEHkLBnIQ=
+kmodules.xyz/resource-metadata v0.21.1-0.20241107112216-37fff326ac28 h1:EwAFAlB25Q8BgMU6Es7/pknJ5UHrdx3Le2p19u1f+sg=
+kmodules.xyz/resource-metadata v0.21.1-0.20241107112216-37fff326ac28/go.mod h1:KNp1ScLwOt3D5G/cG0lypXmNjVKxyArlMem/abqenPs=
+kmodules.xyz/resource-metrics v0.30.5 h1:ZhpGeR9DCz1HTrKUg/mWhr95wlFzCPRdgVAqwaggy1o=
+kmodules.xyz/resource-metrics v0.30.5/go.mod h1:w9+rz7/s/kGP1GWzYSuRdCn+l7EwpesmESSEHkLBnIQ=
 kmodules.xyz/resource-metrics/utils v0.30.4 h1:bJS/x0Qr7N1FFdxugFbzZ/Es6HVs4ptsFlhkmgj3jac=
 kmodules.xyz/resource-metrics/utils v0.30.4/go.mod h1:EedHEDZu1iVfkpKsTsSTfHkG5MUf77TdjDmCYRY4UR0=
 kmodules.xyz/sets v0.29.0 h1:ZX/qOECzUob95JhhRtngJElHSlJ1UNNdwK4hTEy+nl0=
