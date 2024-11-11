@@ -32,6 +32,7 @@ import (
 	licenseapi "kubeops.dev/ui-server/apis/offline/v1alpha1"
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
+	clusterclaimcontroller "kubeops.dev/ui-server/pkg/controllers/clusterclaim"
 	clustermetacontroller "kubeops.dev/ui-server/pkg/controllers/clustermetadata"
 	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
 	"kubeops.dev/ui-server/pkg/graph"
@@ -107,6 +108,7 @@ import (
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	identitylib "kmodules.xyz/resource-metadata/pkg/identity"
+	clusterv1alpha1 "open-cluster-management.io/api/cluster/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -140,6 +142,7 @@ func init() {
 	utilruntime.Must(fluxsrc.AddToScheme(Scheme))
 	utilruntime.Must(monitoringv1.AddToScheme(Scheme))
 	utilruntime.Must(falco.AddToScheme(Scheme))
+	utilruntime.Must(clusterv1alpha1.Install(Scheme))
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
@@ -294,6 +297,14 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		err = clustermetacontroller.NewReconciler(mgr.GetClient(), bc, cid).SetupWithManager(mgr)
 		if err != nil {
 			klog.Error(err, "unable to create controller", "controller", "ConfigMap")
+			os.Exit(1)
+		}
+	}
+
+	if clustermeta.DetectClusterManager(mgr.GetClient()).ManagedByOCMSpoke() {
+		err = clusterclaimcontroller.NewReconciler(mgr.GetClient()).SetupWithManager(mgr)
+		if err != nil {
+			klog.Error(err, "unable to create controller", "controller", "ClusterClaim")
 			os.Exit(1)
 		}
 	}

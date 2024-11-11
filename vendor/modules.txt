@@ -2112,6 +2112,9 @@ kubevault.dev/apimachinery/apis
 # moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7
 ## explicit; go 1.13
 moul.io/http2curl/v2
+# open-cluster-management.io/api v0.15.0
+## explicit; go 1.22.0
+open-cluster-management.io/api/cluster/v1alpha1
 # sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0
 ## explicit; go 1.20
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client/pkg/client

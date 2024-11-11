@@ -58,6 +58,7 @@ require (
 	kubeops.dev/falco-ui-server v0.0.4
 	kubeops.dev/scanner v0.0.18
 	kubepack.dev/lib-helm v0.29.13
+	open-cluster-management.io/api v0.15.0
 	sigs.k8s.io/cli-utils v0.37.2
 	sigs.k8s.io/controller-runtime v0.18.4
 	sigs.k8s.io/yaml v1.4.0
