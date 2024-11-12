@@ -43,9 +43,10 @@ require (
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/kube-openapi v0.0.0-20240709000822-3c01b740850f
 	k8s.io/kube-state-metrics/v2 v2.12.0
+	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.30.34
+	kmodules.xyz/client-go v0.30.37
 	kmodules.xyz/custom-resources v0.30.0
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.30.2
@@ -57,6 +58,7 @@ require (
 	kubeops.dev/falco-ui-server v0.0.4
 	kubeops.dev/scanner v0.0.18
 	kubepack.dev/lib-helm v0.29.13
+	open-cluster-management.io/api v0.15.0
 	sigs.k8s.io/cli-utils v0.37.2
 	sigs.k8s.io/controller-runtime v0.18.4
 	sigs.k8s.io/yaml v1.4.0
@@ -240,7 +242,6 @@ require (
 	k8s.io/cli-runtime v0.30.1 // indirect
 	k8s.io/component-helpers v0.29.0 // indirect
 	k8s.io/kms v0.30.3 // indirect
-	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // indirect
 	kubevault.dev/apimachinery v0.18.3 // indirect
 	moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0 // indirect

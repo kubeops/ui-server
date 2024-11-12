@@ -33,6 +33,7 @@ import (
 	policyinstall "kubeops.dev/ui-server/apis/policy/install"
 	policyapi "kubeops.dev/ui-server/apis/policy/v1alpha1"
 	clustermetacontroller "kubeops.dev/ui-server/pkg/controllers/clustermetadata"
+	clusterclaimcontroller "kubeops.dev/ui-server/pkg/controllers/feature"
 	projectquotacontroller "kubeops.dev/ui-server/pkg/controllers/projectquota"
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/metricshandler"
@@ -89,7 +90,6 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
-	"k8s.io/klog/v2/klogr"
 	"kmodules.xyz/authorizer"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	cu "kmodules.xyz/client-go/client"
@@ -107,6 +107,7 @@ import (
 	uiinstall "kmodules.xyz/resource-metadata/apis/ui/install"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	identitylib "kmodules.xyz/resource-metadata/pkg/identity"
+	clusterv1alpha1 "open-cluster-management.io/api/cluster/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -140,6 +141,7 @@ func init() {
 	utilruntime.Must(fluxsrc.AddToScheme(Scheme))
 	utilruntime.Must(monitoringv1.AddToScheme(Scheme))
 	utilruntime.Must(falco.AddToScheme(Scheme))
+	utilruntime.Must(clusterv1alpha1.Install(Scheme))
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
@@ -210,8 +212,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		return nil, err
 	}
 
-	// ctrl.SetLogger(...)
-	log.SetLogger(klogr.New()) // nolint:staticcheck
+	log.SetLogger(klog.NewKlogr())
 	setupLog := log.Log.WithName("setup")
 
 	cfg := c.ExtraConfig.ClientConfig
@@ -294,6 +295,14 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		err = clustermetacontroller.NewReconciler(mgr.GetClient(), bc, cid).SetupWithManager(mgr)
 		if err != nil {
 			klog.Error(err, "unable to create controller", "controller", "ConfigMap")
+			os.Exit(1)
+		}
+	}
+
+	if clustermeta.DetectClusterManager(mgr.GetClient()).ManagedByOCMSpoke() {
+		err = clusterclaimcontroller.NewClusterClaimReconciler(mgr.GetClient()).SetupWithManager(mgr)
+		if err != nil {
+			klog.Error(err, "unable to create controller", "controller", "ClusterClaim")
 			os.Exit(1)
 		}
 	}

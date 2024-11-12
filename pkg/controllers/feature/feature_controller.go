@@ -32,6 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	cu "kmodules.xyz/client-go/client"
 	meta_util "kmodules.xyz/client-go/meta"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
@@ -100,6 +101,12 @@ func (r *FeatureReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	if err = fr.updateStatus(ctx); err != nil {
 		return ctrl.Result{}, err
+	}
+
+	if fr.feature.Spec.FeatureExclusionGroup != "" {
+		if err = fr.handleFeatureExclusionGroups(); err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 
 	err = fr.updateFeatureSetEntry(ctx)
@@ -552,4 +559,46 @@ func (r *FeatureReconciler) findFeatureForHelmRelease(ctx context.Context, relea
 			},
 		},
 	}
+}
+
+func (r *frReconciler) handleFeatureExclusionGroups() error {
+	var err error
+	exclusionGroupName := r.feature.Spec.FeatureExclusionGroup
+
+	var fs uiapi.FeatureSet
+	err = r.client.Get(context.Background(), types.NamespacedName{Name: r.feature.Spec.FeatureSet}, &fs)
+	if err != nil {
+		return err
+	}
+
+	var exclusionGrp bool
+	for _, f := range fs.Status.Features {
+		var otherFeature uiapi.Feature
+		err = r.client.Get(context.Background(), types.NamespacedName{Name: f.Name}, &otherFeature)
+		if err != nil {
+			return err
+		}
+
+		if otherFeature.Spec.FeatureExclusionGroup != exclusionGroupName || otherFeature.Name == r.feature.Name {
+			continue
+		}
+
+		// Mark the exclusion group as active if this feature is enabled
+		if ptr.Deref(otherFeature.Status.Enabled, false) {
+			exclusionGrp = true
+		}
+	}
+
+	// If feature is in an exclusion group and another feature in that group is enabled,
+	// disable this feature if it’s not already enabled
+	if exclusionGrp {
+		r.feature.Spec.Disabled = !ptr.Deref(r.feature.Status.Enabled, false)
+	} else {
+		r.feature.Spec.Disabled = false
+	}
+
+	if err := r.client.Update(context.Background(), r.feature); err != nil {
+		return err
+	}
+	return nil
 }

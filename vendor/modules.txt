@@ -1949,7 +1949,6 @@ k8s.io/klog/v2/internal/dbg
 k8s.io/klog/v2/internal/serialize
 k8s.io/klog/v2/internal/severity
 k8s.io/klog/v2/internal/sloghandler
-k8s.io/klog/v2/klogr
 # k8s.io/kms v0.30.3
 ## explicit; go 1.22.0
 k8s.io/kms/apis/v1beta1
@@ -2006,7 +2005,7 @@ kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.30.34
+# kmodules.xyz/client-go v0.30.37
 ## explicit; go 1.22.0
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
@@ -2112,6 +2111,9 @@ kubevault.dev/apimachinery/apis
 # moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7
 ## explicit; go 1.13
 moul.io/http2curl/v2
+# open-cluster-management.io/api v0.15.0
+## explicit; go 1.22.0
+open-cluster-management.io/api/cluster/v1alpha1
 # sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0
 ## explicit; go 1.20
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client/pkg/client
