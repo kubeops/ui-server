@@ -14,14 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package clusterclaim
+package feature
 
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	cu "kmodules.xyz/client-go/client"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	clusterv1alpha1 "open-cluster-management.io/api/cluster/v1alpha1"
@@ -31,15 +33,13 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-const FeatureClusterClaim = "features.appscode.com"
-
 type ClusterClaimReconciler struct {
 	kc client.Client
 }
 
 var _ reconcile.Reconciler = &ClusterClaimReconciler{}
 
-func NewReconciler(kc client.Client) *ClusterClaimReconciler {
+func NewClusterClaimReconciler(kc client.Client) *ClusterClaimReconciler {
 	return &ClusterClaimReconciler{
 		kc: kc,
 	}
@@ -52,7 +52,7 @@ func (r *ClusterClaimReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
-	var enabledFeatures, notManagedFeatures, disabledFeatures []string
+	var enabledFeatures, extFeatures, disabledFeatures []string
 	for _, feature := range featureList.Items {
 		if feature.Status.Enabled == nil {
 			return ctrl.Result{}, fmt.Errorf("feature %s is not reconciled yet", feature.Name)
@@ -60,7 +60,7 @@ func (r *ClusterClaimReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if ptr.Deref(feature.Status.Enabled, false) {
 			enabledFeatures = append(enabledFeatures, feature.Name)
 			if !ptr.Deref(feature.Status.Managed, false) {
-				notManagedFeatures = append(notManagedFeatures, feature.Name)
+				extFeatures = append(extFeatures, feature.Name)
 			}
 		}
 
@@ -69,10 +69,14 @@ func (r *ClusterClaimReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		}
 	}
 
-	data, err := yaml.Marshal(map[string]any{
-		"enabledFeatures":    enabledFeatures,
-		"notManagedFeatures": notManagedFeatures,
-		"disabledFeatures":   disabledFeatures,
+	sort.Strings(enabledFeatures)
+	sort.Strings(extFeatures)
+	sort.Strings(disabledFeatures)
+
+	data, err := yaml.Marshal(kmapi.ClusterClaimFeatures{
+		EnabledFeatures:           enabledFeatures,
+		ExternallyManagedFeatures: extFeatures,
+		DisabledFeatures:          disabledFeatures,
 	})
 	if err != nil {
 		return ctrl.Result{}, err
@@ -81,7 +85,7 @@ func (r *ClusterClaimReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	obj := &clusterv1alpha1.ClusterClaim{
 		TypeMeta: metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: FeatureClusterClaim,
+			Name: kmapi.ClusterClaimKeyFeatures,
 		},
 	}
 	_, err = cu.CreateOrPatch(context.TODO(), r.kc, obj, func(o client.Object, createOp bool) client.Object {
