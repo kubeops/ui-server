@@ -1,6 +1,9 @@
 package graph
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 // Store represents a storage for vertices and edges. The graph library provides an in-memory store
 // by default and accepts any Store implementation to work with - for example, an SQL store.
@@ -17,6 +20,11 @@ type Store[K comparable, T any] interface {
 	// vertex doesn't exist, ErrVertexNotFound should be returned.
 	Vertex(hash K) (T, VertexProperties, error)
 
+	// RemoveVertex should remove the vertex with the given hash value. If the vertex doesn't
+	// exist, ErrVertexNotFound should be returned. If the vertex has edges to other vertices,
+	// ErrVertexHasEdges should be returned.
+	RemoveVertex(hash K) error
+
 	// ListVertices should return all vertices in the graph in a slice.
 	ListVertices() ([]K, error)
 
@@ -29,6 +37,10 @@ type Store[K comparable, T any] interface {
 	// If either vertex doesn't exit, ErrVertexNotFound should be returned for the respective
 	// vertex. If the edge already exists, ErrEdgeAlreadyExists should be returned.
 	AddEdge(sourceHash, targetHash K, edge Edge[K]) error
+
+	// UpdateEdge should update the edge between the given vertices with the data of the given
+	// Edge instance. If the edge doesn't exist, ErrEdgeNotFound should be returned.
+	UpdateEdge(sourceHash, targetHash K, edge Edge[K]) error
 
 	// RemoveEdge should remove the edge between the vertices with the given source and target
 	// hashes.
@@ -90,7 +102,7 @@ func (s *memoryStore[K, T]) ListVertices() ([]K, error) {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	var hashes []K
+	hashes := make([]K, 0, len(s.vertices))
 	for k := range s.vertices {
 		hashes = append(hashes, k)
 	}
@@ -109,15 +121,42 @@ func (s *memoryStore[K, T]) Vertex(k K) (T, VertexProperties, error) {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	var v T
-	var ok bool
-	v, ok = s.vertices[k]
+	v, ok := s.vertices[k]
 	if !ok {
 		return v, VertexProperties{}, ErrVertexNotFound
 	}
 
 	p := s.vertexProperties[k]
+
 	return v, p, nil
+}
+
+func (s *memoryStore[K, T]) RemoveVertex(k K) error {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
+	if _, ok := s.vertices[k]; !ok {
+		return ErrVertexNotFound
+	}
+
+	if edges, ok := s.inEdges[k]; ok {
+		if len(edges) > 0 {
+			return ErrVertexHasEdges
+		}
+		delete(s.inEdges, k)
+	}
+
+	if edges, ok := s.outEdges[k]; ok {
+		if len(edges) > 0 {
+			return ErrVertexHasEdges
+		}
+		delete(s.outEdges, k)
+	}
+
+	delete(s.vertices, k)
+	delete(s.vertexProperties, k)
+
+	return nil
 }
 
 func (s *memoryStore[K, T]) AddEdge(sourceHash, targetHash K, edge Edge[K]) error {
@@ -139,11 +178,25 @@ func (s *memoryStore[K, T]) AddEdge(sourceHash, targetHash K, edge Edge[K]) erro
 	return nil
 }
 
+func (s *memoryStore[K, T]) UpdateEdge(sourceHash, targetHash K, edge Edge[K]) error {
+	if _, err := s.Edge(sourceHash, targetHash); err != nil {
+		return err
+	}
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	s.outEdges[sourceHash][targetHash] = edge
+	s.inEdges[targetHash][sourceHash] = edge
+
+	return nil
+}
+
 func (s *memoryStore[K, T]) RemoveEdge(sourceHash, targetHash K) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	delete(s.inEdges[sourceHash], targetHash)
+	delete(s.inEdges[targetHash], sourceHash)
 	delete(s.outEdges[sourceHash], targetHash)
 	return nil
 }
@@ -176,4 +229,48 @@ func (s *memoryStore[K, T]) ListEdges() ([]Edge[K], error) {
 		}
 	}
 	return res, nil
+}
+
+// CreatesCycle is a fastpath version of [CreatesCycle] that avoids calling
+// [PredecessorMap], which generates large amounts of garbage to collect.
+//
+// Because CreatesCycle doesn't need to modify the PredecessorMap, we can use
+// inEdges instead to compute the same thing without creating any copies.
+func (s *memoryStore[K, T]) CreatesCycle(source, target K) (bool, error) {
+	if _, _, err := s.Vertex(source); err != nil {
+		return false, fmt.Errorf("could not get vertex with hash %v: %w", source, err)
+	}
+
+	if _, _, err := s.Vertex(target); err != nil {
+		return false, fmt.Errorf("could not get vertex with hash %v: %w", target, err)
+	}
+
+	if source == target {
+		return true, nil
+	}
+
+	stack := make([]K, 0)
+	visited := make(map[K]struct{})
+
+	stack = append(stack, source)
+	for len(stack) > 0 {
+		currentHash := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		if _, ok := visited[currentHash]; !ok {
+			// If the adjacent vertex also is the target vertex, the target is a
+			// parent of the source vertex. An edge would introduce a cycle.
+			if currentHash == target {
+				return true, nil
+			}
+
+			visited[currentHash] = struct{}{}
+
+			for adjacency := range s.inEdges[currentHash] {
+				stack = append(stack, adjacency)
+			}
+		}
+	}
+
+	return false, nil
 }

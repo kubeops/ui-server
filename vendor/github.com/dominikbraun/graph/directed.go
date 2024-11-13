@@ -37,6 +37,26 @@ func (d *directed[K, T]) AddVertex(value T, options ...func(*VertexProperties)) 
 	return d.store.AddVertex(hash, value, properties)
 }
 
+func (d *directed[K, T]) AddVerticesFrom(g Graph[K, T]) error {
+	adjacencyMap, err := g.AdjacencyMap()
+	if err != nil {
+		return fmt.Errorf("failed to get adjacency map: %w", err)
+	}
+
+	for hash := range adjacencyMap {
+		vertex, properties, err := g.VertexWithProperties(hash)
+		if err != nil {
+			return fmt.Errorf("failed to get vertex %v: %w", hash, err)
+		}
+
+		if err = d.AddVertex(vertex, copyVertexProperties(properties)); err != nil {
+			return fmt.Errorf("failed to add vertex %v: %w", hash, err)
+		}
+	}
+
+	return nil
+}
+
 func (d *directed[K, T]) Vertex(hash K) (T, error) {
 	vertex, _, err := d.store.Vertex(hash)
 	return vertex, err
@@ -49,6 +69,10 @@ func (d *directed[K, T]) VertexWithProperties(hash K) (T, VertexProperties, erro
 	}
 
 	return vertex, properties, nil
+}
+
+func (d *directed[K, T]) RemoveVertex(hash K) error {
+	return d.store.RemoveVertex(hash)
 }
 
 func (d *directed[K, T]) AddEdge(sourceHash, targetHash K, options ...func(*EdgeProperties)) error {
@@ -68,7 +92,7 @@ func (d *directed[K, T]) AddEdge(sourceHash, targetHash K, options ...func(*Edge
 
 	// If the user opted in to preventing cycles, run a cycle check.
 	if d.traits.PreventCycles {
-		createsCycle, err := CreatesCycle[K, T](d, sourceHash, targetHash)
+		createsCycle, err := d.createsCycle(sourceHash, targetHash)
 		if err != nil {
 			return fmt.Errorf("check for cycles: %w", err)
 		}
@@ -90,6 +114,21 @@ func (d *directed[K, T]) AddEdge(sourceHash, targetHash K, options ...func(*Edge
 	}
 
 	return d.addEdge(sourceHash, targetHash, edge)
+}
+
+func (d *directed[K, T]) AddEdgesFrom(g Graph[K, T]) error {
+	edges, err := g.Edges()
+	if err != nil {
+		return fmt.Errorf("failed to get edges: %w", err)
+	}
+
+	for _, edge := range edges {
+		if err := d.AddEdge(copyEdge(edge)); err != nil {
+			return fmt.Errorf("failed to add (%v, %v): %w", edge.Source, edge.Target, err)
+		}
+	}
+
+	return nil
 }
 
 func (d *directed[K, T]) Edge(sourceHash, targetHash K) (Edge[T], error) {
@@ -119,6 +158,23 @@ func (d *directed[K, T]) Edge(sourceHash, targetHash K) (Edge[T], error) {
 	}, nil
 }
 
+func (d *directed[K, T]) Edges() ([]Edge[K], error) {
+	return d.store.ListEdges()
+}
+
+func (d *directed[K, T]) UpdateEdge(source, target K, options ...func(properties *EdgeProperties)) error {
+	existingEdge, err := d.store.Edge(source, target)
+	if err != nil {
+		return err
+	}
+
+	for _, option := range options {
+		option(&existingEdge.Properties)
+	}
+
+	return d.store.UpdateEdge(source, target, existingEdge)
+}
+
 func (d *directed[K, T]) RemoveEdge(source, target K) error {
 	if _, err := d.Edge(source, target); err != nil {
 		return err
@@ -142,7 +198,7 @@ func (d *directed[K, T]) AdjacencyMap() (map[K]map[K]Edge[K], error) {
 		return nil, fmt.Errorf("failed to list edges: %w", err)
 	}
 
-	m := make(map[K]map[K]Edge[K])
+	m := make(map[K]map[K]Edge[K], len(vertices))
 
 	for _, vertex := range vertices {
 		m[vertex] = make(map[K]Edge[K])
@@ -156,8 +212,6 @@ func (d *directed[K, T]) AdjacencyMap() (map[K]map[K]Edge[K], error) {
 }
 
 func (d *directed[K, T]) PredecessorMap() (map[K]map[K]Edge[K], error) {
-	m := make(map[K]map[K]Edge[K])
-
 	vertices, err := d.store.ListVertices()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list vertices: %w", err)
@@ -167,6 +221,8 @@ func (d *directed[K, T]) PredecessorMap() (map[K]map[K]Edge[K], error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to list edges: %w", err)
 	}
+
+	m := make(map[K]map[K]Edge[K], len(vertices))
 
 	for _, vertex := range vertices {
 		m[vertex] = make(map[K]Edge[K])
@@ -188,17 +244,28 @@ func (d *directed[K, T]) addEdge(sourceHash, targetHash K, edge Edge[K]) error {
 
 func (d *directed[K, T]) Clone() (Graph[K, T], error) {
 	traits := &Traits{
-		IsDirected: d.traits.IsDirected,
-		IsAcyclic:  d.traits.IsAcyclic,
-		IsWeighted: d.traits.IsWeighted,
-		IsRooted:   d.traits.IsRooted,
+		IsDirected:    d.traits.IsDirected,
+		IsAcyclic:     d.traits.IsAcyclic,
+		IsWeighted:    d.traits.IsWeighted,
+		IsRooted:      d.traits.IsRooted,
+		PreventCycles: d.traits.PreventCycles,
 	}
 
-	return &directed[K, T]{
+	clone := &directed[K, T]{
 		hash:   d.hash,
 		traits: traits,
-		store:  d.store,
-	}, nil
+		store:  newMemoryStore[K, T](),
+	}
+
+	if err := clone.AddVerticesFrom(d); err != nil {
+		return nil, fmt.Errorf("failed to add vertices: %w", err)
+	}
+
+	if err := clone.AddEdgesFrom(d); err != nil {
+		return nil, fmt.Errorf("failed to add edges: %w", err)
+	}
+
+	return clone, nil
 }
 
 func (d *directed[K, T]) Order() (int, error) {
@@ -226,4 +293,33 @@ func (d *directed[K, T]) edgesAreEqual(a, b Edge[T]) bool {
 	bTargetHash := d.hash(b.Target)
 
 	return aSourceHash == bSourceHash && aTargetHash == bTargetHash
+}
+
+func (d *directed[K, T]) createsCycle(source, target K) (bool, error) {
+	// If the underlying store implements CreatesCycle, use that fast path.
+	if cc, ok := d.store.(interface {
+		CreatesCycle(source, target K) (bool, error)
+	}); ok {
+		return cc.CreatesCycle(source, target)
+	}
+
+	// Slow path.
+	return CreatesCycle(Graph[K, T](d), source, target)
+}
+
+// copyEdge returns an argument list suitable for the Graph.AddEdge method. This
+// argument list is derived from the given edge, hence the name copyEdge.
+//
+// The last argument is a custom functional option that sets the edge properties
+// to the properties of the original edge.
+func copyEdge[K comparable](edge Edge[K]) (K, K, func(properties *EdgeProperties)) {
+	copyProperties := func(p *EdgeProperties) {
+		for k, v := range edge.Properties.Attributes {
+			p.Attributes[k] = v
+		}
+		p.Weight = edge.Properties.Weight
+		p.Data = edge.Properties.Data
+	}
+
+	return edge.Source, edge.Target, copyProperties
 }
