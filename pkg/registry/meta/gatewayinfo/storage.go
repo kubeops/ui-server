@@ -19,7 +19,6 @@ package gatewayinfo
 import (
 	"context"
 	"fmt"
-	gwv1 "sigs.k8s.io/gateway-api/apis/v1"
 	"strings"
 
 	"go.bytebuilders.dev/catalog-manager/pkg/gateway"
@@ -32,6 +31,7 @@ import (
 	"kmodules.xyz/client-go/meta"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	gwv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 type Storage struct {
@@ -79,7 +79,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		Kind:  "GatewayClass",
 	})
 	if err != nil {
-		return &rsapi.GatewayInfo{}, fmt.Errorf("kind GatewayClass from %v group is not present in this cluster", gwv1.GroupName)
+		return nil, fmt.Errorf("kind GatewayClass from %v group is not present in this cluster", gwv1.GroupName)
 	}
 
 	class, err := gateway.FindGatewayClass(context.TODO(), r.kc, name)
@@ -98,9 +98,10 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, err
 	}
 
-	var ip, hostName string
+	var svcType, ip, hostName string
 	for _, s := range svcList.Items {
 		if s.Labels[meta.ManagedByLabelKey] == "envoy-gateway" && s.Labels[OwningGatewayClassLabel] == class.Name {
+			svcType = string(s.Spec.Type)
 			if s.Status.LoadBalancer.Ingress != nil {
 				ip = s.Status.LoadBalancer.Ingress[0].IP
 				hostName = s.Status.LoadBalancer.Ingress[0].Hostname
@@ -114,6 +115,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		},
 		Spec: rsapi.GatewayInfoSpec{
 			GatewayClassName: class.Name,
+			ServiceType:      svcType,
 			HostName:         hostName,
 			IP:               ip,
 		},

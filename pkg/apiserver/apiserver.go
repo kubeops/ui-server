@@ -113,7 +113,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
-	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
+	gwv1 "sigs.k8s.io/gateway-api/apis/v1"
 	chartsapi "x-helm.dev/apimachinery/apis/charts/v1alpha1"
 )
 
@@ -141,7 +141,7 @@ func init() {
 	utilruntime.Must(appcatalogapi.AddToScheme(Scheme))
 	utilruntime.Must(openvizapi.AddToScheme(Scheme))
 	utilruntime.Must(fluxsrc.AddToScheme(Scheme))
-	utilruntime.Must(gwapiv1.Install(Scheme))
+	utilruntime.Must(gwv1.Install(Scheme))
 	utilruntime.Must(monitoringv1.AddToScheme(Scheme))
 	utilruntime.Must(falco.AddToScheme(Scheme))
 	utilruntime.Must(clusterv1alpha1.Install(Scheme))
