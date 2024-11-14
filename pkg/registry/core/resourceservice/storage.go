@@ -28,7 +28,7 @@ import (
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/pkg/errors"
-	catalogapi "go.bytebuilders.dev/catalog/api/v1alpha1"
+	catalogapi "go.bytebuilders.dev/catalog/api/catalog/v1alpha1"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"

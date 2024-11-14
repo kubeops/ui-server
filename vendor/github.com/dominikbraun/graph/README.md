@@ -1,6 +1,11 @@
-# ![dominikbraun/graph](img/logo.svg)
+[中文版](README_CN.md) | [English Version](README.md)
 
-A library for creating generic graph data structures and modifying, analyzing, and visualizing them.
+# <img src="img/banner.png">
+
+A library for creating generic graph data structures and modifying, analyzing,
+and visualizing them.
+
+**Are you using graph? [Check out the graph user survey.](https://forms.gle/MLKUZKMeCRxTfj4v9)**
 
 # Features
 
@@ -68,7 +73,7 @@ _ = g.AddEdge(3, 4)
 
 ## Create a graph of a custom type
 
-To understand this example in detail, see the [concept of hashes](#hashes).
+To understand this example in detail, see the [concept of hashes](https://pkg.go.dev/github.com/dominikbraun/graph#hdr-Hashes).
 
 ```go
 type City struct {
@@ -168,6 +173,18 @@ fmt.Println(path)
 [A C E B]
 ```
 
+## Find spanning trees
+
+![minimum spanning tree](img/mst.svg)
+
+```go
+g := graph.New(graph.StringHash, graph.Weighted())
+
+// Add vertices and edges ...
+
+mst, _ := graph.MinimumSpanningTree(g)
+```
+
 ## Perform a topological sort
 
 ![topological sort](img/topological-sort.svg)
@@ -177,6 +194,7 @@ g := graph.New(graph.IntHash, graph.Directed(), graph.PreventCycles())
 
 // Add vertices and edges ...
 
+// For a deterministic topological ordering, use StableTopologicalSort.
 order, _ := graph.TopologicalSort(g)
 
 fmt.Println(order)
@@ -245,6 +263,12 @@ To generate an SVG from the created file using Graphviz, use a command such as t
 
 ```
 dot -Tsvg -O mygraph.gv
+```
+
+The `DOT` function also supports rendering graph attributes:
+
+```go
+_ = draw.DOT(g, file, draw.GraphAttribute("label", "my-graph"))
 ```
 
 ### Draw a graph as in this documentation
@@ -329,6 +353,17 @@ edge, _ := g.Edge(1, 2)
 myData := edge.Properties.Data 
 ```
 
+### Updating edge data
+
+Edge properties can be updated using `Graph.UpdateEdge`. The following example adds a new `color`
+attribute to the edge (A,B) and sets the edge weight to 10.
+
+```go
+_ = g.UpdateEdge("A", "B", graph.EdgeAttribute("color", "red"), graph.EdgeWeight(10))
+```
+
+The method signature and the accepted functional options are exactly the same as for `Graph.AddEdge`.
+
 ## Storing vertex attributes
 
 Vertices may have one or more attributes which can be used to store metadata. Attributes will be
@@ -362,52 +397,8 @@ g := graph.NewWithStore(graph.IntHash, myStore)
 To implement the `Store` interface appropriately, take a look at the [documentation](https://pkg.go.dev/github.com/dominikbraun/graph#Store).
 [`graph-sql`](https://github.com/dominikbraun/graph-sql) is a ready-to-use SQL store implementation.
 
-# Concepts
-
-## Hashes
-
-A graph consists of nodes (or vertices) of type `T`, which are identified by a hash value of type
-`K`. The hash value is obtained using the hashing function passed to `graph.New`.
-
-### Primitive types
-
-For primitive types such as `string` or `int`, you may use a predefined hashing function such as
-`graph.IntHash` – a function that takes an integer and uses it as a hash value at the same time:
-
-```go
-g := graph.New(graph.IntHash)
-```
-
-> This also means that only one vertex with a value like `5` can exist in the graph if
-> `graph.IntHash` used.
-
-### Custom types
-
-For storing custom data types, you need to provide your own hashing function. This example function
-takes a `City` and returns the city name as an unique hash value:
-
-```go
-cityHash := func(c City) string {
-    return c.Name
-}
-```
-
-Creating a graph using this hashing function will yield a graph with vertices of type `City`
-identified by hash values of type `string`.
-
-```go
-g := graph.New(cityHash)
-```
-
-## Traits
-
-The behavior of a graph, for example when adding or retrieving edges, depends on its traits. You
-can set the graph's traits using the functional options provided by this library:
-
-```go
-g := graph.New(graph.IntHash, graph.Directed(), graph.Weighted())
-```
-
 # Documentation
 
 The full documentation is available at [pkg.go.dev](https://pkg.go.dev/github.com/dominikbraun/graph).
+
+**Are you using graph? [Check out the graph user survey.](https://forms.gle/MLKUZKMeCRxTfj4v9)**

@@ -99,6 +99,24 @@ func DFS[K comparable, T any](g Graph[K, T], start K, visit func(K) bool) error 
 //
 // BFS is non-recursive and maintains a stack instead.
 func BFS[K comparable, T any](g Graph[K, T], start K, visit func(K) bool) error {
+	ignoreDepth := func(vertex K, _ int) bool {
+		return visit(vertex)
+	}
+	return BFSWithDepth(g, start, ignoreDepth)
+}
+
+// BFSWithDepth works just as BFS and performs a breadth-first search on the graph, but its
+// visit function is passed the current depth level as a second argument. Consequently, the
+// current depth can be used for deciding whether or not to proceed past a certain depth.
+//
+//	_ = graph.BFSWithDepth(g, 1, func(value int, depth int) bool {
+//		fmt.Println(value)
+//		return depth > 3
+//	})
+//
+// With the visit function from the example, the BFS traversal will stop once a depth greater
+// than 3 is reached.
+func BFSWithDepth[K comparable, T any](g Graph[K, T], start K, visit func(K, int) bool) error {
 	adjacencyMap, err := g.AdjacencyMap()
 	if err != nil {
 		return fmt.Errorf("could not get adjacency map: %w", err)
@@ -113,14 +131,16 @@ func BFS[K comparable, T any](g Graph[K, T], start K, visit func(K) bool) error 
 
 	visited[start] = true
 	queue = append(queue, start)
+	depth := 0
 
 	for len(queue) > 0 {
 		currentHash := queue[0]
 
 		queue = queue[1:]
+		depth++
 
 		// Stop traversing the graph if the visit function returns true.
-		if stop := visit(currentHash); stop {
+		if stop := visit(currentHash, depth); stop {
 			break
 		}
 

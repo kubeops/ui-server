@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),  and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.0] - 2023-07-05
+
+**Are you using graph? [Check out the graph user survey](https://forms.gle/MLKUZKMeCRxTfj4v9)**
+
+### Added
+* Added the `AllPathsBetween` function for computing all paths between two vertices.
+
+## [0.22.3] - 2023-06-14
+
+### Changed
+* Changed `StableTopologicalSort` to invoke the `less` function as few as possible, reducing comparisons.
+* Changed `CreatesCycle` to use an optimized path if the default in-memory store is being used.
+* Changed map allocations to use pre-defined memory sizes.
+
+## [0.22.2] - 2023-06-06
+
+### Fixed
+* Fixed the major performance issues of `StableTopologicalSort`.
+
+## [0.22.1] - 2023-06-05
+
+### Fixed
+* Fixed `TopologicalSort` to retain its original performance.
+
+## [0.22.0] - 2023-05-24
+
+### Added
+* Added the `StableTopologicalSort` function for deterministic topological orderings.
+* Added the `VertexAttributes` functional option for setting an entire vertex attributes map.
+
+## [0.21.0] - 2023-05-18
+
+### Added
+* Added the `BFSWithDepth` function for performing a BFS with depth information.
+
+### Fixed
+* Fixed false positives of `ErrVertexHasEdges` when removing a vertex.
+
+## [0.20.0] - 2023-05-01
+
+**Release post: [graph Version 0.20 Is Out](https://dominikbraun.io/blog/graph-version-0.20-is-out/)**
+
+### Added
+* Added the `Graph.AddVerticesFrom` method for adding all vertices from another graph.
+* Added the `Graph.AddEdgesFrom` method for adding all edges from another graph.
+* Added the `Graph.Edges` method for obtaining all edges as a slice.
+* Added the `Graph.UpdateEdge` method for updating the properties of an edge.
+* Added the `Store.UpdateEdge` method for updating the properties of an edge.
+* Added the `NewLike` function for creating a new graph that is "like" the given graph.
+* Added the `EdgeAttributes` functional option for setting an entire edge attributes map.
+
+### Changed
+* Changed `Graph.Clone` to use the built-in in-memory store for storing vertices and edges for cloned graphs.
+
+## [0.19.0] - 2023-04-23
+
+### Added
+* Added the `MinimumSpanningTree` function for finding a minimum spanning tree.
+* Added the `MaximumSpanningTree` function for finding a maximum spanning tree.
+
+## [0.18.0] - 2023-04-16
+
+### Added
+* Added the `Graph.RemoveVertex` method for removing a vertex.
+* Added the `Store.RemoveVertex` method for removing a vertex.
+* Added the `ErrVertexHasEdges` error instance.
+* Added the `Union` function for combining two graphs into one.
+
+## [0.17.0] - 2023-04-12
+
+### Added
+* Added the `draw.GraphAttributes` functional option for `draw.DOT` for rendering graph attributes.
+
+### Changed
+* Changed the library's GoDoc documentation.
+
 ## [0.16.2] - 2023-03-27
 
 ### Fixed
