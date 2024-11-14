@@ -26,7 +26,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"kmodules.xyz/client-go/meta"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -36,7 +35,6 @@ import (
 
 type Storage struct {
 	kc client.Client
-	a  authorizer.Authorizer
 }
 
 var (
@@ -47,10 +45,9 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
+func NewStorage(kc client.Client) *Storage {
 	return &Storage{
 		kc: kc,
-		a:  a,
 	}
 }
 
