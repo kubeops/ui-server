@@ -22,7 +22,6 @@ import (
 
 	"kubeops.dev/ui-server/pkg/graph"
 
-	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,7 +38,6 @@ import (
 
 type Storage struct {
 	kc client.Client
-	oc openvizcs.Interface
 	a  authorizer.Authorizer
 }
 
@@ -51,10 +49,9 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, oc openvizcs.Interface, a authorizer.Authorizer) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc: kc,
-		oc: oc,
 		a:  a,
 	}
 }
@@ -107,7 +104,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			autoColumns = true
 		}
 
-		bv, err := graph.RenderPageBlock(r.kc, r.oc, req.Source, req.Block, req.ConvertToTable)
+		bv, err := graph.RenderPageBlock(graph.NewUserContext(ctx), r.kc, req.Source, req.Block, req.ConvertToTable)
 		if err != nil {
 			return nil, err
 		}
@@ -121,8 +118,8 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			renderBlocks.Insert(string(k))
 		}
 		rv, err := graph.RenderLayout(
+			graph.NewUserContext(ctx),
 			r.kc,
-			r.oc,
 			req.Source,
 			req.LayoutName, // optional
 			req.PageName,   // optional

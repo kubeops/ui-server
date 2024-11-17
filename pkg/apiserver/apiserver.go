@@ -77,7 +77,6 @@ import (
 	"github.com/pkg/errors"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	openvizapi "go.openviz.dev/apimachinery/apis/openviz/v1alpha1"
-	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
 	crdinstall "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -242,10 +241,6 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to create discovery client, reason: %v", err)
 	}
-	oc, err := openvizcs.NewForConfig(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create openviz client, reason: %v", err)
-	}
 
 	cid, err := clustermeta.ClusterUID(mgr.GetAPIReader())
 	if err != nil {
@@ -331,9 +326,9 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[rsapi.ResourceChartPresetQueries] = chartpresetquery.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceClusterStatuses] = clusterstatusstorage.NewStorage(ctrlClient, kc)
-		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient, oc)
+		v1alpha1storage[rsapi.ResourceRenderDashboards] = renderdashboard.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceRenderRawGraphs] = renderrawgraph.NewStorage(ctrlClient)
-		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, oc, rbacAuthorizer)
+		v1alpha1storage[rsapi.ResourceRenders] = render.NewStorage(ctrlClient, rbacAuthorizer)
 		v1alpha1storage[rsapi.ResourceResourceBlockDefinitions] = resourceblockdefinition.NewStorage()
 		v1alpha1storage[rsapi.ResourceResourceCalculators] = resourcecalculatorstorage.NewStorage(ctrlClient, cid, rbacAuthorizer)
 		v1alpha1storage[rsapi.ResourceResourceDescriptors] = resourcedescriptor.NewStorage()

@@ -106,7 +106,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			src := kmapi.NewObjectID(&out)
 
 			if req.OutputFormat == rsapi.OutputFormatRef {
-				_, refs, err := graph.ExecRawQuery(r.kc, src.OID(), *req.Target)
+				_, refs, err := graph.ExecRawQuery(graph.NewUserContext(ctx), r.kc, src.OID(), *req.Target)
 				if err != nil {
 					return nil, err
 				}
@@ -116,7 +116,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 				}
 				in.Response = &runtime.RawExtension{Raw: data}
 			} else {
-				rid2, items, err := graph.ExecQuery(r.kc, src.OID(), *req.Target)
+				rid2, items, err := graph.ExecQuery(graph.NewUserContext(ctx), r.kc, src.OID(), *req.Target)
 				if err != nil {
 					return nil, err
 				}

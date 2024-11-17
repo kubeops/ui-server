@@ -957,10 +957,6 @@ go.openviz.dev/apimachinery/apis/openviz
 go.openviz.dev/apimachinery/apis/openviz/v1alpha1
 go.openviz.dev/apimachinery/apis/ui
 go.openviz.dev/apimachinery/apis/ui/v1alpha1
-go.openviz.dev/apimachinery/client/clientset/versioned
-go.openviz.dev/apimachinery/client/clientset/versioned/scheme
-go.openviz.dev/apimachinery/client/clientset/versioned/typed/openviz/v1alpha1
-go.openviz.dev/apimachinery/client/clientset/versioned/typed/ui/v1alpha1
 go.openviz.dev/apimachinery/crds
 # go.starlark.net v0.0.0-20240520160348-046347dcd104
 ## explicit; go 1.19
@@ -2020,7 +2016,7 @@ kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.30.37
+# kmodules.xyz/client-go v0.30.38
 ## explicit; go 1.22.0
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
@@ -2047,7 +2043,7 @@ kmodules.xyz/custom-resources/crds
 # kmodules.xyz/go-containerregistry v0.0.12
 ## explicit; go 1.21.5
 kmodules.xyz/go-containerregistry/name
-# kmodules.xyz/monitoring-agent-api v0.30.2
+# kmodules.xyz/monitoring-agent-api v0.30.4
 ## explicit; go 1.22.0
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/client
@@ -2056,7 +2052,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.22.3-0.20241114091625-6c277c3fe863
+# kmodules.xyz/resource-metadata v0.22.3
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1

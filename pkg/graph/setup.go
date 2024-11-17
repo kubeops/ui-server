@@ -34,12 +34,14 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	cu "kmodules.xyz/client-go/client"
 	meta_util "kmodules.xyz/client-go/meta"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	ksets "kmodules.xyz/sets"
@@ -247,8 +249,13 @@ func extractRefs(data map[string]interface{}, result ksets.ObjectReference) erro
 	return nil
 }
 
-func ExecRawQuery(kc client.Client, src kmapi.OID, target sharedapi.ResourceLocator) (*kmapi.ResourceID, []kmapi.ObjectReference, error) {
-	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
+func ExecRawQuery(ctx context.Context, kc client.Client, src kmapi.OID, target sharedapi.ResourceLocator) (*kmapi.ResourceID, []kmapi.ObjectReference, error) {
+	cc, err := NewClient(ctx, kc, target.Impersonate)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	mapping, err := cc.RESTMapper().RESTMapping(schema.GroupKind{
 		Group: target.Ref.Group,
 		Kind:  target.Ref.Kind,
 	})
@@ -267,7 +274,7 @@ func ExecRawQuery(kc client.Client, src kmapi.OID, target sharedapi.ResourceLoca
 		return rid, result, err
 	}
 
-	obj, err := execRestQuery(kc, q, mapping.GroupVersionKind)
+	obj, err := execRestQuery(ctx, cc, q, mapping.GroupVersionKind)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -278,8 +285,13 @@ func ExecRawQuery(kc client.Client, src kmapi.OID, target sharedapi.ResourceLoca
 	return rid, []kmapi.ObjectReference{ref}, nil
 }
 
-func ExecQuery(kc client.Client, src kmapi.OID, target sharedapi.ResourceLocator) (*kmapi.ResourceID, []unstructured.Unstructured, error) {
-	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
+func ExecQuery(ctx context.Context, kc client.Client, src kmapi.OID, target sharedapi.ResourceLocator) (*kmapi.ResourceID, []unstructured.Unstructured, error) {
+	cc, err := NewClient(ctx, kc, target.Impersonate)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	mapping, err := cc.RESTMapper().RESTMapping(schema.GroupKind{
 		Group: target.Ref.Group,
 		Kind:  target.Ref.Kind,
 	})
@@ -294,18 +306,18 @@ func ExecQuery(kc client.Client, src kmapi.OID, target sharedapi.ResourceLocator
 	}
 
 	if target.Query.Type == sharedapi.GraphQLQuery {
-		result, err := ExecGraphQLQuery(kc, q, vars)
+		result, err := ExecGraphQLQuery(cc, q, vars)
 		return rid, result, err
 	}
 
-	obj, err := execRestQuery(kc, q, mapping.GroupVersionKind)
+	obj, err := execRestQuery(ctx, cc, q, mapping.GroupVersionKind)
 	if err != nil {
 		return rid, nil, err
 	}
 	return rid, []unstructured.Unstructured{*obj}, nil
 }
 
-func execRestQuery(kc client.Client, q string, gvk schema.GroupVersionKind) (*unstructured.Unstructured, error) {
+func execRestQuery(ctx context.Context, kc client.Client, q string, gvk schema.GroupVersionKind) (*unstructured.Unstructured, error) {
 	var out unstructured.Unstructured
 	err := yaml.Unmarshal([]byte(q), &out)
 	if err != nil {
@@ -313,9 +325,31 @@ func execRestQuery(kc client.Client, q string, gvk schema.GroupVersionKind) (*un
 	}
 
 	out.SetGroupVersionKind(gvk)
-	err = kc.Create(context.TODO(), &out)
+	err = kc.Create(ctx, &out)
 	if err != nil {
 		return nil, err
 	}
 	return &out, nil
+}
+
+func NewClient(ctx context.Context, kc client.Client, impersonate bool) (client.Client, error) {
+	u, found := request.UserFrom(ctx)
+
+	if !impersonate || !found || len(u.GetExtra()[kmapi.AceOrgIDKey]) != 1 {
+		return kc, nil
+	}
+
+	if rw, ok := kc.(*cu.DelegatingClient); ok {
+		_, cc, err := rw.Impersonate(u)
+		return cc, err
+	}
+	return nil, fmt.Errorf("can't impersonate client")
+}
+
+func NewUserContext(in context.Context) context.Context {
+	ctx := context.TODO()
+	if u, ok := request.UserFrom(in); ok {
+		ctx = request.WithUser(ctx, u)
+	}
+	return ctx
 }

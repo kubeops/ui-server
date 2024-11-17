@@ -23,7 +23,6 @@ import (
 
 	"kubeops.dev/ui-server/pkg/graph"
 
-	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -39,7 +38,6 @@ import (
 
 type Storage struct {
 	kc client.Client
-	oc openvizcs.Interface
 }
 
 var (
@@ -50,10 +48,9 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client, oc openvizcs.Interface) *Storage {
+func NewStorage(kc client.Client) *Storage {
 	return &Storage{
 		kc: kc,
-		oc: oc,
 	}
 }
 
@@ -132,7 +129,13 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		}
 	}
 
-	dg, err := graph.RenderDashboard(r.kc, r.oc, rd, src, req.EmbeddedLink)
+	utx := graph.NewUserContext(ctx)
+	cc, err := graph.NewClient(utx, r.kc, true)
+	if err != nil {
+		return nil, err
+	}
+
+	dg, err := graph.RenderDashboard(utx, cc, rd, src, req.EmbeddedLink)
 	if err != nil {
 		return nil, err
 	}

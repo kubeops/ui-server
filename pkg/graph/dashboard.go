@@ -26,9 +26,8 @@ import (
 
 	"github.com/pkg/errors"
 	openvizauipi "go.openviz.dev/apimachinery/apis/ui/v1alpha1"
-	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
@@ -37,7 +36,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func renderDashboard(kc client.Client, oc openvizcs.Interface, srcObj *unstructured.Unstructured) tableconvertor.DashboardRendererFunc {
+func renderDashboard(ctx context.Context, kc client.Client, srcObj *unstructured.Unstructured) tableconvertor.DashboardRendererFunc {
 	return func(name string) (*uiapi.ResourceDashboard, string, error) {
 		rd, err := resourcedashboards.LoadByName(kc, name)
 		if err != nil {
@@ -52,7 +51,7 @@ func renderDashboard(kc client.Client, oc openvizcs.Interface, srcObj *unstructu
 		if len(rd.Spec.Dashboards) > 1 {
 			return nil, "", fmt.Errorf("multiple dashboards configured for %s", name)
 		}
-		dg, err := RenderDashboard(kc, oc, rd, srcObj, false)
+		dg, err := RenderDashboard(ctx, kc, rd, srcObj, false)
 		if err != nil {
 			return nil, "", err
 		}
@@ -60,7 +59,7 @@ func renderDashboard(kc client.Client, oc openvizcs.Interface, srcObj *unstructu
 	}
 }
 
-func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.ResourceDashboard, src *unstructured.Unstructured, embeddedLink bool) (*openvizauipi.DashboardGroup, error) {
+func RenderDashboard(ctx context.Context, kc client.Client, rd *uiapi.ResourceDashboard, src *unstructured.Unstructured, embeddedLink bool) (*openvizauipi.DashboardGroup, error) {
 	if rd.Spec.Provider != uiapi.DashboardProviderGrafana {
 		return nil, fmt.Errorf("dashboard %s uses unsupported provider %q", rd.Name, rd.Spec.Provider)
 	}
@@ -85,7 +84,7 @@ func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.Resourc
 				result = strings.TrimSpace(result)
 				cond = strings.EqualFold(result, "true")
 			} else if d.If.Connected != nil {
-				_, targets, err := ExecRawQuery(kc, kmapi.NewObjectID(src).OID(), *d.If.Connected)
+				_, targets, err := ExecRawQuery(ctx, kc, kmapi.NewObjectID(src).OID(), *d.If.Connected)
 				if err != nil {
 					return nil, errors.Wrapf(err, "failed to check connection for dashboard with title %s", d.Title)
 				}
@@ -124,5 +123,20 @@ func RenderDashboard(kc client.Client, oc openvizcs.Interface, rd *uiapi.Resourc
 		}
 		dg.Request.Dashboards = append(dg.Request.Dashboards, out)
 	}
-	return oc.UiV1alpha1().DashboardGroups().Create(context.TODO(), dg, metav1.CreateOptions{})
+
+	content, err := runtime.DefaultUnstructuredConverter.ToUnstructured(dg)
+	if err != nil {
+		return nil, err
+	}
+	req := unstructured.Unstructured{Object: content}
+	req.SetGroupVersionKind(openvizauipi.SchemeGroupVersion.WithKind(openvizauipi.ResourceKindDashboardGroup))
+	err = kc.Create(ctx, &req)
+	if err != nil {
+		return nil, err
+	}
+	err = runtime.DefaultUnstructuredConverter.FromUnstructured(req.UnstructuredContent(), dg)
+	if err != nil {
+		return nil, err
+	}
+	return dg, err
 }

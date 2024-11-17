@@ -27,7 +27,6 @@ import (
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/pkg/errors"
-	openvizcs "go.openviz.dev/apimachinery/client/clientset/versioned"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
@@ -43,8 +42,8 @@ import (
 )
 
 func RenderLayout(
+	ctx context.Context,
 	kc client.Client,
-	oc openvizcs.Interface,
 	src kmapi.ObjectInfo,
 	layoutName string, // optional
 	pageName string, // optional
@@ -57,7 +56,7 @@ func RenderLayout(
 	}
 	var srcObj unstructured.Unstructured
 	srcObj.SetGroupVersionKind(srcRID.GroupVersionKind())
-	err = kc.Get(context.TODO(), src.Ref.ObjectKey(), &srcObj)
+	err = kc.Get(ctx, src.Ref.ObjectKey(), &srcObj)
 	if err != nil {
 		return nil, err
 	}
@@ -118,14 +117,14 @@ func RenderLayout(
 	}
 
 	if layout.Spec.Header != nil && okToRender(layout.Spec.Header.Kind, renderBlocks) {
-		if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, layout.Spec.Header, convertToTable); err != nil {
+		if bv, err := renderPageBlock(ctx, kc, srcRID, &srcObj, layout.Spec.Header, convertToTable); err != nil {
 			return nil, err
 		} else {
 			out.Header = bv
 		}
 	}
 	if layout.Spec.TabBar != nil && okToRender(layout.Spec.TabBar.Kind, renderBlocks) {
-		if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, layout.Spec.TabBar, convertToTable); err != nil {
+		if bv, err := renderPageBlock(ctx, kc, srcRID, &srcObj, layout.Spec.TabBar, convertToTable); err != nil {
 			return nil, err
 		} else {
 			out.TabBar = bv
@@ -151,14 +150,14 @@ func RenderLayout(
 				Blocks:  nil,
 			}
 			if sectionLayout.Info != nil && okToRender(sectionLayout.Info.Kind, renderBlocks) {
-				if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, sectionLayout.Info, convertToTable); err != nil {
+				if bv, err := renderPageBlock(ctx, kc, srcRID, &srcObj, sectionLayout.Info, convertToTable); err != nil {
 					return nil, err
 				} else {
 					section.Info = bv
 				}
 			}
 			if sectionLayout.Insight != nil && okToRender(sectionLayout.Insight.Kind, renderBlocks) {
-				if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, sectionLayout.Insight, convertToTable); err != nil {
+				if bv, err := renderPageBlock(ctx, kc, srcRID, &srcObj, sectionLayout.Insight, convertToTable); err != nil {
 					return nil, err
 				} else {
 					section.Insight = bv
@@ -168,7 +167,7 @@ func RenderLayout(
 			blocks := make([]rsapi.PageBlockView, 0, len(sectionLayout.Blocks))
 			for _, block := range sectionLayout.Blocks {
 				if okToRender(block.Kind, renderBlocks) {
-					if bv, err := renderPageBlock(kc, oc, srcRID, &srcObj, &block, convertToTable); err != nil {
+					if bv, err := renderPageBlock(ctx, kc, srcRID, &srcObj, &block, convertToTable); err != nil {
 						return nil, err
 					} else {
 						blocks = append(blocks, *bv)
@@ -190,23 +189,23 @@ func okToRender(kind rsapi.TableKind, renderBlocks sets.Set[string]) bool {
 	return renderBlocks.Len() == 0 || renderBlocks.Has(string(kind))
 }
 
-func RenderPageBlock(kc client.Client, oc openvizcs.Interface, src kmapi.ObjectInfo, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
+func RenderPageBlock(ctx context.Context, kc client.Client, src kmapi.ObjectInfo, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
 	srcRID, err := kmapi.ExtractResourceID(kc.RESTMapper(), src.Resource)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to detect src resource id")
 	}
 	var srcObj unstructured.Unstructured
 	srcObj.SetGroupVersionKind(srcRID.GroupVersionKind())
-	err = kc.Get(context.TODO(), src.Ref.ObjectKey(), &srcObj)
+	err = kc.Get(ctx, src.Ref.ObjectKey(), &srcObj)
 	if err != nil {
 		return nil, err
 	}
 
-	return renderPageBlock(kc, oc, srcRID, &srcObj, block, convertToTable)
+	return renderPageBlock(ctx, kc, srcRID, &srcObj, block, convertToTable)
 }
 
-func renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
-	bv, err := _renderPageBlock(kc, oc, srcRID, srcObj, block, convertToTable)
+func renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
+	bv, err := _renderPageBlock(ctx, kc, srcRID, srcObj, block, convertToTable)
 	if err != nil {
 		bv.Result = rsapi.RenderResult{
 			Status:  rsapi.RenderError,
@@ -220,7 +219,16 @@ func renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Res
 	return bv, nil
 }
 
-func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
+func _renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
+	var impersonate bool
+	if block != nil && block.ResourceLocator != nil && block.Impersonate {
+		impersonate = true
+	}
+	cc, err := NewClient(ctx, kc, impersonate)
+	if err != nil {
+		return nil, err
+	}
+
 	out := rsapi.PageBlockView{
 		Kind:    block.Kind,
 		Name:    block.Name,
@@ -231,11 +239,11 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 	if block.Kind == rsapi.TableKindSelf || block.Kind == rsapi.TableKindSubTable {
 		out.Resource = srcRID
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj), RenderExec(nil, &srcGVR))
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(ctx, cc, srcObj), RenderExec(nil, &srcGVR))
 			if err != nil {
 				return &out, err
 			}
-			table, err := converter.ConvertToTable(context.TODO(), srcObj)
+			table, err := converter.ConvertToTable(ctx, srcObj)
 			if err != nil {
 				return &out, err
 			}
@@ -248,7 +256,7 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		return &out, fmt.Errorf("unsupported table kind found in block %+v", block)
 	}
 
-	mapping, err := kc.RESTMapper().RESTMapping(schema.GroupKind{
+	mapping, err := cc.RESTMapper().RESTMapping(schema.GroupKind{
 		Group: block.Ref.Group,
 		Kind:  block.Ref.Kind,
 	})
@@ -292,24 +300,24 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		// handle FalcoEvent list call
 		if vars[sharedapi.GraphQueryVarTargetGroup] == falco.GroupName &&
 			vars[sharedapi.GraphQueryVarTargetKind] == falcov1alpha1.ResourceKindFalcoEvent {
-			objs, err = listFalcoEvents(kc, block, srcID)
+			objs, err = listFalcoEvents(ctx, cc, block, srcID)
 			if err != nil {
 				return &out, err
 			}
 		} else {
-			objs, err = ExecGraphQLQuery(kc, q, vars)
+			objs, err = ExecGraphQLQuery(cc, q, vars)
 			if err != nil {
 				return &out, err
 			}
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj), RenderExec(&srcGVR, &mapping.Resource))
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(ctx, cc, srcObj), RenderExec(&srcGVR, &mapping.Resource))
 			if err != nil {
 				return &out, err
 			}
 			list := &unstructured.UnstructuredList{Items: objs}
-			table, err := converter.ConvertToTable(context.TODO(), list)
+			table, err := converter.ConvertToTable(ctx, list)
 			if err != nil {
 				return &out, err
 			}
@@ -327,17 +335,17 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 		}
 		u := unstructured.Unstructured{Object: obj}
 		u.SetGroupVersionKind(mapping.GroupVersionKind)
-		err = kc.Create(context.TODO(), &u)
+		err = cc.Create(ctx, &u)
 		if err != nil {
 			return &out, err
 		}
 
 		if convertToTable {
-			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(kc, oc, srcObj), RenderExec(&srcGVR, &mapping.Resource))
+			converter, err := tableconvertor.New(block.FieldPath, block.View.Columns, renderDashboard(ctx, cc, srcObj), RenderExec(&srcGVR, &mapping.Resource))
 			if err != nil {
 				return &out, err
 			}
-			table, err := converter.ConvertToTable(context.TODO(), &u)
+			table, err := converter.ConvertToTable(ctx, &u)
 			if err != nil {
 				return &out, err
 			}
@@ -349,7 +357,7 @@ func _renderPageBlock(kc client.Client, oc openvizcs.Interface, srcRID *kmapi.Re
 	return &out, nil
 }
 
-func listFalcoEvents(kc client.Client, block *rsapi.PageBlockLayout, srcID *kmapi.ObjectID) ([]unstructured.Unstructured, error) {
+func listFalcoEvents(ctx context.Context, kc client.Client, block *rsapi.PageBlockLayout, srcID *kmapi.ObjectID) ([]unstructured.Unstructured, error) {
 	var refs []kmapi.ObjectReference
 	var err error
 	if srcID.Kind == "Pod" {
@@ -376,7 +384,7 @@ func listFalcoEvents(kc client.Client, block *rsapi.PageBlockLayout, srcID *kmap
 
 		var list unstructured.UnstructuredList
 		list.SetGroupVersionKind(falcov1alpha1.SchemeGroupVersion.WithKind(falcov1alpha1.ResourceKindFalcoEvent))
-		err = kc.List(context.TODO(), &list, &client.ListOptions{LabelSelector: selector})
+		err = kc.List(ctx, &list, &client.ListOptions{LabelSelector: selector})
 		if meta.IsNoMatchError(err) {
 			return nil, err
 		} else if err == nil {

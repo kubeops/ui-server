@@ -26,7 +26,7 @@ helm install kube-ui-server appscode/kube-ui-server
 ## Usage
 
 ```console
-$ kubectl create -f artifacts/whoami.yaml -o yaml
+$ kubectl create -f artifacts/whoami.yaml -o yaml --validate=false
 
 apiVersion: authentication.k8s.io/v1
 kind: SelfSubjectReview
