@@ -94,7 +94,7 @@ func LocatePods(ctx context.Context, kc client.Client, req *kmapi.ObjectInfo) ([
 		},
 	}
 
-	_, refs, err := ExecRawQuery(kc, src.OID(), target)
+	_, refs, err := ExecRawQuery(ctx, kc, src.OID(), target)
 	if err != nil {
 		return nil, err
 	}

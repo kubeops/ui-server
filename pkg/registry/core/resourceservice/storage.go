@@ -159,7 +159,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, err
 	}
 
-	return r.toGenericResourceService(obj, rid, cmeta)
+	return r.toGenericResourceService(ctx, obj, rid, cmeta)
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -236,7 +236,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				continue
 			}
 
-			genres, err := r.toGenericResourceService(item, apiType, cmeta)
+			genres, err := r.toGenericResourceService(ctx, item, apiType, cmeta)
 			if err != nil {
 				return nil, err
 			}
@@ -275,7 +275,7 @@ func (r *Storage) ConvertToTable(ctx context.Context, object runtime.Object, tab
 	return r.convertor.ConvertToTable(ctx, object, tableOptions)
 }
 
-func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiType *kmapi.ResourceID, cmeta *kmapi.ClusterMetadata) (*rscoreapi.GenericResourceService, error) {
+func (r *Storage) toGenericResourceService(ctx context.Context, item unstructured.Unstructured, apiType *kmapi.ResourceID, cmeta *kmapi.ClusterMetadata) (*rscoreapi.GenericResourceService, error) {
 	content := item.UnstructuredContent()
 
 	objID := kmapi.NewObjectID(&item)
@@ -347,7 +347,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 	}
 
 	{
-		rid, objs, err := graph.ExecQuery(r.kc, oid, sharedapi.ResourceLocator{
+		rid, objs, err := graph.ExecQuery(ctx, r.kc, oid, sharedapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "",
 				Kind:  "Service",
@@ -388,7 +388,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		}
 	}
 	if apiType.Group == "kubedb.com" {
-		rid, objs, err := graph.ExecQuery(r.kc, oid, sharedapi.ResourceLocator{
+		rid, objs, err := graph.ExecQuery(ctx, r.kc, oid, sharedapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "catalog.appscode.com",
 				Kind:  apiType.Kind + "Binding",
@@ -448,7 +448,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		}
 	}
 	{
-		rid, refs, err := graph.ExecRawQuery(r.kc, oid, sharedapi.ResourceLocator{
+		rid, refs, err := graph.ExecRawQuery(ctx, r.kc, oid, sharedapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "stash.appscode.com",
 				Kind:  "BackupSession",
@@ -476,7 +476,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		}
 	}
 	if genres.Spec.Facilities.Backup.Usage == rscoreapi.FacilityUnknown {
-		rid, refs, err := graph.ExecRawQuery(r.kc, oid, sharedapi.ResourceLocator{
+		rid, refs, err := graph.ExecRawQuery(ctx, r.kc, oid, sharedapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "core.kubestash.com",
 				Kind:  "BackupConfiguration",
@@ -497,7 +497,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		}
 	}
 	{
-		rid, refs, err := graph.ExecRawQuery(r.kc, oid, sharedapi.ResourceLocator{
+		rid, refs, err := graph.ExecRawQuery(ctx, r.kc, oid, sharedapi.ResourceLocator{
 			Ref: metav1.GroupKind{
 				Group: "monitoring.coreos.com",
 				Kind:  "ServiceMonitor",
@@ -525,7 +525,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 		}
 
 		if genres.Spec.Facilities.Monitoring.Usage == rscoreapi.FacilityUnknown {
-			rid, refs, err = graph.ExecRawQuery(r.kc, oid, sharedapi.ResourceLocator{
+			rid, refs, err = graph.ExecRawQuery(ctx, r.kc, oid, sharedapi.ResourceLocator{
 				Ref: metav1.GroupKind{
 					Group: "monitoring.coreos.com",
 					Kind:  "PodMonitor",
@@ -575,7 +575,7 @@ func (r *Storage) toGenericResourceService(item unstructured.Unstructured, apiTy
 						result = strings.TrimSpace(result)
 						cond = strings.EqualFold(result, "true")
 					} else if exec.If.Connected != nil {
-						_, targets, err := graph.ExecRawQuery(r.kc, oid, *exec.If.Connected)
+						_, targets, err := graph.ExecRawQuery(ctx, r.kc, oid, *exec.If.Connected)
 						if err != nil {
 							return nil, errors.Wrapf(err, "failed to check connection for %+v exec with alias %s", gvr, exec.Alias)
 						}
