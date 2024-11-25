@@ -47,12 +47,12 @@ require (
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.30.39
+	kmodules.xyz/client-go v0.30.40
 	kmodules.xyz/custom-resources v0.30.0
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.30.4
 	kmodules.xyz/offshoot-api v0.30.1
-	kmodules.xyz/resource-metadata v0.22.6
+	kmodules.xyz/resource-metadata v0.23.0
 	kmodules.xyz/resource-metrics v0.30.5
 	kmodules.xyz/resource-metrics/utils v0.30.4
 	kmodules.xyz/sets v0.29.0
@@ -91,7 +91,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
-	github.com/cert-manager/cert-manager v1.15.2 // indirect
+	github.com/cert-manager/cert-manager v1.15.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
