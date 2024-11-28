@@ -282,7 +282,8 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		if err := mgr.Add(manager.RunnableFunc(func(ctx context.Context) error {
 			md, err := bc.Identify(cid)
 			if err != nil {
-				return err
+				klog.ErrorS(err, "unable to connect to ace api server")
+				return nil
 			}
 			return clustermeta.UpsertClusterMetadata(mgr.GetClient(), md)
 		})); err != nil {
