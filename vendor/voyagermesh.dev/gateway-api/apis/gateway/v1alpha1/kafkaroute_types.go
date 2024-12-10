@@ -21,10 +21,18 @@ import (
 	gwv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
+const (
+	ResourceCodeKafkaRoute     = "kfroute"
+	ResourceKindKafkaRoute     = "KafkaRoute"
+	ResourceSingularKafkaRoute = "kafkaroute"
+	ResourcePluralKafkaRoute   = "kafkaroutes"
+)
+
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:categories=gateway-api
 // +kubebuilder:subresource:status
 // +kubebuilder:storageversion
+// +kubebuilder:resource:path=kafkaroutes,singular=kafkaroute,shortName=kfroute,categories={route,appscode}
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // KafkaRoute provides a way to route TCP requests. When combined with a Gateway

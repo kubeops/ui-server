@@ -169,7 +169,7 @@ github.com/dapr/go-sdk/version
 # github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/docker/cli v27.0.3+incompatible
+# github.com/docker/cli v27.1.1+incompatible
 ## explicit
 github.com/docker/cli/cli/config
 github.com/docker/cli/cli/config/configfile
@@ -802,12 +802,12 @@ github.com/yudai/golcs
 # github.com/zeebo/xxh3 v1.0.2
 ## explicit; go 1.17
 github.com/zeebo/xxh3
-# go.bytebuilders.dev/catalog v0.0.9
+# go.bytebuilders.dev/catalog v0.0.11-0.20241125004308-e689253557ef
 ## explicit; go 1.22.7
 go.bytebuilders.dev/catalog/api/catalog/v1alpha1
 go.bytebuilders.dev/catalog/api/gateway/v1alpha1
 go.bytebuilders.dev/catalog/crds
-# go.bytebuilders.dev/catalog-manager v0.1.0
+# go.bytebuilders.dev/catalog-manager v0.1.1
 ## explicit; go 1.23.2
 go.bytebuilders.dev/catalog-manager/pkg/gateway
 go.bytebuilders.dev/catalog-manager/pkg/portmanager
@@ -1084,7 +1084,7 @@ golang.org/x/time/rate
 # gomodules.xyz/atomic-writer v0.0.2
 ## explicit; go 1.16
 gomodules.xyz/atomic-writer
-# gomodules.xyz/bits v0.0.0-20241102235928-e74aa78b5d38
+# gomodules.xyz/bits v0.0.0-20241124114357-b668409c1b67
 ## explicit; go 1.23.2
 gomodules.xyz/bits
 # gomodules.xyz/clock v0.0.0-20200817085942-06523dba733f
@@ -1966,7 +1966,7 @@ k8s.io/kms/apis/v1beta1
 k8s.io/kms/apis/v2
 k8s.io/kms/pkg/service
 k8s.io/kms/pkg/util
-# k8s.io/kube-openapi v0.0.0-20240709000822-3c01b740850f
+# k8s.io/kube-openapi v0.0.0-20240726031636-6f6746feab9c
 ## explicit; go 1.20
 k8s.io/kube-openapi/pkg/builder
 k8s.io/kube-openapi/pkg/builder3
@@ -1992,7 +1992,7 @@ k8s.io/kube-openapi/pkg/validation/validate
 ## explicit; go 1.21
 k8s.io/kube-state-metrics/v2/pkg/metric
 k8s.io/kube-state-metrics/v2/pkg/metric_generator
-# k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
+# k8s.io/utils v0.0.0-20240711033017-18e509b52bc8
 ## explicit; go 1.18
 k8s.io/utils/buffer
 k8s.io/utils/clock
@@ -2052,7 +2052,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.23.1-0.20241128043209-0b8d0f0a14dd
+# kmodules.xyz/resource-metadata v0.23.1-0.20241211072838-2c167223c93e
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2102,7 +2102,7 @@ kmodules.xyz/resource-metrics/utils
 # kmodules.xyz/sets v0.29.0
 ## explicit; go 1.21.5
 kmodules.xyz/sets
-# kubedb.dev/apimachinery v0.49.0-rc.0
+# kubedb.dev/apimachinery v0.49.0
 ## explicit; go 1.22.1
 kubedb.dev/apimachinery/apis
 kubedb.dev/apimachinery/apis/catalog
@@ -2305,7 +2305,7 @@ sigs.k8s.io/structured-merge-diff/v4/value
 sigs.k8s.io/yaml
 sigs.k8s.io/yaml/goyaml.v2
 sigs.k8s.io/yaml/goyaml.v3
-# voyagermesh.dev/gateway-api v0.0.2-0.20241104190244-f81d0ba1a554
+# voyagermesh.dev/gateway-api v0.0.2-0.20241124132233-ced3a99a7eae
 ## explicit; go 1.22.0
 voyagermesh.dev/gateway-api/apis/gateway/v1alpha1
 # voyagermesh.dev/installer v0.0.0-20241102060616-ff1e91bfcef8
