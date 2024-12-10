@@ -19,11 +19,14 @@ package portmanager
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 	"sync"
 
 	catgwapi "go.bytebuilders.dev/catalog/api/gateway/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/net"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -42,6 +45,29 @@ type PortInfo struct {
 
 func (pi PortInfo) UsesNodePort() bool {
 	return pi.NodePort > 0
+}
+
+func (pi PortInfo) String() string {
+	return fmt.Sprintf("%d/%d", pi.ListenerPort, pi.NodePort)
+}
+
+func ParsePortInfo(str string) (*PortInfo, error) {
+	parts := strings.SplitN(str, "/", 2)
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid port info: %s", str)
+	}
+	lp, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return nil, fmt.Errorf("invalid port info: %s", str)
+	}
+	np, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return nil, fmt.Errorf("invalid port info: %s", str)
+	}
+	return &PortInfo{
+		ListenerPort: gwv1.PortNumber(lp),
+		NodePort:     gwv1.PortNumber(np),
+	}, nil
 }
 
 type ClusterManager struct {
@@ -167,7 +193,7 @@ func (cm *ClusterManager) GetGatewayClassPortManager(gatewayClassName string) *G
 	return cm.portManagers[gatewayClassName]
 }
 
-func (cm *ClusterManager) ReservePorts(gatewayClassName string, n int) ([]PortInfo, bool, error) {
+func (cm *ClusterManager) AllocatePorts(gatewayClassName string, n int) ([]PortInfo, bool, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
@@ -175,7 +201,25 @@ func (cm *ClusterManager) ReservePorts(gatewayClassName string, n int) ([]PortIn
 	if !ok {
 		return nil, false, fmt.Errorf("port manager for gateway class %q not found", gatewayClassName)
 	}
-	return gm.ReservePorts(n)
+	return gm.AllocatePorts(n)
+}
+
+func (cm *ClusterManager) AllocateSeedPort() (int, error) {
+	cm.mu.Lock()
+	defer cm.mu.Unlock()
+
+	ports, err := cm.svcMgr.AllocatePorts(net.ParsePortRangeOrDie("8080-65535"), 1)
+	if err != nil {
+		return 0, err
+	}
+	return ports[0], nil
+}
+
+func (cm *ClusterManager) SetSeedPortAllocated(port int) {
+	cm.mu.Lock()
+	defer cm.mu.Unlock()
+
+	cm.svcMgr.SetPortAllocated(port)
 }
 
 func (cm *ClusterManager) Print() {
