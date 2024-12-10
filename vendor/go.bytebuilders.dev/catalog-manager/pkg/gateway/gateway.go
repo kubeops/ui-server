@@ -88,6 +88,12 @@ func GetGatewayParameter(kc client.Client, gwc *gwv1.GatewayClass) (*catgwapi.Ga
 	if err != nil {
 		return nil, err
 	}
+	if gwp.Service.PortRange == "" {
+		gwp.Service.PortRange = catgwapi.DefaultPortRange
+	}
+	if gwp.Service.NodeportRange == "" {
+		gwp.Service.NodeportRange = catgwapi.DefaultNodeportRange
+	}
 	gwp.GatewayClassName = gwc.Name
 	gwp.ServiceType, err = GetGatewayServiceType(context.TODO(), kc, gwc)
 	if err != nil {

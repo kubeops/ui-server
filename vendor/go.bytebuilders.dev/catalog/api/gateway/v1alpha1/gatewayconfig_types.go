@@ -213,11 +213,24 @@ type EnvoyValues struct {
 	Service         EnvoyServiceValues    `json:"service"`
 }
 
+const (
+	AllocatedPortsKey    = "catalog.appscode.com/allocated-ports"
+	SeedPortKey          = "catalog.appscode.com/seed-port"
+	DefaultPortRange     = "10000-12767"
+	DefaultNodeportRange = "30000-32767"
+)
+
 type EnvoyServiceSpec struct {
 	// +kubebuilder:default="10000-12767"
 	PortRange string `json:"portRange"`
 	// +kubebuilder:default="30000-32767"
 	NodeportRange string `json:"nodeportRange"`
+
+	// +kubebuilder:default=LoadBalancer
+	Type egv1a1.ServiceType `json:"type"`
+	// +kubebuilder:default=Cluster
+	ExternalTrafficPolicy egv1a1.ServiceExternalTrafficPolicy `json:"externalTrafficPolicy"`
+	ExternalIPs           []string                            `json:"externalIPs,omitempty"`
 }
 
 type EnvoyServiceValues struct {

@@ -22,10 +22,18 @@ import (
 	gwv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
+const (
+	ResourceCodeRedisRoute     = "rdroute"
+	ResourceKindRedisRoute     = "RedisRoute"
+	ResourceSingularRedisRoute = "redisroute"
+	ResourcePluralRedisRoute   = "redisroutes"
+)
+
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:categories=gateway-api
 // +kubebuilder:subresource:status
 // +kubebuilder:storageversion
+// +kubebuilder:resource:path=redisroutes,singular=redisroute,shortName=rdroute,categories={route,appscode}
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // RedisRoute provides a way to route TCP requests. When combined with a Gateway
@@ -54,27 +62,27 @@ type RedisRouteSpec struct {
 	// 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
 	//    label must appear by itself as the first label.
 	//
-	// If a hostname is specified by both the Listener and KafkaRoute, there
-	// must be at least one intersecting hostname for the KafkaRoute to be
+	// If a hostname is specified by both the Listener and RedisRoute, there
+	// must be at least one intersecting hostname for the RedisRoute to be
 	// attached to the Listener. For example:
 	//
-	// * A Listener with `test.example.com` as the hostname matches KafkaRoutes
+	// * A Listener with `test.example.com` as the hostname matches RedisRoutes
 	//   that have either not specified any hostnames, or have specified at
 	//   least one of `test.example.com` or `*.example.com`.
-	// * A Listener with `*.example.com` as the hostname matches KafkaRoutes
+	// * A Listener with `*.example.com` as the hostname matches RedisRoutes
 	//   that have either not specified any hostnames or have specified at least
 	//   one hostname that matches the Listener hostname. For example,
 	//   `test.example.com` and `*.example.com` would both match. On the other
 	//   hand, `example.com` and `test.example.net` would not match.
 	//
-	// If both the Listener and KafkaRoute have specified hostnames, any
-	// KafkaRoute hostnames that do not match the Listener hostname MUST be
+	// If both the Listener and RedisRoute have specified hostnames, any
+	// RedisRoute hostnames that do not match the Listener hostname MUST be
 	// ignored. For example, if a Listener specified `*.example.com`, and the
-	// KafkaRoute specified `test.example.com` and `test.example.net`,
+	// RedisRoute specified `test.example.com` and `test.example.net`,
 	// `test.example.net` must not be considered for a match.
 	//
-	// If both the Listener and KafkaRoute have specified hostnames, and none
-	// match with the criteria above, then the KafkaRoute is not accepted. The
+	// If both the Listener and RedisRoute have specified hostnames, and none
+	// match with the criteria above, then the RedisRoute is not accepted. The
 	// implementation must raise an 'Accepted' Condition with a status of
 	// `False` in the corresponding RouteParentStatus.
 	//
