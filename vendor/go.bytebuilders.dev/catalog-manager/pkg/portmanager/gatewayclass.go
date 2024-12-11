@@ -51,23 +51,18 @@ func NewGatewayClassPortManager(gwp *catgwapi.GatewayParameter, svcMgr *ServiceP
 		svcMgr:           svcMgr,
 	}
 
-	if gwp.Service.PortRange != "" {
-		pr, err := net.ParsePortRange(gwp.Service.PortRange)
-		if err != nil {
-			return nil, err
-		}
-		mgr.listenerPorts, err = bits.NewPortRange(pr.Base, pr.Size)
-		if err != nil {
-			return nil, err
-		}
+	pr, err := net.ParsePortRange(gwp.Service.PortRange)
+	if err != nil {
+		return nil, err
+	}
+	mgr.listenerPorts, err = bits.NewPortRange(pr.Base, pr.Size)
+	if err != nil {
+		return nil, err
 	}
 
-	if gwp.Service.NodeportRange != "" {
-		var err error
-		mgr.nodePorts, err = net.ParsePortRange(gwp.Service.NodeportRange)
-		if err != nil {
-			return nil, err
-		}
+	mgr.nodePorts, err = net.ParsePortRange(gwp.Service.NodeportRange)
+	if err != nil {
+		return nil, err
 	}
 
 	return mgr, nil
@@ -181,19 +176,38 @@ func (gm *GatewayClassPortManager) NodePortRange() string {
 	return gm.nodePortRange
 }
 
-func (gm *GatewayClassPortManager) ReservePorts(n int) ([]PortInfo, bool, error) {
+func (gm *GatewayClassPortManager) AllocatePorts(n int) ([]PortInfo, bool, error) {
 	gm.mu.Lock()
 	defer gm.mu.Unlock()
 
-	ports, err := gm.listenerPorts.AllocateNextPorts(n)
+	pa, err := gm.svcMgr.GetPortAlloc()
 	if err != nil {
 		return nil, false, err
+	}
+
+	var ports []int
+	if pa == PortAllocUnique {
+		ports, err = gm.listenerPorts.AllocateNextPorts(n)
+		if err != nil {
+			return nil, false, err
+		}
+	} else {
+		ports, err = gm.svcMgr.AllocatePorts(net.ParsePortRangeOrDie(gm.portRange), n)
+		if err != nil {
+			return nil, false, err
+		}
+		for _, port := range ports {
+			err = gm.listenerPorts.SetPortAllocated(port)
+			if err != nil {
+				return nil, false, err
+			}
+		}
 	}
 
 	var nodeports []int
 	usesNodePort := gm.UsesNodePort()
 	if usesNodePort {
-		nodeports, err = gm.svcMgr.ReservePorts(gm.nodePorts, n)
+		nodeports, err = gm.svcMgr.AllocateNodePorts(gm.nodePorts, n)
 		if err != nil {
 			return nil, false, err
 		}

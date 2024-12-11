@@ -27,14 +27,14 @@ func NewPortRange(startPort, size int) (*PortRange, error) {
 }
 
 // AllocateNextPorts allocates the next `n` available ports in the range.
-// It uses `SetNextAvailableBits` to find non-consecutive available ports.
+// It uses `AllocateNextAvailableBits` to find non-consecutive available ports.
 func (pr *PortRange) AllocateNextPorts(n int) ([]int, error) {
 	if n <= 0 || n > pr.size {
 		return nil, errors.New("invalid number of ports to allocate")
 	}
 
 	// Find and allocate `n` available bits
-	allocatedBits, err := pr.bitField.SetNextAvailableBits(n)
+	allocatedBits, err := pr.bitField.AllocateNextAvailableBits(n)
 	if err != nil {
 		return nil, fmt.Errorf("failed to allocate ports: %w", err)
 	}

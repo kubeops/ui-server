@@ -23,8 +23,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/zeebo/xxh3 v1.0.2
-	go.bytebuilders.dev/catalog v0.0.9
-	go.bytebuilders.dev/catalog-manager v0.1.0
+	go.bytebuilders.dev/catalog v0.0.11-0.20241125004308-e689253557ef
+	go.bytebuilders.dev/catalog-manager v0.1.1
 	go.bytebuilders.dev/license-verifier v0.14.3
 	go.openviz.dev/apimachinery v0.0.7
 	golang.org/x/sync v0.8.0
@@ -42,9 +42,9 @@ require (
 	k8s.io/client-go v0.30.3
 	k8s.io/component-base v0.30.3
 	k8s.io/klog/v2 v2.130.1
-	k8s.io/kube-openapi v0.0.0-20240709000822-3c01b740850f
+	k8s.io/kube-openapi v0.0.0-20240726031636-6f6746feab9c
 	k8s.io/kube-state-metrics/v2 v2.12.0
-	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
+	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
 	kmodules.xyz/client-go v0.30.40
@@ -52,7 +52,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.30.4
 	kmodules.xyz/offshoot-api v0.30.1
-	kmodules.xyz/resource-metadata v0.23.1-0.20241128043209-0b8d0f0a14dd
+	kmodules.xyz/resource-metadata v0.23.1-0.20241211072838-2c167223c93e
 	kmodules.xyz/resource-metrics v0.30.5
 	kmodules.xyz/resource-metrics/utils v0.30.4
 	kmodules.xyz/sets v0.29.0
@@ -99,7 +99,7 @@ require (
 	github.com/cyphar/filepath-securejoin v0.2.5 // indirect
 	github.com/dapr/go-sdk v1.8.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/docker/cli v27.0.3+incompatible // indirect
+	github.com/docker/cli v27.1.1+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/dominikbraun/graph v0.23.0 // indirect
@@ -224,7 +224,7 @@ require (
 	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	gomodules.xyz/atomic-writer v0.0.2 // indirect
-	gomodules.xyz/bits v0.0.0-20241102235928-e74aa78b5d38 // indirect
+	gomodules.xyz/bits v0.0.0-20241124114357-b668409c1b67 // indirect
 	gomodules.xyz/clock v0.0.0-20200817085942-06523dba733f // indirect
 	gomodules.xyz/encoding v0.0.8 // indirect
 	gomodules.xyz/flags v0.1.3 // indirect
@@ -246,7 +246,7 @@ require (
 	k8s.io/cli-runtime v0.30.2 // indirect
 	k8s.io/component-helpers v0.30.2 // indirect
 	k8s.io/kms v0.30.3 // indirect
-	kubedb.dev/apimachinery v0.49.0-rc.0 // indirect
+	kubedb.dev/apimachinery v0.49.0 // indirect
 	kubeops.dev/external-dns-operator v0.0.9 // indirect
 	kubeops.dev/petset v0.0.7 // indirect
 	kubevault.dev/apimachinery v0.19.0 // indirect
@@ -256,7 +256,7 @@ require (
 	sigs.k8s.io/kustomize/api v0.17.2 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.17.1 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
-	voyagermesh.dev/gateway-api v0.0.2-0.20241104190244-f81d0ba1a554 // indirect
+	voyagermesh.dev/gateway-api v0.0.2-0.20241124132233-ced3a99a7eae // indirect
 	voyagermesh.dev/installer v0.0.0-20241102060616-ff1e91bfcef8 // indirect
 
 )

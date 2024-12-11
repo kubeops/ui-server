@@ -106,39 +106,55 @@ func PatchListener(cm *portmanager.ClusterManager, gw *gwapiv1.Gateway, lisName 
 		gw.Spec.Listeners = []gwapiv1b1.Listener{}
 	}
 
-	for _, lis := range gw.Spec.Listeners {
+	var (
+		lisIndex                        = -1
+		listenerPort gwapiv1.PortNumber = -1
+	)
+	alreadyListenerExists := func() bool { return lisIndex != -1 }
+
+	for i, lis := range gw.Spec.Listeners {
 		if string(lis.Name) == lisName {
-			return nil // listener already exists
+			lisIndex = i
+			listenerPort = lis.Port
 		}
 	}
 
-	ports, usesNodePort, err := cm.ReservePorts(string(gw.Spec.GatewayClassName), 1)
-	if err != nil {
-		return err
-	}
-
-	// patch new listener
-
-	listener := GetNewListener(lisName, routeKind, ports[0].ListenerPort, https, certRefs...)
-
-	gw.Spec.Listeners = append(gw.Spec.Listeners, *listener)
-
-	if usesNodePort {
-		portMapping := fmt.Sprintf("%s%d", PortMappingKeyPrefix, ports[0].ListenerPort)
-		nodePort := fmt.Sprintf("%d", ports[0].NodePort)
-		if gw.Annotations == nil {
-			gw.SetAnnotations(map[string]string{
-				portMapping: nodePort,
-			})
-		} else {
-			gw.Annotations[portMapping] = nodePort
+	if !alreadyListenerExists() {
+		ports, usesNodePort, err := cm.AllocatePorts(string(gw.Spec.GatewayClassName), 1)
+		if err != nil {
+			return err
 		}
+		if len(ports) == 0 {
+			return fmt.Errorf("can't allocate ports for gatewayClass %s", gw.Spec.GatewayClassName)
+		}
+		if usesNodePort {
+			patchPortMappingAnnotation(gw, ports[0])
+		}
+		listenerPort = ports[0].ListenerPort
 	}
 
+	listener := constructListener(lisName, routeKind, listenerPort, https, certRefs...)
+	if alreadyListenerExists() {
+		gw.Spec.Listeners[lisIndex] = *listener
+	} else {
+		gw.Spec.Listeners = append(gw.Spec.Listeners, *listener)
+	}
 	return nil
 }
 
-func GetNewListener(listenerName, routeKind string, port gwapiv1.PortNumber, https bool, certRef ...gwapiv1a2.SecretObjectReference) *gwapiv1b1.Listener {
+func patchPortMappingAnnotation(gw *gwapiv1.Gateway, portInfo portmanager.PortInfo) {
+	portMapping := fmt.Sprintf("%s%d", PortMappingKeyPrefix, portInfo.ListenerPort)
+	nodePort := fmt.Sprintf("%d", portInfo.NodePort)
+	if gw.Annotations == nil {
+		gw.SetAnnotations(map[string]string{
+			portMapping: nodePort,
+		})
+	} else {
+		gw.Annotations[portMapping] = nodePort
+	}
+}
+
+func constructListener(listenerName, routeKind string, port gwapiv1.PortNumber, https bool, certRef ...gwapiv1a2.SecretObjectReference) *gwapiv1b1.Listener {
 	lis := &gwapiv1b1.Listener{
 		Name: gwapiv1.SectionName(listenerName),
 		Port: port,

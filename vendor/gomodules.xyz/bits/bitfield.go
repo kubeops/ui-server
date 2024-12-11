@@ -38,9 +38,9 @@ func (bf *BitField) IsSet(pos int) bool {
 	return (bf.data[index] & (1 << bit)) != 0
 }
 
-// SetNextAvailableBits finds and sets the next `n` available bits, returning their positions.
+// AllocateNextAvailableBits finds and sets the next `n` available bits, returning their positions.
 // It does not require the bits to be consecutive.
-func (bf *BitField) SetNextAvailableBits(n int) ([]int, error) {
+func (bf *BitField) AllocateNextAvailableBits(n int) ([]int, error) {
 	if n <= 0 || n > bf.size {
 		return nil, errors.New("invalid number of bits to allocate")
 	}
@@ -61,9 +61,9 @@ func (bf *BitField) SetNextAvailableBits(n int) ([]int, error) {
 	return allocated, nil
 }
 
-// NextAvailableBitsInRange finds the next `n` available (unset) bits within a specified range [start, end).
+// AllocateAvailableBitsInRange finds the next `n` available (unset) bits within a specified range [start, end).
 // It does not require the bits to be consecutive.
-func (bf *BitField) NextAvailableBitsInRange(start, end, n int) ([]int, error) {
+func (bf *BitField) AllocateAvailableBitsInRange(start, end, n int) ([]int, error) {
 	// Validate input range
 	if start < 0 || end > bf.size || start >= end || n <= 0 {
 		return nil, errors.New("invalid input parameters")
@@ -72,6 +72,7 @@ func (bf *BitField) NextAvailableBitsInRange(start, end, n int) ([]int, error) {
 	availableBits := make([]int, 0, n)
 	for pos := start; pos < end && len(availableBits) < n; pos++ {
 		if !bf.IsSet(pos) {
+			bf.SetBit(pos)
 			availableBits = append(availableBits, pos)
 		}
 	}
@@ -104,7 +105,7 @@ func main() {
 	bitField := NewBitField(128) // Initialize bit field with 128 bits
 
 	// Set next available 5 bits
-	startPos, err := bitField.SetNextAvailableBits(5)
+	startPos, err := bitField.AllocateNextAvailableBits(5)
 	if err != nil {
 		fmt.Println("Error:", err)
 	} else {
