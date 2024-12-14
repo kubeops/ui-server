@@ -139,15 +139,19 @@ type LoggingLevel struct {
 }
 
 type CertgenSpec struct {
-	Job  CertgenJobSpec      `json:"job"`
+	Job CertgenJobSpec `json:"job"`
+	// +optional
 	Rbac CertgenRbacMetadata `json:"rbac"`
 }
 
 type CertgenJobSpec struct {
-	Annotations             map[string]string         `json:"annotations"`
-	Resources               core.ResourceRequirements `json:"resources"`
-	TtlSecondsAfterFinished int                       `json:"ttlSecondsAfterFinished"`
-	SecurityContext         *core.SecurityContext     `json:"securityContext,omitempty"`
+	// +optional
+	Annotations map[string]string `json:"annotations"`
+	// +optional
+	Resources core.ResourceRequirements `json:"resources"`
+	// +optional
+	TtlSecondsAfterFinished int                   `json:"ttlSecondsAfterFinished"`
+	SecurityContext         *core.SecurityContext `json:"securityContext,omitempty"`
 }
 
 type CertgenRbacMetadata struct {

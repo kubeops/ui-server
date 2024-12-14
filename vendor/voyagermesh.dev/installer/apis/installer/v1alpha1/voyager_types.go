@@ -89,9 +89,12 @@ type VoyagerSpec struct {
 }
 
 type ImageRef struct {
-	Registry   string `json:"registry"`
+	// +optional
+	Registry string `json:"registry"`
+	// +optional
 	Repository string `json:"repository"`
-	Tag        string `json:"tag"`
+	// +optional
+	Tag string `json:"tag"`
 }
 
 type CleanerRef struct {
