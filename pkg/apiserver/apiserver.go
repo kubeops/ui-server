@@ -62,6 +62,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcegraph"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcelayout"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceoutline"
+	"kubeops.dev/ui-server/pkg/registry/meta/resourceoutlinefilter"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcequery"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcetabledefinition"
 	"kubeops.dev/ui-server/pkg/registry/meta/usermenu"
@@ -335,6 +336,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceOutlines] = resourceoutline.NewStorage()
+		v1alpha1storage[rsapi.ResourceResourceOutlineFilters] = resourceoutlinefilter.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceGatewayInfos] = gatewayinfo.NewStorage(ctrlClient)
 		v1alpha1storage[uiapi.ResourceClusterProfiles] = clusterprofilestorage.NewStorage(ctrlClient)
 		v1alpha1storage[uiapi.ResourceResourceEditors] = resourceeditor.NewStorage(ctrlClient)
