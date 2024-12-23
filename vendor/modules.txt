@@ -807,7 +807,7 @@ github.com/zeebo/xxh3
 go.bytebuilders.dev/catalog/api/catalog/v1alpha1
 go.bytebuilders.dev/catalog/api/gateway/v1alpha1
 go.bytebuilders.dev/catalog/crds
-# go.bytebuilders.dev/catalog-manager v0.1.1-0.20241212123230-677a4bafa8a8
+# go.bytebuilders.dev/catalog-manager v0.1.1
 ## explicit; go 1.23.2
 go.bytebuilders.dev/catalog-manager/pkg/gateway
 go.bytebuilders.dev/catalog-manager/pkg/portmanager
@@ -2052,7 +2052,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.23.2-0.20241218133649-44f2be7cd065
+# kmodules.xyz/resource-metadata v0.23.2
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1

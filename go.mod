@@ -24,7 +24,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/zeebo/xxh3 v1.0.2
 	go.bytebuilders.dev/catalog v0.0.11
-	go.bytebuilders.dev/catalog-manager v0.1.1-0.20241212123230-677a4bafa8a8
+	go.bytebuilders.dev/catalog-manager v0.1.1
 	go.bytebuilders.dev/license-verifier v0.14.3
 	go.openviz.dev/apimachinery v0.0.7
 	golang.org/x/sync v0.10.0
@@ -52,7 +52,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.30.4
 	kmodules.xyz/offshoot-api v0.30.1
-	kmodules.xyz/resource-metadata v0.23.2-0.20241218133649-44f2be7cd065
+	kmodules.xyz/resource-metadata v0.23.2
 	kmodules.xyz/resource-metrics v0.30.5
 	kmodules.xyz/resource-metrics/utils v0.30.4
 	kmodules.xyz/sets v0.29.0
