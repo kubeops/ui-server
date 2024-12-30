@@ -142,6 +142,9 @@ func (r *ProjectQuotaReconciler) ListKinds() (map[string]APIType, error) {
 
 	for gk, x := range apiTypes {
 		if len(x.Versions) > 1 {
+			if _, err := apiversion.NewVersion(x.Versions[0]); err != nil {
+				continue
+			}
 			sort.Slice(x.Versions, func(i, j int) bool {
 				return apiversion.MustCompare(x.Versions[i], x.Versions[j]) > 0
 			})
