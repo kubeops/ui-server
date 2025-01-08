@@ -152,8 +152,8 @@ github.com/coreos/go-semver/semver
 ## explicit; go 1.12
 github.com/coreos/go-systemd/v22/daemon
 github.com/coreos/go-systemd/v22/journal
-# github.com/cyphar/filepath-securejoin v0.2.5
-## explicit; go 1.13
+# github.com/cyphar/filepath-securejoin v0.3.4
+## explicit; go 1.21
 github.com/cyphar/filepath-securejoin
 # github.com/dapr/go-sdk v1.8.0
 ## explicit; go 1.19
@@ -807,11 +807,11 @@ github.com/zeebo/xxh3
 go.bytebuilders.dev/catalog/api/catalog/v1alpha1
 go.bytebuilders.dev/catalog/api/gateway/v1alpha1
 go.bytebuilders.dev/catalog/crds
-# go.bytebuilders.dev/catalog-manager v0.1.1
+# go.bytebuilders.dev/catalog-manager v0.2.0
 ## explicit; go 1.23.2
 go.bytebuilders.dev/catalog-manager/pkg/gateway
 go.bytebuilders.dev/catalog-manager/pkg/portmanager
-# go.bytebuilders.dev/license-verifier v0.14.3
+# go.bytebuilders.dev/license-verifier v0.14.4
 ## explicit; go 1.21
 go.bytebuilders.dev/license-verifier
 go.bytebuilders.dev/license-verifier/apis/licenses
@@ -2052,7 +2052,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.24.2-0.20250108123618-00d0e55fe72f
+# kmodules.xyz/resource-metadata v0.24.2
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2102,7 +2102,7 @@ kmodules.xyz/resource-metrics/utils
 # kmodules.xyz/sets v0.29.0
 ## explicit; go 1.21.5
 kmodules.xyz/sets
-# kubedb.dev/apimachinery v0.49.0
+# kubedb.dev/apimachinery v0.51.0
 ## explicit; go 1.22.1
 kubedb.dev/apimachinery/apis
 kubedb.dev/apimachinery/apis/catalog
@@ -2134,6 +2134,11 @@ kubeops.dev/scanner/apis/scanner
 kubeops.dev/scanner/apis/scanner/v1alpha1
 kubeops.dev/scanner/apis/trivy
 kubeops.dev/scanner/client/clientset/versioned/scheme
+# kubeops.dev/sidekick v0.0.10
+## explicit; go 1.22.1
+kubeops.dev/sidekick/apis/apps
+kubeops.dev/sidekick/apis/apps/v1alpha1
+kubeops.dev/sidekick/crds
 # kubepack.dev/lib-helm v0.29.13
 ## explicit; go 1.22.1
 kubepack.dev/lib-helm/pkg/values

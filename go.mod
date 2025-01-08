@@ -24,8 +24,8 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/zeebo/xxh3 v1.0.2
 	go.bytebuilders.dev/catalog v0.0.11
-	go.bytebuilders.dev/catalog-manager v0.1.1
-	go.bytebuilders.dev/license-verifier v0.14.3
+	go.bytebuilders.dev/catalog-manager v0.2.0
+	go.bytebuilders.dev/license-verifier v0.14.4
 	go.openviz.dev/apimachinery v0.0.7
 	golang.org/x/sync v0.10.0
 	gomodules.xyz/jsonpath v0.0.2
@@ -52,7 +52,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.30.4
 	kmodules.xyz/offshoot-api v0.30.1
-	kmodules.xyz/resource-metadata v0.24.2-0.20250108123618-00d0e55fe72f
+	kmodules.xyz/resource-metadata v0.24.2
 	kmodules.xyz/resource-metrics v0.30.5
 	kmodules.xyz/resource-metrics/utils v0.30.4
 	kmodules.xyz/sets v0.29.0
@@ -96,7 +96,7 @@ require (
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
-	github.com/cyphar/filepath-securejoin v0.2.5 // indirect
+	github.com/cyphar/filepath-securejoin v0.3.4 // indirect
 	github.com/dapr/go-sdk v1.8.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/docker/cli v27.1.1+incompatible // indirect
@@ -246,9 +246,10 @@ require (
 	k8s.io/cli-runtime v0.30.2 // indirect
 	k8s.io/component-helpers v0.30.2 // indirect
 	k8s.io/kms v0.30.3 // indirect
-	kubedb.dev/apimachinery v0.49.0 // indirect
+	kubedb.dev/apimachinery v0.51.0 // indirect
 	kubeops.dev/external-dns-operator v0.0.9 // indirect
 	kubeops.dev/petset v0.0.7 // indirect
+	kubeops.dev/sidekick v0.0.10 // indirect
 	kubevault.dev/apimachinery v0.19.0 // indirect
 	moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.30.3 // indirect
