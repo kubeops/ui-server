@@ -61,6 +61,7 @@ import (
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceeditor"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcegraph"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcelayout"
+	"kubeops.dev/ui-server/pkg/registry/meta/resourcemanifests"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceoutline"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourceoutlinefilter"
 	"kubeops.dev/ui-server/pkg/registry/meta/resourcequery"
@@ -115,6 +116,7 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	gwv1 "sigs.k8s.io/gateway-api/apis/v1"
 	chartsapi "x-helm.dev/apimachinery/apis/charts/v1alpha1"
+	xhelmapi "x-helm.dev/apimachinery/apis/drivers/v1alpha1"
 )
 
 var (
@@ -140,6 +142,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(Scheme))
 	utilruntime.Must(appcatalogapi.AddToScheme(Scheme))
 	utilruntime.Must(openvizapi.AddToScheme(Scheme))
+	utilruntime.Must(xhelmapi.AddToScheme(Scheme))
 	utilruntime.Must(fluxsrc.AddToScheme(Scheme))
 	utilruntime.Must(gwv1.Install(Scheme))
 	utilruntime.Must(monitoringv1.AddToScheme(Scheme))
@@ -336,6 +339,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage[rsapi.ResourceResourceGraphs] = resourcegraph.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceLayouts] = resourcelayout.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceOutlines] = resourceoutline.NewStorage()
+		v1alpha1storage[rsapi.ResourceResourceManifests] = resourcemanifests.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceResourceOutlineFilters] = resourceoutlinefilter.NewStorage(ctrlClient)
 		v1alpha1storage[rsapi.ResourceGatewayInfos] = gatewayinfo.NewStorage(ctrlClient)
 		v1alpha1storage[uiapi.ResourceClusterProfiles] = clusterprofilestorage.NewStorage(ctrlClient)
