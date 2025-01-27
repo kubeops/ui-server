@@ -1,0 +1,171 @@
+package action
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+
+	ha "helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/chartutil"
+	"helm.sh/helm/v3/pkg/release"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/klog/v2"
+	libchart "kubepack.dev/lib-helm/pkg/chart"
+	"kubepack.dev/lib-helm/pkg/repo"
+	"kubepack.dev/lib-helm/pkg/values"
+	releasesapi "x-helm.dev/apimachinery/apis/releases/v1alpha1"
+)
+
+type UpgradeOptions struct {
+	releasesapi.ChartSourceFlatRef `json:",inline,omitempty"`
+	values.Options                 `json:",inline,omitempty"`
+	Install                        bool          `json:"install"`
+	Devel                          bool          `json:"devel"`
+	Namespace                      string        `json:"namespace"`
+	Timeout                        time.Duration `json:"timeout"`
+	Wait                           bool          `json:"wait"`
+	DisableHooks                   bool          `json:"disableHooks"`
+	DryRun                         bool          `json:"dryRun"`
+	Force                          bool          `json:"force"`
+	ResetValues                    bool          `json:"resetValues"`
+	ReuseValues                    bool          `json:"reuseValues"`
+	Recreate                       bool          `json:"recreate"`
+	MaxHistory                     int           `json:"maxHistory"`
+	Atomic                         bool          `json:"atomic"`
+	CleanupOnFail                  bool          `json:"cleanupOnFail"`
+	PartOf                         string        `json:"partOf"`
+}
+
+type Upgrader struct {
+	cfg *Configuration
+
+	opts        UpgradeOptions
+	reg         repo.IRegistry
+	releaseName string
+	result      *release.Release
+}
+
+func NewUpgrader(getter genericclioptions.RESTClientGetter, namespace string, helmDriver string, log ...ha.DebugLog) (*Upgrader, error) {
+	cfg := new(Configuration)
+	// TODO: Use secret driver for which namespace?
+	err := cfg.Init(getter, namespace, helmDriver, log...)
+	if err != nil {
+		return nil, err
+	}
+	cfg.Capabilities = chartutil.DefaultCapabilities
+
+	return NewUpgraderForConfig(cfg), nil
+}
+
+func NewUpgraderForConfig(cfg *Configuration) *Upgrader {
+	return &Upgrader{
+		cfg: cfg,
+	}
+}
+
+func (x *Upgrader) WithOptions(opts UpgradeOptions) *Upgrader {
+	x.opts = opts
+	return x
+}
+
+func (x *Upgrader) WithRegistry(reg repo.IRegistry) *Upgrader {
+	x.reg = reg
+	return x
+}
+
+func (x *Upgrader) WithReleaseName(name string) *Upgrader {
+	x.releaseName = name
+	return x
+}
+
+func (x *Upgrader) Run() (*release.Release, error) {
+	if x.opts.Version == "" && x.opts.Devel {
+		debug("setting version to >0.0.0-0")
+		x.opts.Version = ">0.0.0-0"
+	}
+
+	if x.reg == nil {
+		return nil, errors.New("x.reg is not set")
+	}
+
+	chrt, err := x.reg.GetChart(x.opts.ChartSourceFlatRef.ToAPIObject())
+	if err != nil {
+		return nil, err
+	}
+	// TODO(tamal): Use constant
+	setAnnotations(chrt.Chart, "app.kubernetes.io/part-of", x.opts.PartOf)
+
+	cmd := ha.NewUpgrade(&x.cfg.Configuration)
+	cmd.Install = x.opts.Install
+	cmd.Devel = x.opts.Devel
+	cmd.Namespace = x.opts.Namespace
+	cmd.Timeout = x.opts.Timeout
+	cmd.Wait = x.opts.Wait
+	cmd.DisableHooks = x.opts.DisableHooks
+	cmd.DryRun = x.opts.DryRun
+	cmd.Force = x.opts.Force
+	cmd.ResetValues = x.opts.ResetValues
+	cmd.ReuseValues = x.opts.ReuseValues
+	cmd.Recreate = x.opts.Recreate
+	cmd.MaxHistory = x.opts.MaxHistory
+	cmd.Atomic = x.opts.Atomic
+	cmd.CleanupOnFail = x.opts.CleanupOnFail
+
+	validInstallableChart, err := libchart.IsChartInstallable(chrt.Chart)
+	if !validInstallableChart {
+		return nil, err
+	}
+
+	if chrt.Metadata.Deprecated {
+		klog.Warningf("WARNING: chart %+v is deprecated", x.opts.ChartSourceFlatRef)
+	}
+
+	if req := chrt.Metadata.Dependencies; req != nil {
+		// If CheckDependencies returns an error, we have unfulfilled dependencies.
+		// As of Helm 2.4.0, this is treated as a stopping condition:
+		// https://github.com/helm/helm/issues/2209
+		if err := ha.CheckDependencies(chrt.Chart, req); err != nil {
+			return nil, err
+		}
+	}
+
+	kc, err := NewUncachedClient(x.cfg.RESTClientGetter)
+	if err != nil {
+		return nil, err
+	}
+
+	vals, err := x.opts.Options.MergeValues(chrt.Chart)
+	if err != nil {
+		return nil, err
+	}
+	if data, ok := chrt.Chart.Metadata.Annotations["meta.x-helm.dev/editor"]; ok && data != "" {
+		var gvr metav1.GroupVersionResource
+		if err := json.Unmarshal([]byte(data), &gvr); err != nil {
+			return nil, fmt.Errorf("failed to parse %s annotation %s", "meta.x-helm.dev/editor", data)
+		}
+		rls := types.NamespacedName{
+			Namespace: x.opts.Namespace,
+			Name:      x.releaseName,
+		}
+		if err := RefillMetadata(kc, chrt.Chart.Values, vals, gvr, rls); err != nil {
+			return nil, err
+		}
+	}
+	// chartutil.CoalesceValues(chrt, chrtVals) will use vals to render templates
+	chrt.Chart.Values = map[string]interface{}{}
+
+	return cmd.Run(x.releaseName, chrt.Chart, vals)
+}
+
+func (x *Upgrader) Do() error {
+	var err error
+	x.result, err = x.Run()
+	return err
+}
+
+func (x *Upgrader) Result() *release.Release {
+	return x.result
+}
