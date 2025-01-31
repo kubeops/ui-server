@@ -99,10 +99,17 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 	for _, s := range svcList.Items {
 		if s.Labels[meta.ManagedByLabelKey] == "envoy-gateway" && s.Labels[OwningGatewayClassLabel] == class.Name {
 			svcType = string(s.Spec.Type)
-			if s.Status.LoadBalancer.Ingress != nil {
-				ip = s.Status.LoadBalancer.Ingress[0].IP
-				hostName = s.Status.LoadBalancer.Ingress[0].Hostname
+
+			val, ok := s.Annotations["external-dns.alpha.kubernetes.io/hostname"]
+			if ok {
+				hostName = val
+			} else {
+				if s.Status.LoadBalancer.Ingress != nil {
+					ip = s.Status.LoadBalancer.Ingress[0].IP
+					hostName = s.Status.LoadBalancer.Ingress[0].Hostname
+				}
 			}
+
 		}
 	}
 
