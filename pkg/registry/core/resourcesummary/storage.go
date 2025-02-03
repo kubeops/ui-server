@@ -25,6 +25,7 @@ import (
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/google/uuid"
+	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
@@ -100,13 +101,34 @@ func (r *Storage) NewList() runtime.Object {
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+
 	ns, ok := apirequest.NamespaceFrom(ctx)
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
-	user, ok := apirequest.UserFrom(ctx)
-	if !ok {
-		return nil, apierrors.NewBadRequest("missing user info")
+
+	orgId, found := user.GetExtra()[kmapi.AceOrgIDKey]
+	// for client org user, show their own namespace only
+	if found && len(orgId) == 1 && orgId[0] != "" && ns == "" {
+		// for client org users, only consider client org ns
+		var list core.NamespaceList
+		err := r.kc.List(ctx, &list, client.MatchingLabels{
+			kmapi.ClientOrgKey: "true",
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, item := range list.Items {
+			if item.Annotations[kmapi.AceOrgIDKey] == orgId[0] {
+				ns = item.Name
+				break
+			}
+		}
 	}
 
 	cmeta, err := clustermeta.ClusterMetadata(r.kc)
