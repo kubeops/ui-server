@@ -111,20 +111,17 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
 
-	orgId, found := user.GetExtra()[kmapi.AceOrgIDKey]
-	// for client org user, show their own namespace only
-	if found && len(orgId) == 1 && orgId[0] != "" && ns == "" {
-		// for client org users, only consider client org ns
-		var list core.NamespaceList
-		err := r.kc.List(ctx, &list, client.MatchingLabels{
-			kmapi.ClientOrgKey: "true",
-		})
-		if err != nil {
-			return nil, err
-		}
+	var list core.NamespaceList
+	err := r.kc.List(ctx, &list)
+	if err != nil {
+		return nil, err
+	}
+	isClientOrg, orgId := kmapi.IsClientOrgMember(user, list)
 
+	// for client org user, show their own namespace only
+	if isClientOrg {
 		for _, item := range list.Items {
-			if item.Annotations[kmapi.AceOrgIDKey] == orgId[0] {
+			if item.Labels[kmapi.ClientOrgKey] == "true" && item.Annotations[kmapi.AceOrgIDKey] == orgId {
 				ns = item.Name
 				break
 			}

@@ -47,7 +47,7 @@ require (
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.30.44
+	kmodules.xyz/client-go v0.30.45-0.20250206132229-498bb08e932c
 	kmodules.xyz/custom-resources v0.30.0
 	kmodules.xyz/go-containerregistry v0.0.12
 	kmodules.xyz/monitoring-agent-api v0.30.4
