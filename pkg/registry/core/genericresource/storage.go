@@ -168,6 +168,18 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewInternalError(err)
 	}
 
+	// for client org user, show their own namespace only when all namespace objects is requested
+	if ns == "" {
+		result, err := clustermeta.IsClientOrgMember(r.kc, user)
+		if err != nil {
+			return nil, err
+		}
+
+		if result.IsClientOrg {
+			ns = result.Namespace.Name
+		}
+	}
+
 	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
 
 	gvks := make(map[schema.GroupKind]string)
