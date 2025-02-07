@@ -32,6 +32,7 @@ import (
 	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/klog/v2"
+	clustermeta "kmodules.xyz/client-go/cluster"
 	mu "kmodules.xyz/client-go/meta"
 	promclient "kmodules.xyz/monitoring-agent-api/client"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
@@ -224,14 +225,25 @@ func (r *Storage) NewList() runtime.Object {
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+
 	ns, ok := apirequest.NamespaceFrom(ctx)
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
+	// for client org user, show their own namespace only when all namespace objects is requested
+	if ns == "" {
+		result, err := clustermeta.IsClientOrgMember(r.kc, user)
+		if err != nil {
+			return nil, err
+		}
 
-	user, ok := apirequest.UserFrom(ctx)
-	if !ok {
-		return nil, apierrors.NewBadRequest("missing user info")
+		if result.IsClientOrg {
+			ns = result.Namespace.Name
+		}
 	}
 
 	attrs := authorizer.AttributesRecord{

@@ -152,22 +152,15 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 }
 
 func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
-	ns, ok := apirequest.NamespaceFrom(ctx)
-	if !ok {
-		return nil, apierrors.NewBadRequest("missing namespace")
-	}
-	selector := shared.NewGroupKindSelector(options.LabelSelector)
-
 	user, ok := apirequest.UserFrom(ctx)
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing user info")
 	}
 
-	cmeta, err := clustermeta.ClusterMetadata(r.kc)
-	if err != nil {
-		return nil, apierrors.NewInternalError(err)
+	ns, ok := apirequest.NamespaceFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing namespace")
 	}
-
 	// for client org user, show their own namespace only when all namespace objects is requested
 	if ns == "" {
 		result, err := clustermeta.IsClientOrgMember(r.kc, user)
@@ -180,8 +173,13 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		}
 	}
 
-	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
+	selector := shared.NewGroupKindSelector(options.LabelSelector)
+	cmeta, err := clustermeta.ClusterMetadata(r.kc)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
 
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(r.dc))
 	gvks := make(map[schema.GroupKind]string)
 	for _, gvk := range api.RegisteredTypes() {
 		if !selector.Matches(gvk.GroupKind()) {

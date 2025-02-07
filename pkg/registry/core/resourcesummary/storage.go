@@ -109,7 +109,6 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
-
 	// for client org user, show their own namespace only when all namespace summary is requested
 	if ns == "" {
 		result, err := clustermeta.IsClientOrgMember(r.kc, user)
