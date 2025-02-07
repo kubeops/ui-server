@@ -25,7 +25,6 @@ import (
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/google/uuid"
-	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
@@ -111,20 +110,14 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 		return nil, apierrors.NewBadRequest("missing namespace")
 	}
 
-	var list core.NamespaceList
-	err := r.kc.List(ctx, &list)
-	if err != nil {
-		return nil, err
-	}
-	isClientOrg, orgId := kmapi.IsClientOrgMember(user, list)
-
-	// for client org user, show their own namespace only
-	if isClientOrg {
-		for _, item := range list.Items {
-			if item.Labels[kmapi.ClientOrgKey] == "true" && item.Annotations[kmapi.AceOrgIDKey] == orgId {
-				ns = item.Name
-				break
-			}
+	// for client org user, show their own namespace only when all namespace summary is requested
+	if ns == "" {
+		result, err := clustermeta.IsClientOrgMember(r.kc, user)
+		if err != nil {
+			return nil, err
+		}
+		if result.IsClientOrg {
+			ns = result.Namespace.Name
 		}
 	}
 

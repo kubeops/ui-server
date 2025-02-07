@@ -30,8 +30,6 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
-	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -90,25 +88,19 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		extra[k] = v
 	}
 
-	klog.Infof("USER EXTRA: %+v \n", user.GetExtra())
-	var list core.NamespaceList
-	err := r.rtc.List(ctx, &list)
+	var allNs []core.Namespace
+	result, err := clustermeta.IsClientOrgMember(r.rtc, user)
 	if err != nil {
 		return nil, err
 	}
-
-	var allNs []core.Namespace
-	isClientOrg, orgId := kmapi.IsClientOrgMember(user, list)
-	if !isClientOrg {
-		allNs = list.Items
-		klog.Infof("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa %v", len(allNs))
+	if result.IsClientOrg {
+		allNs = []core.Namespace{result.Namespace}
 	} else {
-		for _, ns := range list.Items {
-			if ns.Labels[kmapi.ClientOrgKey] == "true" && ns.Annotations[kmapi.AceOrgIDKey] == orgId {
-				allNs = append(allNs, ns)
-			}
+		var list core.NamespaceList
+		if err := r.rtc.List(ctx, &list); err != nil {
+			return nil, err
 		}
-		klog.Infof("oooooooooooooooooooooooooooooooooooooo %v", len(allNs))
+		allNs = list.Items
 	}
 
 	allowedNs := make([]core.Namespace, 0, len(allNs))
@@ -138,7 +130,6 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 
 	if clustermeta.IsRancherManaged(r.rtc.RESTMapper()) {
-		klog.Infof("rrrrrrrrrrrrrrrrrrrrrrrrrrr %+v", len(allowedNs))
 		projects := map[string][]string{}
 		for _, ns := range allowedNs {
 			projectId, exists := ns.Labels[clustermeta.LabelKeyRancherFieldProjectId]
@@ -148,14 +139,12 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			projects[projectId] = append(projects[projectId], ns.Name)
 		}
 
-		klog.Infof("PROJECTS: %+v \n", projects)
 		for projectId, namespaces := range projects {
 			sort.Strings(namespaces)
 			projects[projectId] = namespaces
 		}
 		in.Status.Projects = projects
 	} else {
-		klog.Infof("gggggggggggggggggggggggggggggggggggggggggg")
 		namespaces := make([]string, 0, len(allowedNs))
 		for _, ns := range allowedNs {
 			namespaces = append(namespaces, ns.Name)
