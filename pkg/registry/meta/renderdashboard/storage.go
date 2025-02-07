@@ -28,8 +28,10 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	clustermeta "kmodules.xyz/client-go/cluster"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedashboards"
@@ -142,11 +144,25 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	in.Response = &rsapi.RenderDashboardResponse{
 		Dashboards: make([]rsapi.DashboardResponse, 0, len(dg.Response.Dashboards)),
 	}
+
+	user, ok := request.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+
+	result, err := clustermeta.IsClientOrgMember(r.kc, user)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, e := range dg.Response.Dashboards {
 		conv := rsapi.DashboardResponse{
 			Title:  e.Title,
 			URL:    e.URL,
 			Panels: make([]rsapi.PanelLinkResponse, 0, len(e.Panels)),
+		}
+		if result.IsClientOrg {
+			conv.Title = clustermeta.ClientDashboardTitle(e.Title)
 		}
 		for _, p := range e.Panels {
 			conv.Panels = append(conv.Panels, rsapi.PanelLinkResponse{

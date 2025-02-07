@@ -30,7 +30,6 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/client-go/kubernetes"
-	kmapi "kmodules.xyz/client-go/api/v1"
 	clustermeta "kmodules.xyz/client-go/cluster"
 	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -90,29 +89,18 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 
 	var allNs []core.Namespace
-
-	orgId, found := user.GetExtra()[kmapi.AceOrgIDKey]
-	if !found || len(orgId) == 0 || len(orgId) > 1 {
+	result, err := clustermeta.IsClientOrgMember(r.rtc, user)
+	if err != nil {
+		return nil, err
+	}
+	if result.IsClientOrg {
+		allNs = []core.Namespace{result.Namespace}
+	} else {
 		var list core.NamespaceList
-		err := r.rtc.List(ctx, &list)
-		if err != nil {
+		if err := r.rtc.List(ctx, &list); err != nil {
 			return nil, err
 		}
 		allNs = list.Items
-	} else {
-		// for client org users, only consider client org ns
-		var list core.NamespaceList
-		err := r.rtc.List(ctx, &list, client.MatchingLabels{
-			kmapi.ClientOrgKey: "true",
-		})
-		if err != nil {
-			return nil, err
-		}
-		for _, ns := range list.Items {
-			if ns.Annotations[kmapi.AceOrgIDKey] == orgId[0] {
-				allNs = append(allNs, ns)
-			}
-		}
 	}
 
 	allowedNs := make([]core.Namespace, 0, len(allNs))
