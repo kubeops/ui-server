@@ -18,8 +18,12 @@ package chartpresetquery
 
 import (
 	"context"
+	"fmt"
+	"sort"
+	"strconv"
 	"strings"
 
+	"github.com/zeebo/xxh3"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -27,7 +31,6 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kubepack.dev/lib-helm/pkg/values"
-	_ "kubepack.dev/lib-helm/pkg/values"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -77,6 +80,38 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	if err != nil {
 		return nil, err
 	}
-	in.Response = presets
+
+	var state string
+	oids := make([]string, 0, len(presets))
+	for _, preset := range presets {
+		if preset.Source.Resource.Group == "" ||
+			preset.Source.Resource.Kind == "" ||
+			preset.Source.UID == "" ||
+			preset.Source.Generation <= 0 {
+			break
+		}
+		oids = append(oids, fmt.Sprintf("G=%s,K=%s,I=%s,V=%d",
+			preset.Source.Resource.Group,
+			preset.Source.Resource.Kind,
+			preset.Source.UID,
+			preset.Source.Generation,
+		))
+	}
+	// only calculate state hash if all presets have necessary data
+	if len(oids) == len(presets) {
+		sort.Strings(oids)
+		h := xxh3.New()
+		for _, oid := range oids {
+			_, _ = h.WriteString(oid)
+			_, _ = h.WriteString(";")
+		}
+		state = strconv.FormatUint(h.Sum64(), 10)
+	}
+
+	in.Response = &rsapi.ChartPresetQueryResponse{
+		Presets: presets,
+		State:   state,
+	}
+
 	return in, nil
 }

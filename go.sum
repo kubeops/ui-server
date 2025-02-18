@@ -1186,8 +1186,8 @@ kmodules.xyz/monitoring-agent-api v0.30.4 h1:6CTKxYJKpWDsDYb0WRBHGFoW3xQof05d+W8
 kmodules.xyz/monitoring-agent-api v0.30.4/go.mod h1:ZuTQ5uGi6H80QLsOTuuC7m58dfXDGUv0YB+s059gnr4=
 kmodules.xyz/offshoot-api v0.30.1 h1:TrulAYO+oBsXe9sZZGTmNWIuI8qD2izMpgcTSPvgAmI=
 kmodules.xyz/offshoot-api v0.30.1/go.mod h1:T3mpjR6fui0QzOcmQvIuANytW48fe9ytmy/1cgx6D4g=
-kmodules.xyz/resource-metadata v0.25.1-0.20250209224837-3dd722e7a7d7 h1:Gec02nO8nbF4TOOWKMsPZPgZNNaX274/+Bvx7NQOzo4=
-kmodules.xyz/resource-metadata v0.25.1-0.20250209224837-3dd722e7a7d7/go.mod h1:CkIm4CFaYubdvYQeF6xmIVCm2bCYFyvgcXrwcOEWf/o=
+kmodules.xyz/resource-metadata v0.25.2 h1:RAZddqkeTxh2ZqqFY8hTr2AthpUdiT4LrWTUalE3MNs=
+kmodules.xyz/resource-metadata v0.25.2/go.mod h1:8nz9dWSRSXxZKWJ/zmo2hN5JPikoiqbDuRR0X+Npjo8=
 kmodules.xyz/resource-metrics v0.30.5 h1:ZhpGeR9DCz1HTrKUg/mWhr95wlFzCPRdgVAqwaggy1o=
 kmodules.xyz/resource-metrics v0.30.5/go.mod h1:w9+rz7/s/kGP1GWzYSuRdCn+l7EwpesmESSEHkLBnIQ=
 kmodules.xyz/resource-metrics/utils v0.30.4 h1:bJS/x0Qr7N1FFdxugFbzZ/Es6HVs4ptsFlhkmgj3jac=
@@ -1212,8 +1212,8 @@ kubepack.dev/kubepack v0.29.2-0.20250112054702-b0d39a0fbb50 h1:QCeZx3qrTLsH5TON/
 kubepack.dev/kubepack v0.29.2-0.20250112054702-b0d39a0fbb50/go.mod h1:us+wzXGum5tJSgrAxYbmPbcZxc5czCLxgJapKbEMUSM=
 kubepack.dev/lib-app v0.1.0 h1:WZ6jkaZTDVKXZlqg3Ng0JTWZhEEnMhp8/lOaJS3dUgE=
 kubepack.dev/lib-app v0.1.0/go.mod h1:5wIUJWxShFo7E5chE66QeD+5V54Mifd3xDEHFuut7WE=
-kubepack.dev/lib-helm v0.29.13 h1:WIQJPTgRi05jECZ7eLGNkvcLNX9L8FCB3U+KhWIeVc0=
-kubepack.dev/lib-helm v0.29.13/go.mod h1:X1VLL0Aqy9llDLT+pMGoN7g0eR1X7zG0Meplhjm0UGE=
+kubepack.dev/lib-helm v0.29.14 h1:Bs+plITN4MrnasQMl++i5sapXDnNDFE3kWE3hDbgRvk=
+kubepack.dev/lib-helm v0.29.14/go.mod h1:wimhHJnru4KrcJnv4HehHjOfiK169aPhEcB1UdX7tGU=
 kubevault.dev/apimachinery v0.19.0 h1:8xm9wpQuXrcWYd/UYxeMx85EA6r2Rfn4d6LQYMzg9RQ=
 kubevault.dev/apimachinery v0.19.0/go.mod h1:cYq+RiQlOKm0FQw85FBIRlbGtg7pH/NLtWXRkMMbuWE=
 moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7 h1:NykkTlRB+X40z86cLHdEmuoTxhNKhQebLT379b1EumA=
@@ -1243,5 +1243,5 @@ voyagermesh.dev/gateway-api v0.0.2-0.20241124132233-ced3a99a7eae h1:uGJ1TlESAq9f
 voyagermesh.dev/gateway-api v0.0.2-0.20241124132233-ced3a99a7eae/go.mod h1:pMW02a7dAp5E8uZI3qEGS988yhzb4O88tzYaeFMu+3A=
 voyagermesh.dev/installer v0.0.0-20241127160952-d7800071f7ce h1:EDTYadG5r2yZgt0dmGyd5GZk5+lhqo9elWfKJJmXpB8=
 voyagermesh.dev/installer v0.0.0-20241127160952-d7800071f7ce/go.mod h1:Ie4YBydkmwa8lN4bi+vZY7gzc02jjzpwOS9vyeEhgnU=
-x-helm.dev/apimachinery v0.0.16 h1:Eb160xcdH9fMVHak5QSWYWxoaReytch+A7kk25QWjx0=
-x-helm.dev/apimachinery v0.0.16/go.mod h1:05brgFw5oWOX7OTXT090SQojqXjbttqWfqoJo+ejBU4=
+x-helm.dev/apimachinery v0.0.17 h1:CeaLYYboErzhv7cO0zWdhA3diRe1cAHbeolJWuKhtxo=
+x-helm.dev/apimachinery v0.0.17/go.mod h1:Ki8vHsakYIAXh8X4VeTq0cMZnpROiAnayZeEKLUjotk=
