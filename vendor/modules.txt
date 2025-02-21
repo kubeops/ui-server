@@ -2613,7 +2613,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.25.1-0.20250209224837-3dd722e7a7d7
+# kmodules.xyz/resource-metadata v0.25.2
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2706,7 +2706,7 @@ kubepack.dev/kubepack/pkg/lib
 # kubepack.dev/lib-app v0.1.0
 ## explicit; go 1.22.1
 kubepack.dev/lib-app/pkg/editor
-# kubepack.dev/lib-helm v0.29.13
+# kubepack.dev/lib-helm v0.29.14
 ## explicit; go 1.22.1
 kubepack.dev/lib-helm/pkg/action
 kubepack.dev/lib-helm/pkg/chart
@@ -2922,7 +2922,7 @@ voyagermesh.dev/gateway-api/apis/gateway/v1alpha1
 ## explicit; go 1.22.0
 voyagermesh.dev/installer/apis/installer
 voyagermesh.dev/installer/apis/installer/v1alpha1
-# x-helm.dev/apimachinery v0.0.16
+# x-helm.dev/apimachinery v0.0.17
 ## explicit; go 1.21.5
 x-helm.dev/apimachinery/apis
 x-helm.dev/apimachinery/apis/charts/v1alpha1
