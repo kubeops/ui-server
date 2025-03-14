@@ -17,35 +17,27 @@ limitations under the License.
 package action
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/pkg/errors"
-	"helm.sh/helm/v3/pkg/chart"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/cli-runtime/pkg/resource"
 
 	"helm.sh/helm/v3/pkg/kube"
-	"helm.sh/helm/v3/pkg/release"
 )
 
 var accessor = meta.NewAccessor()
 
 const (
 	appManagedByLabel              = "app.kubernetes.io/managed-by"
-	appPartOfLabel                 = "app.kubernetes.io/part-of"
-	appNameLabel                   = "app.kubernetes.io/name"
-	appInstanceLabel               = "app.kubernetes.io/instance"
-	editorLabel                    = "meta.x-helm.dev/editor"
 	appManagedByHelm               = "Helm"
 	helmReleaseNameAnnotation      = "meta.helm.sh/release-name"
 	helmReleaseNamespaceAnnotation = "meta.helm.sh/release-namespace"
 )
 
-func existingResourceConflict(resources kube.ResourceList, releaseName, releaseNamespace string, editorChart bool) (kube.ResourceList, error) {
+func existingResourceConflict(resources kube.ResourceList, releaseName, releaseNamespace string) (kube.ResourceList, error) {
 	var requireUpdate kube.ResourceList
 
 	err := resources.Visit(func(info *resource.Info, err error) error {
@@ -62,11 +54,9 @@ func existingResourceConflict(resources kube.ResourceList, releaseName, releaseN
 			return errors.Wrapf(err, "could not get information about the resource %s", resourceString(info))
 		}
 
-		if !editorChart {
-			// Allow adoption of the resource if it is managed by Helm and is annotated with correct release name and namespace.
-			if err := checkOwnership(existing, releaseName, releaseNamespace); err != nil {
-				return fmt.Errorf("%s exists and cannot be imported into the current release: %s", resourceString(info), err)
-			}
+		// Allow adoption of the resource if it is managed by Helm and is annotated with correct release name and namespace.
+		if err := checkOwnership(existing, releaseName, releaseNamespace); err != nil {
+			return fmt.Errorf("%s exists and cannot be imported into the current release: %s", resourceString(info), err)
 		}
 
 		requireUpdate.Append(info)
@@ -97,8 +87,6 @@ func checkOwnership(obj runtime.Object, releaseName, releaseNamespace string) er
 		errs = append(errs, fmt.Errorf("annotation validation error: %s", err))
 	}
 
-	// WARNING(tamal): checkOwnership does not need to check for prt-of, name, instance labels, as the ones above already cover it.
-
 	if len(errs) > 0 {
 		err := errors.New("invalid ownership metadata")
 		for _, e := range errs {
@@ -124,7 +112,7 @@ func requireValue(meta map[string]string, k, v string) error {
 // setMetadataVisitor adds release tracking metadata to all resources. If force is enabled, existing
 // ownership metadata will be overwritten. Otherwise an error will be returned if any resource has an
 // existing and conflicting value for the managed by label or Helm release/namespace annotations.
-func setMetadataVisitor(releaseName, releaseNamespace string, extraLabels map[string]string, force bool) resource.VisitorFunc {
+func setMetadataVisitor(releaseName, releaseNamespace string, force bool) resource.VisitorFunc {
 	return func(info *resource.Info, err error) error {
 		if err != nil {
 			return err
@@ -136,12 +124,9 @@ func setMetadataVisitor(releaseName, releaseNamespace string, extraLabels map[st
 			}
 		}
 
-		if err := mergeLabels(info.Object, mergeStrStrMaps(
-			map[string]string{
-				appManagedByLabel: appManagedByHelm,
-			},
-			extraLabels,
-		)); err != nil {
+		if err := mergeLabels(info.Object, map[string]string{
+			appManagedByLabel: appManagedByHelm,
+		}); err != nil {
 			return fmt.Errorf(
 				"%s labels could not be updated: %s",
 				resourceString(info), err,
@@ -196,30 +181,4 @@ func mergeStrStrMaps(current, desired map[string]string) map[string]string {
 		result[k] = desiredVal
 	}
 	return result
-}
-
-// special handling for appscode / kubepack specific case
-func getAppLabels(rel *release.Release, cfg *Configuration) (map[string]string, error) {
-	result := map[string]string{}
-	// check storage driver name
-	if cfg.Releases.Name() == "drivers.x-helm.dev/appreleases" {
-		result[appInstanceLabel] = rel.Name
-
-		if partOf, ok := rel.Chart.Metadata.Annotations[appPartOfLabel]; ok {
-			result[appPartOfLabel] = partOf
-		}
-		if data, ok := rel.Chart.Metadata.Annotations[editorLabel]; ok && data != "" {
-			var gvr metav1.GroupVersionResource
-			if err := json.Unmarshal([]byte(data), &gvr); err != nil {
-				return nil, errors.Wrapf(err, "failed to parse %s annotation value %s as GVR", editorLabel, data)
-			}
-			result[appNameLabel] = fmt.Sprintf("%s.%s", gvr.Resource, gvr.Group)
-		}
-	}
-	return result, nil
-}
-
-func isEditorChart(ch *chart.Chart) bool {
-	_, ok := ch.Metadata.Annotations[editorLabel]
-	return ok
 }

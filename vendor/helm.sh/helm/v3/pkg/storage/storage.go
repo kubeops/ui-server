@@ -111,7 +111,7 @@ func (s *Storage) ListDeployed() ([]*rspb.Release, error) {
 }
 
 // Deployed returns the last deployed release with the provided release name, or
-// returns ErrReleaseNotFound if not found.
+// returns driver.NewErrNoDeployedReleases if not found.
 func (s *Storage) Deployed(name string) (*rspb.Release, error) {
 	ls, err := s.DeployedAll(name)
 	if err != nil {
@@ -130,26 +130,15 @@ func (s *Storage) Deployed(name string) (*rspb.Release, error) {
 }
 
 // DeployedAll returns all deployed releases with the provided name, or
-// returns ErrReleaseNotFound if not found.
+// returns driver.NewErrNoDeployedReleases if not found.
 func (s *Storage) DeployedAll(name string) ([]*rspb.Release, error) {
 	s.Log("getting deployed releases from %q history", name)
 
-	var lbls map[string]string
-	if s.Name() == "drivers.x-helm.dev/appreleases" {
-		// WARNING(tamal): These lbls are required for Kubepack/Application driver.
-		lbls = map[string]string{
-			"release.x-helm.dev/name":   name,
-			"owner":                     "helm",
-			"release.x-helm.dev/status": "deployed",
-		}
-	} else {
-		lbls = map[string]string{
-			"name":   name,
-			"owner":  "helm",
-			"status": "deployed",
-		}
-	}
-	ls, err := s.Driver.Query(lbls)
+	ls, err := s.Driver.Query(map[string]string{
+		"name":   name,
+		"owner":  "helm",
+		"status": "deployed",
+	})
 	if err == nil {
 		return ls, nil
 	}
@@ -160,24 +149,11 @@ func (s *Storage) DeployedAll(name string) ([]*rspb.Release, error) {
 }
 
 // History returns the revision history for the release with the provided name, or
-// returns ErrReleaseNotFound if no such release name exists.
+// returns driver.ErrReleaseNotFound if no such release name exists.
 func (s *Storage) History(name string) ([]*rspb.Release, error) {
 	s.Log("getting release history for %q", name)
 
-	var lbls map[string]string
-	if s.Name() == "drivers.x-helm.dev/appreleases" {
-		// WARNING(tamal): These lbls are required for Kubepack/Application driver.
-		lbls = map[string]string{
-			"release.x-helm.dev/name": name,
-			"owner":                   "helm",
-		}
-	} else {
-		lbls = map[string]string{
-			"name":  name,
-			"owner": "helm",
-		}
-	}
-	return s.Driver.Query(lbls)
+	return s.Driver.Query(map[string]string{"name": name, "owner": "helm"})
 }
 
 // removeLeastRecent removes items from history until the length number of releases

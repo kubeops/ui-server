@@ -252,7 +252,7 @@ func (u *Upgrade) prepareUpgrade(name string, chart *chart.Chart, vals map[strin
 		IsUpgrade: true,
 	}
 
-	caps, err := u.cfg.GetCapabilities()
+	caps, err := u.cfg.getCapabilities()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -319,11 +319,7 @@ func (u *Upgrade) performUpgrade(ctx context.Context, originalRelease, upgradedR
 	}
 
 	// It is safe to use force only on target because these are resources currently rendered by the chart.
-	appLabels, err := getAppLabels(upgradedRelease, u.cfg)
-	if err != nil {
-		return nil, err
-	}
-	err = target.Visit(setMetadataVisitor(upgradedRelease.Name, upgradedRelease.Namespace, appLabels, true))
+	err = target.Visit(setMetadataVisitor(upgradedRelease.Name, upgradedRelease.Namespace, true))
 	if err != nil {
 		return upgradedRelease, err
 	}
@@ -341,7 +337,7 @@ func (u *Upgrade) performUpgrade(ctx context.Context, originalRelease, upgradedR
 		}
 	}
 
-	toBeUpdated, err := existingResourceConflict(toBeCreated, upgradedRelease.Name, upgradedRelease.Namespace, isEditorChart(upgradedRelease.Chart))
+	toBeUpdated, err := existingResourceConflict(toBeCreated, upgradedRelease.Name, upgradedRelease.Namespace)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to continue with update")
 	}

@@ -184,7 +184,7 @@ func (i *Install) installCRDs(crds []chart.CRD) error {
 		// If we have already gathered the capabilities, we need to invalidate
 		// the cache so that the new CRDs are recognized. This should only be
 		// the case when an action configuration is reused for multiple actions,
-		// as otherwise it is later loaded by ourselves when GetCapabilities
+		// as otherwise it is later loaded by ourselves when getCapabilities
 		// is called later on in the installation process.
 		if i.cfg.Capabilities != nil {
 			discoveryClient, err := i.cfg.RESTClientGetter.ToDiscoveryClient()
@@ -283,7 +283,7 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 	// the user doesn't have to specify both
 	i.Wait = i.Wait || i.Atomic
 
-	caps, err := i.cfg.GetCapabilities()
+	caps, err := i.cfg.getCapabilities()
 	if err != nil {
 		return nil, err
 	}
@@ -331,11 +331,7 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 	}
 
 	// It is safe to use "force" here because these are resources currently rendered by the chart.
-	appLabels, err := getAppLabels(rel, i.cfg)
-	if err != nil {
-		return nil, err
-	}
-	err = resources.Visit(setMetadataVisitor(rel.Name, rel.Namespace, appLabels, true))
+	err = resources.Visit(setMetadataVisitor(rel.Name, rel.Namespace, true))
 	if err != nil {
 		return nil, err
 	}
@@ -347,7 +343,7 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 	// deleting the release because the manifest will be pointing at that
 	// resource
 	if !i.ClientOnly && !isUpgrade && len(resources) > 0 {
-		toBeAdopted, err = existingResourceConflict(resources, rel.Name, rel.Namespace, isEditorChart(rel.Chart))
+		toBeAdopted, err = existingResourceConflict(resources, rel.Name, rel.Namespace)
 		if err != nil {
 			return nil, errors.Wrap(err, "Unable to continue with install")
 		}
@@ -376,7 +372,7 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 		if err != nil {
 			return nil, err
 		}
-		resourceList, err := i.cfg.KubeClient.Build(bytes.NewBuffer(buf), !i.DisableOpenAPIValidation)
+		resourceList, err := i.cfg.KubeClient.Build(bytes.NewBuffer(buf), true)
 		if err != nil {
 			return nil, err
 		}
