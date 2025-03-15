@@ -23,12 +23,6 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
-// GenericBindingSpec defines the desired state of GenericBinding
-type GenericBindingSpec struct {
-	// SourceRef refers to the source app instance.
-	SourceRef kmapi.ObjectReference `json:"sourceRef"`
-}
-
 // +kubebuilder:object:root=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
@@ -37,8 +31,8 @@ type GenericBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   GenericBindingSpec `json:"spec,omitempty"`
-	Status BindingStatus      `json:"status,omitempty"`
+	Spec   BindingSpec   `json:"spec,omitempty"`
+	Status BindingStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true

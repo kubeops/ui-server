@@ -277,7 +277,7 @@ func ListRancherProjects(kc client.Client) ([]rscoreapi.Project, error) {
 				Name:      prom.Name,
 			}
 
-			alertmanager, err := FindSiblingAlertManagerForPrometheus(kc, client.ObjectKeyFromObject(prom))
+			alertmanager, err := FindSiblingAlertManagerForPrometheus(kc, client.ObjectKeyFromObject(&prom))
 			if err != nil {
 				return nil, err
 			}

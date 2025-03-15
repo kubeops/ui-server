@@ -47,7 +47,7 @@
 //   - ListOptions.BeforeList: (V1) *s3.ListObjectsV2Input or *s3.ListObjectsInput
 //     when Options.UseLegacyList == true; (V2) *s3v2.ListObjectsV2Input or *[]func(*s3v2.Options), or *s3v2.ListObjectsInput
 //     when Options.UseLegacyList == true
-//   - Reader: (V1) s3.GetObjectOutput; (V2) s3v2.GetObjectInput
+//   - Reader: (V1) s3.GetObjectOutput; (V2) s3v2.GetObjectOutput
 //   - ReaderOptions.BeforeRead: (V1) *s3.GetObjectInput; (V2) *s3v2.GetObjectInput or *[]func(*s3v2.Options)
 //   - Attributes: (V1) s3.HeadObjectOutput; (V2)s3v2.HeadObjectOutput
 //   - CopyOptions.BeforeCopy: *(V1) s3.CopyObjectInput; (V2) s3v2.CopyObjectInput
@@ -130,6 +130,11 @@ const Scheme = "s3"
 // Use "awssdk=v1" to force using AWS SDK v1, "awssdk=v2" to force using AWS SDK v2,
 // or anything else to accept the default.
 //
+// The following S3-specific query options are also supported:
+//   - ssetype: The type of server side encryption used (AES256, aws:kms, aws:kms:dsse)
+//   - kmskeyid: The KMS key ID for server side encryption
+//   - accelerate: A value of "true" uses the S3 Transfer Accleration endpoints
+//
 // For V1, see gocloud.dev/aws/ConfigFromURLParams for supported query parameters
 // for overriding the aws.Session from the URL.
 // For V2, see gocloud.dev/aws/V2ConfigFromURLParams.
@@ -145,17 +150,20 @@ type URLOpener struct {
 }
 
 const (
-	sseTypeParamKey  = "ssetype"
-	kmsKeyIdParamKey = "kmskeyid"
+	sseTypeParamKey      = "ssetype"
+	kmsKeyIdParamKey     = "kmskeyid"
+	accelerateParamKey   = "accelerate"
+	usePathStyleParamkey = "use_path_style"
+	disableHTTPSParamKey = "disable_https"
 )
 
 func toServerSideEncryptionType(value string) (typesv2.ServerSideEncryption, error) {
 	for _, sseType := range typesv2.ServerSideEncryptionAes256.Values() {
-		if strings.ToLower(string(sseType)) == strings.ToLower(value) {
+		if strings.EqualFold(string(sseType), value) {
 			return sseType, nil
 		}
 	}
-	return "", fmt.Errorf("'%s' is not a valid value for '%s'", value, sseTypeParamKey)
+	return "", fmt.Errorf("%q is not a valid value for %q", value, sseTypeParamKey)
 }
 
 // OpenBucketURL opens a blob.Bucket based on u.
@@ -178,12 +186,48 @@ func (o *URLOpener) OpenBucketURL(ctx context.Context, u *url.URL) (*blob.Bucket
 		o.Options.KMSEncryptionID = kmsKeyID
 	}
 
+	accelerate := false
+	if accelerateParam := q.Get(accelerateParamKey); accelerateParam != "" {
+		q.Del(accelerateParamKey)
+		var err error
+		accelerate, err = strconv.ParseBool(accelerateParam)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for %q: %v", accelerateParamKey, err)
+		}
+	}
+
 	if o.UseV2 {
+		opts := []func(*s3v2.Options){
+			func(o *s3v2.Options) {
+				o.UseAccelerate = accelerate
+			},
+		}
+		if disableHTTPSParam := q.Get(disableHTTPSParamKey); disableHTTPSParam != "" {
+			q.Del(disableHTTPSParamKey)
+			value, err := strconv.ParseBool(disableHTTPSParam)
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for %q: %v", disableHTTPSParamKey, err)
+			}
+			opts = append(opts, func(o *s3v2.Options) {
+				o.EndpointOptions.DisableHTTPS = value
+			})
+		}
+		if usePathStyleParam := q.Get(usePathStyleParamkey); usePathStyleParam != "" {
+			q.Del(usePathStyleParamkey)
+			value, err := strconv.ParseBool(usePathStyleParam)
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for %q: %v", usePathStyleParamkey, err)
+			}
+			opts = append(opts, func(o *s3v2.Options) {
+				o.UsePathStyle = value
+			})
+		}
+
 		cfg, err := gcaws.V2ConfigFromURLParams(ctx, q)
 		if err != nil {
 			return nil, fmt.Errorf("open bucket %v: %v", u, err)
 		}
-		clientV2 := s3v2.NewFromConfig(cfg)
+		clientV2 := s3v2.NewFromConfig(cfg, opts...)
 
 		return OpenBucketV2(ctx, clientV2, u.Host, &o.Options)
 	}
@@ -194,6 +238,8 @@ func (o *URLOpener) OpenBucketURL(ctx context.Context, u *url.URL) (*blob.Bucket
 	if err != nil {
 		return nil, fmt.Errorf("open bucket %v: %v", u, err)
 	}
+
+	overrideCfg.S3UseAccelerate = &accelerate
 	configProvider.Configs = append(configProvider.Configs, overrideCfg)
 
 	return OpenBucket(ctx, configProvider, u.Host, &o.Options)
@@ -251,6 +297,8 @@ func openBucket(ctx context.Context, useV2 bool, sess client.ConfigProvider, cli
 // AWS buckets are bound to a region; sess must have been created using an
 // aws.Config with Region set to the right region for bucketName.
 // See the package documentation for an example.
+//
+// Deprecated: AWS no longer supports their V1 API. Please migrate to OpenBucketV2.
 func OpenBucket(ctx context.Context, sess client.ConfigProvider, bucketName string, opts *Options) (*blob.Bucket, error) {
 	drv, err := openBucket(ctx, false, sess, nil, bucketName, opts)
 	if err != nil {
@@ -378,7 +426,6 @@ func (w *writer) open(r io.Reader, closePipeOnError bool) {
 		if err != nil {
 			if closePipeOnError {
 				w.pr.CloseWithError(err)
-				w.pr = nil
 			}
 			w.err = err
 		}
@@ -980,7 +1027,7 @@ func unescapeKey(key string) string {
 }
 
 // NewTypedWriter implements driver.NewTypedWriter.
-func (b *bucket) NewTypedWriter(ctx context.Context, key string, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
+func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
 	key = escapeKey(key)
 	if b.useV2 {
 		uploaderV2 := s3managerv2.NewUploader(b.clientV2, func(u *s3managerv2.Uploader) {
@@ -1138,10 +1185,11 @@ func (b *bucket) NewTypedWriter(ctx context.Context, key string, contentType str
 func (b *bucket) Copy(ctx context.Context, dstKey, srcKey string, opts *driver.CopyOptions) error {
 	dstKey = escapeKey(dstKey)
 	srcKey = escapeKey(srcKey)
+	srcKeyWithBucketEscaped := url.QueryEscape(b.name + "/" + srcKey)
 	if b.useV2 {
 		input := &s3v2.CopyObjectInput{
 			Bucket:     aws.String(b.name),
-			CopySource: aws.String(b.name + "/" + srcKey),
+			CopySource: aws.String(srcKeyWithBucketEscaped),
 			Key:        aws.String(dstKey),
 		}
 		if b.encryptionType != "" {
@@ -1168,7 +1216,7 @@ func (b *bucket) Copy(ctx context.Context, dstKey, srcKey string, opts *driver.C
 	} else {
 		input := &s3.CopyObjectInput{
 			Bucket:     aws.String(b.name),
-			CopySource: aws.String(b.name + "/" + srcKey),
+			CopySource: aws.String(srcKeyWithBucketEscaped),
 			Key:        aws.String(dstKey),
 		}
 		if b.encryptionType != "" {

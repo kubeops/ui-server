@@ -124,6 +124,7 @@ func ConditionsOrder() []kmapi.ConditionType {
 		BindingConditionTypeSecretAccessRequestReady,
 		BindingConditionTypeGatewayReady,
 		BindingConditionTypeRouteReady,
+		BindingConditionTypeUIReady,
 	}
 }
 
@@ -158,9 +159,7 @@ func GetPhase(obj BindingInterface) BindingPhase {
 		cond.Reason == BindingConditionReasonVaultNotCreated ||
 		cond.Reason == BindingConditionReasonVaultProvisioning ||
 		cond.Reason == BindingConditionReasonServiceAccountNotCreated ||
-		cond.Reason == BindingCoonditionReasonRouteStatusUnavailable ||
-		cond.Reason == BindingConditionReasonUIRouteNotReady ||
-		cond.Reason == BindingConditionReasonUIGatewayNotReady {
+		cond.Reason == BindingCoonditionReasonRouteStatusUnavailable {
 		return BindingPhasePending
 	}
 
@@ -181,6 +180,8 @@ func GetPhase(obj BindingInterface) BindingPhase {
 		cond.Reason == BindingConditionReasonGatewayNotAccepted ||
 		cond.Reason == BindingConditionReasonGatewayNotProgrammed ||
 		cond.Reason == BindingConditionReasonRouteNotAccepted ||
+		cond.Reason == BindingConditionReasonUIRouteNotReady ||
+		cond.Reason == BindingConditionReasonUIGatewayNotReady ||
 		cond.Reason == BindingConditionReasonBackendUnresolvedReference {
 		return BindingPhaseFailed
 	}

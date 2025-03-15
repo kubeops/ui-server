@@ -17,25 +17,11 @@ limitations under the License.
 package v1
 
 import (
-	"sync"
-
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	ofstv1 "kmodules.xyz/offshoot-api/api/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
-
-var (
-	once          sync.Once
-	DefaultClient client.Client
-)
-
-func SetDefaultClient(kc client.Client) {
-	once.Do(func() {
-		DefaultClient = kc
-	})
-}
 
 type InitSpec struct {
 	// Initialized indicates that this database has been initialized.
@@ -204,6 +190,14 @@ type SystemUserSecretsSpec struct {
 }
 
 type SecretReference struct {
+	// +optional
+	// Two possible groups: "", virtual-secrets.dev
+	ApiGroup string `json:"apiGroup,omitempty"`
+
+	// +optional
+	// SecretSource references the secret manager used for virtual secret
+	SecretSourceName string `json:"secretSourceName,omitempty"`
+
 	core.LocalObjectReference `json:",inline,omitempty"`
 	// Recommendation engine will generate RotateAuth opsReq using this field
 	// +optional
@@ -237,4 +231,24 @@ type ArchiverRecovery struct {
 	// FullDBRepository means db restore + manifest restore
 	FullDBRepository    *kmapi.ObjectReference   `json:"fullDBRepository,omitempty"`
 	ReplicationStrategy *PITRReplicationStrategy `json:"replicationStrategy,omitempty"`
+
+	// ManifestOptions provide options to select particular manifest object to restore
+	// +optional
+	ManifestOptions *ManifestOptions `json:"manifestOptions,omitempty"`
+}
+
+type ManifestOptions struct {
+	// Archiver specifies whether to restore the Archiver manifest or not
+	// +kubebuilder:default=false
+	// +optional
+	Archiver *bool `json:"archiver,omitempty"`
+
+	// ArchiverRef specifies the new name and namespace of the Archiver yaml after restore
+	// +optional
+	ArchiverRef *kmapi.ObjectReference `json:"archiverRef,omitempty"`
+
+	// InitScript specifies whether to restore the InitScript or not
+	// +kubebuilder:default=false
+	// +optional
+	InitScript *bool `json:"initScript,omitempty"`
 }

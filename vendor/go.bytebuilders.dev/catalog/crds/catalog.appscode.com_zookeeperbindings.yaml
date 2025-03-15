@@ -57,7 +57,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ZooKeeperBindingSpec defines the desired state of ZooKeeperBinding
+            description: BindingSpec defines the desired state of Binding
             properties:
               sourceRef:
                 description: SourceRef refers to the source app instance.

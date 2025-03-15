@@ -27,12 +27,6 @@ const (
 	ResourcePgpoolBindings    = "pgpoolbindings"
 )
 
-// PgpoolBindingSpec defines the desired state of PgpoolBinding
-type PgpoolBindingSpec struct {
-	// SourceRef refers to the source app instance.
-	SourceRef kmapi.ObjectReference `json:"sourceRef"`
-}
-
 // +kubebuilder:object:root=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:subresource:status
@@ -47,8 +41,8 @@ type PgpoolBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   PgpoolBindingSpec `json:"spec,omitempty"`
-	Status BindingStatus     `json:"status,omitempty"`
+	Spec   BindingSpec   `json:"spec,omitempty"`
+	Status BindingStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -62,4 +56,22 @@ type PgpoolBindingList struct {
 
 func init() {
 	SchemeBuilder.Register(&PgpoolBinding{}, &PgpoolBindingList{})
+}
+
+var _ BindingInterface = &PgpoolBinding{}
+
+func (in *PgpoolBinding) GetSourceRef() kmapi.ObjectReference {
+	return in.Spec.SourceRef
+}
+
+func (in *PgpoolBinding) GetStatus() *BindingStatus {
+	return &in.Status
+}
+
+func (in *PgpoolBinding) GetConditions() kmapi.Conditions {
+	return in.Status.Conditions
+}
+
+func (in *PgpoolBinding) SetConditions(conditions kmapi.Conditions) {
+	in.Status.Conditions = conditions
 }

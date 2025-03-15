@@ -29,5 +29,23 @@ import (
 // Public to allow building arbitrary schemes.
 // All generated defaulters are covering - they call all nested defaulters.
 func RegisterDefaults(scheme *runtime.Scheme) error {
+	scheme.AddTypeDefaultingFunc(&ImageScanRequest{}, func(obj interface{}) { SetObjectDefaults_ImageScanRequest(obj.(*ImageScanRequest)) })
+	scheme.AddTypeDefaultingFunc(&ImageScanRequestList{}, func(obj interface{}) { SetObjectDefaults_ImageScanRequestList(obj.(*ImageScanRequestList)) })
 	return nil
+}
+
+func SetObjectDefaults_ImageScanRequest(in *ImageScanRequest) {
+	for i := range in.Spec.PullSecrets {
+		a := &in.Spec.PullSecrets[i]
+		if a.Name == "" {
+			a.Name = ""
+		}
+	}
+}
+
+func SetObjectDefaults_ImageScanRequestList(in *ImageScanRequestList) {
+	for i := range in.Items {
+		a := &in.Items[i]
+		SetObjectDefaults_ImageScanRequest(a)
+	}
 }

@@ -27,12 +27,6 @@ const (
 	ResourceSolrBindings    = "solrbindings"
 )
 
-// SolrBindingSpec defines the desired state of SolrBinding
-type SolrBindingSpec struct {
-	// SourceRef refers to the source app instance.
-	SourceRef kmapi.ObjectReference `json:"sourceRef"`
-}
-
 // +kubebuilder:object:root=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:subresource:status
@@ -47,8 +41,8 @@ type SolrBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   SolrBindingSpec `json:"spec,omitempty"`
-	Status BindingStatus   `json:"status,omitempty"`
+	Spec   BindingSpec   `json:"spec,omitempty"`
+	Status BindingStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -62,4 +56,22 @@ type SolrBindingList struct {
 
 func init() {
 	SchemeBuilder.Register(&SolrBinding{}, &SolrBindingList{})
+}
+
+var _ BindingInterface = &SolrBinding{}
+
+func (in *SolrBinding) GetSourceRef() kmapi.ObjectReference {
+	return in.Spec.SourceRef
+}
+
+func (in *SolrBinding) GetStatus() *BindingStatus {
+	return &in.Status
+}
+
+func (in *SolrBinding) GetConditions() kmapi.Conditions {
+	return in.Status.Conditions
+}
+
+func (in *SolrBinding) SetConditions(conditions kmapi.Conditions) {
+	in.Status.Conditions = conditions
 }

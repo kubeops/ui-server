@@ -55,7 +55,7 @@ import (
 	"helm.sh/helm/v3/pkg/storage/driver"
 )
 
-// NOTESFILE_SUFFIX that we want to treat special. It goes through the templating engine
+// notesFileSuffix that we want to treat special. It goes through the templating engine
 // but it's not a yaml file (resource) hence can't have hooks, etc. And the user actually
 // wants to see this file after rendering in the status command. However, it must be a suffix
 // since there can be filepath in front of it.
@@ -93,6 +93,8 @@ type Install struct {
 	Atomic                   bool
 	SkipCRDs                 bool
 	SubNotes                 bool
+	HideNotes                bool
+	SkipSchemaValidation     bool
 	DisableOpenAPIValidation bool
 	IncludeCRDs              bool
 	Labels                   map[string]string
@@ -108,7 +110,9 @@ type Install struct {
 	// Used by helm template to add the release as part of OutputDir path
 	// OutputDir/<ReleaseName>
 	UseReleaseName bool
-	PostRenderer   postrender.PostRenderer
+	// TakeOwnership will ignore the check for helm annotations and take ownership of the resources.
+	TakeOwnership bool
+	PostRenderer  postrender.PostRenderer
 	// Lock to control raceconditions when the process receives a SIGTERM
 	Lock sync.Mutex
 }
@@ -184,7 +188,7 @@ func (i *Install) installCRDs(crds []chart.CRD) error {
 		// If we have already gathered the capabilities, we need to invalidate
 		// the cache so that the new CRDs are recognized. This should only be
 		// the case when an action configuration is reused for multiple actions,
-		// as otherwise it is later loaded by ourselves when getCapabilities
+		// as otherwise it is later loaded by ourselves when GetCapabilities
 		// is called later on in the installation process.
 		if i.cfg.Capabilities != nil {
 			discoveryClient, err := i.cfg.RESTClientGetter.ToDiscoveryClient()
@@ -283,7 +287,7 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 	// the user doesn't have to specify both
 	i.Wait = i.Wait || i.Atomic
 
-	caps, err := i.cfg.getCapabilities()
+	caps, err := i.cfg.GetCapabilities()
 	if err != nil {
 		return nil, err
 	}
@@ -297,13 +301,13 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 		IsInstall: !isUpgrade,
 		IsUpgrade: isUpgrade,
 	}
-	valuesToRender, err := chartutil.ToRenderValues(chrt, vals, options, caps)
+	valuesToRender, err := chartutil.ToRenderValuesWithSchemaValidation(chrt, vals, options, caps, i.SkipSchemaValidation)
 	if err != nil {
 		return nil, err
 	}
 
 	if driver.ContainsSystemLabels(i.Labels) {
-		return nil, fmt.Errorf("user suplied labels contains system reserved label name. System labels: %+v", driver.GetSystemLabels())
+		return nil, fmt.Errorf("user supplied labels contains system reserved label name. System labels: %+v", driver.GetSystemLabels())
 	}
 
 	rel := i.createRelease(chrt, vals, i.Labels)
@@ -331,7 +335,11 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 	}
 
 	// It is safe to use "force" here because these are resources currently rendered by the chart.
-	err = resources.Visit(setMetadataVisitor(rel.Name, rel.Namespace, true))
+	appLabels, err := getAppLabels(rel, i.cfg)
+	if err != nil {
+		return nil, err
+	}
+	err = resources.Visit(setMetadataVisitor(rel.Name, rel.Namespace, appLabels, true))
 	if err != nil {
 		return nil, err
 	}
@@ -343,7 +351,11 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 	// deleting the release because the manifest will be pointing at that
 	// resource
 	if !i.ClientOnly && !isUpgrade && len(resources) > 0 {
-		toBeAdopted, err = existingResourceConflict(resources, rel.Name, rel.Namespace)
+		if i.TakeOwnership {
+			toBeAdopted, err = requireAdoption(resources)
+		} else {
+			toBeAdopted, err = existingResourceConflict(resources, rel.Name, rel.Namespace, isEditorChart(rel.Chart))
+		}
 		if err != nil {
 			return nil, errors.Wrap(err, "Unable to continue with install")
 		}
@@ -372,7 +384,7 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 		if err != nil {
 			return nil, err
 		}
-		resourceList, err := i.cfg.KubeClient.Build(bytes.NewBuffer(buf), true)
+		resourceList, err := i.cfg.KubeClient.Build(bytes.NewBuffer(buf), !i.DisableOpenAPIValidation)
 		if err != nil {
 			return nil, err
 		}
@@ -381,7 +393,7 @@ func (i *Install) RunWithContext(ctx context.Context, chrt *chart.Chart, vals ma
 		}
 	}
 
-	// If Replace is true, we need to supercede the last release.
+	// If Replace is true, we need to supersede the last release.
 	if i.Replace {
 		if err := i.replaceRelease(rel); err != nil {
 			return nil, err
@@ -623,7 +635,7 @@ func createOrOpenFile(filename string, append bool) (*os.File, error) {
 	return os.Create(filename)
 }
 
-// check if the directory exists to create file. creates if don't exists
+// check if the directory exists to create file. creates if doesn't exist
 func ensureDirectoryForFile(file string) error {
 	baseDir := path.Dir(file)
 	_, err := os.Stat(baseDir)
@@ -762,6 +774,7 @@ func (c *ChartPathOptions) LocateChart(name string, settings *cli.EnvSettings) (
 			getter.WithTLSClientConfig(c.CertFile, c.KeyFile, c.CaFile),
 			getter.WithInsecureSkipVerifyTLS(c.InsecureSkipTLSverify),
 			getter.WithPlainHTTP(c.PlainHTTP),
+			getter.WithBasicAuth(c.Username, c.Password),
 		},
 		RepositoryConfig: settings.RepositoryConfig,
 		RepositoryCache:  settings.RepositoryCache,

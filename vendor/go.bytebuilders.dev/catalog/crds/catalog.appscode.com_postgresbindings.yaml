@@ -57,7 +57,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: PostgresBindingSpec defines the desired state of PostgresBinding
+            description: BindingSpec defines the desired state of Binding
             properties:
               sourceRef:
                 description: SourceRef refers to the source app instance.

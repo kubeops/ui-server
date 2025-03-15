@@ -27,12 +27,6 @@ const (
 	ResourceRabbitMQBindings    = "rabbitmqbindings"
 )
 
-// RabbitMQBindingSpec defines the desired state of RabbitMQBinding
-type RabbitMQBindingSpec struct {
-	// SourceRef refers to the source app instance.
-	SourceRef kmapi.ObjectReference `json:"sourceRef"`
-}
-
 // +kubebuilder:object:root=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:subresource:status
@@ -47,8 +41,8 @@ type RabbitMQBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   RabbitMQBindingSpec `json:"spec,omitempty"`
-	Status BindingStatus       `json:"status,omitempty"`
+	Spec   BindingSpec   `json:"spec,omitempty"`
+	Status BindingStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -62,4 +56,22 @@ type RabbitMQBindingList struct {
 
 func init() {
 	SchemeBuilder.Register(&RabbitMQBinding{}, &RabbitMQBindingList{})
+}
+
+var _ BindingInterface = &RabbitMQBinding{}
+
+func (in *RabbitMQBinding) GetSourceRef() kmapi.ObjectReference {
+	return in.Spec.SourceRef
+}
+
+func (in *RabbitMQBinding) GetStatus() *BindingStatus {
+	return &in.Status
+}
+
+func (in *RabbitMQBinding) GetConditions() kmapi.Conditions {
+	return in.Status.Conditions
+}
+
+func (in *RabbitMQBinding) SetConditions(conditions kmapi.Conditions) {
+	in.Status.Conditions = conditions
 }

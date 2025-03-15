@@ -117,10 +117,6 @@ type Client struct {
 
 	// tc is the transport-agnostic client implemented with either gRPC or HTTP.
 	tc storageClient
-	// useGRPC flags whether the client uses gRPC. This is needed while the
-	// integration piece is only partially complete.
-	// TODO: remove before merging to main.
-	useGRPC bool
 }
 
 // NewClient creates a new Google Cloud Storage client using the HTTP transport.
@@ -218,13 +214,10 @@ func NewClient(ctx context.Context, opts ...option.ClientOption) (*Client, error
 
 // NewGRPCClient creates a new Storage client using the gRPC transport and API.
 // Client methods which have not been implemented in gRPC will return an error.
-// In particular, methods for Cloud Pub/Sub notifications are not supported.
+// In particular, methods for Cloud Pub/Sub notifications, Service Account HMAC
+// keys, and ServiceAccount are not supported.
 // Using a non-default universe domain is also not supported with the Storage
 // gRPC client.
-//
-// The storage gRPC API is still in preview and not yet publicly available.
-// If you would like to use the API, please first contact your GCP account rep to
-// request access. The API may be subject to breaking changes.
 //
 // Clients should be reused instead of created as needed. The methods of Client
 // are safe for concurrent use by multiple goroutines.
@@ -237,7 +230,7 @@ func NewGRPCClient(ctx context.Context, opts ...option.ClientOption) (*Client, e
 		return nil, err
 	}
 
-	return &Client{tc: tc, useGRPC: true}, nil
+	return &Client{tc: tc}, nil
 }
 
 // Close closes the Client.
@@ -975,7 +968,8 @@ func (o *ObjectHandle) Update(ctx context.Context, uattrs ObjectAttrsToUpdate) (
 			gen:               o.gen,
 			encryptionKey:     o.encryptionKey,
 			conds:             o.conds,
-			overrideRetention: o.overrideRetention}, opts...)
+			overrideRetention: o.overrideRetention,
+		}, opts...)
 }
 
 // BucketName returns the name of the bucket.
@@ -1698,7 +1692,6 @@ type Query struct {
 
 	// IncludeFoldersAsPrefixes includes Folders and Managed Folders in the set of
 	// prefixes returned by the query. Only applicable if Delimiter is set to /.
-	// IncludeFoldersAsPrefixes is not yet implemented in the gRPC API.
 	IncludeFoldersAsPrefixes bool
 
 	// SoftDeleted indicates whether to list soft-deleted objects.
@@ -2353,10 +2346,10 @@ func toProtoChecksums(sendCRC32C bool, attrs *ObjectAttrs) *storagepb.ObjectChec
 }
 
 // ServiceAccount fetches the email address of the given project's Google Cloud Storage service account.
+// Note: gRPC is not supported.
 func (c *Client) ServiceAccount(ctx context.Context, projectID string) (string, error) {
 	o := makeStorageOpts(true, c.retry, "")
 	return c.tc.GetServiceAccount(ctx, projectID, o...)
-
 }
 
 // bucketResourceName formats the given project ID and bucketResourceName ID

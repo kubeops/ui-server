@@ -27,12 +27,6 @@ const (
 	ResourceFerretDBBindings    = "ferretdbbindings"
 )
 
-// FerretDBBindingSpec defines the desired state of FerretDBBinding
-type FerretDBBindingSpec struct {
-	// SourceRef refers to the source app instance.
-	SourceRef kmapi.ObjectReference `json:"sourceRef"`
-}
-
 // +kubebuilder:object:root=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:subresource:status
@@ -47,8 +41,8 @@ type FerretDBBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   FerretDBBindingSpec `json:"spec,omitempty"`
-	Status BindingStatus       `json:"status,omitempty"`
+	Spec   BindingSpec   `json:"spec,omitempty"`
+	Status BindingStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -62,4 +56,22 @@ type FerretDBBindingList struct {
 
 func init() {
 	SchemeBuilder.Register(&FerretDBBinding{}, &FerretDBBindingList{})
+}
+
+var _ BindingInterface = &FerretDBBinding{}
+
+func (in *FerretDBBinding) GetSourceRef() kmapi.ObjectReference {
+	return in.Spec.SourceRef
+}
+
+func (in *FerretDBBinding) GetStatus() *BindingStatus {
+	return &in.Status
+}
+
+func (in *FerretDBBinding) GetConditions() kmapi.Conditions {
+	return in.Status.Conditions
+}
+
+func (in *FerretDBBinding) SetConditions(conditions kmapi.Conditions) {
+	in.Status.Conditions = conditions
 }

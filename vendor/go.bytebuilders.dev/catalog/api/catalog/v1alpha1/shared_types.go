@@ -69,6 +69,12 @@ const (
 	BindingConditionReasonUIRouteNotReady             = "UIRouteNotReady"
 )
 
+// BindingSpec defines the desired state of Binding
+type BindingSpec struct {
+	// SourceRef refers to the source app instance.
+	SourceRef kmapi.ObjectReference `json:"sourceRef"`
+}
+
 // +kubebuilder:validation:Enum=Pending;InProgress;Terminating;Current;Failed;Expired
 type BindingPhase string
 
