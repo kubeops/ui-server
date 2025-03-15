@@ -106,5 +106,6 @@ func (r *Reconciler) SetupWithManager(mgr manager.Manager) error {
 	obj.SetGroupVersionKind(r.R.GroupVersionKind())
 	return builder.ControllerManagedBy(mgr).
 		For(&obj).
+		Named("ui-server-" + obj.GroupVersionKind().String()).
 		Complete(r)
 }
