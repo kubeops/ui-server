@@ -2613,7 +2613,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.26.0
+# kmodules.xyz/resource-metadata v0.26.0 => ../../kmodules.xyz/resource-metadata
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2941,3 +2941,4 @@ x-helm.dev/apimachinery/crds
 # github.com/google/cel-go => github.com/google/cel-go v0.17.8
 # go.etcd.io/etcd/client/v3 => go.etcd.io/etcd/client/v3 v3.5.10
 # helm.sh/helm/v3 => github.com/x-helm/helm/v3 v3.15.1-0.20240519042544-f489f30bb34d
+# kmodules.xyz/resource-metadata => ../../kmodules.xyz/resource-metadata

@@ -364,3 +364,5 @@ replace github.com/google/cel-go => github.com/google/cel-go v0.17.8
 replace go.etcd.io/etcd/client/v3 => go.etcd.io/etcd/client/v3 v3.5.10
 
 replace helm.sh/helm/v3 => github.com/x-helm/helm/v3 v3.15.1-0.20240519042544-f489f30bb34d
+
+replace kmodules.xyz/resource-metadata => ../../kmodules.xyz/resource-metadata
