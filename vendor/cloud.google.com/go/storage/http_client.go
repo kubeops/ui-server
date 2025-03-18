@@ -22,6 +22,7 @@ import (
 	"hash/crc32"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -47,13 +48,14 @@ import (
 // httpStorageClient is the HTTP-JSON API implementation of the transport-agnostic
 // storageClient interface.
 type httpStorageClient struct {
-	creds    *google.Credentials
-	hc       *http.Client
-	xmlHost  string
-	raw      *raw.Service
-	scheme   string
-	settings *settings
-	config   *storageConfig
+	creds                      *google.Credentials
+	hc                         *http.Client
+	xmlHost                    string
+	raw                        *raw.Service
+	scheme                     string
+	settings                   *settings
+	config                     *storageConfig
+	dynamicReadReqStallTimeout *bucketDelayManager
 }
 
 // newHTTPStorageClient initializes a new storageClient that uses the HTTP-JSON
@@ -128,14 +130,29 @@ func newHTTPStorageClient(ctx context.Context, opts ...storageOption) (storageCl
 		return nil, fmt.Errorf("supplied endpoint %q is not valid: %w", ep, err)
 	}
 
+	var bd *bucketDelayManager
+	if config.readStallTimeoutConfig != nil {
+		drrstConfig := config.readStallTimeoutConfig
+		bd, err = newBucketDelayManager(
+			drrstConfig.TargetPercentile,
+			getDynamicReadReqIncreaseRateFromEnv(),
+			getDynamicReadReqInitialTimeoutSecFromEnv(drrstConfig.Min),
+			drrstConfig.Min,
+			defaultDynamicReqdReqMaxTimeout)
+		if err != nil {
+			return nil, fmt.Errorf("creating dynamic-delay: %w", err)
+		}
+	}
+
 	return &httpStorageClient{
-		creds:    creds,
-		hc:       hc,
-		xmlHost:  u.Host,
-		raw:      rawService,
-		scheme:   u.Scheme,
-		settings: s,
-		config:   &config,
+		creds:                      creds,
+		hc:                         hc,
+		xmlHost:                    u.Host,
+		raw:                        rawService,
+		scheme:                     u.Scheme,
+		settings:                   s,
+		config:                     &config,
+		dynamicReadReqStallTimeout: bd,
 	}, nil
 }
 
@@ -176,7 +193,6 @@ func (c *httpStorageClient) CreateBucket(ctx context.Context, project, bucket st
 		bkt.Location = "US"
 	}
 	req := c.raw.Buckets.Insert(project, bkt)
-	setClientHeader(req.Header())
 	if attrs != nil && attrs.PredefinedACL != "" {
 		req.PredefinedAcl(attrs.PredefinedACL)
 	}
@@ -207,7 +223,6 @@ func (c *httpStorageClient) ListBuckets(ctx context.Context, project string, opt
 
 	fetch := func(pageSize int, pageToken string) (token string, err error) {
 		req := c.raw.Buckets.List(it.projectID)
-		setClientHeader(req.Header())
 		req.Projection("full")
 		req.Prefix(it.Prefix)
 		req.PageToken(pageToken)
@@ -245,7 +260,6 @@ func (c *httpStorageClient) ListBuckets(ctx context.Context, project string, opt
 func (c *httpStorageClient) DeleteBucket(ctx context.Context, bucket string, conds *BucketConditions, opts ...storageOption) error {
 	s := callSettings(c.settings, opts...)
 	req := c.raw.Buckets.Delete(bucket)
-	setClientHeader(req.Header())
 	if err := applyBucketConds("httpStorageClient.DeleteBucket", conds, req); err != nil {
 		return err
 	}
@@ -259,7 +273,6 @@ func (c *httpStorageClient) DeleteBucket(ctx context.Context, bucket string, con
 func (c *httpStorageClient) GetBucket(ctx context.Context, bucket string, conds *BucketConditions, opts ...storageOption) (*BucketAttrs, error) {
 	s := callSettings(c.settings, opts...)
 	req := c.raw.Buckets.Get(bucket).Projection("full")
-	setClientHeader(req.Header())
 	err := applyBucketConds("httpStorageClient.GetBucket", conds, req)
 	if err != nil {
 		return nil, err
@@ -287,7 +300,6 @@ func (c *httpStorageClient) UpdateBucket(ctx context.Context, bucket string, uat
 	s := callSettings(c.settings, opts...)
 	rb := uattrs.toRawBucket()
 	req := c.raw.Buckets.Patch(bucket, rb).Projection("full")
-	setClientHeader(req.Header())
 	err := applyBucketConds("httpStorageClient.UpdateBucket", conds, req)
 	if err != nil {
 		return nil, err
@@ -340,7 +352,6 @@ func (c *httpStorageClient) ListObjects(ctx context.Context, bucket string, q *Q
 		if it.query.SoftDeleted {
 			req.SoftDeleted(it.query.SoftDeleted)
 		}
-		setClientHeader(req.Header())
 		projection := it.query.Projection
 		if projection == ProjectionDefault {
 			projection = ProjectionFull
@@ -666,7 +677,7 @@ func (c *httpStorageClient) UpdateBucketACL(ctx context.Context, bucket string, 
 	}, s.retry, s.idempotent)
 }
 
-// configureACLCall sets the context, user project and headers on the apiary library call.
+// configureACLCall sets the context and user project on the apiary library call.
 // This will panic if the call does not have the correct methods.
 func configureACLCall(ctx context.Context, userProject string, call interface{ Header() http.Header }) {
 	vc := reflect.ValueOf(call)
@@ -674,7 +685,6 @@ func configureACLCall(ctx context.Context, userProject string, call interface{ H
 	if userProject != "" {
 		vc.MethodByName("UserProject").Call([]reflect.Value{reflect.ValueOf(userProject)})
 	}
-	setClientHeader(call.Header())
 }
 
 // Object ACL methods.
@@ -760,7 +770,6 @@ func (c *httpStorageClient) ComposeObject(ctx context.Context, req *composeObjec
 		return nil, err
 	}
 	var obj *raw.Object
-	setClientHeader(call.Header())
 
 	var err error
 	retryCall := func(ctx context.Context) error { obj, err = call.Context(ctx).Do(); return err }
@@ -809,7 +818,6 @@ func (c *httpStorageClient) RewriteObject(ctx context.Context, req *rewriteObjec
 
 	var res *raw.RewriteResponse
 	var err error
-	setClientHeader(call.Header())
 
 	retryCall := func(ctx context.Context) error { res, err = call.Context(ctx).Do(); return err }
 
@@ -864,17 +872,50 @@ func (c *httpStorageClient) newRangeReaderXML(ctx context.Context, params *newRa
 		return nil, err
 	}
 
-	// Set custom headers passed in via the context. This is only required for XML;
-	// for gRPC & JSON this is handled in the GAPIC and Apiary layers respectively.
-	ctxHeaders := callctx.HeadersFromContext(ctx)
-	for k, vals := range ctxHeaders {
-		for _, v := range vals {
-			req.Header.Add(k, v)
-		}
-	}
-
 	reopen := readerReopen(ctx, req.Header, params, s,
-		func(ctx context.Context) (*http.Response, error) { return c.hc.Do(req.WithContext(ctx)) },
+		func(ctx context.Context) (*http.Response, error) {
+			setHeadersFromCtx(ctx, req.Header)
+
+			if c.dynamicReadReqStallTimeout == nil {
+				return c.hc.Do(req.WithContext(ctx))
+			}
+
+			cancelCtx, cancel := context.WithCancel(ctx)
+			var (
+				res *http.Response
+				err error
+			)
+
+			done := make(chan bool)
+			go func() {
+				reqStartTime := time.Now()
+				res, err = c.hc.Do(req.WithContext(cancelCtx))
+				if err == nil {
+					reqLatency := time.Since(reqStartTime)
+					c.dynamicReadReqStallTimeout.update(params.bucket, reqLatency)
+				} else if errors.Is(err, context.Canceled) {
+					// context.Canceled means operation took more than current dynamicTimeout,
+					// hence should be increased.
+					c.dynamicReadReqStallTimeout.increase(params.bucket)
+				}
+				done <- true
+			}()
+
+			// Wait until timeout or request is successful.
+			timer := time.After(c.dynamicReadReqStallTimeout.getValue(params.bucket))
+			select {
+			case <-timer:
+				log.Printf("stalled read-req cancelled after %fs", c.dynamicReadReqStallTimeout.getValue(params.bucket).Seconds())
+				cancel()
+				err = context.DeadlineExceeded
+				if res != nil && res.Body != nil {
+					res.Body.Close()
+				}
+			case <-done:
+				cancel = nil
+			}
+			return res, err
+		},
 		func() error { return setConditionsHeaders(req.Header, params.conds) },
 		func() { req.URL.RawQuery = fmt.Sprintf("generation=%d", params.gen) })
 
@@ -888,7 +929,6 @@ func (c *httpStorageClient) newRangeReaderXML(ctx context.Context, params *newRa
 func (c *httpStorageClient) newRangeReaderJSON(ctx context.Context, params *newRangeReaderParams, s *settings) (r *Reader, err error) {
 	call := c.raw.Objects.Get(params.bucket, params.object)
 
-	setClientHeader(call.Header())
 	call.Projection("full")
 
 	if s.userProject != "" {
@@ -1004,7 +1044,6 @@ func (c *httpStorageClient) OpenWriter(params *openWriterParams, opts ...storage
 func (c *httpStorageClient) GetIamPolicy(ctx context.Context, resource string, version int32, opts ...storageOption) (*iampb.Policy, error) {
 	s := callSettings(c.settings, opts...)
 	call := c.raw.Buckets.GetIamPolicy(resource).OptionsRequestedPolicyVersion(int64(version))
-	setClientHeader(call.Header())
 	if s.userProject != "" {
 		call.UserProject(s.userProject)
 	}
@@ -1025,7 +1064,6 @@ func (c *httpStorageClient) SetIamPolicy(ctx context.Context, resource string, p
 
 	rp := iamToStoragePolicy(policy)
 	call := c.raw.Buckets.SetIamPolicy(resource, rp)
-	setClientHeader(call.Header())
 	if s.userProject != "" {
 		call.UserProject(s.userProject)
 	}
@@ -1039,7 +1077,6 @@ func (c *httpStorageClient) SetIamPolicy(ctx context.Context, resource string, p
 func (c *httpStorageClient) TestIamPermissions(ctx context.Context, resource string, permissions []string, opts ...storageOption) ([]string, error) {
 	s := callSettings(c.settings, opts...)
 	call := c.raw.Buckets.TestIamPermissions(resource, permissions)
-	setClientHeader(call.Header())
 	if s.userProject != "" {
 		call.UserProject(s.userProject)
 	}
@@ -1088,7 +1125,6 @@ func (c *httpStorageClient) ListHMACKeys(ctx context.Context, project, serviceAc
 	}
 	fetch := func(pageSize int, pageToken string) (token string, err error) {
 		call := c.raw.Projects.HmacKeys.List(project)
-		setClientHeader(call.Header())
 		if pageToken != "" {
 			call = call.PageToken(pageToken)
 		}
@@ -1435,18 +1471,20 @@ func parseReadResponse(res *http.Response, params *newRangeReaderParams, reopen 
 		}
 	} else {
 		size = res.ContentLength
-		// Check the CRC iff all of the following hold:
-		// - We asked for content (length != 0).
-		// - We got all the content (status != PartialContent).
-		// - The server sent a CRC header.
-		// - The Go http stack did not uncompress the file.
-		// - We were not served compressed data that was uncompressed on download.
-		// The problem with the last two cases is that the CRC will not match -- GCS
-		// computes it on the compressed contents, but we compute it on the
-		// uncompressed contents.
-		if params.length != 0 && !res.Uncompressed && !uncompressedByServer(res) {
-			crc, checkCRC = parseCRC32c(res)
-		}
+	}
+
+	// Check the CRC iff all of the following hold:
+	// - We asked for content (length != 0).
+	// - We got all the content (status != PartialContent).
+	// - The server sent a CRC header.
+	// - The Go http stack did not uncompress the file.
+	// - We were not served compressed data that was uncompressed on download.
+	// The problem with the last two cases is that the CRC will not match -- GCS
+	// computes it on the compressed contents, but we compute it on the
+	// uncompressed contents.
+	crc, checkCRC = parseCRC32c(res)
+	if params.length == 0 || res.StatusCode == http.StatusPartialContent || res.Uncompressed || uncompressedByServer(res) {
+		checkCRC = false
 	}
 
 	remain := res.ContentLength
@@ -1483,6 +1521,8 @@ func parseReadResponse(res *http.Response, params *newRangeReaderParams, reopen 
 		StartOffset:     startOffset,
 		Generation:      params.gen,
 		Metageneration:  metaGen,
+		CRC32C:          crc,
+		Decompressed:    res.Uncompressed || uncompressedByServer(res),
 	}
 	return &Reader{
 		Attrs:    attrs,
@@ -1496,4 +1536,31 @@ func parseReadResponse(res *http.Response, params *newRangeReaderParams, reopen 
 			checkCRC: checkCRC,
 		},
 	}, nil
+}
+
+// setHeadersFromCtx sets custom headers passed in via the context on the header,
+// replacing any header with the same key (which avoids duplicating invocation headers).
+// This is only required for XML; for gRPC & JSON requests this is handled in
+// the GAPIC and Apiary layers respectively.
+func setHeadersFromCtx(ctx context.Context, header http.Header) {
+	ctxHeaders := callctx.HeadersFromContext(ctx)
+	for k, vals := range ctxHeaders {
+		// Merge x-goog-api-client values into a single space-separated value.
+		if strings.EqualFold(k, xGoogHeaderKey) {
+			alreadySetValues := header.Values(xGoogHeaderKey)
+			vals = append(vals, alreadySetValues...)
+
+			if len(vals) > 0 {
+				xGoogHeader := vals[0]
+				for _, v := range vals[1:] {
+					xGoogHeader = strings.Join([]string{xGoogHeader, v}, " ")
+				}
+				header.Set(k, xGoogHeader)
+			}
+		} else {
+			for _, v := range vals {
+				header.Set(k, v)
+			}
+		}
+	}
 }

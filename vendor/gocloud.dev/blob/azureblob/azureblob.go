@@ -34,7 +34,7 @@
 //   - AZURE_STORAGE_KEY: To use a shared key credential. The service account
 //     name and key are passed to NewSharedKeyCredential and then the
 //     resulting credential is passed to NewClientWithSharedKeyCredential.
-//   - AZURE_STORAGE_CONNECTION_STRING: To use a connection string, passed to
+//   - AZURE_STORAGE_CONNECTION_STRING or AZURE_STORAGEBLOB_CONNECTIONSTRING: To use a connection string, passed to
 //     NewClientFromConnectionString.
 //   - AZURE_STORAGE_SAS_TOKEN: To use a SAS token. The SAS token is added
 //     as a URL parameter to the service URL, and passed to
@@ -76,7 +76,7 @@
 //
 // azureblob exposes the following types for As:
 //   - Bucket: *container.Client
-//   - Error: *azcore.ReponseError. You can use bloberror.HasCode directly though.
+//   - Error: *azcore.ResponseError. You can use bloberror.HasCode directly though.
 //   - ListObject: container.BlobItem for objects, container.BlobPrefix for "directories"
 //   - ListOptions.BeforeList: *container.ListBlobsHierarchyOptions
 //   - Reader: azblobblob.DownloadStreamResponse
@@ -320,6 +320,9 @@ func newCredInfoFromEnv() *credInfoT {
 	accountKey := os.Getenv("AZURE_STORAGE_KEY")
 	sasToken := os.Getenv("AZURE_STORAGE_SAS_TOKEN")
 	connectionString := os.Getenv("AZURE_STORAGE_CONNECTION_STRING")
+	if connectionString == "" {
+		connectionString = os.Getenv("AZURE_STORAGEBLOB_CONNECTIONSTRING")
+	}
 	credInfo := &credInfoT{
 		AccountName: accountName,
 	}
@@ -521,12 +524,15 @@ type reader struct {
 func (r *reader) Read(p []byte) (int, error) {
 	return r.body.Read(p)
 }
+
 func (r *reader) Close() error {
 	return r.body.Close()
 }
+
 func (r *reader) Attributes() *driver.ReaderAttributes {
 	return &r.attrs
 }
+
 func (r *reader) As(i interface{}) bool {
 	p, ok := i.(*azblobblob.DownloadStreamResponse)
 	if !ok {
@@ -565,7 +571,7 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 	}
 	attrs := driver.ReaderAttributes{
 		ContentType: to.String(blobDownloadResponse.ContentType),
-		Size:        getSize(*blobDownloadResponse.ContentLength, to.String(blobDownloadResponse.ContentRange)),
+		Size:        getSize(blobDownloadResponse.ContentLength, to.String(blobDownloadResponse.ContentRange)),
 		ModTime:     *blobDownloadResponse.LastModified,
 	}
 	var body io.ReadCloser
@@ -581,11 +587,14 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 	}, nil
 }
 
-func getSize(contentLength int64, contentRange string) int64 {
+func getSize(contentLength *int64, contentRange string) int64 {
+	var size int64
 	// Default size to ContentLength, but that's incorrect for partial-length reads,
 	// where ContentLength refers to the size of the returned Body, not the entire
 	// size of the blob. ContentRange has the full size.
-	size := contentLength
+	if contentLength != nil {
+		size = *contentLength
+	}
 	if contentRange != "" {
 		// Sample: bytes 10-14/27 (where 27 is the full size).
 		parts := strings.Split(contentRange, "/")
@@ -742,7 +751,8 @@ func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driv
 					*v = *blobPrefix
 				}
 				return ok
-			}})
+			},
+		})
 	}
 	for _, blobInfo := range segment.BlobItems {
 		blobInfo := blobInfo // capture loop variable for use in AsFunc
@@ -758,7 +768,8 @@ func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driv
 					*v = *blobInfo
 				}
 				return ok
-			}})
+			},
+		})
 	}
 	if resp.NextMarker != nil {
 		page.NextPageToken = []byte(*resp.NextMarker)
@@ -857,7 +868,7 @@ func unescapeKey(key string) string {
 }
 
 // NewTypedWriter implements driver.NewTypedWriter.
-func (b *bucket) NewTypedWriter(ctx context.Context, key string, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
+func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
 	key = escapeKey(key, false)
 	blobClient := b.client.NewBlockBlobClient(key)
 	if opts.BufferSize == 0 {

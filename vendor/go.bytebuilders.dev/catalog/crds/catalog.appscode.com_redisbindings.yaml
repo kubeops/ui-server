@@ -57,7 +57,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: RedisBindingSpec defines the desired state of RedisBinding
+            description: BindingSpec defines the desired state of Binding
             properties:
               sourceRef:
                 description: SourceRef refers to the source app instance.

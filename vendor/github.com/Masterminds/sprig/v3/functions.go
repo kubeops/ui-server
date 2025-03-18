@@ -382,8 +382,7 @@ var genericMap = map[string]interface{}{
 	"urlJoin":  urlJoin,
 
 	// json path:
-	"jmes": jmespathFn,
-	"jp":   jsonpathFn,
+	"jp": jsonpathFn,
 
 	// humanize:
 	"toBytes":          toBytes,

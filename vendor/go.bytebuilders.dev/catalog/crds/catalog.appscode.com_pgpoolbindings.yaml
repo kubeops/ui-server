@@ -57,7 +57,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: PgpoolBindingSpec defines the desired state of PgpoolBinding
+            description: BindingSpec defines the desired state of Binding
             properties:
               sourceRef:
                 description: SourceRef refers to the source app instance.

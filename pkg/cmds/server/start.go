@@ -41,11 +41,10 @@ import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
-	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
-	"k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/component-base/metrics/legacyregistry"
+	utilversion "k8s.io/component-base/version"
 	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	ou "kmodules.xyz/client-go/openapi"
@@ -74,7 +73,6 @@ type UIServerOptions struct {
 
 // NewUIServerOptions returns a new UIServerOptions
 func NewUIServerOptions(out, errOut io.Writer) *UIServerOptions {
-	_ = feature.DefaultMutableFeatureGate.Set(fmt.Sprintf("%s=false", features.APIPriorityAndFairness))
 	o := &UIServerOptions{
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
@@ -121,6 +119,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 	}
 
 	serverConfig := genericapiserver.NewRecommendedConfig(apiserver.Codecs)
+	serverConfig.EffectiveVersion = utilversion.NewEffectiveVersion("v1.0.0")
 	// Disable installing the default apiserver /metrics handler
 	// ref: https://github.com/kubernetes/apiserver/blob/v0.21.0/pkg/server/config.go#L785-L791
 	serverConfig.EnableMetrics = false
@@ -240,12 +239,12 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 	}
 
 	server.GenericAPIServer.AddPostStartHookOrDie("start-ui-server-informers", func(context genericapiserver.PostStartHookContext) error {
-		config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
+		config.GenericConfig.SharedInformerFactory.Start(context.Done())
 		return nil
 	})
 
 	err = server.Manager.Add(manager.RunnableFunc(func(ctx context.Context) error {
-		return server.GenericAPIServer.PrepareRun().Run(ctx.Done())
+		return server.GenericAPIServer.PrepareRun().RunWithContext(ctx)
 	}))
 	if err != nil {
 		return err

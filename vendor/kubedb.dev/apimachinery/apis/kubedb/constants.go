@@ -358,6 +358,23 @@ const (
 	MariaDBMetricsExporterTLSVolumeName  = "metrics-exporter-config"
 	MariaDBMetricsExporterConfigPath     = "/etc/mysql/config/exporter"
 	MariaDBDataVolumeName                = "data"
+	DatabasePodPrimaryComponent          = "Primary"
+	DatabasePodMasterComponent           = "Master"
+	DatabasePodSlaveComponent            = "Slave"
+
+	// Maxscale
+	MaxscaleCommonName        = "mx"
+	MaxscaleContainerName     = "maxscale"
+	MaxscaleInitContainerName = "maxscale-init"
+	MaxscaleServerName        = "server"
+	MaxscaleConfigName        = "config"
+	MaxscaleConfigPath        = "/etc/maxscale.cnf.d"
+	MaxscaleDefaultConfigName = "default-config"
+	MaxscaleDefaultConfigPath = "/etc/maxscale"
+	MaxscaleDataVolumeName    = "data"
+	MaxscaleDataVolumePath    = "/var/lib/maxscale"
+	MaxscaleUIPort            = 8989
+	MaxscaleUIPortName        = "ui"
 
 	// =========================== SingleStore Constants ============================
 	SinglestoreDatabasePortName       = "db"
@@ -416,9 +433,12 @@ const (
 	MSSQLDatabasePortName              = "db"
 	MSSQLPrimaryServicePortName        = "primary"
 	MSSQLSecondaryServicePortName      = "secondary"
+	MSSQLCoordinatorPortName           = "coordinator"
+	MSSQLCoordinatorClientPortName     = "coordinatclient"
 	MSSQLDatabasePort                  = 1433
 	MSSQLDatabaseMirroringEndpointPort = 5022
-	MSSQLCoordinatorPort               = 2381
+	MSSQLCoordinatorPort               = 2380
+	MSSQLCoordinatorClientPort         = 2379
 	MSSQLMonitoringDefaultServicePort  = 9399
 
 	// environment variables
@@ -588,6 +608,13 @@ const (
 	EnvRedisMode              = "REDIS_MODE"
 	EnvRedisMajorRedisVersion = "MAJOR_REDIS_VERSION"
 
+	// =========================== Valkey Constants ============================
+	ValkeyConfigKey = "valkey.conf" // ValkeyConfigKey is going to create for the customize valkey configuration
+	// DefaultConfigKey is going to create for the default valkey configuration
+
+	EnvValkeyPassword          = "VALKEYCLI_AUTH"
+	EnvValkeyMajorRedisVersion = "MAJOR_VALKEY_VERSION"
+
 	// =========================== PgBouncer Constants ============================
 	PgBouncerUpstreamServerCA               = "upstream-server-ca.crt"
 	PgBouncerUpstreamServerClientCert       = "upstream-server-client.crt"
@@ -626,6 +653,7 @@ const (
 	EnvSkipPasswdEncryption            = "PGPOOL_SKIP_PASSWORD_ENCRYPTION"
 	PgpoolConfigSecretMountPath        = "/config"
 	PgpoolConfigVolumeName             = "pgpool-config"
+	PgpoolPcpConfigVolumeName          = "pgpool-pcp-config"
 	PgpoolContainerName                = "pgpool"
 	PgpoolDefaultServicePort           = 9999
 	PgpoolMonitoringDefaultServicePort = 9719
@@ -649,6 +677,9 @@ const (
 	PgpoolDatabasePortName             = "db"
 	PgpoolPcpPortName                  = "pcp"
 	PgpoolCustomConfigFile             = "pgpool.conf"
+	PgpoolCustomHBAConfigFile          = "pool_hba.conf"
+	PgpoolCustomPCPFile                = "pcp.conf"
+	PGPOOL_INSTALL_DIR                 = "/opt/pgpool-II"
 	// ========================================== ZooKeeper Constants =================================================//
 
 	KubeDBZooKeeperRoleName         = "kubedb:zookeeper-version-reader"
@@ -1406,6 +1437,9 @@ const (
 	EnvFerretDBKeyPath   = "FERRETDB_LISTEN_TLS_KEY_FILE"
 	EnvFerretDBDebugAddr = "FERRETDB_DEBUG_ADDR"
 
+	FerretDBDatabasePortName       = "db"
+	FerretDBPrimaryServicePortName = "primary"
+
 	FerretDBContainerName = "ferretdb"
 	FerretDBMainImage     = "ghcr.io/ferretdb/ferretdb"
 	FerretDBUser          = "postgres"
@@ -1420,6 +1454,15 @@ const (
 
 	FerretDBMetricsPath     = "/debug/metrics"
 	FerretDBMetricsPortName = "metrics"
+
+	FerretDBServerTypePrimary   = "primary"
+	FerretDBServerTypeSecondary = "secondary"
+
+	FerretDBPrimaryLabelKey   = "ferretdb.kubedb.com/server.primary"
+	FerretDBSecondaryLabelKey = "ferretdb.kubedb.com/server.secondary"
+
+	FerretDBBackendInitFile   = "data.sh"
+	FerretDBBackendConfigFile = "user.conf"
 )
 
 // =========================== ClickHouse Constants ============================
@@ -1571,6 +1614,18 @@ const (
 	EnvNameCassandraPassword         = "CASSANDRA_PASSWORD"
 )
 
+// =========================== Virtual Secrets Constants ============================
+
+const (
+	VirtualSecretsVolume          = "virtual-secrets"
+	VirtualSecretsVolumeMountPath = "/var/run/secrets/virtual-secrets"
+	VirtualSecretsKeyUsername     = "vs:///var/run/secrets/virtual-secrets/" + core.BasicAuthUsernameKey
+	VirtualSecretsKeyPassword     = "vs:///var/run/secrets/virtual-secrets/" + core.BasicAuthPasswordKey
+	VirtualSecretsVENV            = "/var/run/secrets/virtual-secrets/bin/venv"
+	SecretProviderClass           = "secretProviderClass"
+	SecretStoreCSIDriver          = "secrets-store.csi.k8s.io"
+)
+
 // Resource kind related constants
 const (
 	ResourceKindStatefulSet = "StatefulSet"
@@ -1672,7 +1727,7 @@ var (
 		},
 	}
 
-	// DefaultResourcesMemoryIntensive must be used for elasticsearch
+	// DefaultResourcesMemoryIntensive must be used for elasticsearch or kafka
 	// to avoid OOMKILLED while deploying ES V8
 	DefaultResourcesMemoryIntensive = core.ResourceRequirements{
 		Requests: core.ResourceList{
@@ -1687,11 +1742,11 @@ var (
 	// DefaultResourcesMemoryIntensiveMSSQLServer must be used for Microsoft SQL Server
 	DefaultResourcesMemoryIntensiveMSSQLServer = core.ResourceRequirements{
 		Requests: core.ResourceList{
-			core.ResourceCPU:    resource.MustParse(".500"),
+			core.ResourceCPU:    resource.MustParse("1"),
 			core.ResourceMemory: resource.MustParse("1.5Gi"),
 		},
 		Limits: core.ResourceList{
-			core.ResourceMemory: resource.MustParse("4Gi"),
+			core.ResourceMemory: resource.MustParse("2Gi"),
 		},
 	}
 

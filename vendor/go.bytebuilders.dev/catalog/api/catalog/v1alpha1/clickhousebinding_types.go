@@ -27,12 +27,6 @@ const (
 	ResourceClickHouseBindings    = "clickhousebindings"
 )
 
-// ClickHouseBindingSpec defines the desired state of ClickHouseBinding
-type ClickHouseBindingSpec struct {
-	// SourceRef refers to the source app instance.
-	SourceRef kmapi.ObjectReference `json:"sourceRef"`
-}
-
 // +kubebuilder:object:root=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:subresource:status
@@ -47,8 +41,8 @@ type ClickHouseBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ClickHouseBindingSpec `json:"spec,omitempty"`
-	Status BindingStatus         `json:"status,omitempty"`
+	Spec   BindingSpec   `json:"spec,omitempty"`
+	Status BindingStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -62,4 +56,22 @@ type ClickHouseBindingList struct {
 
 func init() {
 	SchemeBuilder.Register(&ClickHouseBinding{}, &ClickHouseBindingList{})
+}
+
+var _ BindingInterface = &ClickHouseBinding{}
+
+func (in *ClickHouseBinding) GetSourceRef() kmapi.ObjectReference {
+	return in.Spec.SourceRef
+}
+
+func (in *ClickHouseBinding) GetStatus() *BindingStatus {
+	return &in.Status
+}
+
+func (in *ClickHouseBinding) GetConditions() kmapi.Conditions {
+	return in.Status.Conditions
+}
+
+func (in *ClickHouseBinding) SetConditions(conditions kmapi.Conditions) {
+	in.Status.Conditions = conditions
 }

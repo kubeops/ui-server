@@ -29,18 +29,156 @@ import (
 // Public to allow building arbitrary schemes.
 // All generated defaulters are covering - they call all nested defaulters.
 func RegisterDefaults(scheme *runtime.Scheme) error {
+	scheme.AddTypeDefaultingFunc(&CVEReport{}, func(obj interface{}) { SetObjectDefaults_CVEReport(obj.(*CVEReport)) })
+	scheme.AddTypeDefaultingFunc(&Image{}, func(obj interface{}) { SetObjectDefaults_Image(obj.(*Image)) })
 	scheme.AddTypeDefaultingFunc(&Workload{}, func(obj interface{}) { SetObjectDefaults_Workload(obj.(*Workload)) })
 	scheme.AddTypeDefaultingFunc(&WorkloadList{}, func(obj interface{}) { SetObjectDefaults_WorkloadList(obj.(*WorkloadList)) })
 	return nil
 }
 
+func SetObjectDefaults_CVEReport(in *CVEReport) {
+	if in.Response != nil {
+		for i := range in.Response.Images {
+			a := &in.Response.Images[i]
+			if a.ScanStatus.ReportRef != nil {
+				if a.ScanStatus.ReportRef.Name == "" {
+					a.ScanStatus.ReportRef.Name = ""
+				}
+			}
+		}
+	}
+}
+
+func SetObjectDefaults_Image(in *Image) {
+	if in.Response != nil {
+		for i := range in.Response.Images {
+			a := &in.Response.Images[i]
+			if a.PullCredentials != nil {
+				for j := range a.PullCredentials.SecretRefs {
+					b := &a.PullCredentials.SecretRefs[j]
+					if b.Name == "" {
+						b.Name = ""
+					}
+				}
+			}
+		}
+	}
+}
+
 func SetObjectDefaults_Workload(in *Workload) {
+	for i := range in.Spec.Template.Spec.Volumes {
+		a := &in.Spec.Template.Spec.Volumes[i]
+		if a.VolumeSource.ISCSI != nil {
+			if a.VolumeSource.ISCSI.SecretRef != nil {
+				if a.VolumeSource.ISCSI.SecretRef.Name == "" {
+					a.VolumeSource.ISCSI.SecretRef.Name = ""
+				}
+			}
+		}
+		if a.VolumeSource.RBD != nil {
+			if a.VolumeSource.RBD.SecretRef != nil {
+				if a.VolumeSource.RBD.SecretRef.Name == "" {
+					a.VolumeSource.RBD.SecretRef.Name = ""
+				}
+			}
+		}
+		if a.VolumeSource.FlexVolume != nil {
+			if a.VolumeSource.FlexVolume.SecretRef != nil {
+				if a.VolumeSource.FlexVolume.SecretRef.Name == "" {
+					a.VolumeSource.FlexVolume.SecretRef.Name = ""
+				}
+			}
+		}
+		if a.VolumeSource.Cinder != nil {
+			if a.VolumeSource.Cinder.SecretRef != nil {
+				if a.VolumeSource.Cinder.SecretRef.Name == "" {
+					a.VolumeSource.Cinder.SecretRef.Name = ""
+				}
+			}
+		}
+		if a.VolumeSource.CephFS != nil {
+			if a.VolumeSource.CephFS.SecretRef != nil {
+				if a.VolumeSource.CephFS.SecretRef.Name == "" {
+					a.VolumeSource.CephFS.SecretRef.Name = ""
+				}
+			}
+		}
+		if a.VolumeSource.ConfigMap != nil {
+			if a.VolumeSource.ConfigMap.LocalObjectReference.Name == "" {
+				a.VolumeSource.ConfigMap.LocalObjectReference.Name = ""
+			}
+		}
+		if a.VolumeSource.Projected != nil {
+			for j := range a.VolumeSource.Projected.Sources {
+				b := &a.VolumeSource.Projected.Sources[j]
+				if b.Secret != nil {
+					if b.Secret.LocalObjectReference.Name == "" {
+						b.Secret.LocalObjectReference.Name = ""
+					}
+				}
+				if b.ConfigMap != nil {
+					if b.ConfigMap.LocalObjectReference.Name == "" {
+						b.ConfigMap.LocalObjectReference.Name = ""
+					}
+				}
+			}
+		}
+		if a.VolumeSource.ScaleIO != nil {
+			if a.VolumeSource.ScaleIO.SecretRef != nil {
+				if a.VolumeSource.ScaleIO.SecretRef.Name == "" {
+					a.VolumeSource.ScaleIO.SecretRef.Name = ""
+				}
+			}
+		}
+		if a.VolumeSource.StorageOS != nil {
+			if a.VolumeSource.StorageOS.SecretRef != nil {
+				if a.VolumeSource.StorageOS.SecretRef.Name == "" {
+					a.VolumeSource.StorageOS.SecretRef.Name = ""
+				}
+			}
+		}
+		if a.VolumeSource.CSI != nil {
+			if a.VolumeSource.CSI.NodePublishSecretRef != nil {
+				if a.VolumeSource.CSI.NodePublishSecretRef.Name == "" {
+					a.VolumeSource.CSI.NodePublishSecretRef.Name = ""
+				}
+			}
+		}
+	}
 	for i := range in.Spec.Template.Spec.InitContainers {
 		a := &in.Spec.Template.Spec.InitContainers[i]
 		for j := range a.Ports {
 			b := &a.Ports[j]
 			if b.Protocol == "" {
 				b.Protocol = "TCP"
+			}
+		}
+		for j := range a.EnvFrom {
+			b := &a.EnvFrom[j]
+			if b.ConfigMapRef != nil {
+				if b.ConfigMapRef.LocalObjectReference.Name == "" {
+					b.ConfigMapRef.LocalObjectReference.Name = ""
+				}
+			}
+			if b.SecretRef != nil {
+				if b.SecretRef.LocalObjectReference.Name == "" {
+					b.SecretRef.LocalObjectReference.Name = ""
+				}
+			}
+		}
+		for j := range a.Env {
+			b := &a.Env[j]
+			if b.ValueFrom != nil {
+				if b.ValueFrom.ConfigMapKeyRef != nil {
+					if b.ValueFrom.ConfigMapKeyRef.LocalObjectReference.Name == "" {
+						b.ValueFrom.ConfigMapKeyRef.LocalObjectReference.Name = ""
+					}
+				}
+				if b.ValueFrom.SecretKeyRef != nil {
+					if b.ValueFrom.SecretKeyRef.LocalObjectReference.Name == "" {
+						b.ValueFrom.SecretKeyRef.LocalObjectReference.Name = ""
+					}
+				}
 			}
 		}
 		if a.LivenessProbe != nil {
@@ -76,6 +214,34 @@ func SetObjectDefaults_Workload(in *Workload) {
 				b.Protocol = "TCP"
 			}
 		}
+		for j := range a.EnvFrom {
+			b := &a.EnvFrom[j]
+			if b.ConfigMapRef != nil {
+				if b.ConfigMapRef.LocalObjectReference.Name == "" {
+					b.ConfigMapRef.LocalObjectReference.Name = ""
+				}
+			}
+			if b.SecretRef != nil {
+				if b.SecretRef.LocalObjectReference.Name == "" {
+					b.SecretRef.LocalObjectReference.Name = ""
+				}
+			}
+		}
+		for j := range a.Env {
+			b := &a.Env[j]
+			if b.ValueFrom != nil {
+				if b.ValueFrom.ConfigMapKeyRef != nil {
+					if b.ValueFrom.ConfigMapKeyRef.LocalObjectReference.Name == "" {
+						b.ValueFrom.ConfigMapKeyRef.LocalObjectReference.Name = ""
+					}
+				}
+				if b.ValueFrom.SecretKeyRef != nil {
+					if b.ValueFrom.SecretKeyRef.LocalObjectReference.Name == "" {
+						b.ValueFrom.SecretKeyRef.LocalObjectReference.Name = ""
+					}
+				}
+			}
+		}
 		if a.LivenessProbe != nil {
 			if a.LivenessProbe.ProbeHandler.GRPC != nil {
 				if a.LivenessProbe.ProbeHandler.GRPC.Service == nil {
@@ -109,6 +275,34 @@ func SetObjectDefaults_Workload(in *Workload) {
 				b.Protocol = "TCP"
 			}
 		}
+		for j := range a.EphemeralContainerCommon.EnvFrom {
+			b := &a.EphemeralContainerCommon.EnvFrom[j]
+			if b.ConfigMapRef != nil {
+				if b.ConfigMapRef.LocalObjectReference.Name == "" {
+					b.ConfigMapRef.LocalObjectReference.Name = ""
+				}
+			}
+			if b.SecretRef != nil {
+				if b.SecretRef.LocalObjectReference.Name == "" {
+					b.SecretRef.LocalObjectReference.Name = ""
+				}
+			}
+		}
+		for j := range a.EphemeralContainerCommon.Env {
+			b := &a.EphemeralContainerCommon.Env[j]
+			if b.ValueFrom != nil {
+				if b.ValueFrom.ConfigMapKeyRef != nil {
+					if b.ValueFrom.ConfigMapKeyRef.LocalObjectReference.Name == "" {
+						b.ValueFrom.ConfigMapKeyRef.LocalObjectReference.Name = ""
+					}
+				}
+				if b.ValueFrom.SecretKeyRef != nil {
+					if b.ValueFrom.SecretKeyRef.LocalObjectReference.Name == "" {
+						b.ValueFrom.SecretKeyRef.LocalObjectReference.Name = ""
+					}
+				}
+			}
+		}
 		if a.EphemeralContainerCommon.LivenessProbe != nil {
 			if a.EphemeralContainerCommon.LivenessProbe.ProbeHandler.GRPC != nil {
 				if a.EphemeralContainerCommon.LivenessProbe.ProbeHandler.GRPC.Service == nil {
@@ -132,6 +326,12 @@ func SetObjectDefaults_Workload(in *Workload) {
 					a.EphemeralContainerCommon.StartupProbe.ProbeHandler.GRPC.Service = &ptrVar1
 				}
 			}
+		}
+	}
+	for i := range in.Spec.Template.Spec.ImagePullSecrets {
+		a := &in.Spec.Template.Spec.ImagePullSecrets[i]
+		if a.Name == "" {
+			a.Name = ""
 		}
 	}
 }

@@ -27,12 +27,6 @@ const (
 	ResourceSinglestoreBindings    = "singlestorebindings"
 )
 
-// SinglestoreBindingSpec defines the desired state of SinglestoreBinding
-type SinglestoreBindingSpec struct {
-	// SourceRef refers to the source app instance.
-	SourceRef kmapi.ObjectReference `json:"sourceRef"`
-}
-
 // +kubebuilder:object:root=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:subresource:status
@@ -47,8 +41,8 @@ type SinglestoreBinding struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   SinglestoreBindingSpec `json:"spec,omitempty"`
-	Status BindingStatus          `json:"status,omitempty"`
+	Spec   BindingSpec   `json:"spec,omitempty"`
+	Status BindingStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -62,4 +56,22 @@ type SinglestoreBindingList struct {
 
 func init() {
 	SchemeBuilder.Register(&SinglestoreBinding{}, &SinglestoreBindingList{})
+}
+
+var _ BindingInterface = &SinglestoreBinding{}
+
+func (in *SinglestoreBinding) GetSourceRef() kmapi.ObjectReference {
+	return in.Spec.SourceRef
+}
+
+func (in *SinglestoreBinding) GetStatus() *BindingStatus {
+	return &in.Status
+}
+
+func (in *SinglestoreBinding) GetConditions() kmapi.Conditions {
+	return in.Status.Conditions
+}
+
+func (in *SinglestoreBinding) SetConditions(conditions kmapi.Conditions) {
+	in.Status.Conditions = conditions
 }
