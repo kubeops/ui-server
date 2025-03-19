@@ -1476,7 +1476,7 @@ go.uber.org/zap/internal/pool
 go.uber.org/zap/internal/stacktrace
 go.uber.org/zap/zapcore
 go.uber.org/zap/zapgrpc
-# go.virtual-secrets.dev/apimachinery v0.0.0-20250313131002-5cd148a87220
+# go.virtual-secrets.dev/apimachinery v0.0.1
 ## explicit; go 1.23.0
 go.virtual-secrets.dev/apimachinery/apis/virtual/v1alpha1
 go.virtual-secrets.dev/apimachinery/crds
@@ -2751,7 +2751,7 @@ kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.32.0
+# kmodules.xyz/client-go v0.32.1
 ## explicit; go 1.23.0
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
@@ -2772,7 +2772,7 @@ kmodules.xyz/client-go/tools/clientcmd
 kmodules.xyz/client-go/tools/clusterid
 kmodules.xyz/client-go/tools/parser
 kmodules.xyz/client-go/tools/wait
-# kmodules.xyz/custom-resources v0.30.2-0.20250303080226-05eb1392c05f
+# kmodules.xyz/custom-resources v0.32.0
 ## explicit; go 1.23.0
 kmodules.xyz/custom-resources/apis/appcatalog
 kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1
@@ -2780,8 +2780,8 @@ kmodules.xyz/custom-resources/crds
 # kmodules.xyz/go-containerregistry v0.0.14
 ## explicit; go 1.23.0
 kmodules.xyz/go-containerregistry/name
-# kmodules.xyz/monitoring-agent-api v0.30.4
-## explicit; go 1.22.0
+# kmodules.xyz/monitoring-agent-api v0.32.0
+## explicit; go 1.23.0
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/client
 # kmodules.xyz/offshoot-api v0.32.0
@@ -2789,7 +2789,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.26.1-0.20250318202810-6ca41a0a8e08
+# kmodules.xyz/resource-metadata v0.26.1
 ## explicit; go 1.23.0
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2879,10 +2879,10 @@ kubeops.dev/sidekick/crds
 # kubepack.dev/kubepack v0.29.2-0.20250315012528-cd494afd0133
 ## explicit; go 1.23.0
 kubepack.dev/kubepack/pkg/lib
-# kubepack.dev/lib-app v0.3.1-0.20250315014402-772d33228d34
-## explicit; go 1.23.0
+# kubepack.dev/lib-app v0.3.0
+## explicit; go 1.22.7
 kubepack.dev/lib-app/pkg/editor
-# kubepack.dev/lib-helm v0.29.16-0.20250315011604-b842237ac5b2
+# kubepack.dev/lib-helm v0.32.0
 ## explicit; go 1.23.0
 kubepack.dev/lib-helm/pkg/action
 kubepack.dev/lib-helm/pkg/chart

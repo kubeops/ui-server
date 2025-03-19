@@ -47,19 +47,19 @@ require (
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.32.0
-	kmodules.xyz/custom-resources v0.30.2-0.20250303080226-05eb1392c05f
+	kmodules.xyz/client-go v0.32.1
+	kmodules.xyz/custom-resources v0.32.0
 	kmodules.xyz/go-containerregistry v0.0.14
-	kmodules.xyz/monitoring-agent-api v0.30.4
+	kmodules.xyz/monitoring-agent-api v0.32.0
 	kmodules.xyz/offshoot-api v0.32.0
-	kmodules.xyz/resource-metadata v0.26.1-0.20250318202810-6ca41a0a8e08
+	kmodules.xyz/resource-metadata v0.26.1
 	kmodules.xyz/resource-metrics v0.30.6-0.20250302111458-dee2855523db
 	kmodules.xyz/resource-metrics/utils v0.30.4
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.5-0.20250315021558-3b54bf551e3c
 	kubeops.dev/scanner v0.0.19
-	kubepack.dev/lib-app v0.3.1-0.20250315014402-772d33228d34
-	kubepack.dev/lib-helm v0.29.16-0.20250315011604-b842237ac5b2
+	kubepack.dev/lib-app v0.3.0
+	kubepack.dev/lib-helm v0.32.0
 	open-cluster-management.io/api v0.15.0
 	sigs.k8s.io/cli-utils v0.37.2
 	sigs.k8s.io/controller-runtime v0.20.3
@@ -67,8 +67,6 @@ require (
 	sigs.k8s.io/yaml v1.4.0
 	x-helm.dev/apimachinery v0.0.17
 )
-
-require go.virtual-secrets.dev/apimachinery v0.0.0-20250313131002-5cd148a87220 // indirect
 
 require (
 	cel.dev/expr v0.19.1 // indirect
@@ -296,6 +294,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
+	go.virtual-secrets.dev/apimachinery v0.0.1 // indirect
 	gocloud.dev v0.40.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
@@ -351,7 +350,6 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
 	voyagermesh.dev/gateway-api v0.0.2-0.20241124132233-ced3a99a7eae // indirect
 	voyagermesh.dev/installer v0.0.0-20241219103226-de800d167d8d // indirect
-
 )
 
 replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8
