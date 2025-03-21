@@ -103,5 +103,6 @@ func (r *ClusterClaimReconciler) Reconcile(ctx context.Context, req ctrl.Request
 func (r *ClusterClaimReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&uiapi.Feature{}).
+		Named("ClusterClaimReconciler").
 		Complete(r)
 }
