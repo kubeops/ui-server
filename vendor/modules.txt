@@ -2789,7 +2789,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.26.1
+# kmodules.xyz/resource-metadata v0.26.2-0.20250321150546-1486e1317046
 ## explicit; go 1.23.0
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2820,7 +2820,7 @@ kmodules.xyz/resource-metadata/pkg/layouts
 kmodules.xyz/resource-metadata/pkg/tableconvertor
 kmodules.xyz/resource-metadata/pkg/tableconvertor/lib
 kmodules.xyz/resource-metadata/pkg/tableconvertor/printers
-# kmodules.xyz/resource-metrics v0.30.6-0.20250302111458-dee2855523db
+# kmodules.xyz/resource-metrics v0.30.6-0.20250321140450-2a1d8b94cdd1
 ## explicit; go 1.23.0
 kmodules.xyz/resource-metrics
 kmodules.xyz/resource-metrics/api
@@ -2833,7 +2833,7 @@ kmodules.xyz/resource-metrics/kubedb.com/v1
 kmodules.xyz/resource-metrics/kubedb.com/v1alpha2
 kmodules.xyz/resource-metrics/kubevault.com/v1alpha2
 kmodules.xyz/resource-metrics/ops.kubedb.com/v1alpha1
-# kmodules.xyz/resource-metrics/utils v0.30.4
+# kmodules.xyz/resource-metrics/utils v0.30.5-0.20250321140450-2a1d8b94cdd1
 ## explicit; go 1.22.1
 kmodules.xyz/resource-metrics/utils
 # kmodules.xyz/sets v0.29.0
