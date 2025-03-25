@@ -24,6 +24,8 @@ const (
 	DBModeReplicaSet = "ReplicaSet"
 	DBModeDedicated  = "Dedicated"
 	DBModeCombined   = "Combined"
+
+	DBModePrimaryOnly = "PrimaryOnly"
 )
 
 const (

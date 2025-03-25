@@ -66,6 +66,9 @@ const (
 	PodRoleMiddleManagers PodRole = "middleManagers"
 	PodRoleHistoricals    PodRole = "historicals"
 	PodRoleRouters        PodRole = "routers"
+
+	PodRolePrimary   PodRole = "primary"
+	PodRoleSecondary PodRole = "secondary"
 )
 
 var ErrMissingRefObject = errors.New("referenced object not found")
