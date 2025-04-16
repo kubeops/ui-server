@@ -983,6 +983,8 @@ const (
 	SolrTempConfigDir     = "/temp-config"
 	SolrCustomConfigDir   = "/custom-config"
 	SolrSecurityConfigDir = "/var/security"
+	SolrZkReadyCondition  = "SolrZkReady"
+	SolrZkReady           = "ZookeeperReady"
 
 	SolrCloudHostKey                       = "host"
 	SolrCloudHostValue                     = ""
@@ -1443,6 +1445,7 @@ const (
 	FerretDBContainerName = "ferretdb"
 	FerretDBMainImage     = "ghcr.io/ferretdb/ferretdb"
 	FerretDBUser          = "postgres"
+	FerretDBLinkedDBName  = "ferretdb"
 
 	FerretDBServerPath = "/etc/certs/server"
 
@@ -1461,8 +1464,9 @@ const (
 	FerretDBPrimaryLabelKey   = "ferretdb.kubedb.com/server.primary"
 	FerretDBSecondaryLabelKey = "ferretdb.kubedb.com/server.secondary"
 
-	FerretDBBackendInitFile   = "data.sh"
-	FerretDBBackendConfigFile = "user.conf"
+	FerretDBBackendInitShellFile = "data.sh"
+	FerretDBBackendInitSqlFile   = "data.sql"
+	FerretDBBackendConfigFile    = "user.conf"
 )
 
 // =========================== ClickHouse Constants ============================

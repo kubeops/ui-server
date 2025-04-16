@@ -97,6 +97,11 @@ type MySQLRouteSpec struct {
 	// +kubebuilder:validation:MaxItems=16
 	Rules []MySQLRouteRule `json:"rules"`
 
+	// Controls whether SQL statements received in Frontend Query messages
+	// are decoded. Defaults to false.
+	// +optional
+	EnableDecoding bool `json:"enableDecoding,omitempty"`
+
 	// +optional
 	Telemetry TelemetryRefence `json:"telemetry,omitempty"`
 }

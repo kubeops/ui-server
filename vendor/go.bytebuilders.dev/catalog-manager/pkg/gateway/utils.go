@@ -55,6 +55,7 @@ const (
 	ResourceKindMySQLRoute   = "MySQLRoute"
 	ResourceKindRedisRoute   = "RedisRoute"
 	ResourceKindHTTPRoute    = "HTTPRoute"
+	ResourceKindTCPRoute     = "TCPRoute"
 
 	ResourceKindMongoDBBinding       = "MongoDBBinding"
 	ResourceKindMySQLBinding         = "MySQLBinding"
@@ -407,6 +408,11 @@ func SectionNamePtr(name string) *gwv1.SectionName {
 	return &sectionName
 }
 
+func PathEscapedSlashActionPtr(name egv1a1.PathEscapedSlashAction) *egv1a1.PathEscapedSlashAction {
+	pathEscapeSlashAction := egv1a1.PathEscapedSlashAction(egv1a1.KeepUnchangedAction)
+	return &pathEscapeSlashAction
+}
+
 func GetGatewayServiceType(ctx context.Context, kc client.Client, gwc *gwv1.GatewayClass) (egv1a1.ServiceType, error) {
 	key := client.ObjectKey{
 		Name:      gwc.Spec.ParametersRef.Name,
@@ -535,9 +541,9 @@ func GetBindGatewayStatus(gwName, gwNamespace, gwIP, gwAddress string, namedServ
 	return gatewayStatus
 }
 
-func GetGatewayIP(gateway *gwv1.Gateway) string {
+func GetGatewayIPOrHost(gateway *gwv1.Gateway) string {
 	for _, tp := range gateway.Status.Addresses {
-		if tp.Type != nil && *tp.Type == gwv1.IPAddressType {
+		if tp.Type != nil {
 			return tp.Value
 		}
 	}
@@ -545,7 +551,7 @@ func GetGatewayIP(gateway *gwv1.Gateway) string {
 }
 
 func GetGatewayAddress(c client.Client, ctx context.Context, gw *gwv1.Gateway) (string, error) {
-	ip := GetGatewayIP(gw)
+	ip := GetGatewayIPOrHost(gw)
 	if ip == "" {
 		return "", fmt.Errorf("no ip assigned yet")
 	}

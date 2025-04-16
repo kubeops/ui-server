@@ -99,6 +99,9 @@ type PostgresRouteSpec struct {
 
 	// +optional
 	Telemetry TelemetryRefence `json:"telemetry"`
+
+	// +optional
+	TLS *TLSSocketConfig `json:"tls,omitempty"`
 }
 
 // PostgresRouteStatus defines the observed state of PostgresRoute
@@ -154,6 +157,11 @@ type PostgresRouteRule struct {
 	// +kubebuilder:validation:MinItems=1
 	// +kubebuilder:validation:MaxItems=16
 	BackendRefs []gwv1.BackendRef `json:"backendRefs,omitempty"`
+}
+type TLSSocketConfig struct {
+	// DisableSSLSessionResumption determines whether to disable or enable Envoy TLS Session Resumption
+	// +optional
+	DisableSSLSessionResumption bool `json:"disableSSLSessionResumption,omitempty"`
 }
 
 // +kubebuilder:object:root=true

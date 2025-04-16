@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
 const (
@@ -55,4 +56,22 @@ type MemcachedBindingList struct {
 
 func init() {
 	SchemeBuilder.Register(&MemcachedBinding{}, &MemcachedBindingList{})
+}
+
+var _ BindingInterface = &MemcachedBinding{}
+
+func (in *MemcachedBinding) GetSourceRef() kmapi.ObjectReference {
+	return in.Spec.SourceRef
+}
+
+func (in *MemcachedBinding) GetStatus() *BindingStatus {
+	return &in.Status
+}
+
+func (in *MemcachedBinding) GetConditions() kmapi.Conditions {
+	return in.Status.Conditions
+}
+
+func (in *MemcachedBinding) SetConditions(conditions kmapi.Conditions) {
+	in.Status.Conditions = conditions
 }

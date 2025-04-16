@@ -41,10 +41,16 @@ type SecurityPolicy struct {
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true ", message="this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute']) : true ", message="this policy can only have a targetRefs[*].kind of Gateway/HTTPRoute/GRPCRoute"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, !has(ref.sectionName)) : true",message="this policy does not yet support the sectionName field"
+// +kubebuilder:validation:XValidation:rule="(has(self.authorization) && has(self.authorization.rules) && self.authorization.rules.exists(r, has(r.principal.jwt))) ? has(self.jwt) : true", message="if authorization.rules.principal.jwt is used, jwt must be defined"
 //
 // SecurityPolicySpec defines the desired state of SecurityPolicy.
 type SecurityPolicySpec struct {
 	PolicyTargetReferences `json:",inline"`
+
+	// APIKeyAuth defines the configuration for the API Key Authentication.
+	//
+	// +optional
+	APIKeyAuth *APIKeyAuth `json:"apiKeyAuth,omitempty"`
 
 	// CORS defines the configuration for Cross-Origin Resource Sharing (CORS).
 	//
@@ -74,7 +80,6 @@ type SecurityPolicySpec struct {
 	// Authorization defines the authorization configuration.
 	//
 	// +optional
-	// +notImplementedHide
 	Authorization *Authorization `json:"authorization,omitempty"`
 }
 

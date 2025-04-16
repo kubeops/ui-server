@@ -16,7 +16,11 @@ limitations under the License.
 
 package gateway
 
-import "strconv"
+import (
+	"strconv"
+
+	meta_util "kmodules.xyz/client-go/meta"
+)
 
 const (
 	DefaultReferenceGrantName = "ace-tls-refg"
@@ -36,6 +40,10 @@ func GetDefaultCertRefgName() string {
 
 func GetRouteName(serviceName string) string {
 	return serviceName
+}
+
+func GetRouteNameWithSuffix(serviceName, suffix string) string {
+	return meta_util.NameWithSuffix(serviceName, suffix)
 }
 
 func GetListenerName(routeName string) string {

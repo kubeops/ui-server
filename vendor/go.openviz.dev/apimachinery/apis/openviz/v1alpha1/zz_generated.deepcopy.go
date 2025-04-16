@@ -150,6 +150,11 @@ func (in *GrafanaDashboardReference) DeepCopyInto(out *GrafanaDashboardReference
 		*out = new(int64)
 		**out = **in
 	}
+	if in.State != nil {
+		in, out := &in.State, &out.State
+		*out = new(string)
+		**out = **in
+	}
 	return
 }
 
@@ -169,11 +174,6 @@ func (in *GrafanaDashboardSpec) DeepCopyInto(out *GrafanaDashboardSpec) {
 	if in.GrafanaRef != nil {
 		in, out := &in.GrafanaRef, &out.GrafanaRef
 		*out = new(v1.ObjectReference)
-		**out = **in
-	}
-	if in.FolderID != nil {
-		in, out := &in.FolderID, &out.FolderID
-		*out = new(int64)
 		**out = **in
 	}
 	if in.Model != nil {

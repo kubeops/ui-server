@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
 const (
@@ -55,4 +56,22 @@ type MSSQLServerBindingList struct {
 
 func init() {
 	SchemeBuilder.Register(&MSSQLServerBinding{}, &MSSQLServerBindingList{})
+}
+
+var _ BindingInterface = &MSSQLServerBinding{}
+
+func (in *MSSQLServerBinding) GetSourceRef() kmapi.ObjectReference {
+	return in.Spec.SourceRef
+}
+
+func (in *MSSQLServerBinding) GetStatus() *BindingStatus {
+	return &in.Status
+}
+
+func (in *MSSQLServerBinding) GetConditions() kmapi.Conditions {
+	return in.Status.Conditions
+}
+
+func (in *MSSQLServerBinding) SetConditions(conditions kmapi.Conditions) {
+	in.Status.Conditions = conditions
 }

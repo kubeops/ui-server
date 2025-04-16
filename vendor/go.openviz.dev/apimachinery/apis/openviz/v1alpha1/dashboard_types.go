@@ -54,10 +54,6 @@ type GrafanaDashboardSpec struct {
 	// +optional
 	GrafanaRef *kmapi.ObjectReference `json:"grafanaRef,omitempty"`
 
-	// FolderID defines the Grafana folderID
-	// +optional
-	FolderID *int64 `json:"folderID,omitempty"`
-
 	// +optional
 	// +kubebuilder:pruning:PreserveUnknownFields
 	Model *runtime.RawExtension `json:"model,omitempty"`
@@ -83,6 +79,7 @@ type GrafanaDashboardReference struct {
 	Slug    *string `json:"slug,omitempty"`
 	URL     *string `json:"url,omitempty"`
 	Version *int64  `json:"version,omitempty"`
+	State   *string `json:"state,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
