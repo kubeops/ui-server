@@ -47,7 +47,7 @@ require (
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.32.1
+	kmodules.xyz/client-go v0.32.2
 	kmodules.xyz/custom-resources v0.32.0
 	kmodules.xyz/go-containerregistry v0.0.14
 	kmodules.xyz/monitoring-agent-api v0.32.0
@@ -62,7 +62,7 @@ require (
 	kubepack.dev/lib-helm v0.32.0
 	open-cluster-management.io/api v0.15.0
 	sigs.k8s.io/cli-utils v0.37.2
-	sigs.k8s.io/controller-runtime v0.20.3
+	sigs.k8s.io/controller-runtime v0.20.4
 	sigs.k8s.io/gateway-api v1.2.1
 	sigs.k8s.io/yaml v1.4.0
 	x-helm.dev/apimachinery v0.0.17
@@ -331,7 +331,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	helm.sh/helm/v3 v3.17.2 // indirect
+	helm.sh/helm/v3 v3.17.3 // indirect
 	k8s.io/cli-runtime v0.32.2 // indirect
 	k8s.io/component-helpers v0.32.2 // indirect
 	k8s.io/kms v0.32.3 // indirect
@@ -358,7 +358,7 @@ require (
 
 replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8
 
-replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.20.3-0.20250221050548-8eabe54e7dda
+replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.20.5-0.20250418031748-f501516b300c
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.6
 
