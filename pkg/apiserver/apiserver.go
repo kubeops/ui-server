@@ -295,7 +295,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		}
 	}
 
-	if clustermeta.DetectClusterManager(mgr.GetClient()).ManagedByOCMSpoke() {
+	if clustermeta.IsACEManagedSpoke(mgr.GetClient()) {
 		err = clusterclaimcontroller.NewClusterClaimReconciler(mgr.GetClient()).SetupWithManager(mgr)
 		if err != nil {
 			klog.Error(err, "unable to create controller", "controller", "ClusterClaim")
