@@ -47,12 +47,12 @@ require (
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.32.2
+	kmodules.xyz/client-go v0.32.3
 	kmodules.xyz/custom-resources v0.32.0
 	kmodules.xyz/go-containerregistry v0.0.14
 	kmodules.xyz/monitoring-agent-api v0.32.0
 	kmodules.xyz/offshoot-api v0.32.0
-	kmodules.xyz/resource-metadata v0.28.1
+	kmodules.xyz/resource-metadata v0.28.2
 	kmodules.xyz/resource-metrics v0.30.6
 	kmodules.xyz/resource-metrics/utils v0.30.5-0.20250321140450-2a1d8b94cdd1
 	kmodules.xyz/sets v0.29.0
