@@ -1319,7 +1319,7 @@ github.com/zeebo/xxh3
 go.bytebuilders.dev/catalog/api/catalog/v1alpha1
 go.bytebuilders.dev/catalog/api/gateway/v1alpha1
 go.bytebuilders.dev/catalog/crds
-# go.bytebuilders.dev/catalog-manager v0.4.0
+# go.bytebuilders.dev/catalog-manager v0.5.0
 ## explicit; go 1.23.6
 go.bytebuilders.dev/catalog-manager/pkg/gateway
 go.bytebuilders.dev/catalog-manager/pkg/portmanager
@@ -2854,7 +2854,7 @@ kmodules.xyz/resource-metrics/utils
 # kmodules.xyz/sets v0.29.0
 ## explicit; go 1.21.5
 kmodules.xyz/sets
-# kubedb.dev/apimachinery v0.53.0
+# kubedb.dev/apimachinery v0.54.0
 ## explicit; go 1.23.0
 kubedb.dev/apimachinery/apis
 kubedb.dev/apimachinery/apis/catalog
@@ -3107,7 +3107,7 @@ sigs.k8s.io/structured-merge-diff/v4/value
 sigs.k8s.io/yaml
 sigs.k8s.io/yaml/goyaml.v2
 sigs.k8s.io/yaml/goyaml.v3
-# voyagermesh.dev/gateway-api v0.0.5
+# voyagermesh.dev/gateway-api v0.0.6
 ## explicit; go 1.22.0
 voyagermesh.dev/gateway-api/apis/gateway/v1alpha1
 # voyagermesh.dev/installer v0.0.0-20250325042018-276662ac617e

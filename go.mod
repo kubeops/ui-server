@@ -24,7 +24,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/zeebo/xxh3 v1.0.2
 	go.bytebuilders.dev/catalog v0.0.15
-	go.bytebuilders.dev/catalog-manager v0.4.0
+	go.bytebuilders.dev/catalog-manager v0.5.0
 	go.bytebuilders.dev/license-verifier v0.14.9
 	go.openviz.dev/apimachinery v0.0.8
 	golang.org/x/sync v0.13.0
@@ -338,7 +338,7 @@ require (
 	k8s.io/kube-aggregator v0.32.3 // indirect
 	k8s.io/kubectl v0.32.2 // indirect
 	kmodules.xyz/apply v0.29.0 // indirect
-	kubedb.dev/apimachinery v0.53.0 // indirect
+	kubedb.dev/apimachinery v0.54.0 // indirect
 	kubeops.dev/external-dns-operator v0.0.9 // indirect
 	kubeops.dev/petset v0.0.10 // indirect
 	kubeops.dev/sidekick v0.0.11 // indirect
@@ -352,7 +352,7 @@ require (
 	sigs.k8s.io/kustomize/kyaml v0.18.1 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
-	voyagermesh.dev/gateway-api v0.0.5 // indirect
+	voyagermesh.dev/gateway-api v0.0.6 // indirect
 	voyagermesh.dev/installer v0.0.0-20250325042018-276662ac617e // indirect
 )
 
