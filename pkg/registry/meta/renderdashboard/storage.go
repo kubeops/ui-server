@@ -132,12 +132,12 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 
 	utx := graph.NewUserContext(ctx)
-	cc, err := graph.NewClient(utx, r.kc, true)
+	uc, err := graph.NewClient(utx, r.kc, true)
 	if err != nil {
 		return nil, err
 	}
 
-	dg, err := graph.RenderDashboard(utx, cc, rd, src, req.EmbeddedLink)
+	dg, err := graph.RenderDashboard(utx, uc, rd, src, req.EmbeddedLink)
 	if err != nil {
 		return nil, err
 	}

@@ -18,6 +18,7 @@ package render
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"kubeops.dev/ui-server/pkg/graph"
@@ -29,6 +30,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	tabledefs "kmodules.xyz/resource-metadata/hub/resourcetabledefinitions"
@@ -75,6 +77,10 @@ func (r *Storage) New() runtime.Object {
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
+	if u, ok := request.UserFrom(ctx); ok {
+		fmt.Printf("user: %s, extra: %v\n", u.GetName(), u.GetExtra())
+	}
+
 	in := obj.(*rsapi.Render)
 	if in.Request == nil {
 		return nil, apierrors.NewBadRequest("missing apirequest")
@@ -104,7 +110,13 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			autoColumns = true
 		}
 
-		bv, err := graph.RenderPageBlock(graph.NewUserContext(ctx), r.kc, req.Source, req.Block, req.ConvertToTable)
+		utx := graph.NewUserContext(ctx)
+		uc, err := graph.NewClient(utx, r.kc, true)
+		if err != nil {
+			return nil, err
+		}
+
+		bv, err := graph.RenderPageBlock(utx, uc, req.Source, req.Block, req.ConvertToTable)
 		if err != nil {
 			return nil, err
 		}
@@ -117,9 +129,16 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		for _, k := range req.RenderBlocks {
 			renderBlocks.Insert(string(k))
 		}
+
+		utx := graph.NewUserContext(ctx)
+		uc, err := graph.NewClient(utx, r.kc, true)
+		if err != nil {
+			return nil, err
+		}
+
 		rv, err := graph.RenderLayout(
-			graph.NewUserContext(ctx),
-			r.kc,
+			utx,
+			uc,
 			req.Source,
 			req.LayoutName, // optional
 			req.PageName,   // optional
