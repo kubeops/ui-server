@@ -21,6 +21,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"math/bits"
 	"strings"
 )
 
@@ -59,10 +60,11 @@ const (
 	ClusterProviderNameKey string = "cluster.appscode.com/provider"
 	ClusterProfileLabel    string = "cluster.appscode.com/profile"
 
-	AceOrgIDKey            string = "ace.appscode.com/org-id"
-	ClientOrgKey           string = "ace.appscode.com/client-org"
-	ClientOrgMonitoringKey string = "ace.appscode.com/client-org-monitoring"
-	ClientKeyPrefix        string = "client.ace.appscode.com/"
+	AceOrgIDKey               string = "ace.appscode.com/org-id"
+	AceEnableResourceTrialKey string = "ace.appscode.com/enable-resource-trial"
+	ClientOrgKey              string = "ace.appscode.com/client-org"
+	ClientOrgMonitoringKey    string = "ace.appscode.com/client-org-monitoring"
+	ClientKeyPrefix           string = "client.ace.appscode.com/"
 
 	ClusterClaimKeyID       string = "id.k8s.io"
 	ClusterClaimKeyInfo     string = "cluster.ace.info"
@@ -174,6 +176,18 @@ func (cm ClusterManager) Strings() []string {
 		out = append(out, "vcluster")
 	}
 	return out
+}
+
+func isPowerOfTwo(n int) bool {
+	return n > 0 && (n&(n-1)) == 0
+}
+
+func (cm ClusterManager) Name() string {
+	if !isPowerOfTwo(int(cm)) {
+		return cm.String()
+	}
+	idx := bits.TrailingZeros(uint(cm))
+	return _ClusterManagerNames[idx]
 }
 
 func (cm ClusterManager) String() string {
