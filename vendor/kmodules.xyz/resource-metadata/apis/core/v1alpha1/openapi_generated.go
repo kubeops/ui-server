@@ -20350,6 +20350,12 @@ func schema_resource_metadata_apis_core_v1alpha1_NamespaceInfo(ref common.Refere
 							},
 						},
 					},
+					"enableResourceTrial": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
 				},
 				Required: []string{"name"},
 			},
