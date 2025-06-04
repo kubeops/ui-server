@@ -1241,8 +1241,8 @@ kmodules.xyz/offshoot-api v0.32.0 h1:gogc5scSZe2JoXtZof72UGRl3Tit0kFaFRMkLLT1D8o
 kmodules.xyz/offshoot-api v0.32.0/go.mod h1:tled7OxYZ3SkUJcrVFVVYyd+zXjsRSEm1R6Q3k4gcx0=
 kmodules.xyz/resource-metadata v0.30.2 h1:K3a7z+XhKaTc4kNbmdClJ7z6dd097kWtJK3pL8EW+GQ=
 kmodules.xyz/resource-metadata v0.30.2/go.mod h1:GgA+AL58S2PlukBcnD8P6ILTtIJlp6wVuUyphR67LCY=
-kmodules.xyz/resource-metrics v0.30.7 h1:giToWZhl5ElPxh6IVM9s5lQKaAPcYkXJlOxncFB7vWQ=
-kmodules.xyz/resource-metrics v0.30.7/go.mod h1:SL7hGoKCUOTOEQXVEkryREwlVkujM8jKPVEPUklZ3JY=
+kmodules.xyz/resource-metrics v0.30.8 h1:zSZZRezjKRlkOh73AhlHQZmx93QOxvEh25dz7Sewuxg=
+kmodules.xyz/resource-metrics v0.30.8/go.mod h1:5K+0A0iU+4JBFPZEuj716/oSgI9xUTnVTANS+cwhHIs=
 kmodules.xyz/resource-metrics/utils v0.30.5-0.20250321140450-2a1d8b94cdd1 h1:/ZTAgADvEp5N9uw+bIkkAzWtNb9EkyQXB2E7kkGMoeY=
 kmodules.xyz/resource-metrics/utils v0.30.5-0.20250321140450-2a1d8b94cdd1/go.mod h1:EedHEDZu1iVfkpKsTsSTfHkG5MUf77TdjDmCYRY4UR0=
 kmodules.xyz/schema-checker v0.4.2 h1:tAbxEtM759GxDM/3sQi/+OKKwUsEF+Ih4KReV3Eb/Xw=
