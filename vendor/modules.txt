@@ -1319,7 +1319,7 @@ github.com/zeebo/xxh3
 go.bytebuilders.dev/catalog/api/catalog/v1alpha1
 go.bytebuilders.dev/catalog/api/gateway/v1alpha1
 go.bytebuilders.dev/catalog/crds
-# go.bytebuilders.dev/catalog-manager v0.5.0
+# go.bytebuilders.dev/catalog-manager v0.6.0
 ## explicit; go 1.23.6
 go.bytebuilders.dev/catalog-manager/pkg/gateway
 go.bytebuilders.dev/catalog-manager/pkg/portmanager

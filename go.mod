@@ -24,7 +24,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/zeebo/xxh3 v1.0.2
 	go.bytebuilders.dev/catalog v0.0.15
-	go.bytebuilders.dev/catalog-manager v0.5.0
+	go.bytebuilders.dev/catalog-manager v0.6.0
 	go.bytebuilders.dev/license-verifier v0.14.9
 	go.openviz.dev/apimachinery v0.0.8
 	golang.org/x/sync v0.13.0

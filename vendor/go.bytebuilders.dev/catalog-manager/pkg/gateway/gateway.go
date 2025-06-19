@@ -95,10 +95,8 @@ func GetGatewayParameter(kc client.Client, gwc *gwv1.GatewayClass) (*catgwapi.Ga
 		gwp.Service.NodeportRange = catgwapi.DefaultNodeportRange
 	}
 	gwp.GatewayClassName = gwc.Name
-	gwp.ServiceType, err = GetGatewayServiceType(context.TODO(), kc, gwc)
-	if err != nil {
-		return nil, err
-	}
+	// Ignore EnvoyProxy not found err.
+	gwp.ServiceType, _ = GetGatewayServiceType(context.TODO(), kc, gwc)
 	return &gwp, nil
 }
 
