@@ -104,7 +104,7 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.18.0
+      version: sha256:18485d02835ee9838f165b502419e2c72ad672dbacd10a25d4810b5b550c0ae7
     enforceQuota: true
     options:
       name: kubedbcom-ignite-editor-options
@@ -112,7 +112,7 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.18.0
+      version: sha256:7ae903b05e87e96ea67724ec119de12456e65cf6fa02a3e83378d14ada041cb8
   variants:
   - name: default
     selector:
