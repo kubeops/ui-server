@@ -53,7 +53,7 @@ require (
 	kmodules.xyz/monitoring-agent-api v0.32.0
 	kmodules.xyz/offshoot-api v0.32.0
 	kmodules.xyz/resource-metadata v0.32.0
-	kmodules.xyz/resource-metrics v0.30.9
+	kmodules.xyz/resource-metrics v0.30.10-0.20250716142812-ca89adcd0fe6
 	kmodules.xyz/resource-metrics/utils v0.30.5-0.20250321140450-2a1d8b94cdd1
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.5-0.20250315021558-3b54bf551e3c
@@ -365,3 +365,5 @@ replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.6
 replace k8s.io/apiserver => github.com/kmodules/apiserver v0.32.3-0.20250221062720-35dc674c7dd6
 
 replace helm.sh/helm/v3 => github.com/x-helm/helm/v3 v3.17.3-0.20250315010135-36de8bbf52f8
+
+replace kmodules.xyz/resource-metadata => ../../kmodules.xyz/resource-metadata
