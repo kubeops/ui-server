@@ -20,7 +20,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"sort"
 	"strings"
+	"time"
 
 	falco "kubeops.dev/falco-ui-server/apis/falco"
 	falcov1alpha1 "kubeops.dev/falco-ui-server/apis/falco/v1alpha1"
@@ -321,6 +323,13 @@ func _renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.Resou
 			if err != nil {
 				return &out, err
 			}
+
+			if block.View.Sort != nil {
+				idx := FindIndexFromColumnArray(table.Columns, block.View.Sort.FieldName)
+				if idx != -1 {
+					table.Rows = SortByIndex(table, block.View.Sort.Order, idx)
+				}
+			}
 			out.Table = table
 		} else {
 			out.Items = objs
@@ -409,4 +418,120 @@ func listPods(block *rsapi.PageBlockLayout, srcID *kmapi.ObjectID) ([]kmapi.Obje
 	}
 
 	return pods, nil
+}
+
+func FindIndexFromColumnArray(cols []rsapi.ResourceColumn, fieldName string) int {
+	for i, col := range cols {
+		if col.Name == fieldName {
+			return i
+		}
+	}
+	return -1
+}
+
+func SortByIndex(table *rsapi.Table, order rsapi.TableSortOrder, idx int) []rsapi.TableRow {
+	rows := table.Rows
+	columnType := table.Columns[idx].Type
+
+	if len(rows) == 0 || idx < 0 || idx >= len(rows[0].Cells) {
+		return rows
+	}
+	sortedRows := make([]rsapi.TableRow, len(rows))
+	copy(sortedRows, rows)
+
+	parseDuration := func(data interface{}) time.Duration {
+		str, ok := data.(string)
+		if !ok {
+			return 0
+		}
+		str = strings.TrimSpace(strings.ToLower(str))
+		multipliers := map[string]time.Duration{
+			"s": time.Second,
+			"m": time.Minute,
+			"h": time.Hour,
+			"d": time.Hour * 24,
+			"y": time.Hour * 24 * 365,
+		}
+		for unit, multiplier := range multipliers {
+			if strings.HasSuffix(str, unit) {
+				numStr := strings.TrimSuffix(str, unit)
+				var num int64
+				_, err := fmt.Sscanf(numStr, "%d", &num)
+				if err != nil {
+					return 0
+				}
+				return time.Duration(num) * multiplier
+			}
+		}
+		return 0
+	}
+
+	toFloat64 := func(v interface{}) (float64, bool) {
+		switch num := v.(type) {
+		case int:
+			return float64(num), true
+		case int32:
+			return float64(num), true
+		case int64:
+			return float64(num), true
+		case float32:
+			return float64(num), true
+		case float64:
+			return num, true
+		default:
+			return 0, false
+		}
+	}
+
+	compare := func(a, b interface{}) bool {
+		if a == nil && b == nil {
+			return false
+		}
+		if a == nil {
+			return true
+		}
+		if b == nil {
+			return false
+		}
+
+		switch columnType {
+		case "date", "dateTime":
+			durA := parseDuration(a)
+			durB := parseDuration(b)
+			if order == rsapi.TableSortOrderAscending {
+				return durA < durB
+			}
+			return durA > durB
+		case "string":
+			c := strings.Compare(a.(string), b.(string))
+			if order == rsapi.TableSortOrderAscending {
+				return c < 0
+			} else {
+				return c > 0
+			}
+		// https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#data-types
+		case "integer", "long", "float", "double":
+			aVal, aOk := toFloat64(a)
+			bVal, bOk := toFloat64(b)
+			if !aOk {
+				return true
+			}
+			if !bOk {
+				return false
+			}
+			if order == rsapi.TableSortOrderAscending {
+				return aVal < bVal
+			}
+			return aVal > bVal
+		}
+		return fmt.Sprintf("%v", a) > fmt.Sprintf("%v", b)
+	}
+
+	sort.Slice(sortedRows, func(i, j int) bool {
+		dataI := sortedRows[i].Cells[idx].Data
+		dataJ := sortedRows[j].Cells[idx].Data
+		return compare(dataI, dataJ)
+	})
+
+	return sortedRows
 }
