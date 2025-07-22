@@ -48,7 +48,6 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 		)
 	) by (pod)`, obj.Namespace, obj.Name, obj.Namespace, obj.Name)
 	promMemoryQuery := fmt.Sprintf(`sum(container_memory_working_set_bytes{namespace="%s", pod="%s", container!="", image!=""})`, obj.Namespace, obj.Name)
-	promStorageQuery := fmt.Sprintf(`avg(container_blkio_device_usage_total{namespace="%s", pod="%s"})`, obj.Namespace, obj.Name)
 
 	if res, err := getPromQueryResult(pc, promCPUQuery); err == nil {
 		cpu := float64(0)
@@ -80,6 +79,12 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 		klog.Infoln("failed to execute prometheus memory query")
 	}
 
+	return resUsage
+}
+
+func GetPVCUsage(pc promv1.API, obj metav1.ObjectMeta) resource.Quantity {
+	promStorageQuery := fmt.Sprintf(`kubelet_volume_stats_used_bytes{namespace="%s", persistentvolumeclaim="%s"}`, obj.Namespace, obj.Name)
+	var quan resource.Quantity
 	if res, err := getPromQueryResult(pc, promStorageQuery); err == nil {
 		storage := float64(0)
 		for _, v := range res {
@@ -88,14 +93,13 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 		storageQuantity, err := resource.ParseQuantity(convertBytesToSize(storage))
 		if err != nil {
 			klog.Errorf("failed to parse memory quantity, reason: %v", err)
-			return resUsage
+			return quan
 		}
-		resUsage[core.ResourceStorage] = storageQuantity
+		return storageQuantity
 	} else {
 		klog.Infoln("failed to execute prometheus storage query")
 	}
-
-	return resUsage
+	return quan
 }
 
 func getPromQueryResult(pc promv1.API, promQuery string) (map[string]float64, error) {
