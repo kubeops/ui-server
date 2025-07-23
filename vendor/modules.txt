@@ -2795,7 +2795,7 @@ kmodules.xyz/custom-resources/crds
 # kmodules.xyz/go-containerregistry v0.0.14
 ## explicit; go 1.23.0
 kmodules.xyz/go-containerregistry/name
-# kmodules.xyz/monitoring-agent-api v0.32.1-0.20250722140725-faa5c0c22b45
+# kmodules.xyz/monitoring-agent-api v0.32.1
 ## explicit; go 1.23.0
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/client

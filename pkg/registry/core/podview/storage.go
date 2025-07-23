@@ -212,10 +212,8 @@ func (r *Storage) toPodView(pod *core.Pod) *rscoreapi.PodView {
 					storageReq.Add(*pvc.Spec.Resources.Requests.Storage())
 					storageCap.Add(*pvc.Status.Capacity.Storage())
 					if pc != nil {
-						q := promclient.GetPVCUsage(pc, pvc.ObjectMeta)
-						klog.Infof("======> %v %v \n", pvc.Name, q.String())
 						tmp := rv.Usage[core.ResourceStorage]
-						tmp.Add(q)
+						tmp.Add(promclient.GetPVCUsage(pc, pvc.ObjectMeta))
 						rv.Usage[core.ResourceStorage] = tmp
 					}
 				}

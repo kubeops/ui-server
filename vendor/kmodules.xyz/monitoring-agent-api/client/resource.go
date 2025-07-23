@@ -32,7 +32,7 @@ import (
 	"k8s.io/klog/v2"
 )
 
-func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList {
+func GetPodResourceUsage(pc promv1.API, podMeta metav1.ObjectMeta) core.ResourceList {
 	resUsage := core.ResourceList{}
 
 	// Previous way: sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="%s", pod="%s", container!=""})
@@ -46,8 +46,8 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 				kube_pod_info{node!="",namespace="%s", pod="%s"}
 			)
 		)
-	) by (pod)`, obj.Namespace, obj.Name, obj.Namespace, obj.Name)
-	promMemoryQuery := fmt.Sprintf(`sum(container_memory_working_set_bytes{namespace="%s", pod="%s", container!="", image!=""})`, obj.Namespace, obj.Name)
+	) by (pod)`, podMeta.Namespace, podMeta.Name, podMeta.Namespace, podMeta.Name)
+	promMemoryQuery := fmt.Sprintf(`sum(container_memory_working_set_bytes{namespace="%s", pod="%s", container!="", image!=""})`, podMeta.Namespace, podMeta.Name)
 
 	if res, err := getPromQueryResult(pc, promCPUQuery); err == nil {
 		cpu := float64(0)
@@ -82,8 +82,8 @@ func GetPodResourceUsage(pc promv1.API, obj metav1.ObjectMeta) core.ResourceList
 	return resUsage
 }
 
-func GetPVCUsage(pc promv1.API, obj metav1.ObjectMeta) resource.Quantity {
-	promStorageQuery := fmt.Sprintf(`kubelet_volume_stats_used_bytes{namespace="%s", persistentvolumeclaim="%s"}`, obj.Namespace, obj.Name)
+func GetPVCUsage(pc promv1.API, pvcMeta metav1.ObjectMeta) resource.Quantity {
+	promStorageQuery := fmt.Sprintf(`kubelet_volume_stats_used_bytes{namespace="%s", persistentvolumeclaim="%s"}`, pvcMeta.Namespace, pvcMeta.Name)
 	var quan resource.Quantity
 	if res, err := getPromQueryResult(pc, promStorageQuery); err == nil {
 		storage := float64(0)
