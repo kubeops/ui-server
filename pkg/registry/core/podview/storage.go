@@ -189,6 +189,18 @@ func (r *Storage) toPodView(pod *core.Pod) *rscoreapi.PodView {
 		requests = rmapi.MaxResourceList(requests, c.Resources.Requests)
 	}
 
+	rv := rscoreapi.ResourceView{
+		Limits:   limits,
+		Requests: requests,
+	}
+
+	pc, err := r.builder.GetPrometheusClient()
+	if err != nil {
+		klog.ErrorS(err, "failed to create Prometheus client")
+	}
+	if pc != nil {
+		rv.Usage = promclient.GetPodResourceUsage(pc, pod.ObjectMeta)
+	}
 	{
 		// storage
 		storageReq := resource.Quantity{Format: resource.BinarySI}
@@ -199,21 +211,16 @@ func (r *Storage) toPodView(pod *core.Pod) *rscoreapi.PodView {
 				if err := r.kc.Get(context.TODO(), client.ObjectKey{Namespace: pod.Namespace, Name: vol.PersistentVolumeClaim.ClaimName}, &pvc); err == nil {
 					storageReq.Add(*pvc.Spec.Resources.Requests.Storage())
 					storageCap.Add(*pvc.Status.Capacity.Storage())
+					if pc != nil {
+						tmp := rv.Usage[core.ResourceStorage]
+						tmp.Add(promclient.GetPVCUsage(pc, pvc.ObjectMeta))
+						rv.Usage[core.ResourceStorage] = tmp
+					}
 				}
 			}
 		}
-		requests[core.ResourceStorage] = storageReq
-		limits[core.ResourceStorage] = storageCap
-	}
-
-	rv := rscoreapi.ResourceView{
-		Limits:   limits,
-		Requests: requests,
-	}
-	if pc, err := r.builder.GetPrometheusClient(); err != nil {
-		klog.ErrorS(err, "failed to create Prometheus client")
-	} else if pc != nil {
-		rv.Usage = promclient.GetPodResourceUsage(pc, pod.ObjectMeta)
+		rv.Requests[core.ResourceStorage] = storageReq
+		rv.Limits[core.ResourceStorage] = storageCap
 	}
 	result.Spec.Resources = rv
 
