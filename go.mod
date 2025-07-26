@@ -368,6 +368,8 @@ replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.6
 
+replace k8s.io/apimachinery => github.com/kmodules/apimachinery v0.32.8-0.20250726213920-e6ae740d7377
+
 replace k8s.io/apiserver => github.com/kmodules/apiserver v0.32.3-0.20250221062720-35dc674c7dd6
 
 replace helm.sh/helm/v3 => github.com/x-helm/helm/v3 v3.17.3-0.20250315010135-36de8bbf52f8
