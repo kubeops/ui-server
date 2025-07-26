@@ -53,7 +53,7 @@ require (
 	kmodules.xyz/monitoring-agent-api v0.32.1
 	kmodules.xyz/offshoot-api v0.32.0
 	kmodules.xyz/resource-metadata v0.33.1
-	kmodules.xyz/resource-metrics v0.30.11-0.20250808121819-d4255c017e68
+	kmodules.xyz/resource-metrics v0.30.11
 	kmodules.xyz/resource-metrics/utils v0.30.5-0.20250321140450-2a1d8b94cdd1
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.5-0.20250315021558-3b54bf551e3c
@@ -367,6 +367,8 @@ replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-
 replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime v0.20.5-0.20250418031748-f501516b300c
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.6
+
+replace k8s.io/apimachinery => github.com/kmodules/apimachinery v0.32.8-0.20250726213920-e6ae740d7377
 
 replace k8s.io/apiserver => github.com/kmodules/apiserver v0.32.3-0.20250221062720-35dc674c7dd6
 
