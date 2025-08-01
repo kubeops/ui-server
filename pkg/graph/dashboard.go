@@ -28,7 +28,9 @@ import (
 	openvizauipi "go.openviz.dev/apimachinery/apis/ui/v1alpha1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	clustermeta "kmodules.xyz/client-go/cluster"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedashboards"
@@ -38,6 +40,21 @@ import (
 
 func renderDashboard(ctx context.Context, kc client.Client, srcObj *unstructured.Unstructured) tableconvertor.DashboardRendererFunc {
 	return func(name string) (*uiapi.ResourceDashboard, string, error) {
+		user, found := request.UserFrom(ctx)
+		if found {
+			result, err := clustermeta.IsClientOrgMember(kc, user)
+			if err != nil {
+				return nil, "", err
+			}
+
+			if result.IsClientOrg {
+				kc, err = NewClient(ctx, kc, true)
+				if err != nil {
+					return nil, "", err
+				}
+			}
+		}
+
 		rd, err := resourcedashboards.LoadByName(kc, name)
 		if err != nil {
 			return nil, "", err
@@ -55,6 +72,7 @@ func renderDashboard(ctx context.Context, kc client.Client, srcObj *unstructured
 		if err != nil {
 			return nil, "", err
 		}
+
 		return rd, dg.Response.Dashboards[0].URL, nil
 	}
 }

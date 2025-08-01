@@ -34,7 +34,9 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	clustermeta "kmodules.xyz/client-go/cluster"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	"kmodules.xyz/resource-metadata/pkg/layouts"
@@ -323,7 +325,6 @@ func _renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.Resou
 			if err != nil {
 				return &out, err
 			}
-
 			if block.View.Sort != nil {
 				idx := FindIndexFromColumnArray(table.Columns, block.View.Sort.FieldName)
 				if idx != -1 {
@@ -361,6 +362,21 @@ func _renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.Resou
 			out.Table = table
 		} else {
 			out.Items = []unstructured.Unstructured{u}
+		}
+	}
+
+	user, found := request.UserFrom(ctx)
+	if found {
+		clientOrgResult, err := clustermeta.IsClientOrgMember(kc, user)
+		if err != nil {
+			return nil, err
+		}
+		if clientOrgResult.IsClientOrg {
+			for _, col := range out.Table.Columns {
+				if col.Dashboard != nil {
+					col.Dashboard.Title = clustermeta.ClientDashboardTitle(col.Dashboard.Title)
+				}
+			}
 		}
 	}
 	return &out, nil
