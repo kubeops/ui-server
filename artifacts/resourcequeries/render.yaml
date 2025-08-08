@@ -2,17 +2,17 @@ apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: Render
 request:
   convertToTable: true
-  layoutName: kubedb.com-v1alpha2-mongodbs-kubedb
+  layoutName: kubedb.com-v1alpha2-postgreses-kubedb
   pageName: Overview
   renderBlocks:
   - Connection
   source:
     ref:
-      name: mg-alert
-      namespace: demo
+      name: pg1
+      namespace: org1
     resource:
       group: kubedb.com
       kind: ''
-      name: mongodbs
+      name: postgreses
       scope: ''
-      version: v1alpha2
+      version: v1
