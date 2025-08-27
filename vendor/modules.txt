@@ -2813,7 +2813,7 @@ kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.32.7
+# kmodules.xyz/client-go v0.32.8-0.20250827171411-d067fce7a044
 ## explicit; go 1.23.0
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
