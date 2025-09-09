@@ -2851,7 +2851,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.35.0
+# kmodules.xyz/resource-metadata v0.35.1
 ## explicit; go 1.23.0
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2882,7 +2882,7 @@ kmodules.xyz/resource-metadata/pkg/layouts
 kmodules.xyz/resource-metadata/pkg/tableconvertor
 kmodules.xyz/resource-metadata/pkg/tableconvertor/lib
 kmodules.xyz/resource-metadata/pkg/tableconvertor/printers
-# kmodules.xyz/resource-metrics v0.30.11
+# kmodules.xyz/resource-metrics v0.30.12-0.20250829085449-9b8a3f3a726c
 ## explicit; go 1.23.0
 kmodules.xyz/resource-metrics
 kmodules.xyz/resource-metrics/api
