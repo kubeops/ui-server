@@ -47,14 +47,14 @@ require (
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.32.8-0.20250827171411-d067fce7a044
+	kmodules.xyz/client-go v0.32.8
 	kmodules.xyz/custom-resources v0.32.0
 	kmodules.xyz/go-containerregistry v0.0.14
 	kmodules.xyz/monitoring-agent-api v0.32.1
 	kmodules.xyz/offshoot-api v0.32.0
 	kmodules.xyz/resource-metadata v0.35.1
-	kmodules.xyz/resource-metrics v0.30.12-0.20250829085449-9b8a3f3a726c
-	kmodules.xyz/resource-metrics/utils v0.30.5-0.20250321140450-2a1d8b94cdd1
+	kmodules.xyz/resource-metrics v0.30.12
+	kmodules.xyz/resource-metrics/utils v0.30.12
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.5-0.20250315021558-3b54bf551e3c
 	kubeops.dev/scanner v0.0.19
@@ -149,7 +149,7 @@ require (
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/cli v27.5.0+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
-	github.com/docker/docker v27.5.0+incompatible // indirect
+	github.com/docker/docker v28.0.0+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-events v0.0.0-20250114142523-c867878c5e32 // indirect
