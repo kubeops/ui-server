@@ -24,12 +24,70 @@ spec:
     actions:
     - items:
       - editor:
+          name: kubedbcom-druid-editor
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: sha256:6e6054c3c3fb032e7b770fa1371ff3d3ffa835278fc54087b5b2bd59a6ebd6b5
+        enforceQuota: false
+        flow: standalone-edit
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/configure-backup.svg
+          type: image/svg+xml
+        name: Configure Backup
+        operationId: edit-self-backupconfiguration
+      - editor:
+          name: corekubestashcom-backupsession-editor
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: sha256:6851430c312f45a490b27ad92c8527d6827543f442856d0ac24a27a5f8d9fd33
+        enforceQuota: false
+        flow: standalone-create
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/instant-backup.svg
+          type: image/svg+xml
+        name: Instant Backup
+        operationId: create-instant-backup
+      - editor:
+          name: corekubestashcom-restoresession-editor-options
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: sha256:436e8c7fc0b2e968da4a1f6611ee6fd5f2d338a58cce79c86ace361990c05b54
+        enforceQuota: false
+        flow: standalone-create
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/restore.svg
+          type: image/svg+xml
+        name: Restore
+        operationId: create-restoresession
+      name: Backups
+    - items:
+      - editor:
           name: opskubedbcom-druidopsrequest-editor
           sourceRef:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:4b13c1812758aff166dcd3ab4a94b59487b790e5544313498f48b3e5cc75a7ed
+        enforceQuota: false
+        flow: standalone-create
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/version.svg
+          type: image/svg+xml
+        name: Update Version
+        operationId: create-opsrequest-upgrade
+      - editor:
+          name: opskubedbcom-druidopsrequest-editor
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: sha256:4b13c1812758aff166dcd3ab4a94b59487b790e5544313498f48b3e5cc75a7ed
         enforceQuota: false
         flow: standalone-create
         icons:
@@ -43,7 +101,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:4b13c1812758aff166dcd3ab4a94b59487b790e5544313498f48b3e5cc75a7ed
         enforceQuota: false
         flow: standalone-create
         icons:
@@ -59,7 +117,21 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:4b13c1812758aff166dcd3ab4a94b59487b790e5544313498f48b3e5cc75a7ed
+        enforceQuota: true
+        flow: standalone-create
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/horizontal_scale.svg
+          type: image/svg+xml
+        name: Horizontal Scale
+        operationId: create-opsrequest-horizontalscaling
+      - editor:
+          name: opskubedbcom-druidopsrequest-editor
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: sha256:4b13c1812758aff166dcd3ab4a94b59487b790e5544313498f48b3e5cc75a7ed
         enforceQuota: true
         flow: standalone-create
         icons:
@@ -73,7 +145,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:4b13c1812758aff166dcd3ab4a94b59487b790e5544313498f48b3e5cc75a7ed
         enforceQuota: true
         flow: standalone-create
         icons:
@@ -89,7 +161,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6e6054c3c3fb032e7b770fa1371ff3d3ffa835278fc54087b5b2bd59a6ebd6b5
         enforceQuota: true
         flow: standalone-edit
         icons:
@@ -103,7 +175,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6e6054c3c3fb032e7b770fa1371ff3d3ffa835278fc54087b5b2bd59a6ebd6b5
         enforceQuota: true
         flow: standalone-edit
         icons:
@@ -114,12 +186,26 @@ spec:
       name: Autoscaling
     - items:
       - editor:
+          name: opskubedbcom-druidopsrequest-editor
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: sha256:4b13c1812758aff166dcd3ab4a94b59487b790e5544313498f48b3e5cc75a7ed
+        enforceQuota: false
+        flow: standalone-create
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/configure.svg
+          type: image/svg+xml
+        name: TLS Configure
+        operationId: create-opsrequest-reconfiguretls
+      - editor:
           name: kubedbcom-druid-editor
           sourceRef:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6e6054c3c3fb032e7b770fa1371ff3d3ffa835278fc54087b5b2bd59a6ebd6b5
         enforceQuota: false
         flow: standalone-edit
         icons:
@@ -128,13 +214,29 @@ spec:
         name: Monitoring
         operationId: edit-self-monitoring
       name: Security & Monitoring
+    - items:
+      - editor:
+          name: kubedbcom-druid-editor
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: sha256:6e6054c3c3fb032e7b770fa1371ff3d3ffa835278fc54087b5b2bd59a6ebd6b5
+        enforceQuota: false
+        flow: standalone-edit
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/configure.svg
+          type: image/svg+xml
+        name: Expose via Gateway
+        operationId: edit-self-binding
+      name: Extras
     editor:
       name: kubedbcom-druid-editor
       sourceRef:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.24.0
+      version: sha256:6e6054c3c3fb032e7b770fa1371ff3d3ffa835278fc54087b5b2bd59a6ebd6b5
     enforceQuota: true
     options:
       name: kubedbcom-druid-editor-options
@@ -142,7 +244,7 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.24.0
+      version: sha256:08e974f011b9328a9ba54c20b2e7eeaddf13a2e1458e46bfc33fabf779ab2a34
   variants:
   - name: default
     selector:

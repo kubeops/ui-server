@@ -29,7 +29,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:e2ba91198f937d638b2a8c4597c3be478e3d61348177e36dcbe5867e2e62202f
         enforceQuota: false
         flow: standalone-edit
         icons:
@@ -43,7 +43,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6851430c312f45a490b27ad92c8527d6827543f442856d0ac24a27a5f8d9fd33
         enforceQuota: false
         flow: standalone-create
         icons:
@@ -57,7 +57,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:436e8c7fc0b2e968da4a1f6611ee6fd5f2d338a58cce79c86ace361990c05b54
         enforceQuota: false
         flow: standalone-create
         icons:
@@ -73,7 +73,21 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6acd11cc501674eaf132f589884bf40fd45cd14679d6df2731a848d47b3fded5
+        enforceQuota: false
+        flow: standalone-create
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/version.svg
+          type: image/svg+xml
+        name: Update Version
+        operationId: create-opsrequest-upgrade
+      - editor:
+          name: opskubedbcom-mssqlserveropsrequest-editor
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: sha256:6acd11cc501674eaf132f589884bf40fd45cd14679d6df2731a848d47b3fded5
         enforceQuota: false
         flow: standalone-create
         icons:
@@ -87,7 +101,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6acd11cc501674eaf132f589884bf40fd45cd14679d6df2731a848d47b3fded5
         enforceQuota: false
         flow: standalone-create
         icons:
@@ -105,7 +119,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6acd11cc501674eaf132f589884bf40fd45cd14679d6df2731a848d47b3fded5
         enforceQuota: true
         flow: standalone-create
         icons:
@@ -119,7 +133,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6acd11cc501674eaf132f589884bf40fd45cd14679d6df2731a848d47b3fded5
         enforceQuota: true
         flow: standalone-create
         icons:
@@ -133,7 +147,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6acd11cc501674eaf132f589884bf40fd45cd14679d6df2731a848d47b3fded5
         enforceQuota: true
         flow: standalone-create
         icons:
@@ -149,7 +163,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:e2ba91198f937d638b2a8c4597c3be478e3d61348177e36dcbe5867e2e62202f
         enforceQuota: true
         flow: standalone-edit
         icons:
@@ -163,7 +177,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:e2ba91198f937d638b2a8c4597c3be478e3d61348177e36dcbe5867e2e62202f
         enforceQuota: true
         flow: standalone-edit
         icons:
@@ -179,7 +193,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:6acd11cc501674eaf132f589884bf40fd45cd14679d6df2731a848d47b3fded5
         enforceQuota: false
         flow: standalone-create
         icons:
@@ -193,7 +207,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.24.0
+          version: sha256:e2ba91198f937d638b2a8c4597c3be478e3d61348177e36dcbe5867e2e62202f
         enforceQuota: false
         flow: standalone-edit
         icons:
@@ -202,13 +216,29 @@ spec:
         name: Monitoring
         operationId: edit-self-monitoring
       name: Security & Monitoring
+    - items:
+      - editor:
+          name: kubedbcom-mssqlserver-editor
+          sourceRef:
+            apiGroup: source.toolkit.fluxcd.io
+            kind: HelmRepository
+            name: appscode-charts-oci
+          version: sha256:e2ba91198f937d638b2a8c4597c3be478e3d61348177e36dcbe5867e2e62202f
+        enforceQuota: false
+        flow: standalone-edit
+        icons:
+        - src: https://cdn.appscode.com/k8s/icons/action-icons/configure.svg
+          type: image/svg+xml
+        name: Expose via Gateway
+        operationId: edit-self-binding
+      name: Extras
     editor:
       name: kubedbcom-mssqlserver-editor
       sourceRef:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.24.0
+      version: sha256:e2ba91198f937d638b2a8c4597c3be478e3d61348177e36dcbe5867e2e62202f
     enforceQuota: true
     options:
       name: kubedbcom-mssqlserver-editor-options
@@ -216,7 +246,7 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.24.0
+      version: sha256:d62f090cde4d359eefc0a0d27556d8414d6c0ce6238ba604fad47e612ad44b0e
   variants:
   - name: default
     selector:
