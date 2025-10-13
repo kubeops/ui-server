@@ -9,6 +9,11 @@ metadata:
     k8s.io/version: v1alpha1
   name: catalog.kubedb.com-v1alpha1-etcdversions
 spec:
+  icons:
+  - src: https://cdn.appscode.com/k8s/icons/catalog.kubedb.com/etcdversions.svg
+    type: image/svg+xml
+  - src: https://cdn.appscode.com/k8s/icons/catalog.kubedb.com/etcdversions.png
+    type: image/png
   resource:
     group: catalog.kubedb.com
     kind: EtcdVersion
@@ -22,5 +27,5 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.25.0
+      version: sha256:55f7b3718566f9e70b961f13644a17be8a866a0c807a0ec77522c1fda33d239f
     enforceQuota: false

@@ -9,6 +9,11 @@ metadata:
     k8s.io/version: v1alpha2
   name: kubedb.com-v1alpha2-etcds
 spec:
+  icons:
+  - src: https://cdn.appscode.com/k8s/icons/kubedb.com/etcds.svg
+    type: image/svg+xml
+  - src: https://cdn.appscode.com/k8s/icons/kubedb.com/etcds.png
+    type: image/png
   resource:
     group: kubedb.com
     kind: Etcd
@@ -22,5 +27,5 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.25.0
+      version: sha256:5e18bd8e531ff22a2208c694a2755af353b7db4a2b583e97b2476e537c060657
     enforceQuota: false

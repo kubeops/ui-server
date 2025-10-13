@@ -9,6 +9,11 @@ metadata:
     k8s.io/version: v1alpha1
   name: catalog.kubedb.com-v1alpha1-singlestoreversions
 spec:
+  icons:
+  - src: https://cdn.appscode.com/k8s/icons/catalog.kubedb.com/singlestoreversions.svg
+    type: image/svg+xml
+  - src: https://cdn.appscode.com/k8s/icons/catalog.kubedb.com/singlestoreversions.png
+    type: image/png
   resource:
     group: catalog.kubedb.com
     kind: SinglestoreVersion
@@ -22,5 +27,5 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.25.0
+      version: sha256:1ba55323f0487d5bdde7f172806398c94cbdca2195258a0f9ca3f2e1eedcfda5
     enforceQuota: false
