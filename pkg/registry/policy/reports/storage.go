@@ -28,7 +28,6 @@ import (
 	"kubeops.dev/ui-server/pkg/graph"
 	"kubeops.dev/ui-server/pkg/shared"
 
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/audit"
 	"gomodules.xyz/sets"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -216,8 +215,8 @@ func ListConstraints(ctx context.Context, kc client.Client, kind string) (unstru
 	return constraints, err
 }
 
-func GetViolationsOfConstraint(constraint unstructured.Unstructured) ([]audit.StatusViolation, error) {
-	var violations []audit.StatusViolation
+func GetViolationsOfConstraint(constraint unstructured.Unstructured) ([]policyapi.StatusViolation, error) {
+	var violations []policyapi.StatusViolation
 	vs, _, err := unstructured.NestedSlice(constraint.UnstructuredContent(), "status", "violations")
 	if err != nil {
 		return nil, err
@@ -228,7 +227,7 @@ func GetViolationsOfConstraint(constraint unstructured.Unstructured) ([]audit.St
 			return nil, err
 		}
 
-		var vv audit.StatusViolation
+		var vv policyapi.StatusViolation
 		err = json.Unmarshal(jsonBytes, &vv)
 		if err != nil {
 			return nil, err
@@ -291,7 +290,7 @@ c = number if resourceGraph.response.connections
 So, overall n * lg^2(n) complexity for a single constraint
 */
 
-func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations []audit.StatusViolation, scp scopeDetails) []audit.StatusViolation {
+func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations []policyapi.StatusViolation, scp scopeDetails) []policyapi.StatusViolation {
 	if scp.isCluster {
 		return violations
 	} else if scp.isNamespace {
@@ -304,7 +303,7 @@ func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations 
 	}
 	idToMeta := buildMapFromConnections(gr.Connections, neededResourceIDs)
 
-	var toAddOnReport []audit.StatusViolation
+	var toAddOnReport []policyapi.StatusViolation
 	for _, violation := range violations {
 		id := gvkToResourceIDMap[violationGVKToString(violation)]
 		s := violationMetaToString(violation)
@@ -315,8 +314,8 @@ func evaluateForSingleConstraint(gr *v1alpha1.ResourceGraphResponse, violations 
 	return toAddOnReport
 }
 
-func evaluateForSingleConstraintInNamespaceScope(violations []audit.StatusViolation, ns string) []audit.StatusViolation {
-	ret := make([]audit.StatusViolation, 0)
+func evaluateForSingleConstraintInNamespaceScope(violations []policyapi.StatusViolation, ns string) []policyapi.StatusViolation {
+	ret := make([]policyapi.StatusViolation, 0, len(violations))
 	for _, v := range violations {
 		if v.Namespace == ns {
 			ret = append(ret, v)
@@ -325,7 +324,7 @@ func evaluateForSingleConstraintInNamespaceScope(violations []audit.StatusViolat
 	return ret
 }
 
-func preprocess(resources []kmapi.ResourceID, violations []audit.StatusViolation) (map[string]int, []int) {
+func preprocess(resources []kmapi.ResourceID, violations []policyapi.StatusViolation) (map[string]int, []int) {
 	gvkToResourceIDMap := make(map[string]int)
 	for _, violation := range violations {
 		gvkToResourceIDMap[violationGVKToString(violation)] = -1
@@ -373,7 +372,7 @@ func buildMapFromConnections(connections []v1alpha1.ObjectConnection, neededReso
 	return idToMeta
 }
 
-func violationGVKToString(v audit.StatusViolation) string {
+func violationGVKToString(v policyapi.StatusViolation) string {
 	return fmt.Sprintf("G=%v,V=%v,K=%v", v.Group, v.Version, v.Kind)
 }
 
@@ -381,7 +380,7 @@ func resourceIDGVKToString(r kmapi.ResourceID) string {
 	return fmt.Sprintf("G=%v,V=%v,K=%v", r.Group, r.Version, r.Kind)
 }
 
-func violationMetaToString(v audit.StatusViolation) string {
+func violationMetaToString(v policyapi.StatusViolation) string {
 	return fmt.Sprintf("NS=%v,N=%v", v.Namespace, v.Name)
 }
 
