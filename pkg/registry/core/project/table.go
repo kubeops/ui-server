@@ -53,7 +53,7 @@ func (c defaultTableConvertor) ConvertToTable(ctx context.Context, object runtim
 		o := obj.(*rscoreapi.Project)
 
 		table.Rows = append(table.Rows, metav1.TableRow{
-			Cells: []interface{}{
+			Cells: []any{
 				o.Name,
 				o.Spec.Type,
 				convertToHumanReadableDateType(o.CreationTimestamp.Time),

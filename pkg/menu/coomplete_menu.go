@@ -63,8 +63,8 @@ func GenerateCompleteMenu(kc client.Client, disco discovery.DiscoveryInterface) 
 
 		// Kubedb -> KubeDB
 		if strings.Contains(strings.ToLower(sec.Name), "kubedb") {
-			sec.Name = strings.Replace(sec.Name, "Kubedb", "KubeDB", -1)
-			sec.Name = strings.Replace(sec.Name, "kubedb", "KubeDB", -1)
+			sec.Name = strings.ReplaceAll(sec.Name, "Kubedb", "KubeDB")
+			sec.Name = strings.ReplaceAll(sec.Name, "kubedb", "KubeDB")
 		}
 
 		// Kubedb op -> KubeDB Ops and Kubedb Postgre -> KubeDB Postgres

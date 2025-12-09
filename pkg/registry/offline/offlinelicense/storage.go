@@ -27,7 +27,6 @@ import (
 	verifier "go.bytebuilders.dev/license-verifier"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -203,7 +202,7 @@ func ignoreCertificateExpiredError(err error) error {
 func getLicenseSecret(ctx context.Context, kc client.Client, ns string) (*core.Secret, error) {
 	var licenseSecret core.Secret
 	err := kc.Get(ctx, types.NamespacedName{Name: addofflinelicense.LicenseSecretName, Namespace: ns}, &licenseSecret)
-	if err != nil && kerr.IsNotFound(err) {
+	if err != nil && apierrors.IsNotFound(err) {
 		return &core.Secret{}, nil // never return nil
 	} else if err != nil {
 		return &core.Secret{}, err // never return nil

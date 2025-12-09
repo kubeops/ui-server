@@ -177,7 +177,7 @@ func (r *frReconciler) ensureFinalizer(ctx context.Context) error {
 	if changed := controllerutil.AddFinalizer(r.feature, uiapi.UIServerCleanupFinalizer); changed {
 		_, err := cu.CreateOrPatch(ctx, r.client, r.feature.DeepCopy(), func(obj client.Object, createOp bool) client.Object {
 			in := obj.(*uiapi.Feature)
-			in.ObjectMeta.Finalizers = r.feature.Finalizers
+			in.Finalizers = r.feature.Finalizers
 			return in
 		})
 		return err
@@ -428,7 +428,7 @@ func (r *frReconciler) updateFeatureSetAndRemoveFinalizer(ctx context.Context) e
 	if changed := controllerutil.RemoveFinalizer(r.feature, uiapi.UIServerCleanupFinalizer); changed {
 		_, err := cu.CreateOrPatch(ctx, r.client, r.feature.DeepCopy(), func(obj client.Object, createOp bool) client.Object {
 			in := obj.(*uiapi.Feature)
-			in.ObjectMeta.Finalizers = r.feature.Finalizers
+			in.Finalizers = r.feature.Finalizers
 			return in
 		})
 		return err

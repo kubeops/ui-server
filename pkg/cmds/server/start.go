@@ -53,7 +53,6 @@ import (
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
 	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-	ui "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -183,7 +182,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 			catalogapi.GetOpenAPIDefinitions,
 		),
 		openapi.NewDefinitionNamer(apiserver.Scheme))
-	serverConfig.OpenAPIConfig.Info.Title = "kube-ui-server"
+	serverConfig.OpenAPIConfig.Info.Title = "kube-uiapi-server"
 	serverConfig.OpenAPIConfig.Info.Version = v.Version.Version
 	serverConfig.OpenAPIConfig.IgnorePrefixes = ignorePrefixes
 
@@ -193,7 +192,7 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 			rscoreapi.GetOpenAPIDefinitions,
 		),
 		openapi.NewDefinitionNamer(apiserver.Scheme))
-	serverConfig.OpenAPIV3Config.Info.Title = "kube-ui-server"
+	serverConfig.OpenAPIV3Config.Info.Title = "kube-uiapi-server"
 	serverConfig.OpenAPIV3Config.Info.Version = v.Version.Version
 	serverConfig.OpenAPIV3Config.IgnorePrefixes = ignorePrefixes
 
@@ -238,7 +237,7 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 		return err
 	}
 
-	server.GenericAPIServer.AddPostStartHookOrDie("start-ui-server-informers", func(context genericapiserver.PostStartHookContext) error {
+	server.GenericAPIServer.AddPostStartHookOrDie("start-uiapi-server-informers", func(context genericapiserver.PostStartHookContext) error {
 		config.GenericConfig.SharedInformerFactory.Start(context.Done())
 		return nil
 	})
@@ -250,7 +249,7 @@ func (o UIServerOptions) RunUIServer(ctx context.Context) error {
 		return err
 	}
 
-	utilruntime.Must(ui.AddToScheme(server.Manager.GetScheme()))
+	utilruntime.Must(uiapi.AddToScheme(server.Manager.GetScheme()))
 	utilruntime.Must(fluxhelm.AddToScheme(server.Manager.GetScheme()))
 	fr := &featurecontroller.FeatureReconciler{
 		Client:    server.Manager.GetClient(),
@@ -274,7 +273,7 @@ func buildTelemetryServer(registry prometheus.Gatherer) *http.ServeMux {
 	// Add index
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`<html>
-             <head><title>Metrics for kube-ui-server by AppsCode</title></head>
+             <head><title>Metrics for kube-uiapi-server by AppsCode</title></head>
              <body>
              <h1>Metrics</h1>
 			 <ul>
@@ -289,12 +288,12 @@ func buildTelemetryServer(registry prometheus.Gatherer) *http.ServeMux {
 // promLogger implements promhttp.Logger
 type promLogger struct{}
 
-func (pl promLogger) Println(v ...interface{}) {
+func (pl promLogger) Println(v ...any) {
 	klog.Error(v...)
 }
 
 // promLogger implements the Logger interface
-func (pl promLogger) Log(v ...interface{}) error {
+func (pl promLogger) Log(v ...any) error {
 	klog.Info(v...)
 	return nil
 }

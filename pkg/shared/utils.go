@@ -25,7 +25,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func RenderTemplate(text string, data interface{}, buf *bytes.Buffer) (string, error) {
+func RenderTemplate(text string, data any, buf *bytes.Buffer) (string, error) {
 	if !strings.Contains(text, "{{") {
 		return text, nil
 	}

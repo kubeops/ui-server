@@ -62,7 +62,7 @@ func getGraphQLSchema() graphql.Schema {
 						Type:        graphql.String,
 					},
 				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				Resolve: func(p graphql.ResolveParams) (any, error) {
 					var targetGK metav1.GroupKind
 					if v, ok := p.Args["group"]; ok {
 						targetGK.Group = v.(string)
@@ -90,7 +90,7 @@ func getGraphQLSchema() graphql.Schema {
 						}
 						return out, nil
 					}
-					return []interface{}{}, nil
+					return []any{}, nil
 				},
 			})
 		}(label)
@@ -107,7 +107,7 @@ func getGraphQLSchema() graphql.Schema {
 						Type:        graphql.NewNonNull(graphql.String),
 					},
 				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				Resolve: func(p graphql.ResolveParams) (any, error) {
 					key := p.Args["oid"].(string)
 					oid, err := kmapi.ParseObjectID(kmapi.OID(key))
 					if err != nil {

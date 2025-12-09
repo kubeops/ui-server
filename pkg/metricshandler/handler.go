@@ -145,7 +145,7 @@ func (mc *Collector) collectMetrics() error {
 }
 
 func (mc *Collector) initFamilyGenerators() {
-	fn := func(obj interface{}) *metric.Family { return new(metric.Family) }
+	fn := func(obj any) *metric.Family { return new(metric.Family) }
 	mc.generators = make([]generator.FamilyGenerator, 0, 14)
 
 	mc.generators = append(mc.generators, generator.FamilyGenerator{

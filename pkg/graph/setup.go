@@ -152,7 +152,7 @@ func SetupGraphReconciler(mgr manager.Manager) func(ctx context.Context) error {
 	}
 }
 
-func ExecGraphQLQuery(c client.Client, query string, vars map[string]interface{}) ([]unstructured.Unstructured, error) {
+func ExecGraphQLQuery(c client.Client, query string, vars map[string]any) ([]unstructured.Unstructured, error) {
 	refs, err := execRawGraphQLQuery(query, vars)
 	if err != nil {
 		return nil, err
@@ -189,7 +189,7 @@ func ExecGraphQLQuery(c client.Client, query string, vars map[string]interface{}
 	return objs, nil
 }
 
-func execRawGraphQLQuery(query string, vars map[string]interface{}) ([]kmapi.ObjectReference, error) {
+func execRawGraphQLQuery(query string, vars map[string]any) ([]kmapi.ObjectReference, error) {
 	params := graphql.Params{
 		Schema:         Schema,
 		RequestString:  query,
@@ -204,27 +204,27 @@ func execRawGraphQLQuery(query string, vars map[string]interface{}) ([]kmapi.Obj
 		return nil, errors.Wrap(utilerrors.NewAggregate(errs), "failed to execute graphql operation")
 	}
 
-	refs, err := listRefs(result.Data.(map[string]interface{}))
+	refs, err := listRefs(result.Data.(map[string]any))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to extract refs")
 	}
 	return refs, nil
 }
 
-func listRefs(data map[string]interface{}) ([]kmapi.ObjectReference, error) {
+func listRefs(data map[string]any) ([]kmapi.ObjectReference, error) {
 	result := ksets.NewObjectReference()
 	err := extractRefs(data, result)
 	return result.List(), err
 }
 
-func extractRefs(data map[string]interface{}, result ksets.ObjectReference) error {
+func extractRefs(data map[string]any, result ksets.ObjectReference) error {
 	for k, v := range data {
 		switch u := v.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			if err := extractRefs(u, result); err != nil {
 				return err
 			}
-		case []interface{}:
+		case []any:
 			if k == "refs" {
 				var refs []kmapi.ObjectReference
 				err := meta_util.DecodeObject(u, &refs)
@@ -236,7 +236,7 @@ func extractRefs(data map[string]interface{}, result ksets.ObjectReference) erro
 			}
 
 			for i := range u {
-				entry, ok := u[i].(map[string]interface{})
+				entry, ok := u[i].(map[string]any)
 				if ok {
 					if err := extractRefs(entry, result); err != nil {
 						return err
