@@ -34,7 +34,9 @@ func (in *Constraint) DeepCopyInto(out *Constraint) {
 	if in.Violations != nil {
 		in, out := &in.Violations, &out.Violations
 		*out = make([]audit.StatusViolation, len(*in))
-		copy(*out, *in)
+		for i := range *in {
+			(*in)[i].DeepCopyInto(&(*out)[i])
+		}
 	}
 	return
 }
