@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/audit"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -54,5 +53,16 @@ type Constraint struct {
 	AuditTimestamp metav1.Time                 `json:"auditTimestamp,omitempty"`
 	Name           string                      `json:"name,omitempty"`
 	GVR            schema.GroupVersionResource `json:"gvr,omitempty"`
-	Violations     []audit.StatusViolation     `json:"violations,omitempty"`
+	Violations     []StatusViolation           `json:"violations,omitempty"`
+}
+
+type StatusViolation struct {
+	Group              string   `json:"group"`
+	Version            string   `json:"version"`
+	Kind               string   `json:"kind"`
+	Name               string   `json:"name"`
+	Namespace          string   `json:"namespace,omitempty"`
+	Message            string   `json:"message"`
+	EnforcementAction  string   `json:"enforcementAction"`
+	EnforcementActions []string `json:"enforcementActions,omitempty"`
 }
