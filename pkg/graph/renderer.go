@@ -298,7 +298,8 @@ func _renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.Resou
 		return &out, err
 	}
 
-	if block.Query.Type == sharedapi.GraphQLQuery {
+	switch block.Query.Type {
+	case sharedapi.GraphQLQuery:
 		var objs []unstructured.Unstructured
 
 		// handle FalcoEvent list call
@@ -335,8 +336,8 @@ func _renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.Resou
 		} else {
 			out.Items = objs
 		}
-	} else if block.Query.Type == sharedapi.RESTQuery {
-		var obj map[string]interface{}
+	case sharedapi.RESTQuery:
+		var obj map[string]any
 		if q != "" {
 			err = yaml.Unmarshal([]byte(q), &obj)
 			if err != nil {
@@ -455,7 +456,7 @@ func SortByIndex(table *rsapi.Table, order rsapi.TableSortOrder, idx int) []rsap
 	sortedRows := make([]rsapi.TableRow, len(rows))
 	copy(sortedRows, rows)
 
-	parseDuration := func(data interface{}) time.Duration {
+	parseDuration := func(data any) time.Duration {
 		str, ok := data.(string)
 		if !ok {
 			return 0
@@ -482,7 +483,7 @@ func SortByIndex(table *rsapi.Table, order rsapi.TableSortOrder, idx int) []rsap
 		return 0
 	}
 
-	toFloat64 := func(v interface{}) (float64, bool) {
+	toFloat64 := func(v any) (float64, bool) {
 		switch num := v.(type) {
 		case int:
 			return float64(num), true
@@ -499,7 +500,7 @@ func SortByIndex(table *rsapi.Table, order rsapi.TableSortOrder, idx int) []rsap
 		}
 	}
 
-	compare := func(a, b interface{}) bool {
+	compare := func(a, b any) bool {
 		if a == nil && b == nil {
 			return false
 		}

@@ -1,6 +1,6 @@
 module kubeops.dev/ui-server
 
-go 1.23.8
+go 1.24.0
 
 toolchain go1.24.5
 
@@ -27,7 +27,7 @@ require (
 	go.bytebuilders.dev/catalog-manager v0.6.0
 	go.bytebuilders.dev/license-verifier v0.14.9
 	go.openviz.dev/apimachinery v0.0.8
-	golang.org/x/sync v0.16.0
+	golang.org/x/sync v0.18.0
 	gomodules.xyz/jsonpath v0.0.2
 	gomodules.xyz/logs v0.0.7
 	gomodules.xyz/password-generator v0.2.9
@@ -47,7 +47,7 @@ require (
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 	kmodules.xyz/apiversion v0.2.0
 	kmodules.xyz/authorizer v0.29.1
-	kmodules.xyz/client-go v0.32.8
+	kmodules.xyz/client-go v0.32.10
 	kmodules.xyz/custom-resources v0.32.0
 	kmodules.xyz/go-containerregistry v0.0.14
 	kmodules.xyz/monitoring-agent-api v0.32.1
@@ -133,7 +133,7 @@ require (
 	github.com/chai2010/gettext-go v1.0.3 // indirect
 	github.com/cncf/xds/go v0.0.0-20250501225837-2ac532fd4443 // indirect
 	github.com/containerd/cgroups/v3 v3.0.5 // indirect
-	github.com/containerd/containerd v1.7.27 // indirect
+	github.com/containerd/containerd v1.7.29 // indirect
 	github.com/containerd/continuity v0.4.5 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
@@ -306,13 +306,13 @@ require (
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.3 // indirect
 	gocloud.dev v0.40.0 // indirect
-	golang.org/x/crypto v0.40.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
-	golang.org/x/net v0.42.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
-	golang.org/x/term v0.33.0 // indirect
-	golang.org/x/text v0.27.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/term v0.37.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	gomodules.xyz/atomic-writer v0.0.2 // indirect

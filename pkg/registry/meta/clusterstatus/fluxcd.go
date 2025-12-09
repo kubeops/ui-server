@@ -61,7 +61,8 @@ func getFluxCDStatus(kc client.Client) (FluxCDStatus, error) {
 	}
 
 	for _, deploy := range deployments.Items {
-		if deploy.Name == "source-controller" {
+		switch deploy.Name {
+		case "source-controller":
 			status.Installed = true
 			status.Managed = isFluxCDManaged(deploy.Spec.Template.Labels)
 
@@ -70,7 +71,7 @@ func getFluxCDStatus(kc client.Client) (FluxCDStatus, error) {
 				status.Message = "No ready replica found for deployment 'source-controller'"
 				return status, nil
 			}
-		} else if deploy.Name == "helm-controller" {
+		case "helm-controller":
 			if deploy.Status.ReadyReplicas == 0 {
 				status.Ready = false
 				status.Message = "No ready replica found for deployment 'helm-controller'"

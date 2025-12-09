@@ -36,14 +36,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/authentication/user"
 	"k8s.io/apiserver/pkg/endpoints/request"
-	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 	rbacauthz "kmodules.xyz/authorizer/apiserver"
 	clustermeta "kmodules.xyz/client-go/cluster"
-	"kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	"kmodules.xyz/resource-metadata/hub/resourcedescriptors"
@@ -138,10 +136,10 @@ func main_2() {
 		Extra: nil,
 	})
 
-	in := v1alpha1.SelfSubjectNamespaceAccessReview{
+	in := identityapi.SelfSubjectNamespaceAccessReview{
 		TypeMeta:   metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{},
-		Spec: v1alpha1.SelfSubjectNamespaceAccessReviewSpec{
+		Spec: identityapi.SelfSubjectNamespaceAccessReviewSpec{
 			ResourceAttributes: []authorization.ResourceAttributes{
 				{
 					Namespace:   "",
@@ -155,7 +153,7 @@ func main_2() {
 			},
 			NonResourceAttributes: nil,
 		},
-		Status: v1alpha1.SubjectAccessNamespaceReviewStatus{},
+		Status: identityapi.SubjectAccessNamespaceReviewStatus{},
 	}
 
 	out, err := s.Create(ctx, &in, nil, nil)
@@ -418,8 +416,8 @@ func main_5() {
 	s := resourceservice.NewStorage(rtc, kc.Discovery(), cid, rbacAuthorizer)
 
 	ctx := context.TODO()
-	ctx = apirequest.WithNamespace(ctx, "default")
-	ctx = apirequest.WithUser(ctx, &user.DefaultInfo{
+	ctx = request.WithNamespace(ctx, "default")
+	ctx = request.WithUser(ctx, &user.DefaultInfo{
 		Name:   "system:admin",
 		Groups: []string{"system:masters", "system:authenticated"},
 	})
@@ -447,8 +445,8 @@ func main_6() {
 	s := resourceservice.NewStorage(rtc, kc.Discovery(), cid, rbacAuthorizer)
 
 	ctx := context.TODO()
-	ctx = apirequest.WithNamespace(ctx, "ace")
-	ctx = apirequest.WithUser(ctx, &user.DefaultInfo{
+	ctx = request.WithNamespace(ctx, "ace")
+	ctx = request.WithUser(ctx, &user.DefaultInfo{
 		Name:   "system:admin",
 		Groups: []string{"system:masters", "system:authenticated"},
 	})
@@ -471,8 +469,8 @@ func main() {
 	s := selfsubjectnamespaceaccessreview.NewStorage(kc, rtc)
 
 	ctx := context.TODO()
-	ctx = apirequest.WithNamespace(ctx, "ace")
-	ctx = apirequest.WithUser(ctx, &user.DefaultInfo{
+	ctx = request.WithNamespace(ctx, "ace")
+	ctx = request.WithUser(ctx, &user.DefaultInfo{
 		Name: "u-ct92n",
 		UID:  "",
 		Groups: []string{

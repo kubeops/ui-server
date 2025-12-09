@@ -229,7 +229,7 @@ func ToGenericResource(item *unstructured.Unstructured, apiType *kmapi.ResourceI
 	return &genres, nil
 }
 
-func quota(obj map[string]interface{}, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaDecision, error) {
+func quota(obj map[string]any, pq *v1alpha1.ProjectQuota) (*rsapi.QuotaDecision, error) {
 	qd := &rsapi.QuotaDecision{
 		Decision:   rsapi.DecisionAllow,
 		Violations: make([]string, 0),

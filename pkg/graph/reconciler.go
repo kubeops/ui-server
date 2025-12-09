@@ -45,7 +45,7 @@ type Reconciler struct {
 var gvkService = core.SchemeGroupVersion.WithKind("Service")
 
 func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
-	log := logger.FromContext(ctx).WithValues("name", req.NamespacedName.Name)
+	log := logger.FromContext(ctx).WithValues("name", req.Name)
 	gvk := r.R.GroupVersionKind()
 
 	var obj unstructured.Unstructured

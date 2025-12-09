@@ -146,7 +146,7 @@ func (r *Storage) toPodView(pod *core.Pod) *rscoreapi.PodView {
 	result.ManagedFields = nil
 	result.OwnerReferences = nil
 	result.Finalizers = nil
-	delete(result.ObjectMeta.Annotations, mu.LastAppliedConfigAnnotation)
+	delete(result.Annotations, mu.LastAppliedConfigAnnotation)
 
 	var limits, requests core.ResourceList
 

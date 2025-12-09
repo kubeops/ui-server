@@ -88,7 +88,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		scp.isCluster = true
 	} else if shared.IsNamespaceRequest(&in.Request.ObjectInfo) {
 		scp.isNamespace = true
-		scp.namespace = in.Request.ObjectInfo.Ref.Name
+		scp.namespace = in.Request.Ref.Name
 	} else {
 		resourceGraph, err = getResourceGraph(r.kc, in.Request.ObjectInfo)
 		if err != nil {

@@ -802,7 +802,7 @@ func Namespaces(kc client.Client, ref *unstructured.Unstructured, ns *rsapi.Name
 	return []string{metav1.NamespaceAll}, nil
 }
 
-func Extract(u *unstructured.Unstructured, fieldPath string, v interface{}) (bool, error) {
+func Extract(u *unstructured.Unstructured, fieldPath string, v any) (bool, error) {
 	if fieldPath == "" {
 		return false, errors.New("fieldPath can't be empty")
 	}
@@ -814,7 +814,7 @@ func Extract(u *unstructured.Unstructured, fieldPath string, v interface{}) (boo
 	return err == nil, err
 }
 
-func keyExists(m map[string]interface{}, key string) bool {
+func keyExists(m map[string]any, key string) bool {
 	_, ok := m[key]
 	return ok
 }
@@ -827,7 +827,7 @@ func ExtractSelector(u *unstructured.Unstructured, fieldPath string) (labels.Sel
 	if !found || err != nil {
 		return labels.Nothing(), err
 	}
-	m, ok := val.(map[string]interface{})
+	m, ok := val.(map[string]any)
 	if !ok {
 		return labels.Nothing(), fmt.Errorf("%v accessor error: %v is of the type %T, expected map[string]interface{}", fieldPath, val, val)
 	}

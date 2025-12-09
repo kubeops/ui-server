@@ -511,7 +511,7 @@ func TestFeatureSetStatus(t *testing.T) {
 func TestFeatureSetGetDisabledWhenRequiredFeatureGetDeleted(t *testing.T) {
 	curTime := metav1.Now()
 	feature := sampleFeature(func(in *uiapi.Feature) {
-		in.ObjectMeta.DeletionTimestamp = &curTime
+		in.DeletionTimestamp = &curTime
 	})
 
 	fs := sampleFeatureSet(feature.Spec.FeatureSet, func(in *uiapi.FeatureSet) {

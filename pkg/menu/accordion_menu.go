@@ -62,7 +62,7 @@ func RenderAccordionMenu(kc client.Client, disco discovery.DiscoveryInterface, m
 
 	for _, so := range mo.Spec.Sections {
 		sec := rsapi.MenuSection{
-			MenuSectionInfo: *so.MenuSectionOutlineInfo.ToMenuSectionInfo(),
+			MenuSectionInfo: *so.ToMenuSectionInfo(),
 		}
 		if so.AutoDiscoverAPIGroup != "" {
 			kinds := out[so.AutoDiscoverAPIGroup]

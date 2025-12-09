@@ -46,7 +46,7 @@ func deductOldDbObjectResourceUsageFromProjectQuota(kc client.Client, u unstruct
 	return nil
 }
 
-func deductDbObjResourceUsageFromProjectQuota(dbObj map[string]interface{}, pq *v1alpha1.ProjectQuota) error {
+func deductDbObjResourceUsageFromProjectQuota(dbObj map[string]any, pq *v1alpha1.ProjectQuota) error {
 	c, err := api.Load(dbObj)
 	if err != nil {
 		return err
@@ -124,7 +124,7 @@ func getApplicableQuotas(kc client.Client, ns string) ([]*v1alpha1.ProjectQuota,
 	return result, nil
 }
 
-func getGVK(obj map[string]interface{}) schema.GroupVersionKind {
+func getGVK(obj map[string]any) schema.GroupVersionKind {
 	var unObj unstructured.Unstructured
 	unObj.SetUnstructuredContent(obj)
 

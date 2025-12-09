@@ -166,9 +166,10 @@ func ListRancherProjects(kc client.Client) ([]rscoreapi.Project, error) {
 			project.CreationTimestamp = ns.CreationTimestamp
 		}
 
-		if ns.Name == metav1.NamespaceDefault {
+		switch ns.Name {
+		case metav1.NamespaceDefault:
 			project.Spec.Type = rscoreapi.ProjectDefault
-		} else if ns.Name == metav1.NamespaceSystem {
+		case metav1.NamespaceSystem:
 			project.Spec.Type = rscoreapi.ProjectSystem
 		}
 		project.Spec.Namespaces = append(project.Spec.Namespaces, ns.Name)
