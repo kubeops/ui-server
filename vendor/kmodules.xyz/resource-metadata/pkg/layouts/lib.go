@@ -217,6 +217,7 @@ func GetResourceLayout(kc client.Client, outline *rsapi.ResourceOutline) (*rsapi
 								Flow:             a.Flow,
 								DisabledTemplate: a.DisabledTemplate,
 								EnforceQuota:     a.EnforceQuota,
+								PartOf:           a.PartOf,
 							}
 							a2.Editor = expand(a.Editor)
 
@@ -288,6 +289,7 @@ func GetResourceLayout(kc client.Client, outline *rsapi.ResourceOutline) (*rsapi
 		}
 		page := rsapi.ResourcePageLayout{
 			Name:                pageOutline.Name,
+			Icon:                pageOutline.Icon,
 			RequiredFeatureSets: pageOutline.RequiredFeatureSets,
 			Sections:            make([]rsapi.SectionLayout, 0, len(pageOutline.Sections)),
 		}

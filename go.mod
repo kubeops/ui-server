@@ -24,7 +24,7 @@ require (
 	github.com/zeebo/xxh3 v1.0.2
 	go.bytebuilders.dev/catalog v0.0.15
 	go.bytebuilders.dev/catalog-manager v0.6.0
-	go.bytebuilders.dev/license-verifier v0.14.9
+	go.bytebuilders.dev/license-verifier v0.14.10
 	go.openviz.dev/apimachinery v0.0.8
 	golang.org/x/sync v0.18.0
 	gomodules.xyz/jsonpath v0.0.2
@@ -51,7 +51,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.14
 	kmodules.xyz/monitoring-agent-api v0.32.1
 	kmodules.xyz/offshoot-api v0.32.0
-	kmodules.xyz/resource-metadata v0.39.0
+	kmodules.xyz/resource-metadata v0.39.1
 	kmodules.xyz/resource-metrics v0.30.12
 	kmodules.xyz/resource-metrics/utils v0.30.12
 	kmodules.xyz/sets v0.29.0
