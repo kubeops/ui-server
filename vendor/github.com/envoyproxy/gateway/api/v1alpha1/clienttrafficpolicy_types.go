@@ -8,7 +8,6 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
-	gwapiv1a2 "sigs.k8s.io/gateway-api/apis/v1alpha2"
 )
 
 const (
@@ -31,17 +30,16 @@ type ClientTrafficPolicy struct {
 	Spec ClientTrafficPolicySpec `json:"spec"`
 
 	// Status defines the current status of ClientTrafficPolicy.
-	Status gwapiv1a2.PolicyStatus `json:"status,omitempty"`
+	Status gwapiv1.PolicyStatus `json:"status,omitempty"`
 }
 
-// +kubebuilder:validation:XValidation:rule="(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) ", message="either targetRef or targetRefs must be used"
+// ClientTrafficPolicySpec defines the desired state of ClientTrafficPolicy.
 //
+// +kubebuilder:validation:XValidation:rule="(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) ", message="either targetRef or targetRefs must be used"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true", message="this policy can only have a targetRef.group of gateway.networking.k8s.io"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.kind == 'Gateway' : true", message="this policy can only have a targetRef.kind of Gateway"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true", message="this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind == 'Gateway') : true", message="this policy can only have a targetRefs[*].kind of Gateway"
-//
-// ClientTrafficPolicySpec defines the desired state of ClientTrafficPolicy.
 type ClientTrafficPolicySpec struct {
 	PolicyTargetReferences `json:",inline"`
 
@@ -56,8 +54,17 @@ type ClientTrafficPolicySpec struct {
 	// Note Proxy Protocol must be present when this field is set, else the connection
 	// is closed.
 	//
+	// Deprecated: Use ProxyProtocol instead.
+	//
 	// +optional
 	EnableProxyProtocol *bool `json:"enableProxyProtocol,omitempty"`
+	// ProxyProtocol configures the Proxy Protocol settings. When configured,
+	// the Proxy Protocol header will be interpreted and the Client Address
+	// will be added into the X-Forwarded-For header.
+	// If both EnableProxyProtocol and ProxyProtocol are set, ProxyProtocol takes precedence.
+	//
+	// +optional
+	ProxyProtocol *ProxyProtocolSettings `json:"proxyProtocol,omitempty"`
 	// ClientIPDetectionSettings provides configuration for determining the original client IP address for requests.
 	//
 	// +optional
@@ -101,6 +108,8 @@ type ClientTrafficPolicySpec struct {
 }
 
 // HeaderSettings provides configuration options for headers on the listener.
+//
+// +kubebuilder:validation:XValidation:rule="!(has(self.preserveXRequestID) && has(self.requestID))",message="preserveXRequestID and requestID cannot both be set."
 type HeaderSettings struct {
 	// EnableEnvoyHeaders configures Envoy Proxy to add the "X-Envoy-" headers to requests
 	// and responses.
@@ -131,16 +140,30 @@ type HeaderSettings struct {
 
 	// PreserveXRequestID configures Envoy to keep the X-Request-ID header if passed for a request that is edge
 	// (Edge request is the request from external clients to front Envoy) and not reset it, which is the current Envoy behaviour.
-	// It defaults to false.
+	// Defaults to false and cannot be combined with RequestID.
+	// Deprecated: use RequestID=PreserveOrGenerate instead
 	//
 	// +optional
 	PreserveXRequestID *bool `json:"preserveXRequestID,omitempty"`
+
+	// RequestID configures Envoy's behavior for handling the `X-Request-ID` header.
+	// When omitted default behavior is `Generate` which builds the `X-Request-ID` for every request
+	//  and ignores pre-existing values from the edge.
+	// (An "edge request" refers to a request from an external client to the Envoy entrypoint.)
+	//
+	// +optional
+	RequestID *RequestIDAction `json:"requestID,omitempty"`
 
 	// EarlyRequestHeaders defines settings for early request header modification, before envoy performs
 	// routing, tracing and built-in header manipulation.
 	//
 	// +optional
-	EarlyRequestHeaders *gwapiv1.HTTPHeaderFilter `json:"earlyRequestHeaders,omitempty"`
+	EarlyRequestHeaders *HTTPHeaderFilter `json:"earlyRequestHeaders,omitempty"`
+
+	// LateResponseHeaders defines settings for global response header modification.
+	//
+	// +optional
+	LateResponseHeaders *HTTPHeaderFilter `json:"lateResponseHeaders,omitempty"`
 }
 
 // WithUnderscoresAction configures the action to take when an HTTP header with underscores
@@ -158,6 +181,24 @@ const (
 	// is dropped before the filter chain is invoked and as such filters will not see
 	// dropped headers.
 	WithUnderscoresActionDropHeader WithUnderscoresAction = "DropHeader"
+)
+
+// RequestIDAction configures Envoy's behavior for handling the `X-Request-ID` header at the edge.
+// An "edge request" refers to a request from an external client to the Envoy entrypoint.
+//
+// +kubebuilder:validation:Enum=PreserveOrGenerate;Preserve;Generate;Disable
+type RequestIDAction string
+
+const (
+	// Preserve `X-Request-ID` if already present or generate if empty
+	RequestIDActionPreserveOrGenerate RequestIDAction = "PreserveOrGenerate"
+	// Preserve `X-Request-ID` if already present, do not generate when empty
+	RequestIDActionPreserve RequestIDAction = "Preserve"
+	// Always generate `X-Request-ID` header, do not preserve `X-Request-ID`
+	// header if it exists. This is the default behavior.
+	RequestIDActionGenerate RequestIDAction = "Generate"
+	// Do not preserve or generate `X-Request-ID` header
+	RequestIDActionDisable RequestIDAction = "Disable"
 )
 
 // XForwardedClientCert configures how Envoy Proxy handle the x-forwarded-client-cert (XFCC) HTTP header.
@@ -241,10 +282,18 @@ type ClientIPDetectionSettings struct {
 // for more details.
 // +kubebuilder:validation:XValidation:rule="(has(self.numTrustedHops) && !has(self.trustedCIDRs)) || (!has(self.numTrustedHops) && has(self.trustedCIDRs))", message="only one of numTrustedHops or trustedCIDRs must be set"
 type XForwardedForSettings struct {
-	// NumTrustedHops controls the number of additional ingress proxy hops from the right side of XFF HTTP
-	// headers to trust when determining the origin client's IP address.
-	// Only one of NumTrustedHops and TrustedCIDRs must be set.
+	// NumTrustedHops specifies how many trusted hops to count from the rightmost side of
+	// the X-Forwarded-For (XFF) header when determining the original client’s IP address.
 	//
+	// If NumTrustedHops is set to N, the client IP is taken from the Nth address from the
+	// right end of the XFF header.
+	//
+	// Example:
+	//   XFF = "203.0.113.128, 203.0.113.10, 203.0.113.1"
+	//   NumTrustedHops = 2
+	//   → Trusted client address = 203.0.113.10
+	//
+	// Only one of NumTrustedHops or TrustedCIDRs should be configured.
 	// +optional
 	NumTrustedHops *uint32 `json:"numTrustedHops,omitempty"`
 
@@ -296,15 +345,31 @@ type HTTP1Settings struct {
 	// HTTP10 turns on support for HTTP/1.0 and HTTP/0.9 requests.
 	// +optional
 	HTTP10 *HTTP10Settings `json:"http10,omitempty"`
+	// DisableSafeMaxConnectionDuration controls the close behavior for HTTP/1 connections.
+	// By default, connection closure is delayed until the next request arrives after maxConnectionDuration is exceeded.
+	// It then adds a Connection: close header and gracefully closes the connection after the response completes.
+	// When set to true (disabled), Envoy uses its default drain behavior, closing the connection shortly after maxConnectionDuration elapses.
+	// Has no effect unless maxConnectionDuration is set.
+	//
+	// +optional
+	DisableSafeMaxConnectionDuration *bool `json:"disableSafeMaxConnectionDuration,omitempty"`
 }
 
 // HTTP10Settings provides HTTP/1.0 configuration on the listener.
 type HTTP10Settings struct {
-	// UseDefaultHost defines if the HTTP/1.0 request is missing the Host header,
-	// then the hostname associated with the listener should be injected into the
-	// request.
-	// If this is not set and an HTTP/1.0 request arrives without a host, then
-	// it will be rejected.
+	// UseDefaultHost specifies whether a default Host header should be injected
+	// into HTTP/1.0 requests that do not include one.
+	//
+	// When set to true, Envoy Gateway injects the hostname associated with the
+	// listener or route into the request, in the following order:
+	//
+	//   1. If the targeted listener has a non-wildcard hostname, use that hostname.
+	//   2. If there is exactly one HTTPRoute with a non-wildcard hostname under
+	//      the targeted listener, use that hostname.
+	//
+	//  Note: Setting this field to true without a non-wildcard hostname makes the
+	// ClientTrafficPolicy invalid.
+	//
 	// +optional
 	UseDefaultHost *bool `json:"useDefaultHost,omitempty"`
 }
@@ -317,20 +382,24 @@ type HealthCheckSettings struct {
 	Path string `json:"path"`
 }
 
-const (
-	// PolicyConditionOverridden indicates whether the policy has
-	// completely attached to all the sections within the target or not.
+// ProxyProtocolSettings configures the Proxy Protocol settings. When configured,
+// the Proxy Protocol header will be interpreted and the Client Address
+// will be added into the X-Forwarded-For header.
+// If both EnableProxyProtocol and ProxyProtocol are set, ProxyProtocol takes precedence.
+//
+// +kubebuilder:validation:MinProperties=0
+type ProxyProtocolSettings struct {
+	// Optional allows requests without a Proxy Protocol header to be proxied.
+	// If set to true, the listener will accept requests without a Proxy Protocol header.
+	// If set to false, the listener will reject requests without a Proxy Protocol header.
+	// If not set, the default behavior is to reject requests without a Proxy Protocol header.
+	// Warning: Optional breaks conformance with the specification. Only enable if ALL traffic to the listener comes from a trusted source.
+	// For more information on security implications, see haproxy.org/download/2.1/doc/proxy-protocol.txt
 	//
-	// Possible reasons for this condition to be True are:
 	//
-	// * "Overridden"
-	//
-	PolicyConditionOverridden gwapiv1a2.PolicyConditionType = "Overridden"
-
-	// PolicyReasonOverridden is used with the "Overridden" condition when the policy
-	// has been overridden by another policy targeting a section within the same target.
-	PolicyReasonOverridden gwapiv1a2.PolicyConditionReason = "Overridden"
-)
+	// +optional
+	Optional *bool `json:"optional,omitempty"`
+}
 
 //+kubebuilder:object:root=true
 

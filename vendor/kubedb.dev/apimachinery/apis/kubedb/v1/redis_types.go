@@ -90,6 +90,10 @@ type RedisSpec struct {
 	// +optional
 	AuthSecret *SecretReference `json:"authSecret,omitempty"`
 
+	// Redis ACL Configuration
+	// +optional
+	Acl *RedisAclSpec `json:"acl,omitempty"`
+
 	// If disable Auth true then don't create any auth secret
 	// +optional
 	DisableAuth bool `json:"disableAuth,omitempty"`
@@ -155,6 +159,45 @@ type RedisClusterSpec struct {
 
 	// Number of replica(s) per shard. If not specified, defaults to 2.
 	Replicas *int32 `json:"replicas,omitempty"`
+
+	// Announce is used to announce the redis cluster endpoints.
+	// It is used to set
+	// cluster-announce-ip, cluster-announce-port, cluster-announce-bus-port, cluster-announce-tls-port
+	// +optional
+	Announce *Announce `json:"announce,omitempty"`
+}
+
+// +kubebuilder:validation:Enum=ip;hostname
+type PreferredEndpointType string
+
+const (
+	PreferredEndpointTypeIP       PreferredEndpointType = "ip"
+	PreferredEndpointTypeHostname PreferredEndpointType = "hostname"
+)
+
+type Announce struct {
+	// +kubebuilder:default=hostname
+	Type PreferredEndpointType `json:"type,omitempty"`
+	// This field is used to set cluster-announce information for redis cluster of each shard.
+	Shards []Shards `json:"shards,omitempty"`
+}
+
+type RedisAclSpec struct {
+	// SecretRef holds the password against which ACLs will be created if Rules are given.
+	// +optional
+	SecretRef *core.LocalObjectReference `json:"secretRef,omitempty"`
+
+	// Rules specifies the ACL rules to be applied to the user associated with the provided SecretRef.
+	// If provided, the system will update the ACLs for this user to ensure they are in sync with the new authentication settings.
+	Rules []string `json:"rules,omitempty"`
+}
+
+type Shards struct {
+	// Endpoints contains the cluster-announce information for all the replicas in a shard.
+	// This will be used to set cluster-announce-ip/hostname, cluster-announce-port/cluster-announce-tls-port
+	// and cluster-announce-bus-port
+	// format cluster-announce (host:port@busport)
+	Endpoints []string `json:"endpoints,omitempty"`
 }
 
 type RedisSentinelRef struct {

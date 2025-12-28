@@ -48,7 +48,7 @@ import (
 
 func (*Postgres) Hub() {}
 
-func (_ Postgres) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (Postgres) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourcePluralPostgres))
 }
 
@@ -63,11 +63,15 @@ func (p Postgres) OffshootName() string {
 }
 
 func (p Postgres) OffshootSelectors() map[string]string {
-	return map[string]string{
+	sel := map[string]string{
 		meta_util.NameLabelKey:      p.ResourceFQN(),
 		meta_util.InstanceLabelKey:  p.Name,
 		meta_util.ManagedByLabelKey: kubedb.GroupName,
 	}
+	if p.Spec.Distributed {
+		sel[meta_util.NamespaceLabelKey] = p.Namespace
+	}
+	return sel
 }
 
 func (p Postgres) OffshootLabels() map[string]string {
@@ -127,6 +131,10 @@ func (p Postgres) GetAuthSecretName() string {
 	return meta_util.NameWithSuffix(p.OffshootName(), "auth")
 }
 
+func (p Postgres) GetStorageClassName() string {
+	return *p.Spec.Storage.StorageClassName
+}
+
 func (p Postgres) ServiceName() string {
 	return p.OffshootName()
 }
@@ -137,6 +145,38 @@ func (p Postgres) StandbyServiceName() string {
 
 func (p Postgres) GoverningServiceName() string {
 	return meta_util.NameWithSuffix(p.ServiceName(), "pods")
+}
+
+func (p Postgres) OffshootDistributedRBACName() string {
+	return meta_util.NameWithSuffix(p.OffshootName(), kubedb.DistributedRBACNameSuffix)
+}
+
+func (p Postgres) OffshootDistributedServiceExportName() string {
+	return meta_util.NameWithSuffix(p.OffshootName(), kubedb.DistributedServiceExportNameSuffix)
+}
+
+func (p Postgres) OffshootDistributedAuthSecretName() string {
+	return meta_util.NameWithSuffix(p.OffshootName(), kubedb.DistributedAuthSecretNameSuffix)
+}
+
+func (p Postgres) OffshootDistributedTLSName() string {
+	return meta_util.NameWithSuffix(p.Name, kubedb.DistributedTLSSecretNameSuffix)
+}
+
+func (p Postgres) OffshootDistributedConfigSecretName() string {
+	return meta_util.NameWithSuffix(p.Name, kubedb.DistributedCustomConfigSecretNameSuffix)
+}
+
+func (p Postgres) GetGRPCSelfSignedIssuerName() string {
+	return meta_util.NameWithSuffix(p.OffshootName(), kubedb.PostgresGRPCSelfSignedIssuerName)
+}
+
+func (p Postgres) GetGRPCIssuerName() string {
+	return meta_util.NameWithSuffix(p.OffshootName(), kubedb.PostgresGRPCIssuerName)
+}
+
+func (p Postgres) OffshootDistributedGRPCSecretName() string {
+	return meta_util.NameWithSuffix(p.OffshootName(), kubedb.DistributedGRPCSecretNameSuffix)
 }
 
 type postgresApp struct {
@@ -207,6 +247,13 @@ func (p *Postgres) SetDefaults(postgresVersion *catalog.PostgresVersion) {
 	}
 	if p.Spec.DeletionPolicy == "" {
 		p.Spec.DeletionPolicy = DeletionPolicyDelete
+	}
+
+	if p.Spec.AuthSecret == nil {
+		p.Spec.AuthSecret = &SecretReference{}
+	}
+	if p.Spec.AuthSecret.Kind == "" {
+		p.Spec.AuthSecret.Kind = kubedb.ResourceKindSecret
 	}
 
 	if p.Spec.LeaderElection == nil {

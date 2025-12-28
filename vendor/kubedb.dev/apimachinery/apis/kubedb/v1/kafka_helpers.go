@@ -27,6 +27,7 @@ import (
 	"kubedb.dev/apimachinery/apis/kubedb"
 	"kubedb.dev/apimachinery/crds"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/google/uuid"
 	promapi "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"gomodules.xyz/pointer"
@@ -220,9 +221,10 @@ func (k *Kafka) NodeRoleSpecificLabelKey(role KafkaNodeRoleType) string {
 }
 
 func (k *Kafka) ConfigSecretName(role KafkaNodeRoleType) string {
-	if role == KafkaNodeRoleController {
+	switch role {
+	case KafkaNodeRoleController:
 		return meta_util.NameWithSuffix(k.OffshootName(), "controller-config")
-	} else if role == KafkaNodeRoleBroker {
+	case KafkaNodeRoleBroker:
 		return meta_util.NameWithSuffix(k.OffshootName(), "broker-config")
 	}
 	return meta_util.NameWithSuffix(k.OffshootName(), "config")
@@ -292,8 +294,34 @@ func (k *Kafka) CertSecretVolumeMountPath(configDir string, cert string) string 
 	return filepath.Join(configDir, cert)
 }
 
+func (k *Kafka) ServiceAccountName() string {
+	return k.OffshootName()
+}
+
+func (k *Kafka) ClusterRoleName() string {
+	return meta_util.NameWithSuffix(k.OffshootName(), "clusterrole")
+}
+
+func (k *Kafka) ClusterRoleBindingName() string {
+	return meta_util.NameWithSuffix(k.OffshootName(), "clusterrolebinding")
+}
+
 func (k *Kafka) PVCName(alias string) string {
 	return meta_util.NameWithSuffix(k.Name, alias)
+}
+
+func (k *Kafka) IsVersionGreaterOrEqual(version string) bool {
+	v1, err := semver.NewVersion(k.Spec.Version)
+	if err != nil {
+		klog.Error(err, "Failed to parse version", "version", k.Spec.Version)
+		return false
+	}
+	v2, err := semver.NewVersion(version)
+	if err != nil {
+		klog.Error(err, "Failed to parse version", "version", version)
+		return false
+	}
+	return v1.GreaterThanEqual(v2)
 }
 
 func (k *Kafka) SetHealthCheckerDefaults() {
@@ -323,6 +351,15 @@ func (k *Kafka) SetDefaults(kc client.Client) {
 
 	if k.Spec.StorageType == "" {
 		k.Spec.StorageType = StorageTypeDurable
+	}
+
+	if !k.Spec.DisableSecurity {
+		if k.Spec.AuthSecret == nil {
+			k.Spec.AuthSecret = &SecretReference{}
+		}
+		if k.Spec.AuthSecret.Kind == "" {
+			k.Spec.AuthSecret.Kind = kubedb.ResourceKindSecret
+		}
 	}
 
 	var kfVersion catalog.KafkaVersion
@@ -417,6 +454,20 @@ func (k *Kafka) setDefaultContainerSecurityContext(kfVersion *catalog.KafkaVersi
 	}
 	k.assignDefaultContainerSecurityContext(kfVersion, dbContainer.SecurityContext)
 	podTemplate.Spec.Containers = coreutil.UpsertContainer(podTemplate.Spec.Containers, *dbContainer)
+
+	if k.IsVersionGreaterOrEqual("4.0.0") {
+		initContainer := coreutil.GetContainerByName(podTemplate.Spec.InitContainers, kubedb.KafkaInitContainerName)
+		if initContainer == nil {
+			initContainer = &core.Container{
+				Name: kubedb.KafkaInitContainerName,
+			}
+		}
+		if initContainer.SecurityContext == nil {
+			initContainer.SecurityContext = &core.SecurityContext{}
+		}
+		k.assignDefaultContainerSecurityContext(kfVersion, initContainer.SecurityContext)
+		podTemplate.Spec.InitContainers = coreutil.UpsertContainer(podTemplate.Spec.InitContainers, *initContainer)
+	}
 }
 
 func (k *Kafka) assignDefaultContainerSecurityContext(kfVersion *catalog.KafkaVersion, sc *core.SecurityContext) {

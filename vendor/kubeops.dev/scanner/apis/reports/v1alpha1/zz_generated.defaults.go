@@ -22,6 +22,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v1 "k8s.io/api/core/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -69,6 +70,9 @@ func SetObjectDefaults_Workload(in *Workload) {
 	for i := range in.Spec.Template.Spec.Volumes {
 		a := &in.Spec.Template.Spec.Volumes[i]
 		if a.VolumeSource.ISCSI != nil {
+			if a.VolumeSource.ISCSI.ISCSIInterface == "" {
+				a.VolumeSource.ISCSI.ISCSIInterface = "default"
+			}
 			if a.VolumeSource.ISCSI.SecretRef != nil {
 				if a.VolumeSource.ISCSI.SecretRef.Name == "" {
 					a.VolumeSource.ISCSI.SecretRef.Name = ""
@@ -76,6 +80,15 @@ func SetObjectDefaults_Workload(in *Workload) {
 			}
 		}
 		if a.VolumeSource.RBD != nil {
+			if a.VolumeSource.RBD.RBDPool == "" {
+				a.VolumeSource.RBD.RBDPool = "rbd"
+			}
+			if a.VolumeSource.RBD.RadosUser == "" {
+				a.VolumeSource.RBD.RadosUser = "admin"
+			}
+			if a.VolumeSource.RBD.Keyring == "" {
+				a.VolumeSource.RBD.Keyring = "/etc/ceph/keyring"
+			}
 			if a.VolumeSource.RBD.SecretRef != nil {
 				if a.VolumeSource.RBD.SecretRef.Name == "" {
 					a.VolumeSource.RBD.SecretRef.Name = ""
@@ -108,6 +121,24 @@ func SetObjectDefaults_Workload(in *Workload) {
 				a.VolumeSource.ConfigMap.LocalObjectReference.Name = ""
 			}
 		}
+		if a.VolumeSource.AzureDisk != nil {
+			if a.VolumeSource.AzureDisk.CachingMode == nil {
+				ptrVar1 := v1.AzureDataDiskCachingMode(v1.AzureDataDiskCachingReadWrite)
+				a.VolumeSource.AzureDisk.CachingMode = &ptrVar1
+			}
+			if a.VolumeSource.AzureDisk.FSType == nil {
+				var ptrVar1 string = "ext4"
+				a.VolumeSource.AzureDisk.FSType = &ptrVar1
+			}
+			if a.VolumeSource.AzureDisk.ReadOnly == nil {
+				var ptrVar1 bool = false
+				a.VolumeSource.AzureDisk.ReadOnly = &ptrVar1
+			}
+			if a.VolumeSource.AzureDisk.Kind == nil {
+				ptrVar1 := v1.AzureDataDiskKind(v1.AzureSharedBlobDisk)
+				a.VolumeSource.AzureDisk.Kind = &ptrVar1
+			}
+		}
 		if a.VolumeSource.Projected != nil {
 			for j := range a.VolumeSource.Projected.Sources {
 				b := &a.VolumeSource.Projected.Sources[j]
@@ -128,6 +159,12 @@ func SetObjectDefaults_Workload(in *Workload) {
 				if a.VolumeSource.ScaleIO.SecretRef.Name == "" {
 					a.VolumeSource.ScaleIO.SecretRef.Name = ""
 				}
+			}
+			if a.VolumeSource.ScaleIO.StorageMode == "" {
+				a.VolumeSource.ScaleIO.StorageMode = "ThinProvisioned"
+			}
+			if a.VolumeSource.ScaleIO.FSType == "" {
+				a.VolumeSource.ScaleIO.FSType = "xfs"
 			}
 		}
 		if a.VolumeSource.StorageOS != nil {

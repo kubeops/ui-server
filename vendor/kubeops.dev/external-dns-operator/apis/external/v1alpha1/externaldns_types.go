@@ -81,6 +81,8 @@ type AWSProvider struct {
 	// +optional
 	SDServiceCleanup *bool `json:"sdServiceCleanup,omitempty"`
 
+	SDCreateTag *map[string]string `json:"sdCreateTag"`
+
 	// provider secret credential information
 	// +optional
 	SecretRef *GenericSecretReference `json:"secretRef,omitempty"`
@@ -89,7 +91,12 @@ type AWSProvider struct {
 type CloudflareProvider struct {
 	// When using the Cloudflare provider, specify if the proxy mode must be enabled (default: disabled)
 	// +optional
-	Proxied *bool `json:"proxied,omitempty"`
+	Proxied                             *bool   `json:"proxied,omitempty"`
+	CustomHostnames                     *bool   `json:"customHostnames,omitempty"` // new
+	CustomHostnamesCertificateAuthority *string `json:"customHostnamesCertificateAuthority,omitempty"`
+	CustomHostnamesMinTLSVersion        *string `json:"customHostnamesMinTLSVersion,omitempty"`
+	RegionalServices                    *bool   `json:"regionalServices,omitempty"`
+	RegionKey                           *string `json:"regionKey,omitempty"`
 
 	// +optional
 	BaseURL string `json:"baseURL,omitempty"`
@@ -110,6 +117,9 @@ type AzureProvider struct {
 	// When using the Azure provider, override the client id of user assigned identity in config file
 	// +optional
 	UserAssignedIdentityClientID *string `json:"userAssignedIdentityClientID,omitempty"`
+
+	ZonesCacheDuration *time.Duration `json:"zonesCacheDuration"` // new
+	MaxRetriesCount    *int           `json:"maxRetriesCount"`
 
 	// Provider secret credential information
 	SecretRef *GenericSecretReference `json:"secretRef,omitempty"`

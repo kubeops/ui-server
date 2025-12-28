@@ -25,6 +25,8 @@ import (
 
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gwv1 "sigs.k8s.io/gateway-api/apis/v1"
@@ -57,6 +59,32 @@ func FindDefaultGatewayClass(ctx context.Context, kc client.Client) (*gwv1.Gatew
 	}
 }
 
+func FindGatewayPreset(ctx context.Context, kc client.Client, bindingNamespace string) (*catgwapi.GatewayPreset, error) {
+	key := client.ObjectKey{Name: bindingNamespace}
+	if strings.HasSuffix(bindingNamespace, "-gw") {
+		key.Name = strings.TrimSuffix(bindingNamespace, "-gw")
+	}
+
+	var ns core.Namespace
+	err := kc.Get(ctx, key, &ns)
+	if err != nil {
+		return nil, err
+	}
+
+	if ns.Labels[kmapi.ClientOrgKey] == "true" {
+		var gwps catgwapi.GatewayPreset
+		if err := kc.Get(ctx, types.NamespacedName{
+			Namespace: key.Name + "-gw",
+			Name:      key.Name,
+		}, &gwps); err != nil {
+			return nil, client.IgnoreNotFound(err)
+		}
+		return &gwps, nil
+	}
+
+	return nil, nil
+}
+
 func FindGatewayClass(ctx context.Context, kc client.Client, bindingNamespace string) (*gwv1.GatewayClass, error) {
 	key := client.ObjectKey{Name: bindingNamespace}
 	if strings.HasSuffix(bindingNamespace, "-gw") {
@@ -73,9 +101,43 @@ func FindGatewayClass(ctx context.Context, kc client.Client, bindingNamespace st
 		if err := kc.Get(ctx, key, &qwc); err == nil {
 			return &qwc, nil
 		}
+		class, err := findGWClassFromPresetsRef(ctx, kc, key)
+		if err != nil {
+			return nil, err
+		}
+		if class != nil {
+			return class, nil
+		}
 	}
 
 	return FindDefaultGatewayClass(ctx, kc)
+}
+
+func findGWClassFromPresetsRef(ctx context.Context, kc client.Client, key client.ObjectKey) (*gwv1.GatewayClass, error) {
+	var gwps catgwapi.GatewayPreset
+	err := kc.Get(ctx, types.NamespacedName{
+		Namespace: key.Name + "-gw",
+		Name:      key.Name,
+	}, &gwps)
+	if err != nil {
+		return nil, client.IgnoreNotFound(err)
+	}
+	if gwps.Spec.ParametersRef != nil {
+		var gwcfg catgwapi.GatewayConfig
+		err = kc.Get(ctx, types.NamespacedName{
+			Namespace: string(*gwps.Spec.ParametersRef.Namespace),
+			Name:      gwps.Spec.ParametersRef.Name,
+		}, &gwcfg)
+		if err != nil {
+			return nil, client.IgnoreNotFound(err)
+		}
+
+		var qwc gwv1.GatewayClass
+		if err := kc.Get(ctx, types.NamespacedName{Name: gwcfg.Name}, &qwc); err == nil {
+			return &qwc, nil
+		}
+	}
+	return nil, nil
 }
 
 func GetGatewayParameter(kc client.Client, gwc *gwv1.GatewayClass) (*catgwapi.GatewayParameter, error) {
@@ -106,6 +168,7 @@ func FindGatewayParameter(ctx context.Context, kc client.Client, bindingNamespac
 		return nil, err
 	}
 
+	klog.Infof("Found gwClass %s for binding ns %s; now getting gw parameter.", gwc.Name, bindingNamespace)
 	return GetGatewayParameter(kc, gwc)
 }
 

@@ -236,9 +236,10 @@ func (r *Redis) SetDefaults(rdVersion *catalog.RedisVersion) error {
 	}
 
 	// perform defaulting
-	if r.Spec.Mode == "" {
+	switch r.Spec.Mode {
+	case "":
 		r.Spec.Mode = RedisModeStandalone
-	} else if r.Spec.Mode == RedisModeCluster {
+	case RedisModeCluster:
 		if r.Spec.Cluster == nil {
 			r.Spec.Cluster = &RedisClusterSpec{}
 		}
@@ -248,7 +249,7 @@ func (r *Redis) SetDefaults(rdVersion *catalog.RedisVersion) error {
 		if r.Spec.Cluster.Replicas == nil {
 			r.Spec.Cluster.Replicas = pointer.Int32P(2)
 		}
-	} else if r.Spec.Mode == RedisModeSentinel {
+	case RedisModeSentinel:
 		if r.Spec.SentinelRef != nil && r.Spec.SentinelRef.Namespace == "" {
 			r.Spec.SentinelRef.Namespace = r.Namespace
 		}
@@ -256,6 +257,15 @@ func (r *Redis) SetDefaults(rdVersion *catalog.RedisVersion) error {
 
 	if r.Spec.StorageType == "" {
 		r.Spec.StorageType = StorageTypeDurable
+	}
+
+	if !r.Spec.DisableAuth {
+		if r.Spec.AuthSecret == nil {
+			r.Spec.AuthSecret = &SecretReference{}
+		}
+		if r.Spec.AuthSecret.Kind == "" {
+			r.Spec.AuthSecret.Kind = kubedb.ResourceKindSecret
+		}
 	}
 
 	r.setDefaultContainerSecurityContext(rdVersion, &r.Spec.PodTemplate)
@@ -313,7 +323,7 @@ func (r *RedisSpec) GetPersistentSecrets() []string {
 	}
 
 	var secrets []string
-	if r.AuthSecret != nil {
+	if !IsVirtualAuthSecretReferred(r.AuthSecret) && r.AuthSecret != nil && r.AuthSecret.Name != "" {
 		secrets = append(secrets, r.AuthSecret.Name)
 	}
 	return secrets
@@ -437,9 +447,9 @@ func (r *Redis) GetCertSecretName(alias RedisCertificateAlias) string {
 }
 
 func (r *Redis) ReplicasAreReady(lister pslister.PetSetLister) (bool, string, error) {
-	// Desire number of statefulSets
+	// Desire number of PetSets
 	expectedItems := 1
-	if r.Spec.Cluster != nil {
+	if r.Spec.Mode == RedisModeCluster {
 		expectedItems = int(pointer.Int32(r.Spec.Cluster.Shards))
 	}
 	return checkReplicas(lister.PetSets(r.Namespace), labels.SelectorFromSet(r.OffshootLabels()), expectedItems)

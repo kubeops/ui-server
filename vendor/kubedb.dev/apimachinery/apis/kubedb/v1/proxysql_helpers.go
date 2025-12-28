@@ -42,7 +42,7 @@ import (
 
 func (*ProxySQL) Hub() {}
 
-func (_ ProxySQL) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (ProxySQL) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourcePluralProxySQL))
 }
 
@@ -192,6 +192,13 @@ func (p *ProxySQL) SetDefaults(psVersion *v1alpha1.ProxySQLVersion, usesAcme boo
 
 	if p.Spec.Replicas == nil {
 		p.Spec.Replicas = pointer.Int32P(1)
+	}
+
+	if p.Spec.AuthSecret == nil {
+		p.Spec.AuthSecret = &SecretReference{}
+	}
+	if p.Spec.AuthSecret.Kind == "" {
+		p.Spec.AuthSecret.Kind = kubedb.ResourceKindSecret
 	}
 
 	p.setDefaultContainerSecurityContext(psVersion, &p.Spec.PodTemplate)

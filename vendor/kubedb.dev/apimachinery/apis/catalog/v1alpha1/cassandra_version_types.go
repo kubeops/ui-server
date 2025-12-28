@@ -56,6 +56,10 @@ type CassandraVersionSpec struct {
 	// Version
 	Version string `json:"version"`
 
+	// EndOfLife refers if this version reached into its end of the life or not, based on https://endoflife.date/
+	// +optional
+	EndOfLife bool `json:"endOfLife"`
+
 	// Database Image
 	DB CassandraVersionDatabase `json:"db"`
 
@@ -74,6 +78,9 @@ type CassandraVersionSpec struct {
 
 	// +optional
 	UI []ChartInfo `json:"ui,omitempty"`
+
+	// update constraints
+	UpdateConstraints UpdateConstraints `json:"updateConstraints,omitempty"`
 }
 
 // CassandraVersionExporter is the image for the Cassandra exporter

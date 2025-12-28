@@ -44,7 +44,7 @@ import (
 
 func (*MariaDB) Hub() {}
 
-func (_ MariaDB) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (MariaDB) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourcePluralMariaDB))
 }
 
@@ -62,12 +62,40 @@ func (m MariaDB) OffshootMaxscaleName() string {
 	return meta_util.NameWithSuffix(m.Name, kubedb.MaxscaleCommonName)
 }
 
+func (m MariaDB) OffshootDistributedConfigSecretName() string {
+	return meta_util.NameWithSuffix(m.Name, kubedb.DistributedCustomConfigSecretNameSuffix)
+}
+
+func (m MariaDB) OffshootDistributedRBACName() string {
+	return meta_util.NameWithSuffix(m.Name, kubedb.DistributedRBACNameSuffix)
+}
+
+func (m MariaDB) OffshootDistributedServiceExportName() string {
+	return meta_util.NameWithSuffix(m.Name, kubedb.DistributedServiceExportNameSuffix)
+}
+
+func (m MariaDB) OffshootDistributedAuthSecretName() string {
+	return meta_util.NameWithSuffix(m.Name, kubedb.DistributedAuthSecretNameSuffix)
+}
+
+func (m MariaDB) OffshootDistributedTLSName() string {
+	return meta_util.NameWithSuffix(m.Name, kubedb.DistributedTLSSecretNameSuffix)
+}
+
+func (m MariaDB) OffshootDistributedPromethuesSecretName() string {
+	return meta_util.NameWithSuffix(m.Name, kubedb.DistributedPromethuesSecretNameSuffix)
+}
+
 func (m MariaDB) OffshootSelectors() map[string]string {
-	return map[string]string{
+	label := map[string]string{
 		meta_util.NameLabelKey:      m.ResourceFQN(),
 		meta_util.InstanceLabelKey:  m.Name,
 		meta_util.ManagedByLabelKey: kubedb.GroupName,
 	}
+	if m.Spec.Distributed {
+		label[meta_util.NamespaceLabelKey] = m.Namespace
+	}
+	return label
 }
 
 func (m MariaDB) OffshootMaxscaleSelectors() map[string]string {
@@ -149,19 +177,17 @@ func (m MariaDB) StandbyServiceName() string {
 }
 
 func (m MariaDB) IsCluster() bool {
-	return pointer.Int32(m.Spec.Replicas) > 1
+	return m.Spec.Topology != nil
 }
 
 func (m MariaDB) IsGaleraCluster() bool {
 	return m.Spec.Topology != nil &&
-		m.IsCluster() &&
 		m.Spec.Topology.Mode != nil &&
 		*m.Spec.Topology.Mode == MariaDBModeGaleraCluster
 }
 
 func (m MariaDB) IsMariaDBReplication() bool {
 	return m.Spec.Topology != nil &&
-		m.IsCluster() &&
 		m.Spec.Topology.Mode != nil &&
 		*m.Spec.Topology.Mode == MariaDBModeReplication
 }
@@ -261,6 +287,13 @@ func (m *MariaDB) SetDefaults(mdVersion *v1alpha1.MariaDBVersion) {
 		m.Spec.DeletionPolicy = DeletionPolicyDelete
 	}
 
+	if m.Spec.AuthSecret == nil {
+		m.Spec.AuthSecret = &SecretReference{}
+	}
+	if m.Spec.AuthSecret.Kind == "" {
+		m.Spec.AuthSecret.Kind = kubedb.ResourceKindSecret
+	}
+
 	if m.Spec.Replicas == nil {
 		m.Spec.Replicas = pointer.Int32P(1)
 	}
@@ -273,7 +306,7 @@ func (m *MariaDB) SetDefaults(mdVersion *v1alpha1.MariaDBVersion) {
 		m.Spec.PodTemplate.Spec.ServiceAccountName = m.OffshootName()
 	}
 	if m.Spec.Init != nil && m.Spec.Init.Archiver != nil && m.Spec.Init.Archiver.ReplicationStrategy == nil {
-		m.Spec.Init.Archiver.ReplicationStrategy = ptr.To(ReplicationStrategyNone)
+		m.Spec.Init.Archiver.ReplicationStrategy = ptr.To(ReplicationStrategySync)
 	}
 	m.setDefaultContainerSecurityContext(mdVersion, &m.Spec.PodTemplate)
 	m.setDefaultContainerResourceLimits(&m.Spec.PodTemplate)
@@ -477,9 +510,9 @@ func (m *MariaDB) setDefaultContainerResourceLimits(podTemplate *ofstv2.PodTempl
 }
 
 func (m *MariaDB) setMaxscaleDefaultContainerResourceLimits(podTemplate *ofstv2.PodTemplateSpec) {
-	dbContainer := core_util.GetContainerByName(podTemplate.Spec.Containers, kubedb.MaxscaleCommonName)
+	dbContainer := core_util.GetContainerByName(podTemplate.Spec.Containers, kubedb.MaxscaleContainerName)
 	if dbContainer != nil && (dbContainer.Resources.Requests == nil && dbContainer.Resources.Limits == nil) {
-		apis.SetDefaultResourceLimits(&dbContainer.Resources, kubedb.DefaultResources)
+		apis.SetDefaultResourceLimits(&dbContainer.Resources, kubedb.DefaultInitContainerResource)
 	}
 
 	initContainer := core_util.GetContainerByName(podTemplate.Spec.InitContainers, kubedb.MaxscaleInitContainerName)

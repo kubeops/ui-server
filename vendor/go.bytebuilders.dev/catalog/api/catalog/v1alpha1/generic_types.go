@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	"fmt"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -69,6 +70,15 @@ func (in *GenericBinding) SetConditions(conditions kmapi.Conditions) {
 
 func (dst *GenericBinding) Duckify(srcRaw runtime.Object) error {
 	switch src := srcRaw.(type) {
+	case *CassandraBinding:
+		dst.TypeMeta = metav1.TypeMeta{
+			APIVersion: GroupVersion.String(),
+			Kind:       ResourceKindCassandraBinding,
+		}
+		dst.ObjectMeta = src.ObjectMeta
+		dst.Spec.SourceRef = src.Spec.SourceRef
+		dst.Status = src.Status
+		return nil
 	case *ClickHouseBinding:
 		dst.TypeMeta = metav1.TypeMeta{
 			APIVersion: GroupVersion.String(),
@@ -100,6 +110,15 @@ func (dst *GenericBinding) Duckify(srcRaw runtime.Object) error {
 		dst.TypeMeta = metav1.TypeMeta{
 			APIVersion: GroupVersion.String(),
 			Kind:       ResourceKindFerretDBBinding,
+		}
+		dst.ObjectMeta = src.ObjectMeta
+		dst.Spec.SourceRef = src.Spec.SourceRef
+		dst.Status = src.Status
+		return nil
+	case *HazelcastBinding:
+		dst.TypeMeta = metav1.TypeMeta{
+			APIVersion: GroupVersion.String(),
+			Kind:       ResourceKindHazelcastBinding,
 		}
 		dst.ObjectMeta = src.ObjectMeta
 		dst.Spec.SourceRef = src.Spec.SourceRef

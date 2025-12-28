@@ -82,7 +82,7 @@ func (t Time) MarshalJSON() ([]byte, error) {
 func init() {
 	utilruntime.Must(
 		apiequality.Semantic.AddFunc(func(a, b Time) bool {
-			return a.UTC() == b.UTC()
+			return a.UTC().Equal(b.UTC())
 		}),
 	)
 }

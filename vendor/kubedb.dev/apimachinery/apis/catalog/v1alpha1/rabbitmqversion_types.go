@@ -51,6 +51,11 @@ type RabbitMQVersion struct {
 type RabbitMQVersionSpec struct {
 	// Version
 	Version string `json:"version"`
+
+	// EndOfLife refers if this version reached into its end of the life or not, based on https://endoflife.date/
+	// +optional
+	EndOfLife bool `json:"endOfLife"`
+
 	// Database Image
 	DB RabbitMQVersionDatabase `json:"db"`
 	// Database Image
@@ -63,6 +68,8 @@ type RabbitMQVersionSpec struct {
 	SecurityContext SecurityContext `json:"securityContext"`
 	// +optional
 	UI []ChartInfo `json:"ui,omitempty"`
+	// update constraints
+	UpdateConstraints UpdateConstraints `json:"updateConstraints,omitempty"`
 }
 
 // RabbitMQVersionDatabase is the RabbitMQ Database image

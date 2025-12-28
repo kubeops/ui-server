@@ -50,11 +50,18 @@ type PgpoolVersionSpec struct {
 	// Version
 	Version string `json:"version"`
 
+	// EndOfLife refers if this version reached into its end of the life or not, based on https://endoflife.date/
+	// +optional
+	EndOfLife bool `json:"endOfLife"`
+
 	// Pgpool Image
 	Pgpool PgpoolVersionPgpool `json:"pgpool"`
 
 	// +optional
 	Deprecated bool `json:"deprecated,omitempty"`
+
+	// +optional
+	GitSyncer GitSyncer `json:"gitSyncer,omitempty"`
 
 	// Exporter Image
 	Exporter PgpoolVersionExporter `json:"exporter,omitempty"`

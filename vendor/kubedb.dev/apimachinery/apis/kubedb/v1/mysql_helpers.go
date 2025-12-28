@@ -46,7 +46,7 @@ import (
 
 func (*MySQL) Hub() {}
 
-func (_ MySQL) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (MySQL) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourcePluralMySQL))
 }
 
@@ -185,6 +185,10 @@ func (m MySQL) GetAuthSecretName() string {
 	return meta_util.NameWithSuffix(m.OffshootName(), "auth")
 }
 
+func (m MySQL) GetStorageClassName() string {
+	return *m.Spec.Storage.StorageClassName
+}
+
 type mysqlApp struct {
 	*MySQL
 }
@@ -278,6 +282,13 @@ func (m *MySQL) SetDefaults(myVersion *v1alpha1.MySQLVersion) error {
 	}
 	if m.Spec.DeletionPolicy == "" {
 		m.Spec.DeletionPolicy = DeletionPolicyDelete
+	}
+
+	if m.Spec.AuthSecret == nil {
+		m.Spec.AuthSecret = &SecretReference{}
+	}
+	if m.Spec.AuthSecret.Kind == "" {
+		m.Spec.AuthSecret.Kind = kubedb.ResourceKindSecret
 	}
 
 	if m.UsesGroupReplication() || m.IsInnoDBCluster() || m.IsSemiSync() {
