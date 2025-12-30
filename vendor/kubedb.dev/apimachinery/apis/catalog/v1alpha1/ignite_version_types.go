@@ -51,6 +51,11 @@ type IgniteVersion struct {
 type IgniteVersionSpec struct {
 	// Version
 	Version string `json:"version"`
+
+	// EndOfLife refers if this version reached into its end of the life or not, based on https://endoflife.date/
+	// +optional
+	EndOfLife bool `json:"endOfLife"`
+
 	// Database Image
 	DB IgniteVersionDatabase `json:"db"`
 	// Database Image
@@ -63,6 +68,9 @@ type IgniteVersionSpec struct {
 	SecurityContext IgniteSecurityContext `json:"securityContext"`
 	// +optional
 	UI []ChartInfo `json:"ui,omitempty"`
+
+	// update constraints
+	UpdateConstraints UpdateConstraints `json:"updateConstraints,omitempty"`
 }
 
 // IgniteSecurityContext is for the additional config for the DB container

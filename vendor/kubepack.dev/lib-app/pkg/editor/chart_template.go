@@ -38,6 +38,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/sets"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/parser"
 	"kmodules.xyz/resource-metadata/hub"
@@ -60,9 +61,9 @@ func RenderOrderTemplate(bs *lib.BlobStore, reg repo.IRegistry, order releasesap
 		f1 := &TemplateRenderer{
 			Registry: reg,
 			ChartSourceRef: releasesapi.ChartSourceRef{
-				Name:      pkg.Chart.ChartRef.Name,
+				Name:      pkg.Chart.Name,
 				Version:   pkg.Chart.Version,
-				SourceRef: pkg.Chart.ChartRef.SourceRef,
+				SourceRef: pkg.Chart.SourceRef,
 			},
 			ReleaseName: pkg.Chart.ReleaseName,
 			Namespace:   pkg.Chart.Namespace,
@@ -120,7 +121,7 @@ func RenderOrderTemplate(bs *lib.BlobStore, reg repo.IRegistry, order releasesap
 			if err != nil {
 				return "", nil, err
 			}
-			_, err = fmt.Fprintf(&buf, "---\n# Source: %s - %s@%s\n", f1.ChartSourceRef.SourceRef.Name, f1.ChartSourceRef.Name, f1.Version)
+			_, err = fmt.Fprintf(&buf, "---\n# Source: %s - %s@%s\n", f1.SourceRef.Name, f1.Name, f1.Version)
 			if err != nil {
 				return "", nil, err
 			}
@@ -181,6 +182,10 @@ func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt r
 	if isFeaturesetEditor {
 		chartName = "" // not-used
 	}
+	rid, err := kmapi.ExtractResourceID(kc.RESTMapper(), mt.Resource)
+	if err != nil {
+		return nil, err
+	}
 
 	selector, err := metav1.LabelSelectorAsSelector(app.Spec.Selector)
 	if err != nil {
@@ -188,7 +193,7 @@ func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt r
 	}
 
 	var buf bytes.Buffer
-	resourceMap := map[string]interface{}{}
+	resourceMap := map[string]any{}
 
 	// detect apiVersion from defaultValues in chart
 	resourceKeys := sets.New[string](app.Spec.ResourceKeys...)
@@ -209,6 +214,20 @@ func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt r
 			continue // CRD type not installed, so skip it
 		} else if err != nil {
 			return nil, err
+		} else if len(list.Items) == 0 && gvk == rid.MetaGVK() {
+			// special case: if object to be edited is manually created, it might miss labels.
+			// So, we get the object directly using release name and namespace.
+			var u unstructured.Unstructured
+			u.SetGroupVersionKind(schema.GroupVersionKind{
+				Group:   gvk.Group,
+				Version: gvk.Version,
+				Kind:    gvk.Kind,
+			})
+			err = kc.Get(context.TODO(), client.ObjectKey{Name: mt.Release.Name, Namespace: mt.Release.Namespace}, &u)
+			if err != nil {
+				return nil, err
+			}
+			list.Items = append(list.Items, u)
 		}
 		for idx := range list.Items {
 			obj := list.Items[idx]
@@ -285,9 +304,9 @@ func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt r
 	tpl := releasesapi.EditorTemplate{
 		Manifest: buf.Bytes(),
 		Values: &unstructured.Unstructured{
-			Object: map[string]interface{}{
-				"metadata": map[string]interface{}{
-					"resource": chrt.Values["metadata"].(map[string]interface{})["resource"],
+			Object: map[string]any{
+				"metadata": map[string]any{
+					"resource": chrt.Values["metadata"].(map[string]any)["resource"],
 					"release":  mt.Release,
 				},
 				"resources": resourceMap,
@@ -307,7 +326,7 @@ func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt r
 	return &tpl, nil
 }
 
-func GenerateResourceEditorModel(kc client.Client, reg repo.IRegistry, opts map[string]interface{}) (*unstructured.Unstructured, error) {
+func GenerateResourceEditorModel(kc client.Client, reg repo.IRegistry, opts map[string]any) (*unstructured.Unstructured, error) {
 	var spec releasesapi.ModelMetadata
 	err := meta_util.DecodeObject(opts, &spec)
 	if err != nil {
@@ -331,7 +350,7 @@ func GenerateResourceEditorModel(kc client.Client, reg repo.IRegistry, opts map[
 	return generateEditorModel(kc, reg, *ed.Spec.UI.Options, *ed.Spec.UI.Editor, spec, opts)
 }
 
-func GenerateEditorModel(kc client.Client, reg repo.IRegistry, chartRef releasesapi.ChartSourceRef, opts map[string]interface{}) (*unstructured.Unstructured, error) {
+func GenerateEditorModel(kc client.Client, reg repo.IRegistry, chartRef releasesapi.ChartSourceRef, opts map[string]any) (*unstructured.Unstructured, error) {
 	var spec releasesapi.ModelMetadata
 	err := meta_util.DecodeObject(opts, &spec)
 	if err != nil {
@@ -346,10 +365,10 @@ func generateEditorModel(
 	optionsChartRef releasesapi.ChartSourceRef,
 	editorChartRef releasesapi.ChartSourceRef,
 	spec releasesapi.ModelMetadata,
-	opts map[string]interface{},
+	opts map[string]any,
 ) (*unstructured.Unstructured, error) {
 	isFeaturesetEditor := hub.IsFeaturesetGR(spec.Resource.GroupResource())
-	chartName := spec.Metadata.Release.Name
+	chartName := spec.Release.Name
 	if isFeaturesetEditor {
 		chartName = "" // not-used
 	}
@@ -369,7 +388,7 @@ func generateEditorModel(
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to load resource editor chart %+v", editorChartRef)
 		}
-		if data, ok := chrt.Chart.Metadata.Annotations["meta.x-helm.dev/resource-keys"]; ok && data != "" {
+		if data, ok := chrt.Metadata.Annotations["meta.x-helm.dev/resource-keys"]; ok && data != "" {
 			resourceKeys = sets.New[string](strings.Split(data, ",")...)
 		} else {
 			return nil, fmt.Errorf("editor chart %+v is missing annotation key meta.x-helm.dev/editor", editorChartRef)
@@ -379,8 +398,8 @@ func generateEditorModel(
 	f1 := &EditorModelGenerator{
 		Registry:       reg,
 		ChartSourceRef: optionsChartRef,
-		ReleaseName:    spec.Metadata.Release.Name,
-		Namespace:      spec.Metadata.Release.Namespace,
+		ReleaseName:    spec.Release.Name,
+		Namespace:      spec.Release.Namespace,
 		KubeVersion:    "v1.22.0",
 		Values:         opts,
 	}
@@ -389,7 +408,7 @@ func generateEditorModel(
 		return nil, err
 	}
 
-	resourceMap := map[string]interface{}{}
+	resourceMap := map[string]any{}
 	_, manifest := f1.Result()
 	err = parser.ProcessResources(manifest, func(ri parser.ResourceInfo) error {
 		rsKey, err := ResourceKey(ri.Object.GetAPIVersion(), ri.Object.GetKind(), chartName, ri.Object.GetName())
@@ -407,7 +426,7 @@ func generateEditorModel(
 		return nil, err
 	}
 	model := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"metadata":  opts["metadata"],
 			"resources": resourceMap,
 		},
@@ -418,7 +437,7 @@ func generateEditorModel(
 	return model, err
 }
 
-func RenderResourceEditorChart(kc client.Client, reg repo.IRegistry, opts map[string]interface{}) (string, *releasesapi.ChartTemplate, error) {
+func RenderResourceEditorChart(kc client.Client, reg repo.IRegistry, opts map[string]any) (string, *releasesapi.ChartTemplate, error) {
 	var spec releasesapi.ModelMetadata
 	err := meta_util.DecodeObject(opts, &spec)
 	if err != nil {
@@ -436,7 +455,7 @@ func RenderResourceEditorChart(kc client.Client, reg repo.IRegistry, opts map[st
 	return renderChart(kc, reg, *ed.Spec.UI.Editor, spec, opts)
 }
 
-func RenderChart(kc client.Client, reg repo.IRegistry, chartRef releasesapi.ChartSourceRef, opts map[string]interface{}) (string, *releasesapi.ChartTemplate, error) {
+func RenderChart(kc client.Client, reg repo.IRegistry, chartRef releasesapi.ChartSourceRef, opts map[string]any) (string, *releasesapi.ChartTemplate, error) {
 	var spec releasesapi.ModelMetadata
 	err := meta_util.DecodeObject(opts, &spec)
 	if err != nil {
@@ -451,7 +470,7 @@ func renderChart(
 	reg repo.IRegistry,
 	chartRef releasesapi.ChartSourceRef,
 	spec releasesapi.ModelMetadata,
-	opts map[string]interface{},
+	opts map[string]any,
 ) (string, *releasesapi.ChartTemplate, error) {
 	if chartRef.SourceRef.Namespace == "" {
 		chartRef.SourceRef.Namespace = hub.BootstrapHelmRepositoryNamespace()
@@ -510,7 +529,7 @@ func renderChart(
 
 func CreateChartOrder(reg repo.IRegistry, opts releasesapi.ChartOrder) (*releasesapi.Order, error) {
 	// editor chart
-	obj := opts.ChartSourceFlatRef.ToAPIObject()
+	obj := opts.ToAPIObject()
 	chrt, err := reg.GetChart(obj)
 	if err != nil {
 		return nil, err

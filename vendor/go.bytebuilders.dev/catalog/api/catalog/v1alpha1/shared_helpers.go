@@ -19,6 +19,8 @@ package v1alpha1
 import (
 	"context"
 	"encoding/json"
+	"strings"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -29,7 +31,6 @@ import (
 	"kmodules.xyz/client-go/meta"
 	kvm_apis "kubevault.dev/apimachinery/apis"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
 func GetSecretEngineName(obj client.Object, dbName string) string {

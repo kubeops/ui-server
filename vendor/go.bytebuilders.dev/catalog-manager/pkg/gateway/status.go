@@ -26,19 +26,18 @@ import (
 	kmapi "kmodules.xyz/client-go/meta"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
-	v1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 func GetGatewayStatus(c client.Client, gwName, gwNamespace string, listenerNames ...string) error {
 	var errs error
 
-	gw := &v1.Gateway{}
+	gw := &gwapiv1.Gateway{}
 	if err := c.Get(context.TODO(), client.ObjectKey{Name: gwName, Namespace: gwNamespace}, gw); err != nil {
 		return err
 	}
 
-	if !kmapi.IsConditionTrue(gw.Status.Conditions, string(v1.GatewayConditionAccepted)) ||
-		!kmapi.IsConditionTrue(gw.Status.Conditions, string(v1.GatewayConditionProgrammed)) {
+	if !kmapi.IsConditionTrue(gw.Status.Conditions, string(gwapiv1.GatewayConditionAccepted)) ||
+		!kmapi.IsConditionTrue(gw.Status.Conditions, string(gwapiv1.GatewayConditionProgrammed)) {
 		errs = multierr.Append(errs, fmt.Errorf("gateway %s/%s not accepted or programmed", gw.Name, gw.Namespace))
 	}
 
@@ -53,7 +52,7 @@ func GetGatewayStatus(c client.Client, gwName, gwNamespace string, listenerNames
 	return errs
 }
 
-func GetListenerCondition(listenerName string, gwStatus v1.GatewayStatus) []metav1.Condition {
+func GetListenerCondition(listenerName string, gwStatus gwapiv1.GatewayStatus) []metav1.Condition {
 	for _, listener := range gwStatus.Listeners {
 		if string(listener.Name) == listenerName {
 			return listener.Conditions
@@ -71,7 +70,7 @@ func GetRouteStatus(routes ...any) error {
 		rv := reflect.ValueOf(route)
 		cr := rv.FieldByName("Status").FieldByName("Parents").Index(0).FieldByName("Conditions")
 		conditions := cr.Interface().([]metav1.Condition)
-		// status := sr.Interface().(v1.RouteStatus)
+		// status := sr.Interface().(gwapiv1.RouteStatus)
 		// fmt.Println("the reflected value: ", status)
 
 		// conditions := cr.Interface().()

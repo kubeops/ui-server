@@ -9,6 +9,9 @@ import (
 	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
+// TLSOCSPKey is the key for the OCSP stapled response in a Secret.
+const TLSOCSPKey = "tls.ocsp-staple"
+
 type ClientTLSSettings struct {
 	// ClientValidation specifies the configuration to validate the client
 	// initiating the TLS connection to the Gateway listener.
@@ -75,7 +78,10 @@ type TLSSettings struct {
 	// 2. Other Routes: ALPN is disabled.
 	// 3. Backends: proxy uses the appropriate ALPN options for the backend protocol.
 	// When an empty list is provided, the ALPN TLS extension is disabled.
-	// Supported values are:
+	//
+	// Defaults to [h2, http/1.1] if not specified.
+	//
+	// Typical Supported values are:
 	// - http/1.0
 	// - http/1.1
 	// - h2
@@ -85,7 +91,6 @@ type TLSSettings struct {
 }
 
 // ALPNProtocol specifies the protocol to be negotiated using ALPN
-// +kubebuilder:validation:Enum=http/1.0;http/1.1;h2
 type ALPNProtocol string
 
 // When adding ALPN constants, they must be values that are defined
@@ -141,6 +146,77 @@ type ClientValidationContext struct {
 	// +kubebuilder:validation:MaxItems=8
 	// +optional
 	CACertificateRefs []gwapiv1.SecretObjectReference `json:"caCertificateRefs,omitempty"`
+
+	// An optional list of base64-encoded SHA-256 hashes. If specified, Envoy will
+	// verify that the SHA-256 of the DER-encoded Subject Public Key Information
+	// (SPKI) of the presented certificate matches one of the specified values.
+	// +optional
+	SPKIHashes []string `json:"spkiHashes,omitempty"`
+
+	// An optional list of hex-encoded SHA-256 hashes. If specified, Envoy will
+	// verify that the SHA-256 of the DER-encoded presented certificate matches
+	// one of the specified values.
+	// +optional
+	CertificateHashes []string `json:"certificateHashes,omitempty"`
+
+	// An optional list of Subject Alternative name matchers. If specified, Envoy
+	// will verify that the Subject Alternative Name of the presented certificate
+	// matches one of the specified matchers
+	// +optional
+	SubjectAltNames *SubjectAltNames `json:"subjectAltNames,omitempty"`
+
+	// Crl specifies the crl configuration that can be used to validate the client initiating the TLS connection
+	// +optional
+	Crl *CrlContext `json:"crl,omitempty"`
+}
+
+// CrlContext holds certificate revocation list configuration that can be used to validate the client initiating the TLS connection
+type CrlContext struct {
+	// Refs contains one or more references to a Kubernetes ConfigMap or a Kubernetes Secret,
+	// containing the certificate revocation list in PEM format
+	// Expects the content in a key named `ca.crl`.
+	//
+	// References to a resource in different namespace are invalid UNLESS there
+	// is a ReferenceGrant in the target namespace that allows the crl
+	// to be attached.
+	//
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=8
+	Refs []gwapiv1.SecretObjectReference `json:"refs"`
+
+	// If this option is set to true,  Envoy will only verify the certificate at the end of the certificate chain against the CRL.
+	// Defaults to false, which will verify the entire certificate chain against the CRL.
+	// +optional
+	OnlyVerifyLeafCertificate *bool `json:"onlyVerifyLeafCertificate,omitempty"`
+}
+
+type SubjectAltNames struct {
+	// DNS names matchers
+	// +optional
+	DNSNames []StringMatch `json:"dnsNames,omitempty"`
+
+	// Email addresses matchers
+	// +optional
+	EmailAddresses []StringMatch `json:"emailAddresses,omitempty"`
+
+	// IP addresses matchers
+	// +optional
+	IPAddresses []StringMatch `json:"ipAddresses,omitempty"`
+
+	// URIs matchers
+	// +optional
+	URIs []StringMatch `json:"uris,omitempty"`
+
+	// Other names matchers
+	// +optional
+	OtherNames []OtherSANMatch `json:"otherNames,omitempty"`
+}
+
+type OtherSANMatch struct {
+	// OID Value
+	Oid         string `json:"oid"`
+	StringMatch `json:",inline"`
 }
 
 // Session defines settings related to TLS session management.

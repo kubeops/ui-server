@@ -215,7 +215,7 @@ func GetListener(sectionName *gwv1.SectionName, routeKind, routeNamespace string
 		AllowedRoutes: &gwv1.AllowedRoutes{
 			Namespaces: &gwv1.RouteNamespaces{
 				From: func() *gwv1.FromNamespaces {
-					var x gwv1.FromNamespaces = gwv1.NamespacesFromSelector
+					x := gwv1.NamespacesFromSelector
 					return &x
 				}(),
 				Selector: &metav1.LabelSelector{

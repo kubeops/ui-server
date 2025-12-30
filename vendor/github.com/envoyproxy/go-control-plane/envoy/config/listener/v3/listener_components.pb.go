@@ -443,7 +443,7 @@ type FilterChain struct {
 	//
 	// Deprecated: Marked as deprecated in envoy/config/listener/v3/listener_components.proto.
 	UseProxyProto *wrapperspb.BoolValue `protobuf:"bytes,4,opt,name=use_proxy_proto,json=useProxyProto,proto3" json:"use_proxy_proto,omitempty"`
-	// [#not-implemented-hide:] filter chain metadata.
+	// Filter chain metadata.
 	Metadata *v3.Metadata `protobuf:"bytes,5,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Optional custom transport socket implementation to use for downstream connections.
 	// To setup TLS, set a transport socket with name “envoy.transport_sockets.tls“ and
@@ -457,9 +457,12 @@ type FilterChain struct {
 	// establishment, the connection is summarily closed.
 	TransportSocketConnectTimeout *durationpb.Duration `protobuf:"bytes,9,opt,name=transport_socket_connect_timeout,json=transportSocketConnectTimeout,proto3" json:"transport_socket_connect_timeout,omitempty"`
 	// The unique name (or empty) by which this filter chain is known.
-	// Note: :ref:`filter_chain_matcher
-	// <envoy_v3_api_field_config.listener.v3.Listener.filter_chain_matcher>`
-	// requires that filter chains are uniquely named within a listener.
+	//
+	// .. note::
+	//
+	//	:ref:`filter_chain_matcher
+	//	<envoy_v3_api_field_config.listener.v3.Listener.filter_chain_matcher>`
+	//	requires that filter chains are uniquely named within a listener.
 	Name string `protobuf:"bytes,7,opt,name=name,proto3" json:"name,omitempty"`
 }
 

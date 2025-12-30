@@ -58,7 +58,7 @@ type TemplateRenderer struct {
 	KubeVersion string
 	ValuesFile  string
 	ValuesPatch *runtime.RawExtension
-	Values      map[string]interface{}
+	Values      map[string]any
 
 	BucketURL string
 	UID       string
@@ -78,16 +78,16 @@ func (x *TemplateRenderer) Do() error {
 	}
 
 	dirManifest := blob.PrefixedBucket(bucket, x.UID+"/manifests/")
-	defer dirManifest.Close()
+	defer dirManifest.Close() // nolint:errcheck
 	dirCRD := blob.PrefixedBucket(bucket, x.UID+"/crds/")
-	defer dirCRD.Close()
+	defer dirCRD.Close() // nolint:errcheck
 
 	chrt, err := x.Registry.GetChart(x.ChartSourceRef)
 	if err != nil {
 		return err
 	}
 
-	if data, ok := chrt.Chart.Metadata.Annotations["meta.x-helm.dev/editor"]; ok && data != "" {
+	if data, ok := chrt.Metadata.Annotations["meta.x-helm.dev/editor"]; ok && data != "" {
 		var gvr metav1.GroupVersionResource
 		if err := json.Unmarshal([]byte(data), &gvr); err != nil {
 			return fmt.Errorf("failed to parse %s annotation %s", "meta.x-helm.dev/editor", data)
@@ -172,7 +172,7 @@ func (x *TemplateRenderer) Do() error {
 			}
 			_, writeErr := w.Write(crd.File.Data)
 			// Always check the return value of Close when writing.
-			closeErr := w.Close()
+			closeErr := w.Close() // nolint:errcheck
 			if writeErr != nil {
 				return writeErr
 			}
@@ -273,7 +273,7 @@ func (x *TemplateRenderer) Do() error {
 		}
 		_, writeErr := manifestDoc.WriteTo(w)
 		// Always check the return value of Close when writing.
-		closeErr := w.Close()
+		closeErr := w.Close() // nolint:errcheck
 		if writeErr != nil {
 			return writeErr
 		}
@@ -301,7 +301,7 @@ type EditorModelGenerator struct {
 	KubeVersion string
 	ValuesFile  string
 	ValuesPatch *runtime.RawExtension
-	Values      map[string]interface{}
+	Values      map[string]any
 
 	RefillMetadata bool
 
@@ -383,7 +383,7 @@ func (x *EditorModelGenerator) Do(kc client.Client) error {
 
 		// opts / model needs to be updated for metadata
 		if x.RefillMetadata {
-			if data, ok := chrt.Chart.Metadata.Annotations["meta.x-helm.dev/editor"]; ok && data != "" {
+			if data, ok := chrt.Metadata.Annotations["meta.x-helm.dev/editor"]; ok && data != "" {
 				var gvr metav1.GroupVersionResource
 				if err := json.Unmarshal([]byte(data), &gvr); err != nil {
 					return fmt.Errorf("failed to parse %s annotation %s", "meta.x-helm.dev/editor", data)
@@ -392,7 +392,7 @@ func (x *EditorModelGenerator) Do(kc client.Client) error {
 					Namespace: x.Namespace,
 					Name:      x.ReleaseName,
 				}
-				if err := actionx.RefillMetadata(kc, chrt.Chart.Values, vals, gvr, rls); err != nil {
+				if err := actionx.RefillMetadata(kc, chrt.Values, vals, gvr, rls); err != nil {
 					return err
 				}
 			} else {

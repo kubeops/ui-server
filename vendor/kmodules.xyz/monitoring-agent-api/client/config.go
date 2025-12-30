@@ -17,13 +17,19 @@ limitations under the License.
 package client
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"net/url"
+
+	appcatalog "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	api "kmodules.xyz/monitoring-agent-api/api/v1"
 
 	promapi "github.com/prometheus/client_golang/api"
 	prom_config "github.com/prometheus/common/config"
 	"github.com/spf13/pflag"
 	"go.bytebuilders.dev/license-verifier/info"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Config struct {
@@ -140,4 +146,30 @@ func (p *Config) NewPrometheusClient() (promapi.Client, error) {
 		Address:      p.Addr,
 		RoundTripper: rt,
 	})
+}
+
+func NewConfig(kc client.Client, p api.Prometheus, tmpDir string) (*Config, error) {
+	var app *appcatalog.AppBinding
+	var err error
+	if p.ConnectionSpec != nil {
+		app, err = p.ToAppBinding()
+		if err != nil {
+			return nil, err
+		}
+	}
+	if p.AppBindingRef != nil {
+		if err = kc.Get(context.Background(), p.AppBindingRef.ObjectKey(), app); err != nil {
+			return nil, err
+		}
+	}
+	if app == nil {
+		return nil, errors.New("missing Prometheus connection configuration")
+	}
+
+	builder := &ClientBuilder{
+		tmpDir: tmpDir,
+	}
+
+	cfg, _, err := builder.Build(kc, app)
+	return cfg, err
 }

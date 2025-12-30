@@ -126,7 +126,7 @@ func getPromQueryResult(pc promv1.API, promQuery string) (map[string]float64, er
 		if len(valStr) != 2 {
 			return nil, fmt.Errorf("metrics %q is invalid for query %s", m, promQuery)
 		}
-		valStr[0] = strings.Replace(valStr[0], " ", "", -1)
+		valStr[0] = strings.ReplaceAll(valStr[0], " ", "")
 		metricVal, err := strconv.ParseFloat(valStr[0], 64)
 		if err != nil {
 			return nil, err

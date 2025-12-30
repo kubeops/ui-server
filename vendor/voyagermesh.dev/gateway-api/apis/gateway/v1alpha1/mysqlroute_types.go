@@ -113,6 +113,11 @@ type MySQLRouteStatus struct {
 
 // MySQLRouteRule is the configuration for a given rule.
 type MySQLRouteRule struct {
+	// Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+	//
+	// Support: Extended
+	// +optional
+	Name *gwv1.SectionName `json:"name,omitempty"`
 	// Filters define the filters that are applied to requests that match
 	// this rule.
 	//

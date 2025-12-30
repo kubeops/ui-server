@@ -99,18 +99,18 @@ func (r *ClientBuilder) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 	app := &appcatalog.AppBinding{}
 	if err := r.mgr.GetClient().Get(ctx, key, app); err != nil {
-		klog.Infof("AppBinding %q doesn't exist anymore", req.NamespacedName.String())
+		klog.Infof("AppBinding %q doesn't exist anymore", req.String())
 		r.unset()
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
 	// Add or remove finalizer based on deletion timestamp
-	if app.ObjectMeta.DeletionTimestamp != nil {
+	if app.DeletionTimestamp != nil {
 		r.unset()
 		return ctrl.Result{}, nil
 	}
 
-	cfg, projections, err := r.build(app)
+	cfg, projections, err := r.Build(r.mgr.GetClient(), app)
 	if err != nil {
 		r.unset()
 		return ctrl.Result{}, err
@@ -191,7 +191,7 @@ func (r *ClientBuilder) Setup() error {
 		Complete(r)
 }
 
-func (r *ClientBuilder) build(app *appcatalog.AppBinding) (*Config, map[string]atomic_writer.FileProjection, error) {
+func (r *ClientBuilder) Build(kc client.Client, app *appcatalog.AppBinding) (*Config, map[string]atomic_writer.FileProjection, error) {
 	var cfg Config
 
 	addr, err := app.URL()
@@ -205,7 +205,7 @@ func (r *ClientBuilder) build(app *appcatalog.AppBinding) (*Config, map[string]a
 	if app.Spec.Secret != nil && app.Spec.Secret.Name != "" {
 		var authSecret core.Secret
 		key := client.ObjectKey{Namespace: app.Namespace, Name: app.Spec.Secret.Name}
-		err = r.mgr.GetClient().Get(context.TODO(), key, &authSecret)
+		err = kc.Get(context.TODO(), key, &authSecret)
 		if err != nil {
 			return nil, nil, errors.Wrapf(err, "Secret %s not found", key)
 		}
@@ -222,7 +222,7 @@ func (r *ClientBuilder) build(app *appcatalog.AppBinding) (*Config, map[string]a
 	}
 
 	projections := map[string]atomic_writer.FileProjection{}
-	if len(app.Spec.ClientConfig.CABundle) > 0 {
+	if len(app.Spec.ClientConfig.CABundle) > 0 && r.tmpDir != "" {
 		projections["ca.crt"] = atomic_writer.FileProjection{
 			Data: app.Spec.ClientConfig.CABundle,
 			Mode: 0o644,
@@ -233,19 +233,19 @@ func (r *ClientBuilder) build(app *appcatalog.AppBinding) (*Config, map[string]a
 	if app.Spec.TLSSecret != nil && app.Spec.TLSSecret.Name != "" {
 		var clientSecret core.Secret
 		key := client.ObjectKey{Namespace: app.Namespace, Name: app.Spec.TLSSecret.Name}
-		err = r.mgr.GetClient().Get(context.TODO(), key, &clientSecret)
+		err = kc.Get(context.TODO(), key, &clientSecret)
 		if err != nil {
 			return nil, nil, errors.Wrapf(err, "Secret %s not found", key)
 		}
 
-		if v, ok := clientSecret.Data[core.TLSCertKey]; ok {
+		if v, ok := clientSecret.Data[core.TLSCertKey]; ok && r.tmpDir != "" {
 			projections[core.TLSCertKey] = atomic_writer.FileProjection{
 				Data: v,
 				Mode: 0o644,
 			}
 			cfg.TLSConfig.CertFile = filepath.Join(r.tmpDir, core.TLSCertKey)
 		}
-		if v, ok := clientSecret.Data[core.TLSPrivateKeyKey]; ok {
+		if v, ok := clientSecret.Data[core.TLSPrivateKeyKey]; ok && r.tmpDir != "" {
 			projections[core.TLSPrivateKeyKey] = atomic_writer.FileProjection{
 				Data: v,
 				Mode: 0o644,

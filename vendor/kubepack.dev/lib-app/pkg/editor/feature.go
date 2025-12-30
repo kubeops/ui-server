@@ -62,7 +62,7 @@ func UpdateFeatureValues(kc client.Client, chrt *chart.Chart, vals map[string]an
 				continue
 			}
 
-			obj := o.(map[string]interface{})
+			obj := o.(map[string]any)
 			featureName, found, err := unstructured.NestedString(obj, "metadata", "name")
 			if err != nil {
 				return nil, errors.Wrap(err, "can't detect feature name")
@@ -83,7 +83,7 @@ func UpdateFeatureValues(kc client.Client, chrt *chart.Chart, vals map[string]an
 	return vals, nil
 }
 
-func SetChartInfo(kc client.Client, feature *uiapi.Feature, featureKey string, values map[string]interface{}) error {
+func SetChartInfo(kc client.Client, feature *uiapi.Feature, featureKey string, values map[string]any) error {
 	err := unstructured.SetNestedField(values, feature.Spec.Chart.Name, "resources", featureKey, "spec", "chart", "spec", "chart")
 	if err != nil {
 		return err
@@ -164,8 +164,8 @@ func SetChartInfo(kc client.Client, feature *uiapi.Feature, featureKey string, v
 	return nil
 }
 
-func setFeatureValues(values map[string]interface{}, specValues []byte, featureKey string) error {
-	featureValues := map[string]interface{}{}
+func setFeatureValues(values map[string]any, specValues []byte, featureKey string) error {
+	featureValues := map[string]any{}
 	if err := json.Unmarshal(specValues, &featureValues); err != nil {
 		return err
 	}

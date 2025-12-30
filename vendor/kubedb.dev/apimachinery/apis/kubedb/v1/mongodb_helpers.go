@@ -45,7 +45,7 @@ import (
 
 func (*MongoDB) Hub() {}
 
-func (_ MongoDB) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (MongoDB) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourcePluralMongoDB))
 }
 
@@ -629,6 +629,13 @@ func (m *MongoDB) SetDefaults(mgVersion *v1alpha1.MongoDBVersion) {
 	}
 	if m.Spec.DeletionPolicy == "" {
 		m.Spec.DeletionPolicy = DeletionPolicyDelete
+	}
+
+	if m.Spec.AuthSecret == nil {
+		m.Spec.AuthSecret = &SecretReference{}
+	}
+	if m.Spec.AuthSecret.Kind == "" {
+		m.Spec.AuthSecret.Kind = kubedb.ResourceKindSecret
 	}
 
 	if m.Spec.SSLMode == "" {

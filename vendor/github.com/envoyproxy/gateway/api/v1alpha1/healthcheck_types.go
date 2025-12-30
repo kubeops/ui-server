@@ -5,15 +5,10 @@
 
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 // HealthCheck configuration to decide which endpoints
 // are healthy and can be used for routing.
-//
-// Note: Once the overall health of the backendRef drops below 50% (e.g. a backendRef having 10 endpoints
-// with more than 5 unhealthy endpoints), Envoy will disregard health status and balance across all endpoints.
-// This is called "panic mode". It's designed to prevent a situation in which host failures cascade throughout the cluster
-// as load increases.
 type HealthCheck struct {
 	// Active health check configuration
 	// +optional
@@ -22,6 +17,15 @@ type HealthCheck struct {
 	// Passive passive check configuration
 	// +optional
 	Passive *PassiveHealthCheck `json:"passive,omitempty"`
+
+	// When number of unhealthy endpoints for a backend reaches this threshold
+	// Envoy will disregard health status and balance across all endpoints.
+	// It's designed to prevent a situation in which host failures cascade throughout the cluster
+	// as load increases. If not set, the default value is 50%. To disable panic mode, set value to `0`.
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=100
+	// +optional
+	PanicThreshold *uint32 `json:"panicThreshold,omitempty"`
 }
 
 // PassiveHealthCheck defines the configuration for passive health checks in the context of Envoy's Outlier Detection,
@@ -35,10 +39,9 @@ type PassiveHealthCheck struct {
 
 	// Interval defines the time between passive health checks.
 	//
-	// +kubebuilder:validation:Format=duration
 	// +kubebuilder:default="3s"
 	// +optional
-	Interval *metav1.Duration `json:"interval,omitempty"`
+	Interval *gwapiv1.Duration `json:"interval,omitempty"`
 
 	// ConsecutiveLocalOriginFailures sets the number of consecutive local origin failures triggering ejection.
 	// Parameter takes effect only when split_external_local_origin_errors is set to true.
@@ -49,7 +52,6 @@ type PassiveHealthCheck struct {
 
 	// ConsecutiveGatewayErrors sets the number of consecutive gateway errors triggering ejection.
 	//
-	// +kubebuilder:default=0
 	// +optional
 	ConsecutiveGatewayErrors *uint32 `json:"consecutiveGatewayErrors,omitempty"`
 
@@ -61,16 +63,24 @@ type PassiveHealthCheck struct {
 
 	// BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
 	//
-	// +kubebuilder:validation:Format=duration
 	// +kubebuilder:default="30s"
 	// +optional
-	BaseEjectionTime *metav1.Duration `json:"baseEjectionTime,omitempty"`
+	BaseEjectionTime *gwapiv1.Duration `json:"baseEjectionTime,omitempty"`
 
 	// MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected.
 	//
 	// +kubebuilder:default=10
 	// +optional
 	MaxEjectionPercent *int32 `json:"maxEjectionPercent,omitempty"`
+
+	// FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+	// If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+	// Defaults to 85.
+	//
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=100
+	// +optional
+	FailurePercentageThreshold *uint32 `json:"failurePercentageThreshold,omitempty"`
 }
 
 // ActiveHealthCheck defines the active health check configuration.
@@ -83,17 +93,21 @@ type PassiveHealthCheck struct {
 type ActiveHealthCheck struct {
 	// Timeout defines the time to wait for a health check response.
 	//
-	// +kubebuilder:validation:Format=duration
 	// +kubebuilder:default="1s"
 	// +optional
-	Timeout *metav1.Duration `json:"timeout"`
+	Timeout *gwapiv1.Duration `json:"timeout"`
 
 	// Interval defines the time between active health checks.
 	//
-	// +kubebuilder:validation:Format=duration
 	// +kubebuilder:default="3s"
 	// +optional
-	Interval *metav1.Duration `json:"interval"`
+	Interval *gwapiv1.Duration `json:"interval"`
+
+	// InitialJitter defines the maximum time Envoy will wait before the first health check.
+	// Envoy will randomly select a value between 0 and the initial jitter value.
+	//
+	// +optional
+	InitialJitter *gwapiv1.Duration `json:"initialJitter,omitempty"`
 
 	// UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
 	//
@@ -145,6 +159,14 @@ const (
 
 // HTTPActiveHealthChecker defines the settings of http health check.
 type HTTPActiveHealthChecker struct {
+	// Hostname defines the HTTP host that will be requested during health checking.
+	// Default: HTTPRoute or GRPCRoute hostname.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=253
+	// +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`
+	// +optional
+	Hostname *string `json:"hostname,omitempty" yaml:"hostname,omitempty"`
 	// Path defines the HTTP path that will be requested during health checking.
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024

@@ -227,6 +227,13 @@ func (p *PgBouncer) SetDefaults(pgBouncerVersion *catalog.PgBouncerVersion, uses
 		}
 	}
 
+	if p.Spec.AuthSecret == nil {
+		p.Spec.AuthSecret = &SecretReference{}
+	}
+	if p.Spec.AuthSecret.Kind == "" {
+		p.Spec.AuthSecret.Kind = kubedb.ResourceKindSecret
+	}
+
 	p.setPgBouncerContainerDefaults(&p.Spec.PodTemplate, pgBouncerVersion)
 	p.setDefaultPodSecurityContext()
 
@@ -288,7 +295,9 @@ func (p *PgBouncer) GetPersistentSecrets() []string {
 		return nil
 	}
 	var secrets []string
-	secrets = append(secrets, p.GetAuthSecretName())
+	if !IsVirtualAuthSecretReferred(p.Spec.AuthSecret) && p.Spec.AuthSecret != nil && p.Spec.AuthSecret.Name != "" {
+		secrets = append(secrets, p.GetAuthSecretName())
+	}
 	secrets = append(secrets, p.GetBackendSecretName())
 	secrets = append(secrets, p.PgBouncerFinalConfigSecretName())
 

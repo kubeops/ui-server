@@ -81,6 +81,17 @@ func (in *AWSProvider) DeepCopyInto(out *AWSProvider) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.SDCreateTag != nil {
+		in, out := &in.SDCreateTag, &out.SDCreateTag
+		*out = new(map[string]string)
+		if **in != nil {
+			in, out := *in, *out
+			*out = make(map[string]string, len(*in))
+			for key, val := range *in {
+				(*out)[key] = val
+			}
+		}
+	}
 	if in.SecretRef != nil {
 		in, out := &in.SecretRef, &out.SecretRef
 		*out = new(GenericSecretReference)
@@ -117,6 +128,16 @@ func (in *AzureProvider) DeepCopyInto(out *AzureProvider) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.ZonesCacheDuration != nil {
+		in, out := &in.ZonesCacheDuration, &out.ZonesCacheDuration
+		*out = new(time.Duration)
+		**out = **in
+	}
+	if in.MaxRetriesCount != nil {
+		in, out := &in.MaxRetriesCount, &out.MaxRetriesCount
+		*out = new(int)
+		**out = **in
+	}
 	if in.SecretRef != nil {
 		in, out := &in.SecretRef, &out.SecretRef
 		*out = new(GenericSecretReference)
@@ -141,6 +162,31 @@ func (in *CloudflareProvider) DeepCopyInto(out *CloudflareProvider) {
 	if in.Proxied != nil {
 		in, out := &in.Proxied, &out.Proxied
 		*out = new(bool)
+		**out = **in
+	}
+	if in.CustomHostnames != nil {
+		in, out := &in.CustomHostnames, &out.CustomHostnames
+		*out = new(bool)
+		**out = **in
+	}
+	if in.CustomHostnamesCertificateAuthority != nil {
+		in, out := &in.CustomHostnamesCertificateAuthority, &out.CustomHostnamesCertificateAuthority
+		*out = new(string)
+		**out = **in
+	}
+	if in.CustomHostnamesMinTLSVersion != nil {
+		in, out := &in.CustomHostnamesMinTLSVersion, &out.CustomHostnamesMinTLSVersion
+		*out = new(string)
+		**out = **in
+	}
+	if in.RegionalServices != nil {
+		in, out := &in.RegionalServices, &out.RegionalServices
+		*out = new(bool)
+		**out = **in
+	}
+	if in.RegionKey != nil {
+		in, out := &in.RegionKey, &out.RegionKey
+		*out = new(string)
 		**out = **in
 	}
 	if in.SecretRef != nil {

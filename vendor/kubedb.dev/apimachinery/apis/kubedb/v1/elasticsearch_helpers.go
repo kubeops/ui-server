@@ -52,7 +52,7 @@ const (
 
 func (*Elasticsearch) Hub() {}
 
-func (_ Elasticsearch) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (Elasticsearch) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourcePluralElasticsearch))
 }
 
@@ -463,6 +463,15 @@ func (e *Elasticsearch) SetDefaults(esVersion *catalog.ElasticsearchVersion) {
 		e.Spec.PodTemplate.Spec.ServiceAccountName = e.OffshootName()
 	}
 
+	if !e.Spec.DisableSecurity {
+		if e.Spec.AuthSecret == nil {
+			e.Spec.AuthSecret = &SecretReference{}
+		}
+		if e.Spec.AuthSecret.Kind == "" {
+			e.Spec.AuthSecret.Kind = kubedb.ResourceKindSecret
+		}
+	}
+
 	// set default elasticsearch node name prefix
 	if e.Spec.Topology != nil {
 		// Required nodes, must exist!
@@ -816,7 +825,8 @@ func (e *Elasticsearch) SetDefaultInternalUsersAndRoleMappings(esVersion *catalo
 				rolesMapping = make(map[string]ElasticsearchRoleMapSpec)
 			}
 			var monitorRole string
-			if esVersion.Spec.AuthPlugin == catalog.ElasticsearchAuthPluginSearchGuard {
+			switch esVersion.Spec.AuthPlugin {
+			case catalog.ElasticsearchAuthPluginSearchGuard:
 				// readall_and_monitor role name varies in ES version
 				// 	V7        = "SGS_READALL_AND_MONITOR"
 				//	V6        = "sg_readall_and_monitor"
@@ -830,9 +840,9 @@ func (e *Elasticsearch) SetDefaultInternalUsersAndRoleMappings(esVersion *catalo
 					// Required during upgrade process, from v6 --> v7
 					delete(rolesMapping, string(kubedb.ElasticsearchSearchGuardReadallMonitorRoleV6))
 				}
-			} else if esVersion.Spec.AuthPlugin == catalog.ElasticsearchAuthPluginOpenDistro {
+			case catalog.ElasticsearchAuthPluginOpenDistro:
 				monitorRole = kubedb.ElasticsearchOpendistroReadallMonitorRole
-			} else {
+			default:
 				monitorRole = kubedb.ElasticsearchOpenSearchReadallMonitorRole
 			}
 
@@ -862,7 +872,8 @@ func (e *Elasticsearch) SetDefaultInternalUsersAndRoleMappings(esVersion *catalo
 					userSpec.SecretName = e.GetAuthSecretName()
 				}
 				e.Spec.AuthSecret = &SecretReference{
-					LocalObjectReference: core.LocalObjectReference{
+					TypedLocalObjectReference: appcat.TypedLocalObjectReference{
+						Kind: "Secret",
 						Name: userSpec.SecretName,
 					},
 				}

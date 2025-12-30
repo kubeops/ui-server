@@ -98,6 +98,7 @@ func GetGateway(c client.Client, gwName, gwNamespace, gwClassName string) (*gwap
 			return nil, err
 		}
 	}
+	gw.Spec.GatewayClassName = gwapiv1.ObjectName(gwClassName)
 	return gw, nil
 }
 
@@ -189,11 +190,11 @@ func constructListener(listenerName, routeKind string, port gwapiv1.PortNumber, 
 				},
 			},
 		},
-		TLS: func() *gwapiv1b1.GatewayTLSConfig {
+		TLS: func() *gwapiv1.ListenerTLSConfig {
 			if len(certRef) == 0 || string(certRef[0].Name) == "" {
 				return nil
 			}
-			tlsConfig := &gwapiv1.GatewayTLSConfig{
+			tlsConfig := &gwapiv1.ListenerTLSConfig{
 				Mode: func() *gwapiv1.TLSModeType {
 					x := gwapiv1.TLSModeTerminate
 					return &x
@@ -213,10 +214,10 @@ func EnsureBackendTLSPolicy(c client.Client, serviceName, tlsSecretName, namespa
 			Name:      GetBackendTLSPolicyName(serviceName), // todo fix naming
 			Namespace: namespace,
 		},
-		Spec: gwapiv1a3.BackendTLSPolicySpec{
-			TargetRefs: []gwapiv1a2.LocalPolicyTargetReferenceWithSectionName{
+		Spec: gwapiv1.BackendTLSPolicySpec{
+			TargetRefs: []gwapiv1.LocalPolicyTargetReferenceWithSectionName{
 				{
-					LocalPolicyTargetReference: gwapiv1a2.LocalPolicyTargetReference{
+					LocalPolicyTargetReference: gwapiv1.LocalPolicyTargetReference{
 						Group: "",
 						Kind:  "Service",
 						Name:  gwapiv1a2.ObjectName(serviceName),
@@ -224,7 +225,7 @@ func EnsureBackendTLSPolicy(c client.Client, serviceName, tlsSecretName, namespa
 					SectionName: nil,
 				},
 			},
-			Validation: gwapiv1a3.BackendTLSPolicyValidation{
+			Validation: gwapiv1.BackendTLSPolicyValidation{
 				CACertificateRefs: []gwapiv1a2.LocalObjectReference{
 					{
 						Group: "",
