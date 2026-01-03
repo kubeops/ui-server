@@ -763,8 +763,8 @@ go.bytebuilders.dev/catalog v0.0.17-0.20251230061820-61f85e29e3cb h1:pRR09cGo9Zf
 go.bytebuilders.dev/catalog v0.0.17-0.20251230061820-61f85e29e3cb/go.mod h1:4hlEzQGcE7RnJzAwpfNQ/dasC6PkUBUIZnRPRYWcZqM=
 go.bytebuilders.dev/catalog-manager v0.9.1-0.20251230142251-7024ff0fef9d h1:mi7QZ4YD8IpMe7vxEczaNablLlI4OfkLbMsfgQFIl3A=
 go.bytebuilders.dev/catalog-manager v0.9.1-0.20251230142251-7024ff0fef9d/go.mod h1:3/jvkRYOgzHpX4Yc+PSTKaj504eFRfhc4kw8sUEhHyo=
-go.bytebuilders.dev/license-verifier v0.14.10 h1:K4VZjaoDXQde8QtL2kzpgk0jHw3W5CxFK9vh78RbDbQ=
-go.bytebuilders.dev/license-verifier v0.14.10/go.mod h1:+cr+kft45r9BbsmZ9D5MGK9CrOf0VL3kBuOd/MiahdA=
+go.bytebuilders.dev/license-verifier v0.15.0 h1:9BHJSVpiCztnJMlsn1i36wi0ZeHdr46CrQH2GUzFLBA=
+go.bytebuilders.dev/license-verifier v0.15.0/go.mod h1:aGD3zgEUZ5BnOam9U241ZiOm4Wp8f+EiJeQ+nHTFO5A=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.4.2 h1:IrUHp260R8c+zYx/Tm8QZr04CX+qWS5PGfPdevhdm1I=
 go.etcd.io/bbolt v1.4.2/go.mod h1:Is8rSHO/b4f3XigBC0lL0+4FwAQv3HXEEIgFMuKHceM=
@@ -1194,8 +1194,8 @@ kmodules.xyz/monitoring-agent-api v0.34.0 h1:SNgKvC1j8oYWQcdClyV2T5GsOQoG40c3pK9
 kmodules.xyz/monitoring-agent-api v0.34.0/go.mod h1:XFDfMHDZQeNEPdTDeDr4M0dT4UCWs+4IYzgHw7JDlms=
 kmodules.xyz/offshoot-api v0.34.0 h1:HnOOp8FrCjTWjtNApRDo6Ahe79tOlLrJmyye4xxO4Kk=
 kmodules.xyz/offshoot-api v0.34.0/go.mod h1:F+B59yYw4CZJ4uD4xu6C+mMLzIXUtuH7E+SbDICl9jE=
-kmodules.xyz/resource-metadata v0.40.2 h1:2J+UvAaHXfqDStO2SKqeVkER4z/kSOqpj8Iyrc9+V4Y=
-kmodules.xyz/resource-metadata v0.40.2/go.mod h1:38+41aUSrWqrQDeaSITKoxAiGT0ysQk5yjRODqBadpw=
+kmodules.xyz/resource-metadata v0.41.0 h1:9wUOg2EvAOW3n8I+tbZnE1PJDdolX+94/Mn7FBZZy9w=
+kmodules.xyz/resource-metadata v0.41.0/go.mod h1:xntcQko2QLbLEHwGE4TQ7I/80fcBQzcexbep97Akstk=
 kmodules.xyz/resource-metrics v0.34.0 h1:cqscgTx3PONxHj6PIySK3sTlKKv8iKTGzRd+S6YSwXg=
 kmodules.xyz/resource-metrics v0.34.0/go.mod h1:R34IKtp5+NqcQz7AQJheBJK6Iem0LqrCbm/55Mn+ECQ=
 kmodules.xyz/resource-metrics/utils v0.34.0 h1:IAwJNoXQZu7bNiWgbwEp+w26uBH1AScprKMA2HX+Bbg=
