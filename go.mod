@@ -56,7 +56,7 @@ require (
 	kubeops.dev/scanner v0.0.21-0.20251228044914-f03cf9e0e521
 	kubepack.dev/lib-app v0.16.1-0.20251228165728-e1f332468ae7
 	kubepack.dev/lib-helm v0.34.0
-	open-cluster-management.io/api v1.0.0
+	open-cluster-management.io/api v1.1.0
 	sigs.k8s.io/cli-utils v0.37.2
 	sigs.k8s.io/controller-runtime v0.22.4
 	sigs.k8s.io/gateway-api v1.4.0
@@ -335,8 +335,8 @@ require (
 	sigs.k8s.io/kustomize/api v0.20.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.20.1 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
-	voyagermesh.dev/gateway-api v0.0.8 // indirect
-	voyagermesh.dev/installer v0.0.0-20250831101200-3368908a554f // indirect
+	voyagermesh.dev/gateway-api v0.0.9 // indirect
+	voyagermesh.dev/installer v0.0.0-20251230080904-cdc0a2148b57 // indirect
 )
 
 replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8

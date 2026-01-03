@@ -1226,8 +1226,8 @@ kubevault.dev/apimachinery v0.22.0 h1:6ysCHgKe0Sw2z35UkpiA8xfWwsGMmzpLEw6RDp5HF/
 kubevault.dev/apimachinery v0.22.0/go.mod h1:QArlKB79Ho4PauRS2ioX4FEVjF79EbwAaomXhkLC/Hk=
 moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7 h1:NykkTlRB+X40z86cLHdEmuoTxhNKhQebLT379b1EumA=
 moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7/go.mod h1:RW4hyBjTWSYDOxapodpNEtX0g5Eb16sxklBqmd2RHcE=
-open-cluster-management.io/api v1.0.0 h1:54QllH9DTudCk6VrGt0q8CDsE3MghqJeTaTN4RHZpE0=
-open-cluster-management.io/api v1.0.0/go.mod h1:/OeqXycNBZQoe3WG6ghuWsMgsKGuMZrK8ZpsU6gWL0Y=
+open-cluster-management.io/api v1.1.0 h1:fu5xst9T/Ya6o41kqdd0zbNiDU+D3nNMTvoRVeF8j+U=
+open-cluster-management.io/api v1.1.0/go.mod h1:lEc5Wkc9ON5ym/qAtIqNgrE7NW7IEOCOC611iQMlnKM=
 oras.land/oras-go/v2 v2.6.0 h1:X4ELRsiGkrbeox69+9tzTu492FMUu7zJQW6eJU+I2oc=
 oras.land/oras-go/v2 v2.6.0/go.mod h1:magiQDfG6H1O9APp+rOsvCPcW1GD2MM7vgnKY0Y+u1o=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
@@ -1249,9 +1249,9 @@ sigs.k8s.io/structured-merge-diff/v6 v6.3.0 h1:jTijUJbW353oVOd9oTlifJqOGEkUw2jB/
 sigs.k8s.io/structured-merge-diff/v6 v6.3.0/go.mod h1:M3W8sfWvn2HhQDIbGWj3S099YozAsymCo/wrT5ohRUE=
 sigs.k8s.io/yaml v1.6.0 h1:G8fkbMSAFqgEFgh4b1wmtzDnioxFCUgTZhlbj5P9QYs=
 sigs.k8s.io/yaml v1.6.0/go.mod h1:796bPqUfzR/0jLAl6XjHl3Ck7MiyVv8dbTdyT3/pMf4=
-voyagermesh.dev/gateway-api v0.0.8 h1:ARJEjDRC1/D0+CO0TStgIiVdCiCVg719n3WZj7dIGPE=
-voyagermesh.dev/gateway-api v0.0.8/go.mod h1:JGMUmcbe0GZagyDTYPz2+i2zctxuOVySPyOxPBD35BU=
-voyagermesh.dev/installer v0.0.0-20250831101200-3368908a554f h1:YuGidi0qisGt2fcb95yo25PLTIgEeNWtkKliH/LgOfk=
-voyagermesh.dev/installer v0.0.0-20250831101200-3368908a554f/go.mod h1:nC3ieuMp1TJQPyFOMZAag00rxS04NF9Ci95LxTQvpaM=
+voyagermesh.dev/gateway-api v0.0.9 h1:btnaLYCsi41CiVKFewGWcZX3xyIA7s3vZTIbcuirFGI=
+voyagermesh.dev/gateway-api v0.0.9/go.mod h1:bEqcqHZjTSsTQ4ffiC7t/aY8z+uVdT5/uvw2CjMx5uA=
+voyagermesh.dev/installer v0.0.0-20251230080904-cdc0a2148b57 h1:qcVUlFsLB6qg6qq+Z1U6KtXlby+L5St3O9yFpcxt1m0=
+voyagermesh.dev/installer v0.0.0-20251230080904-cdc0a2148b57/go.mod h1:e1DWSADBi9bkcJjH6AEJtDwfeRDli8u8f5aMOBCh47I=
 x-helm.dev/apimachinery v0.0.18 h1:UHrC0PGjeSRSRECXRaVUl4fIIwwyQSnNFCCAevSI14w=
 x-helm.dev/apimachinery v0.0.18/go.mod h1:C+M2A9cVmNhqP6ZGft4opUm1cPiWLHukKV5kWNkzXZs=

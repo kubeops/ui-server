@@ -21,6 +21,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"kmodules.xyz/resource-metadata/apis/shared"
 )
 
 const (
@@ -62,6 +63,8 @@ type VoyagerGatewayGlobal struct {
 	ImageRegistry    string   `json:"imageRegistry"`
 	ImagePullSecrets []string `json:"imagePullSecrets"`
 	Images           Images   `json:"images"`
+	// +optional
+	Distro shared.DistroSpec `json:"distro"`
 }
 
 type Images struct {
@@ -80,6 +83,8 @@ type PodDisruptionBudgetSpec struct {
 }
 
 type DeploymentSpec struct {
+	// +optional
+	Annotations       map[string]string       `json:"annotations"`
 	EnvoyGateway      *EnvoyGatewayDeployment `json:"envoyGateway,omitempty"`
 	Ports             []Port                  `json:"ports,omitempty"`
 	PriorityClassName *string                 `json:"priorityClassName"`
@@ -150,6 +155,12 @@ type GatewayControllerSpec struct {
 
 type GatewayProviderSpec struct {
 	Type string `json:"type"`
+	// +optional
+	Kubernetes GatewayProviderKubernetesSpec `json:"kubernetes"`
+}
+
+type GatewayProviderKubernetesSpec struct {
+	CleanupOffshootResources bool `json:"cleanupOffshootResources"`
 }
 
 type LoggingSpec struct {
@@ -182,15 +193,26 @@ type CertgenJobSpec struct {
 	Tolerations []core.Toleration `json:"tolerations"`
 	// +optional
 	NodeSelector map[string]string `json:"nodeSelector"`
+	// +optional
+	Pod CertgenJobPodSpec `json:"pod"`
 }
 
-type CertgenRbacMetadata struct {
+type CertgenJobPodSpec struct {
+	// +optional
 	Annotations map[string]string `json:"annotations"`
-	Labels      map[string]string `json:"labels"`
+	// +optional
+	Labels map[string]string `json:"labels"`
+}
+type CertgenRbacMetadata struct {
+	// +optional
+	Annotations map[string]string `json:"annotations"`
+	// +optional
+	Labels map[string]string `json:"labels"`
 }
 
 type TopologyInjectorSpec struct {
-	Enabled     bool              `json:"enabled"`
+	Enabled bool `json:"enabled"`
+	// +optional
 	Annotations map[string]string `json:"annotations"`
 }
 

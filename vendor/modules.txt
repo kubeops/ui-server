@@ -2745,8 +2745,8 @@ kubevault.dev/apimachinery/apis
 # moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7
 ## explicit; go 1.13
 moul.io/http2curl/v2
-# open-cluster-management.io/api v1.0.0
-## explicit; go 1.23.6
+# open-cluster-management.io/api v1.1.0
+## explicit; go 1.24.0
 open-cluster-management.io/api/cluster/v1alpha1
 open-cluster-management.io/api/work/v1
 # oras.land/oras-go/v2 v2.6.0
@@ -2950,11 +2950,11 @@ sigs.k8s.io/structured-merge-diff/v6/value
 sigs.k8s.io/yaml
 sigs.k8s.io/yaml/goyaml.v3
 sigs.k8s.io/yaml/kyaml
-# voyagermesh.dev/gateway-api v0.0.8
-## explicit; go 1.23.0
+# voyagermesh.dev/gateway-api v0.0.9
+## explicit; go 1.24.0
 voyagermesh.dev/gateway-api/apis/gateway/v1alpha1
-# voyagermesh.dev/installer v0.0.0-20250831101200-3368908a554f
-## explicit; go 1.23.0
+# voyagermesh.dev/installer v0.0.0-20251230080904-cdc0a2148b57
+## explicit; go 1.24.0
 voyagermesh.dev/installer/apis/installer
 voyagermesh.dev/installer/apis/installer/v1alpha1
 # x-helm.dev/apimachinery v0.0.18
