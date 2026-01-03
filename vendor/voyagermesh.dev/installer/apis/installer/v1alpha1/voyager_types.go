@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"kmodules.xyz/resource-metadata/apis/shared"
 )
 
 const (
@@ -86,6 +87,8 @@ type VoyagerSpec struct {
 	Templates    Templates   `json:"templates"`
 	License      string      `json:"license"`
 	RegistryFQDN string      `json:"registryFQDN"`
+	// +optional
+	Distro shared.DistroSpec `json:"distro"`
 }
 
 type ImageRef struct {
