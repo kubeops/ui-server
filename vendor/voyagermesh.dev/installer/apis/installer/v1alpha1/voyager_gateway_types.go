@@ -95,6 +95,7 @@ type DeploymentSpec struct {
 type ServiceSpec struct {
 	TrafficDistribution string            `json:"trafficDistribution"`
 	Annotations         map[string]string `json:"annotations"`
+	Type                string            `json:"type"`
 }
 type HPASpec struct {
 	Enabled     bool                                         `json:"enabled"`

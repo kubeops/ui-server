@@ -24,7 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	gwapiv1a3 "sigs.k8s.io/gateway-api/apis/v1alpha3"
+	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	vgapi "voyagermesh.dev/gateway-api/apis/gateway/v1alpha1"
 )
 
@@ -71,7 +71,7 @@ func CleanupResources(c client.Client, inf DeletionInfo) error {
 		}
 
 		if inf.IsTLSEnabled {
-			btls := &gwapiv1a3.BackendTLSPolicy{}
+			btls := &gwapiv1.BackendTLSPolicy{}
 			err = c.Get(context.TODO(), client.ObjectKey{Name: GetBackendTLSPolicyName(service), Namespace: inf.DBNamespace}, btls)
 			if err != nil {
 				if apierrors.IsNotFound(err) {
