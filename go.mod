@@ -1,6 +1,6 @@
 module kubeops.dev/ui-server
 
-go 1.25.5
+go 1.25.6
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
@@ -19,8 +19,8 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	github.com/zeebo/xxh3 v1.0.2
-	go.bytebuilders.dev/catalog v0.0.17-0.20251230061820-61f85e29e3cb
-	go.bytebuilders.dev/catalog-manager v0.9.1-0.20251230142251-7024ff0fef9d
+	go.bytebuilders.dev/catalog v0.0.19
+	go.bytebuilders.dev/catalog-manager v0.10.0
 	go.bytebuilders.dev/license-verifier v0.15.0
 	go.openviz.dev/apimachinery v0.0.10
 	golang.org/x/sync v0.19.0
@@ -48,7 +48,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.0
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.41.0
+	kmodules.xyz/resource-metadata v0.41.1
 	kmodules.xyz/resource-metrics v0.34.0
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
@@ -56,10 +56,10 @@ require (
 	kubeops.dev/scanner v0.0.21-0.20251228044914-f03cf9e0e521
 	kubepack.dev/lib-app v0.16.1-0.20251228165728-e1f332468ae7
 	kubepack.dev/lib-helm v0.34.0
-	open-cluster-management.io/api v1.1.0
+	open-cluster-management.io/api v1.1.1-0.20251222023835-510285203ee6
 	sigs.k8s.io/cli-utils v0.37.2
 	sigs.k8s.io/controller-runtime v0.22.4
-	sigs.k8s.io/gateway-api v1.4.0
+	sigs.k8s.io/gateway-api v1.4.1
 	sigs.k8s.io/randfill v1.0.0
 	sigs.k8s.io/yaml v1.6.0
 	x-helm.dev/apimachinery v0.0.18
@@ -139,7 +139,7 @@ require (
 	github.com/docker/go-events v0.0.0-20250114142523-c867878c5e32 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.13.0 // indirect
-	github.com/envoyproxy/gateway v1.6.1 // indirect
+	github.com/envoyproxy/gateway v1.6.3 // indirect
 	github.com/envoyproxy/go-control-plane/envoy v1.35.1-0.20251029084203-42a4a9261f66 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/evanphx/json-patch v5.9.11+incompatible // indirect
@@ -322,8 +322,8 @@ require (
 	k8s.io/kube-aggregator v0.34.3 // indirect
 	k8s.io/kubectl v0.34.3 // indirect
 	kmodules.xyz/apply v0.34.0 // indirect
-	kubedb.dev/apimachinery v0.60.0-rc.0.0.20251227140622-3fb97b2591c2 // indirect
-	kubeops.dev/external-dns-operator v0.2.1-0.20251228040338-45d730f27b11 // indirect
+	kubedb.dev/apimachinery v0.60.0 // indirect
+	kubeops.dev/external-dns-operator v0.3.0 // indirect
 	kubeops.dev/petset v0.0.16-0.20251228050140-c7926722b687 // indirect
 	kubeops.dev/sidekick v0.0.13-0.20251228040406-08fe6cf3da94 // indirect
 	kubepack.dev/kubepack v0.34.0 // indirect
@@ -335,8 +335,8 @@ require (
 	sigs.k8s.io/kustomize/api v0.20.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.20.1 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
-	voyagermesh.dev/gateway-api v0.0.9 // indirect
-	voyagermesh.dev/installer v0.0.0-20251230080904-cdc0a2148b57 // indirect
+	voyagermesh.dev/gateway-api v0.0.10 // indirect
+	voyagermesh.dev/installer v0.0.0-20260126155429-994b493cefc6 // indirect
 )
 
 replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8

@@ -470,8 +470,8 @@ github.com/dustin/go-humanize
 ## explicit; go 1.13
 github.com/emicklei/go-restful/v3
 github.com/emicklei/go-restful/v3/log
-# github.com/envoyproxy/gateway v1.6.1
-## explicit; go 1.25.3
+# github.com/envoyproxy/gateway v1.6.3
+## explicit; go 1.25.6
 github.com/envoyproxy/gateway/api/v1alpha1
 # github.com/envoyproxy/go-control-plane/envoy v1.35.1-0.20251029084203-42a4a9261f66
 ## explicit; go 1.23.0
@@ -1119,13 +1119,13 @@ github.com/zeebo/errs
 # github.com/zeebo/xxh3 v1.0.2
 ## explicit; go 1.17
 github.com/zeebo/xxh3
-# go.bytebuilders.dev/catalog v0.0.17-0.20251230061820-61f85e29e3cb
-## explicit; go 1.25.3
+# go.bytebuilders.dev/catalog v0.0.19
+## explicit; go 1.25.6
 go.bytebuilders.dev/catalog/api/catalog/v1alpha1
 go.bytebuilders.dev/catalog/api/gateway/v1alpha1
 go.bytebuilders.dev/catalog/crds
-# go.bytebuilders.dev/catalog-manager v0.9.1-0.20251230142251-7024ff0fef9d
-## explicit; go 1.25.5
+# go.bytebuilders.dev/catalog-manager v0.10.0
+## explicit; go 1.25.6
 go.bytebuilders.dev/catalog-manager/pkg/gateway
 go.bytebuilders.dev/catalog-manager/pkg/portmanager
 # go.bytebuilders.dev/license-verifier v0.15.0
@@ -2626,7 +2626,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.41.0
+# kmodules.xyz/resource-metadata v0.41.1
 ## explicit; go 1.25
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2676,7 +2676,7 @@ kmodules.xyz/resource-metrics/utils
 # kmodules.xyz/sets v0.29.0
 ## explicit; go 1.21.5
 kmodules.xyz/sets
-# kubedb.dev/apimachinery v0.60.0-rc.0.0.20251227140622-3fb97b2591c2
+# kubedb.dev/apimachinery v0.60.0
 ## explicit; go 1.25.0
 kubedb.dev/apimachinery/apis
 kubedb.dev/apimachinery/apis/catalog
@@ -2684,7 +2684,7 @@ kubedb.dev/apimachinery/apis/catalog/v1alpha1
 kubedb.dev/apimachinery/apis/kubedb
 kubedb.dev/apimachinery/apis/kubedb/v1
 kubedb.dev/apimachinery/crds
-# kubeops.dev/external-dns-operator v0.2.1-0.20251228040338-45d730f27b11
+# kubeops.dev/external-dns-operator v0.3.0
 ## explicit; go 1.25
 kubeops.dev/external-dns-operator/apis/external
 kubeops.dev/external-dns-operator/apis/external/v1alpha1
@@ -2745,8 +2745,8 @@ kubevault.dev/apimachinery/apis
 # moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7
 ## explicit; go 1.13
 moul.io/http2curl/v2
-# open-cluster-management.io/api v1.1.0
-## explicit; go 1.24.0
+# open-cluster-management.io/api v1.1.1-0.20251222023835-510285203ee6
+## explicit; go 1.25.0
 open-cluster-management.io/api/cluster/v1alpha1
 open-cluster-management.io/api/work/v1
 # oras.land/oras-go/v2 v2.6.0
@@ -2846,11 +2846,10 @@ sigs.k8s.io/controller-runtime/pkg/webhook/admission/metrics
 sigs.k8s.io/controller-runtime/pkg/webhook/conversion
 sigs.k8s.io/controller-runtime/pkg/webhook/conversion/metrics
 sigs.k8s.io/controller-runtime/pkg/webhook/internal/metrics
-# sigs.k8s.io/gateway-api v1.4.0
+# sigs.k8s.io/gateway-api v1.4.1
 ## explicit; go 1.24.0
 sigs.k8s.io/gateway-api/apis/v1
 sigs.k8s.io/gateway-api/apis/v1alpha2
-sigs.k8s.io/gateway-api/apis/v1alpha3
 sigs.k8s.io/gateway-api/apis/v1beta1
 # sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730
 ## explicit; go 1.23
@@ -2950,11 +2949,12 @@ sigs.k8s.io/structured-merge-diff/v6/value
 sigs.k8s.io/yaml
 sigs.k8s.io/yaml/goyaml.v3
 sigs.k8s.io/yaml/kyaml
-# voyagermesh.dev/gateway-api v0.0.9
+# voyagermesh.dev/gateway-api v0.0.10
 ## explicit; go 1.24.0
 voyagermesh.dev/gateway-api/apis/gateway/v1alpha1
-# voyagermesh.dev/installer v0.0.0-20251230080904-cdc0a2148b57
-## explicit; go 1.24.0
+voyagermesh.dev/gateway-api/config/crd/bases
+# voyagermesh.dev/installer v0.0.0-20260126155429-994b493cefc6
+## explicit; go 1.25
 voyagermesh.dev/installer/apis/installer
 voyagermesh.dev/installer/apis/installer/v1alpha1
 # x-helm.dev/apimachinery v0.0.18

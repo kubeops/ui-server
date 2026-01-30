@@ -21,6 +21,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	"kmodules.xyz/resource-metadata/apis/shared"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
 	dnsapi "kubeops.dev/external-dns-operator/apis/external/v1alpha1"
 	voyagerinstaller "voyagermesh.dev/installer/apis/installer/v1alpha1"
@@ -29,7 +30,8 @@ import (
 // GatewayConfigSpec defines the desired state of GatewayConfig.
 type GatewayConfigSpec struct {
 	GatewaySpec `json:",inline"`
-	Envoy       EnvoySpec `json:"envoy"`
+	Envoy       EnvoySpec    `json:"envoy"`
+	Global      GlobalValues `json:"global"`
 	// Chart specifies the chart information that will be used by the FluxCD to install the respective feature
 	// +optional
 	Chart uiapi.ChartInfo `json:"chart,omitempty"`
@@ -47,9 +49,14 @@ type GatewaySpec struct {
 
 type GatewayValues struct {
 	GatewaySpec `json:",inline"`
-	Envoy       EnvoyValues `json:"envoy"`
+	Envoy       EnvoyValues  `json:"envoy"`
+	Global      GlobalValues `json:"global"`
 }
 
+type GlobalValues struct {
+	// +optional
+	Distro shared.DistroSpec `json:"distro"`
+}
 type GatewayParameter struct {
 	GatewayClassName     string                `json:"-"`
 	ServiceType          egv1a1.ServiceType    `json:"-"`

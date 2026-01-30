@@ -18,7 +18,9 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"kmodules.xyz/client-go/apiextensions"
 	gwv1 "sigs.k8s.io/gateway-api/apis/v1"
+	crds "voyagermesh.dev/gateway-api/config/crd/bases"
 )
 
 const (
@@ -169,4 +171,8 @@ type KafkaRouteList struct {
 
 func init() {
 	SchemeBuilder.Register(&KafkaRoute{}, &KafkaRouteList{})
+}
+
+func (r *KafkaRoute) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	return crds.MustCustomResourceDefinition(GroupVersion.WithResource(ResourcePluralKafkaRoute))
 }

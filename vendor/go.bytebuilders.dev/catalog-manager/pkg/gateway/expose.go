@@ -28,7 +28,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	gwapiv1a2 "sigs.k8s.io/gateway-api/apis/v1alpha2"
-	gwapiv1a3 "sigs.k8s.io/gateway-api/apis/v1alpha3"
 	gwapiv1b1 "sigs.k8s.io/gateway-api/apis/v1beta1"
 )
 
@@ -208,7 +207,7 @@ func constructListener(listenerName, routeKind string, port gwapiv1.PortNumber, 
 }
 
 func EnsureBackendTLSPolicy(c client.Client, serviceName, tlsSecretName, namespace string) error {
-	btp := &gwapiv1a3.BackendTLSPolicy{
+	btp := &gwapiv1.BackendTLSPolicy{
 		TypeMeta: metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GetBackendTLSPolicyName(serviceName), // todo fix naming
@@ -239,7 +238,7 @@ func EnsureBackendTLSPolicy(c client.Client, serviceName, tlsSecretName, namespa
 	}
 
 	_, err := cu.CreateOrPatch(context.TODO(), c, btp, func(obj client.Object, createOp bool) client.Object {
-		in := obj.(*gwapiv1a3.BackendTLSPolicy)
+		in := obj.(*gwapiv1.BackendTLSPolicy)
 		return in
 	})
 	return err

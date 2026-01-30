@@ -44,7 +44,7 @@ type VoyagerGateway struct {
 	Spec              VoyagerGatewaySpec `json:"spec,omitempty"`
 }
 
-// VoyagerGatewaySpec is the schema for Operator Operator values file
+// VoyagerGatewaySpec is the schema for Operator values file
 type VoyagerGatewaySpec struct {
 	Global                  *VoyagerGatewayGlobal    `json:"global,omitempty"`
 	PodDisruptionBudget     *PodDisruptionBudgetSpec `json:"podDisruptionBudget,omitempty"`
@@ -55,8 +55,10 @@ type VoyagerGatewaySpec struct {
 	CreateNamespace         *bool                    `json:"createNamespace,omitempty"`
 	KubernetesClusterDomain *string                  `json:"kubernetesClusterDomain,omitempty"`
 	Certgen                 *CertgenSpec             `json:"certgen,omitempty"`
+	Tester                  *TesterSpec              `json:"tester,omitempty"`
 	TopologyInjector        *TopologyInjectorSpec    `json:"topologyInjector"`
 	GatewayConverter        *VoyagerGatewayConverter `json:"gateway-converter,omitempty"`
+	CRDManager              *CRDManagerConverter     `json:"crd-manager,omitempty"`
 }
 
 type VoyagerGatewayGlobal struct {
@@ -95,6 +97,7 @@ type DeploymentSpec struct {
 type ServiceSpec struct {
 	TrafficDistribution string            `json:"trafficDistribution"`
 	Annotations         map[string]string `json:"annotations"`
+	Type                string            `json:"type"`
 }
 type HPASpec struct {
 	Enabled     bool                                         `json:"enabled"`
@@ -209,6 +212,21 @@ type CertgenRbacMetadata struct {
 	// +optional
 	Labels map[string]string `json:"labels"`
 }
+type TesterSpec struct {
+	ImageDetails `json:",inline,omitempty"`
+	// +optional
+	Resources       core.ResourceRequirements `json:"resources"`
+	SecurityContext *core.SecurityContext     `json:"securityContext,omitempty"`
+	// +optional
+	Pod TesterPodSpec `json:"pod"`
+}
+type TesterPodSpec struct {
+	PodTemplateSpec `json:",inline,omitempty"`
+	// SecurityContext holds pod-level security attributes and common container settings.
+	// Optional: Defaults to empty.  See type description for default values of each field.
+	// +optional
+	SecurityContext *core.PodSecurityContext `json:"securityContext"`
+}
 
 type TopologyInjectorSpec struct {
 	Enabled bool `json:"enabled"`
@@ -219,6 +237,11 @@ type TopologyInjectorSpec struct {
 type VoyagerGatewayConverter struct {
 	Enabled               bool `json:"enabled"`
 	*GatewayConverterSpec `json:",inline,omitempty"`
+}
+
+type CRDManagerConverter struct {
+	Enabled         bool `json:"enabled"`
+	*CrdManagerSpec `json:",inline,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

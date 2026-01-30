@@ -28,9 +28,10 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.29.0
+          version: sha256:541df1758792d337c86092d161f828611a31ebf9bf6c88fb7a169c344e6bb13b
         enforceQuota: false
         flow: standalone-create
+        icon: qlementine-icons:version-control-16
         icons:
         - src: https://cdn.appscode.com/k8s/icons/action-icons/version.svg
           type: image/svg+xml
@@ -42,9 +43,10 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.29.0
+          version: sha256:541df1758792d337c86092d161f828611a31ebf9bf6c88fb7a169c344e6bb13b
         enforceQuota: false
         flow: standalone-create
+        icon: hugeicons:redo
         icons:
         - src: https://cdn.appscode.com/k8s/icons/action-icons/restart.svg
           type: image/svg+xml
@@ -52,15 +54,21 @@ spec:
         operationId: create-opsrequest-restart
       name: Operations
     - items:
+      - enforceQuota: false
+        flow: ""
+        icon: hugeicons:vertical-resize
+        name: Scale Vertically
+        operationId: scale-vertically
       - editor:
           name: opskubedbcom-ferretdbopsrequest-editor
           sourceRef:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.29.0
+          version: sha256:541df1758792d337c86092d161f828611a31ebf9bf6c88fb7a169c344e6bb13b
         enforceQuota: true
         flow: standalone-create
+        icon: hugeicons:horizontal-resize
         icons:
         - src: https://cdn.appscode.com/k8s/icons/action-icons/horizontal_scale.svg
           type: image/svg+xml
@@ -72,7 +80,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.29.0
+          version: sha256:541df1758792d337c86092d161f828611a31ebf9bf6c88fb7a169c344e6bb13b
         enforceQuota: true
         flow: standalone-create
         icons:
@@ -80,6 +88,7 @@ spec:
           type: image/svg+xml
         name: Vertical Scale
         operationId: create-opsrequest-verticalscaling
+        partOf: Scale Vertically
       name: Scaling
     - items:
       - editor:
@@ -88,7 +97,7 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.29.0
+          version: sha256:e22b29ca2820588b959908e8c60a43cbd1c5257afa51821f3d31902aba9218f5
         enforceQuota: true
         flow: standalone-edit
         icons:
@@ -96,6 +105,7 @@ spec:
           type: image/svg+xml
         name: Compute
         operationId: edit-self-compute-autoscaler
+        partOf: Scale Vertically
       name: Autoscaling
     - items:
       - editor:
@@ -104,9 +114,10 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.29.0
+          version: sha256:541df1758792d337c86092d161f828611a31ebf9bf6c88fb7a169c344e6bb13b
         enforceQuota: false
         flow: standalone-create
+        icon: hugeicons:security-check
         icons:
         - src: https://cdn.appscode.com/k8s/icons/action-icons/configure.svg
           type: image/svg+xml
@@ -118,9 +129,10 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.29.0
+          version: sha256:e22b29ca2820588b959908e8c60a43cbd1c5257afa51821f3d31902aba9218f5
         enforceQuota: false
         flow: standalone-edit
+        icon: hugeicons:presentation-line-chart-01
         icons:
         - src: https://cdn.appscode.com/k8s/icons/action-icons/monitor.svg
           type: image/svg+xml
@@ -134,9 +146,10 @@ spec:
             apiGroup: source.toolkit.fluxcd.io
             kind: HelmRepository
             name: appscode-charts-oci
-          version: v0.29.0
+          version: sha256:e22b29ca2820588b959908e8c60a43cbd1c5257afa51821f3d31902aba9218f5
         enforceQuota: false
         flow: standalone-edit
+        icon: streamline-ultimate:server-share
         icons:
         - src: https://cdn.appscode.com/k8s/icons/action-icons/configure.svg
           type: image/svg+xml
@@ -149,7 +162,7 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.29.0
+      version: sha256:e22b29ca2820588b959908e8c60a43cbd1c5257afa51821f3d31902aba9218f5
     enforceQuota: true
     options:
       name: kubedbcom-ferretdb-editor-options
@@ -157,7 +170,7 @@ spec:
         apiGroup: source.toolkit.fluxcd.io
         kind: HelmRepository
         name: appscode-charts-oci
-      version: v0.29.0
+      version: sha256:b3af470b6d285a1c027bb8a305611e8006568fd266b3ef603675c1a18375ba48
   variants:
   - name: default
     selector:

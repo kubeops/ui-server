@@ -22,6 +22,10 @@ import (
 	"kmodules.xyz/client-go/apiextensions"
 )
 
+func (CassandraBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	return crds.MustCustomResourceDefinition(GroupVersion.WithResource(ResourceCassandraBindings))
+}
+
 func (ClickHouseBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(GroupVersion.WithResource(ResourceClickHouseBindings))
 }
@@ -36,6 +40,10 @@ func (ElasticsearchBinding) CustomResourceDefinition() *apiextensions.CustomReso
 
 func (FerretDBBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(GroupVersion.WithResource(ResourceFerretDBBindings))
+}
+
+func (HazelcastBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	return crds.MustCustomResourceDefinition(GroupVersion.WithResource(ResourceHazelcastBindings))
 }
 
 func (KafkaBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
@@ -60,6 +68,10 @@ func (MongoDBBinding) CustomResourceDefinition() *apiextensions.CustomResourceDe
 
 func (MySQLBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(GroupVersion.WithResource(ResourceMySQLBindings))
+}
+
+func (OracleBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	return crds.MustCustomResourceDefinition(GroupVersion.WithResource(ResourceOracleBindings))
 }
 
 func (PerconaXtraDBBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
