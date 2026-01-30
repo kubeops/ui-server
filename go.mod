@@ -1,6 +1,6 @@
 module kubeops.dev/ui-server
 
-go 1.25.5
+go 1.25.6
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
@@ -19,7 +19,7 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	github.com/zeebo/xxh3 v1.0.2
-	go.bytebuilders.dev/catalog v0.0.18-0.20260107114609-69a64ac4ec00
+	go.bytebuilders.dev/catalog v0.0.19
 	go.bytebuilders.dev/catalog-manager v0.10.0
 	go.bytebuilders.dev/license-verifier v0.15.0
 	go.openviz.dev/apimachinery v0.0.10
@@ -48,7 +48,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.0
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.41.0
+	kmodules.xyz/resource-metadata v0.41.1
 	kmodules.xyz/resource-metrics v0.34.0
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
@@ -139,7 +139,7 @@ require (
 	github.com/docker/go-events v0.0.0-20250114142523-c867878c5e32 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.13.0 // indirect
-	github.com/envoyproxy/gateway v1.6.2 // indirect
+	github.com/envoyproxy/gateway v1.6.3 // indirect
 	github.com/envoyproxy/go-control-plane/envoy v1.35.1-0.20251029084203-42a4a9261f66 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/evanphx/json-patch v5.9.11+incompatible // indirect
@@ -336,7 +336,7 @@ require (
 	sigs.k8s.io/kustomize/kyaml v0.20.1 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	voyagermesh.dev/gateway-api v0.0.10 // indirect
-	voyagermesh.dev/installer v0.0.0-20260119102555-23aab683b73d // indirect
+	voyagermesh.dev/installer v0.0.0-20260126155429-994b493cefc6 // indirect
 )
 
 replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8
@@ -350,5 +350,3 @@ replace k8s.io/apimachinery => github.com/kmodules/apimachinery v0.35.0-alpha.0.
 replace k8s.io/apiserver => github.com/kmodules/apiserver v0.34.4-0.20251227112449-07fa35efc6fc
 
 replace helm.sh/helm/v3 => github.com/x-helm/helm/v3 v3.19.5-0.20251227115143-3b9f6f6b7797
-
-replace kmodules.xyz/resource-metadata => ../../kmodules.xyz/resource-metadata

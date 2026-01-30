@@ -470,8 +470,8 @@ github.com/dustin/go-humanize
 ## explicit; go 1.13
 github.com/emicklei/go-restful/v3
 github.com/emicklei/go-restful/v3/log
-# github.com/envoyproxy/gateway v1.6.2
-## explicit; go 1.25.3
+# github.com/envoyproxy/gateway v1.6.3
+## explicit; go 1.25.6
 github.com/envoyproxy/gateway/api/v1alpha1
 # github.com/envoyproxy/go-control-plane/envoy v1.35.1-0.20251029084203-42a4a9261f66
 ## explicit; go 1.23.0
@@ -1119,13 +1119,13 @@ github.com/zeebo/errs
 # github.com/zeebo/xxh3 v1.0.2
 ## explicit; go 1.17
 github.com/zeebo/xxh3
-# go.bytebuilders.dev/catalog v0.0.18-0.20260107114609-69a64ac4ec00
-## explicit; go 1.25.3
+# go.bytebuilders.dev/catalog v0.0.19
+## explicit; go 1.25.6
 go.bytebuilders.dev/catalog/api/catalog/v1alpha1
 go.bytebuilders.dev/catalog/api/gateway/v1alpha1
 go.bytebuilders.dev/catalog/crds
 # go.bytebuilders.dev/catalog-manager v0.10.0
-## explicit; go 1.25.5
+## explicit; go 1.25.6
 go.bytebuilders.dev/catalog-manager/pkg/gateway
 go.bytebuilders.dev/catalog-manager/pkg/portmanager
 # go.bytebuilders.dev/license-verifier v0.15.0
@@ -2626,7 +2626,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.41.0 => ../../kmodules.xyz/resource-metadata
+# kmodules.xyz/resource-metadata v0.41.1
 ## explicit; go 1.25
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2953,8 +2953,8 @@ sigs.k8s.io/yaml/kyaml
 ## explicit; go 1.24.0
 voyagermesh.dev/gateway-api/apis/gateway/v1alpha1
 voyagermesh.dev/gateway-api/config/crd/bases
-# voyagermesh.dev/installer v0.0.0-20260119102555-23aab683b73d
-## explicit; go 1.24.0
+# voyagermesh.dev/installer v0.0.0-20260126155429-994b493cefc6
+## explicit; go 1.25
 voyagermesh.dev/installer/apis/installer
 voyagermesh.dev/installer/apis/installer/v1alpha1
 # x-helm.dev/apimachinery v0.0.18
@@ -2972,4 +2972,3 @@ x-helm.dev/apimachinery/crds
 # k8s.io/apimachinery => github.com/kmodules/apimachinery v0.35.0-alpha.0.0.20251228052616-311f10bd421d
 # k8s.io/apiserver => github.com/kmodules/apiserver v0.34.4-0.20251227112449-07fa35efc6fc
 # helm.sh/helm/v3 => github.com/x-helm/helm/v3 v3.19.5-0.20251227115143-3b9f6f6b7797
-# kmodules.xyz/resource-metadata => ../../kmodules.xyz/resource-metadata
