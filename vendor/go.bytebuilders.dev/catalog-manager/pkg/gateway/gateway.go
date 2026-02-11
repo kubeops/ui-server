@@ -97,8 +97,10 @@ func FindGatewayClass(ctx context.Context, kc client.Client, bindingNamespace st
 		return nil, err
 	}
 	if ns.Labels[kmapi.ClientOrgKey] == "true" {
+		klog.Infof("Finding gatewayClass for client-org %s \n", bindingNamespace)
 		var qwc gwv1.GatewayClass
 		if err := kc.Get(ctx, key, &qwc); err == nil {
+			klog.Infof("Found gateway class %s directly", qwc.Name)
 			return &qwc, nil
 		}
 		class, err := findGWClassFromPresetsRef(ctx, kc, key)
@@ -106,10 +108,12 @@ func FindGatewayClass(ctx context.Context, kc client.Client, bindingNamespace st
 			return nil, err
 		}
 		if class != nil {
+			klog.Infof("Found gateway class %s from presetsRef", class.Name)
 			return class, nil
 		}
 	}
 
+	klog.Infof("Finding default gateway class for binding namespace: %s \n", bindingNamespace)
 	return FindDefaultGatewayClass(ctx, kc)
 }
 
