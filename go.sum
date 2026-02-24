@@ -33,8 +33,9 @@ cloud.google.com/go/storage v1.51.0/go.mod h1:YEJfu/Ki3i5oHC/7jyTgsGZwdQ8P9hqMqv
 cloud.google.com/go/trace v1.11.6 h1:2O2zjPzqPYAHrn3OKl029qlqG6W8ZdYaOWRyr8NgMT4=
 cloud.google.com/go/trace v1.11.6/go.mod h1:GA855OeDEBiBMzcckLPE2kDunIpC72N+Pq8WFieFjnI=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
-filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
+filippo.io/edwards25519 v1.1.1 h1:YpjwWWlNmGIDyXOn8zLzqiD+9TyIlPhGFG96P39uBpw=
+filippo.io/edwards25519 v1.1.1/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20240806141605-e8a1dd7889d6 h1:He8afgbRMd7mFxO99hRNu+6tazq8nFF9lIwo9JFroBk=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20240806141605-e8a1dd7889d6/go.mod h1:8o94RPi1/7XTJvwPpRSzSUedZrtlirdB3r9Z20bi2f8=
 github.com/Azure/azure-sdk-for-go v68.0.0+incompatible h1:fcYLmCpyNYRnvJbPerq7U0hS+6+I79yEDJBqVNcqUzU=
@@ -1194,8 +1195,8 @@ kmodules.xyz/monitoring-agent-api v0.34.1 h1:0ANZgff50xF9D9cFng1NBVmSeLwiYPsZKiF
 kmodules.xyz/monitoring-agent-api v0.34.1/go.mod h1:XFDfMHDZQeNEPdTDeDr4M0dT4UCWs+4IYzgHw7JDlms=
 kmodules.xyz/offshoot-api v0.34.0 h1:HnOOp8FrCjTWjtNApRDo6Ahe79tOlLrJmyye4xxO4Kk=
 kmodules.xyz/offshoot-api v0.34.0/go.mod h1:F+B59yYw4CZJ4uD4xu6C+mMLzIXUtuH7E+SbDICl9jE=
-kmodules.xyz/resource-metadata v0.42.3 h1:fnQ8acF3IrkODn+Xh01Lu6fQKHR+7EvJz6TfK7rslhU=
-kmodules.xyz/resource-metadata v0.42.3/go.mod h1:xntcQko2QLbLEHwGE4TQ7I/80fcBQzcexbep97Akstk=
+kmodules.xyz/resource-metadata v0.42.4 h1:nFVo+PKmwWdzVwk7U3VZuKBQj3tPo6fyY5BC7gE2OB8=
+kmodules.xyz/resource-metadata v0.42.4/go.mod h1:++18wSB28Wrw3ZxnOd8o8IVg7oMyWPwaPfuLw21QnPc=
 kmodules.xyz/resource-metrics v0.34.0 h1:cqscgTx3PONxHj6PIySK3sTlKKv8iKTGzRd+S6YSwXg=
 kmodules.xyz/resource-metrics v0.34.0/go.mod h1:R34IKtp5+NqcQz7AQJheBJK6Iem0LqrCbm/55Mn+ECQ=
 kmodules.xyz/resource-metrics/utils v0.34.0 h1:IAwJNoXQZu7bNiWgbwEp+w26uBH1AScprKMA2HX+Bbg=

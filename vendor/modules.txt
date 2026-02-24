@@ -52,7 +52,7 @@ cloud.google.com/go/storage/experimental
 cloud.google.com/go/storage/internal
 cloud.google.com/go/storage/internal/apiv2
 cloud.google.com/go/storage/internal/apiv2/storagepb
-# filippo.io/edwards25519 v1.1.0
+# filippo.io/edwards25519 v1.1.1
 ## explicit; go 1.20
 filippo.io/edwards25519
 filippo.io/edwards25519/field
@@ -2628,7 +2628,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.42.3
+# kmodules.xyz/resource-metadata v0.42.4
 ## explicit; go 1.25
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1

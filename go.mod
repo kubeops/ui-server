@@ -48,7 +48,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.1
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.42.3
+	kmodules.xyz/resource-metadata v0.42.4
 	kmodules.xyz/resource-metrics v0.34.0
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
@@ -74,7 +74,7 @@ require (
 	cloud.google.com/go/iam v1.5.2 // indirect
 	cloud.google.com/go/monitoring v1.24.2 // indirect
 	cloud.google.com/go/storage v1.51.0 // indirect
-	filippo.io/edwards25519 v1.1.0 // indirect
+	filippo.io/edwards25519 v1.1.1 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.20.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.13.1 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.11.2 // indirect
