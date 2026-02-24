@@ -52,13 +52,14 @@ func (r *ClusterClaimReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
-	var enabledFeatures, extFeatures, disabledFeatures []string
+	enabledFeatures := map[string]string{}
+	var extFeatures, disabledFeatures []string
 	for _, feature := range featureList.Items {
 		if feature.Status.Enabled == nil {
 			return ctrl.Result{}, fmt.Errorf("feature %s is not reconciled yet", feature.Name)
 		}
 		if ptr.Deref(feature.Status.Enabled, false) {
-			enabledFeatures = append(enabledFeatures, feature.Name)
+			enabledFeatures[feature.Name] = feature.Spec.Chart.Version
 			if !ptr.Deref(feature.Status.Managed, false) {
 				extFeatures = append(extFeatures, feature.Name)
 			}
@@ -69,7 +70,6 @@ func (r *ClusterClaimReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		}
 	}
 
-	sort.Strings(enabledFeatures)
 	sort.Strings(extFeatures)
 	sort.Strings(disabledFeatures)
 
