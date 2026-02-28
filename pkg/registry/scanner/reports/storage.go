@@ -170,7 +170,7 @@ func collectReports(ctx context.Context, kc client.Client, images map[string]kma
 	// Start a fixed number of goroutines to read reports.
 	c := make(chan result)
 	const maxConcurrency = 5
-	for i := 0; i < maxConcurrency; i++ {
+	for range maxConcurrency {
 		g.Go(func() error {
 			for req := range requests {
 				var report scannerapi.ImageScanReport

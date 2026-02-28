@@ -1484,7 +1484,6 @@ gomodules.xyz/wait
 # gomodules.xyz/x v0.0.17
 ## explicit; go 1.22.0
 gomodules.xyz/x/ioutil
-gomodules.xyz/x/strings
 gomodules.xyz/x/version
 # google.golang.org/api v0.256.0
 ## explicit; go 1.24.0
@@ -1738,7 +1737,7 @@ gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
-# helm.sh/helm/v3 v3.19.4 => github.com/x-helm/helm/v3 v3.19.5-0.20251227115143-3b9f6f6b7797
+# helm.sh/helm/v3 v3.19.5 => github.com/x-helm/helm/v3 v3.19.5-0.20251227115143-3b9f6f6b7797
 ## explicit; go 1.24.0
 helm.sh/helm/v3/internal/fileutil
 helm.sh/helm/v3/internal/resolver
@@ -2628,7 +2627,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.42.4
+# kmodules.xyz/resource-metadata v0.42.5
 ## explicit; go 1.25
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2720,7 +2719,7 @@ kubepack.dev/kubepack/pkg/lib
 # kubepack.dev/lib-app v0.16.1-0.20251228165728-e1f332468ae7
 ## explicit; go 1.25
 kubepack.dev/lib-app/pkg/editor
-# kubepack.dev/lib-helm v0.34.0
+# kubepack.dev/lib-helm v0.34.1
 ## explicit; go 1.24.0
 kubepack.dev/lib-helm/pkg/action
 kubepack.dev/lib-helm/pkg/chart
@@ -2747,7 +2746,7 @@ kubevault.dev/apimachinery/apis
 # moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7
 ## explicit; go 1.13
 moul.io/http2curl/v2
-# open-cluster-management.io/api v1.1.1-0.20251222023835-510285203ee6
+# open-cluster-management.io/api v1.2.0
 ## explicit; go 1.25.0
 open-cluster-management.io/api/cluster/v1alpha1
 open-cluster-management.io/api/work/v1

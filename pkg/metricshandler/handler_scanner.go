@@ -18,6 +18,7 @@ package metricshandler
 
 import (
 	"context"
+	"maps"
 
 	scannerapi "kubeops.dev/scanner/apis/scanner/v1alpha1"
 	"kubeops.dev/ui-server/pkg/shared"
@@ -115,7 +116,7 @@ func (mc *Collector) collectReports(ctx context.Context, images map[string]kmapi
 	// Start a fixed number of goroutines to read reports.
 	c := make(chan result)
 	const maxConcurrency = 5
-	for i := 0; i < maxConcurrency; i++ {
+	for range maxConcurrency {
 		g.Go(func() error {
 			for req := range requests {
 				var report scannerapi.ImageScanReport
@@ -272,9 +273,7 @@ func collectNamespaceCVEMetrics(images map[string]kmapi.ImageInfo, results map[s
 				if _, ok := riskByCVENS[ns]; !ok {
 					riskByCVENS[ns] = map[string]string{}
 				}
-				for cve, risk := range riskByCVE {
-					riskByCVENS[ns][cve] = risk
-				}
+				maps.Copy(riskByCVENS[ns], riskByCVE)
 
 				if _, ok := vulOccurrenceNS[ns]; !ok {
 					vulOccurrenceNS[ns] = map[string]int{}

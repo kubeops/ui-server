@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -416,7 +417,7 @@ func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge)
 					if err != nil {
 						return nil, err
 					}
-					found := contains(namespaces, src.GetNamespace()) ||
+					found := slices.Contains(namespaces, src.GetNamespace()) ||
 						(len(namespaces) == 1 && namespaces[0] == core.NamespaceAll)
 					if !found {
 						continue

@@ -470,8 +470,8 @@ func SortByIndex(table *rsapi.Table, order rsapi.TableSortOrder, idx int) []rsap
 			"y": time.Hour * 24 * 365,
 		}
 		for unit, multiplier := range multipliers {
-			if strings.HasSuffix(str, unit) {
-				numStr := strings.TrimSuffix(str, unit)
+			if before, ok0 := strings.CutSuffix(str, unit); ok0 {
+				numStr := before
 				var num int64
 				_, err := fmt.Sscanf(numStr, "%d", &num)
 				if err != nil {

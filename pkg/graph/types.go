@@ -83,12 +83,3 @@ func fields(path string) []string {
 	// TODO(tamal): support escape of . using \
 	return strings.Split(strings.Trim(path, "."), ".")
 }
-
-func contains(arr []string, item string) bool {
-	for _, v := range arr {
-		if v == item {
-			return true
-		}
-	}
-	return false
-}

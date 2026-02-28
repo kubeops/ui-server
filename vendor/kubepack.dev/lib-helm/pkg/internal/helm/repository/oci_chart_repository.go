@@ -140,8 +140,12 @@ func (r *OCIChartRepository) GetChartVersion(name, ver string) (*repo.ChartVersi
 	_, err := version.ParseVersion(ver)
 	usesSemver := err == nil
 	if usesSemver || usesDigest {
+		urls := []string{fmt.Sprintf("%s:%s", cpURL.String(), ver)}
+		if usesDigest {
+			urls = []string{fmt.Sprintf("%s@%s", cpURL.String(), ver)}
+		}
 		return &repo.ChartVersion{
-			URLs: []string{fmt.Sprintf("%s:%s", cpURL.String(), ver)},
+			URLs: urls,
 			Metadata: &chart.Metadata{
 				Name:    name,
 				Version: ver,
