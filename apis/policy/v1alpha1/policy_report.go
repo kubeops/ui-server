@@ -50,9 +50,9 @@ type PolicyReportResponse struct {
 }
 
 type Constraint struct {
-	AuditTimestamp metav1.Time                 `json:"auditTimestamp,omitempty"`
+	AuditTimestamp metav1.Time                 `json:"auditTimestamp"`
 	Name           string                      `json:"name,omitempty"`
-	GVR            schema.GroupVersionResource `json:"gvr,omitempty"`
+	GVR            schema.GroupVersionResource `json:"gvr"`
 	Violations     []StatusViolation           `json:"violations,omitempty"`
 }
 

@@ -48,15 +48,15 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.1
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.42.4
+	kmodules.xyz/resource-metadata v0.42.5
 	kmodules.xyz/resource-metrics v0.34.0
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.6-0.20251227130353-14d6f838d2f4
 	kubeops.dev/scanner v0.0.21-0.20251228044914-f03cf9e0e521
 	kubepack.dev/lib-app v0.16.1-0.20251228165728-e1f332468ae7
-	kubepack.dev/lib-helm v0.34.0
-	open-cluster-management.io/api v1.1.1-0.20251222023835-510285203ee6
+	kubepack.dev/lib-helm v0.34.1
+	open-cluster-management.io/api v1.2.0
 	sigs.k8s.io/cli-utils v0.37.2
 	sigs.k8s.io/controller-runtime v0.22.4
 	sigs.k8s.io/gateway-api v1.4.1
@@ -315,7 +315,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	helm.sh/helm/v3 v3.19.4 // indirect
+	helm.sh/helm/v3 v3.19.5 // indirect
 	k8s.io/cli-runtime v0.34.3 // indirect
 	k8s.io/component-helpers v0.34.3 // indirect
 	k8s.io/kms v0.34.3 // indirect
