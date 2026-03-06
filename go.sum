@@ -210,8 +210,8 @@ github.com/distribution/reference v0.6.0 h1:0IXCQ5g4/QMHHkarYzh5l+u8T3t73zM5Qvfr
 github.com/distribution/reference v0.6.0/go.mod h1:BbU0aIcezP1/5jX/8MP0YiH4SdvB5Y4f/wlDRiLyi3E=
 github.com/dlclark/regexp2 v1.11.0 h1:G/nrcoOa7ZXlpoa/91N3X7mM3r8eIlMBBJZvsz/mxKI=
 github.com/dlclark/regexp2 v1.11.0/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=
-github.com/docker/cli v29.0.3+incompatible h1:8J+PZIcF2xLd6h5sHPsp5pvvJA+Sr2wGQxHkRl53a1E=
-github.com/docker/cli v29.0.3+incompatible/go.mod h1:JLrzqnKDaYBop7H2jaqPtU4hHvMKP+vjCwu2uszcLI8=
+github.com/docker/cli v29.2.0+incompatible h1:9oBd9+YM7rxjZLfyMGxjraKBKE4/nVyvVfN4qNl9XRM=
+github.com/docker/cli v29.2.0+incompatible/go.mod h1:JLrzqnKDaYBop7H2jaqPtU4hHvMKP+vjCwu2uszcLI8=
 github.com/docker/distribution v2.8.3+incompatible h1:AtKxIZ36LoNK51+Z6RpzLpddBirtxJnzDrHLEKxTAYk=
 github.com/docker/distribution v2.8.3+incompatible/go.mod h1:J2gT2udsDAN96Uj4KfcMRqY0/ypR+oyYUYmja8H+y+w=
 github.com/docker/docker-credential-helpers v0.9.4 h1:76ItO69/AP/V4yT9V4uuuItG0B1N8hvt0T0c0NN/DzI=
@@ -1195,8 +1195,8 @@ kmodules.xyz/monitoring-agent-api v0.34.1 h1:0ANZgff50xF9D9cFng1NBVmSeLwiYPsZKiF
 kmodules.xyz/monitoring-agent-api v0.34.1/go.mod h1:XFDfMHDZQeNEPdTDeDr4M0dT4UCWs+4IYzgHw7JDlms=
 kmodules.xyz/offshoot-api v0.34.0 h1:HnOOp8FrCjTWjtNApRDo6Ahe79tOlLrJmyye4xxO4Kk=
 kmodules.xyz/offshoot-api v0.34.0/go.mod h1:F+B59yYw4CZJ4uD4xu6C+mMLzIXUtuH7E+SbDICl9jE=
-kmodules.xyz/resource-metadata v0.42.7 h1:UMM1NDXzW9CI8j9aTXIa0qwfHm4UvvzZqzqjc3q88jk=
-kmodules.xyz/resource-metadata v0.42.7/go.mod h1:++18wSB28Wrw3ZxnOd8o8IVg7oMyWPwaPfuLw21QnPc=
+kmodules.xyz/resource-metadata v0.42.9 h1:b1+CcGWh1fv0p5GhkI7NDEByxBX99Tu+WHdtfX//9cw=
+kmodules.xyz/resource-metadata v0.42.9/go.mod h1:bqm4/ZqHxA04H1/Mz79YhHgrePSKJfUVL7cpG8teKsA=
 kmodules.xyz/resource-metrics v0.34.0 h1:cqscgTx3PONxHj6PIySK3sTlKKv8iKTGzRd+S6YSwXg=
 kmodules.xyz/resource-metrics v0.34.0/go.mod h1:R34IKtp5+NqcQz7AQJheBJK6Iem0LqrCbm/55Mn+ECQ=
 kmodules.xyz/resource-metrics/utils v0.34.0 h1:IAwJNoXQZu7bNiWgbwEp+w26uBH1AScprKMA2HX+Bbg=
