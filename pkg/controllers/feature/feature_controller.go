@@ -158,6 +158,10 @@ func (r *frReconciler) reconcile(ctx context.Context) error {
 			r.feature.Status.Ready = &status.workload.ready
 			r.feature.Status.Note = status.workload.reason
 		}
+		if len(r.feature.Spec.ReadinessChecks.Workloads) == 0 && status.resources != nil {
+			r.feature.Status.Ready = &status.resources.ready
+			r.feature.Status.Note = status.resources.reason
+		}
 		return nil
 	}
 	r.feature.Status.Managed = pointer.BoolP(true)
@@ -209,9 +213,15 @@ func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error
 		}
 		status.resources = &requirementStatus{
 			found: satisfied,
+			ready: satisfied,
 		}
 		if !satisfied {
 			status.resources.reason = reason
+		}
+	} else {
+		status.resources = &requirementStatus{
+			found: true,
+			ready: true,
 		}
 	}
 
@@ -219,6 +229,11 @@ func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error
 		status.workload, err = r.checkRequiredWorkloadExistence(ctx)
 		if err != nil {
 			return status, err
+		}
+	} else {
+		status.workload = &requirementStatus{
+			found: true,
+			ready: true,
 		}
 	}
 
