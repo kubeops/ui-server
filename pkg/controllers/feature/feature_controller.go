@@ -218,22 +218,12 @@ func (r *frReconciler) evaluateStatus(ctx context.Context) (featureStatus, error
 		if !satisfied {
 			status.resources.reason = reason
 		}
-	} else {
-		status.resources = &requirementStatus{
-			found: true,
-			ready: true,
-		}
 	}
 
 	if len(r.feature.Spec.ReadinessChecks.Workloads) != 0 {
 		status.workload, err = r.checkRequiredWorkloadExistence(ctx)
 		if err != nil {
 			return status, err
-		}
-	} else {
-		status.workload = &requirementStatus{
-			found: true,
-			ready: true,
 		}
 	}
 
@@ -293,7 +283,7 @@ func (r *frReconciler) isFeatureEnabled(ctx context.Context, status featureStatu
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			status.managed = false
-			return isRequiredResourcesExist(status) && isWorkloadOrReleaseExist(status), nil
+			return isEnabled(status), nil
 		}
 		return false, err
 	}
