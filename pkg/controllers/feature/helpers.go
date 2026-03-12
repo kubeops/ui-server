@@ -39,21 +39,19 @@ type Status struct {
 	AvailableReplicas int32              `json:"availableReplicas,omitempty"`
 }
 
-func isRequiredResourcesExist(status featureStatus) bool {
+func isEnabled(status featureStatus) bool {
 	if status.resources != nil && !status.resources.found {
 		return false
 	}
-	return true
-}
+	if status.workload != nil && !status.workload.found {
+		return false
+	}
+	if status.release != nil && !status.release.found {
+		return false
+	}
 
-func isWorkloadOrReleaseExist(status featureStatus) bool {
-	if status.workload != nil && status.workload.found {
-		return true
-	}
-	if status.release != nil && status.release.found {
-		return true
-	}
-	return false
+	// at least one must be present and found
+	return status.resources != nil || status.workload != nil || status.release != nil
 }
 
 func isWorkLoadsReady(objList unstructured.UnstructuredList) bool {
