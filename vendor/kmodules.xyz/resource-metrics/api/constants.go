@@ -36,6 +36,7 @@ const (
 	PodRoleConfigServer     PodRole = "config_server"
 	PodRoleMongos           PodRole = "mongos"
 	PodRoleObserver         PodRole = "observer"
+	PodRoleArbiter          PodRole = "arbiter"
 
 	PodRoleAggregator        PodRole = "aggregator"
 	PodRoleLeaf              PodRole = "leaf"

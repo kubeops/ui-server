@@ -93,6 +93,7 @@ func (r *Storage) New() runtime.Object {
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+	klog.Infof("1111111111111111111111111111111111 %v", name)
 	ns, ok := apirequest.NamespaceFrom(ctx)
 	if !ok {
 		return nil, apierrors.NewBadRequest("missing namespace")
@@ -102,6 +103,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, apierrors.NewBadRequest("missing user info")
 	}
 
+	klog.Infof("22222222222222222222222222222 %v", name)
 	attrs := authorizer.AttributesRecord{
 		User:            user,
 		Verb:            "get",
@@ -119,13 +121,19 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, apierrors.NewForbidden(r.gr, name, errors.New(why))
 	}
 
+	klog.Infof("33333333333333333333333333 %v", name)
+
 	var pod core.Pod
 	err = r.kc.Get(ctx, client.ObjectKey{Namespace: ns, Name: name}, &pod)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.toPodView(&pod), nil
+	klog.Infof("4444444444444444444444444 %v", name)
+
+	view:= r.toPodView(&pod)
+	klog.Infof("555555555555555555555555555 %v", name)
+	return view, nil
 }
 
 func (r *Storage) toPodView(pod *core.Pod) *rscoreapi.PodView {

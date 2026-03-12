@@ -1,0 +1,21 @@
+apiVersion: meta.k8s.appscode.com/v1alpha1
+kind: ResourceQuery
+request:
+  source:
+    resource:
+      group: ""
+      version: v1
+      name: pods
+    name: ace-db-0
+    namespace: ace
+  # Ref;Object;Table
+  outputFormat: Ref
+  target:
+    query:
+      byLabel: view
+      type: GraphQL
+    ref:
+      #     group: apps.k8s.appscode.com
+      #     kind: PetSet
+      group: core.k8s.appscode.com
+      kind: PodView

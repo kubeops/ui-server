@@ -2627,7 +2627,7 @@ kmodules.xyz/monitoring-agent-api/client
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.42.9
+# kmodules.xyz/resource-metadata v0.42.10-0.20260309083112-a7734d31bda4 => ../../kmodules.xyz/resource-metadata
 ## explicit; go 1.25
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2658,7 +2658,7 @@ kmodules.xyz/resource-metadata/pkg/layouts
 kmodules.xyz/resource-metadata/pkg/tableconvertor
 kmodules.xyz/resource-metadata/pkg/tableconvertor/lib
 kmodules.xyz/resource-metadata/pkg/tableconvertor/printers
-# kmodules.xyz/resource-metrics v0.34.0
+# kmodules.xyz/resource-metrics v0.34.1-0.20260311073726-5035a4f77a51
 ## explicit; go 1.24.0
 kmodules.xyz/resource-metrics
 kmodules.xyz/resource-metrics/api
@@ -2973,3 +2973,4 @@ x-helm.dev/apimachinery/crds
 # k8s.io/apimachinery => github.com/kmodules/apimachinery v0.35.0-alpha.0.0.20251228052616-311f10bd421d
 # k8s.io/apiserver => github.com/kmodules/apiserver v0.34.4-0.20251227112449-07fa35efc6fc
 # helm.sh/helm/v3 => github.com/x-helm/helm/v3 v3.19.5-0.20251227115143-3b9f6f6b7797
+# kmodules.xyz/resource-metadata => ../../kmodules.xyz/resource-metadata

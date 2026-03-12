@@ -48,8 +48,8 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.1
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.42.9
-	kmodules.xyz/resource-metrics v0.34.0
+	kmodules.xyz/resource-metadata v0.42.10-0.20260309083112-a7734d31bda4
+	kmodules.xyz/resource-metrics v0.34.1-0.20260311073726-5035a4f77a51
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.6-0.20251227130353-14d6f838d2f4
@@ -350,3 +350,5 @@ replace k8s.io/apimachinery => github.com/kmodules/apimachinery v0.35.0-alpha.0.
 replace k8s.io/apiserver => github.com/kmodules/apiserver v0.34.4-0.20251227112449-07fa35efc6fc
 
 replace helm.sh/helm/v3 => github.com/x-helm/helm/v3 v3.19.5-0.20251227115143-3b9f6f6b7797
+
+replace kmodules.xyz/resource-metadata => ../../kmodules.xyz/resource-metadata

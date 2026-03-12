@@ -1,15 +1,27 @@
+#apiVersion: meta.k8s.appscode.com/v1alpha1
+#kind: RenderRawGraph
+#request:
+#  source:
+#    resource:
+#      group: kubedb.com
+#      version: v1
+#      name: postgreses
+#    ref:
+#      name: ace-db
+#      namespace: ace
+
+
 apiVersion: meta.k8s.appscode.com/v1alpha1
 kind: RenderRawGraph
 request:
   source:
     resource:
-      group: kubedb.com
-      version: v1alpha2
-      name: elasticsearches
+      group: ""
+      version: v1
+      name: pods
     ref:
-      name: es-test
-      namespace: demo
-
+      name: ace-db-0
+      namespace: ace
   # source:
   #   resource:
   #     group: ui.kubedb.com
