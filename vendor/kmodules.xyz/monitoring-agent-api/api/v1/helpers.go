@@ -19,6 +19,7 @@ package v1
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"kmodules.xyz/client-go/policy/secomp"
 	appcatalog "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -26,6 +27,7 @@ import (
 	"gomodules.xyz/pointer"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 )
 
@@ -136,4 +138,40 @@ func (c *ConnectionSpec) ToAppBinding() (*appcatalog.AppBinding, error) {
 		}
 	}
 	return &app, nil
+}
+
+func (svc ServiceSpec) ObjectKey() types.NamespacedName {
+	return types.NamespacedName{
+		Name:      svc.Name,
+		Namespace: svc.Namespace,
+	}
+}
+
+func (svc ServiceSpec) ToServiceReference() (*appcatalog.ServiceReference, error) {
+	ref := appcatalog.ServiceReference{
+		Scheme:    svc.Scheme,
+		Namespace: svc.Namespace,
+		Name:      svc.Name,
+		Port:      -1,
+		Path:      svc.Path,
+		Query:     svc.Query,
+	}
+	if port, ok := IsValidPort(svc.Port); ok {
+		ref.Port = int32(port)
+	} else {
+		return nil, fmt.Errorf("invalid service port: %q", svc.Port)
+	}
+	return &ref, nil
+}
+
+// IsValidPort checks if a string is a valid port number (0-65535).
+func IsValidPort(portStr string) (int, bool) {
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return -1, false
+	}
+	if port >= 0 && port <= 65535 {
+		return port, true
+	}
+	return -1, false
 }
