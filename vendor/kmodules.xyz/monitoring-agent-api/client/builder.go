@@ -193,6 +193,9 @@ func (r *ClientBuilder) Setup() error {
 
 func (r *ClientBuilder) Build(kc client.Client, app *appcatalog.AppBinding) (*Config, map[string]atomic_writer.FileProjection, error) {
 	var cfg Config
+	if r.flags != nil {
+		cfg = *r.flags // initialize from the flags
+	}
 
 	addr, err := app.URL()
 	if err != nil {
@@ -209,14 +212,18 @@ func (r *ClientBuilder) Build(kc client.Client, app *appcatalog.AppBinding) (*Co
 		if err != nil {
 			return nil, nil, errors.Wrapf(err, "Secret %s not found", key)
 		}
+		// either basic auth or bearer token
 		if u, ok := authSecret.Data[core.BasicAuthUsernameKey]; ok {
 			cfg.BasicAuth.Username = string(u)
 			if p, ok := authSecret.Data[core.BasicAuthPasswordKey]; ok {
 				cfg.BasicAuth.Password = string(p)
 			}
+			cfg.BearerToken = ""
+			cfg.BearerTokenFile = ""
 		} else {
 			if p, ok := authSecret.Data["token"]; ok {
 				cfg.BearerToken = string(p)
+				cfg.BearerTokenFile = ""
 			}
 		}
 	}
