@@ -14,3 +14,12 @@ spec:
     name: xbackendtrafficpolicies
     scope: Namespaced
     version: v1alpha1
+  ui:
+    editor:
+      name: gatewaynetworkingxk8sio-xbackendtrafficpolicy-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:a257568c0ed5d57adab9ae4eb5ef23f018580dd9a980c336b9d44e749752c86a
+    enforceQuota: false

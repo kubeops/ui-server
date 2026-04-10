@@ -14,3 +14,12 @@ spec:
     name: hazelcastautoscalers
     scope: Namespaced
     version: v1alpha1
+  ui:
+    editor:
+      name: autoscalingkubedbcom-hazelcastautoscaler-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:647d7cd51a60a821b9a2bdf96b4ea472f4bbc88c211d1a29e3499eb9af306534
+    enforceQuota: false

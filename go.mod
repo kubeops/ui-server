@@ -19,8 +19,8 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	github.com/zeebo/xxh3 v1.0.2
-	go.bytebuilders.dev/catalog v0.0.19
-	go.bytebuilders.dev/catalog-manager v0.10.0
+	go.bytebuilders.dev/catalog v0.0.20
+	go.bytebuilders.dev/catalog-manager v0.11.0
 	go.bytebuilders.dev/license-verifier v0.15.0
 	go.openviz.dev/apimachinery v0.0.10
 	golang.org/x/sync v0.19.0
@@ -48,8 +48,8 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.3
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.43.0
-	kmodules.xyz/resource-metrics v0.34.0
+	kmodules.xyz/resource-metadata v0.43.1
+	kmodules.xyz/resource-metrics v0.34.1
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.6-0.20251227130353-14d6f838d2f4
@@ -95,6 +95,7 @@ require (
 	github.com/PuerkitoBio/purell v1.2.1 // indirect
 	github.com/alessio/shellescape v1.4.2 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go v1.55.6 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.39.6 // indirect
@@ -124,6 +125,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.3 // indirect
 	github.com/cncf/xds/go v0.0.0-20250501225837-2ac532fd4443 // indirect
+	github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0 // indirect
 	github.com/containerd/containerd v1.7.29 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
@@ -299,10 +301,12 @@ require (
 	gomodules.xyz/clock v0.0.0-20200817085942-06523dba733f // indirect
 	gomodules.xyz/encoding v0.0.8 // indirect
 	gomodules.xyz/flags v0.1.3 // indirect
+	gomodules.xyz/go-sh v0.2.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.5.0 // indirect
 	gomodules.xyz/jsonpatch/v3 v3.0.1 // indirect
 	gomodules.xyz/mergo v0.3.13 // indirect
 	gomodules.xyz/orderedmap v0.1.0 // indirect
+	gomodules.xyz/restic v0.2.0 // indirect
 	gomodules.xyz/wait v0.2.0 // indirect
 	google.golang.org/api v0.256.0 // indirect
 	google.golang.org/genproto v0.0.0-20250603155806-513f23925822 // indirect
@@ -322,12 +326,14 @@ require (
 	k8s.io/kube-aggregator v0.34.3 // indirect
 	k8s.io/kubectl v0.34.3 // indirect
 	kmodules.xyz/apply v0.34.0 // indirect
-	kubedb.dev/apimachinery v0.60.0 // indirect
+	kmodules.xyz/objectstore-api v0.34.0 // indirect
+	kubedb.dev/apimachinery v0.63.0 // indirect
 	kubeops.dev/external-dns-operator v0.3.0 // indirect
 	kubeops.dev/petset v0.0.16-0.20251228050140-c7926722b687 // indirect
 	kubeops.dev/sidekick v0.0.13-0.20251228040406-08fe6cf3da94 // indirect
 	kubepack.dev/kubepack v0.34.0 // indirect
-	kubevault.dev/apimachinery v0.22.0 // indirect
+	kubestash.dev/apimachinery v0.26.0 // indirect
+	kubevault.dev/apimachinery v0.24.0 // indirect
 	moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7 // indirect
 	oras.land/oras-go/v2 v2.6.0 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.33.0 // indirect
@@ -336,7 +342,7 @@ require (
 	sigs.k8s.io/kustomize/kyaml v0.20.1 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	voyagermesh.dev/gateway-api v0.0.10 // indirect
-	voyagermesh.dev/installer v0.0.0-20260126155429-994b493cefc6 // indirect
+	voyagermesh.dev/installer v0.0.0-20260306095111-0be6484ed3c8 // indirect
 )
 
 replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8

@@ -9429,6 +9429,11 @@ spec:
                     - domain
                     - ip
                     type: string
+                  tenantSpreadPolicy:
+                    enum:
+                    - single
+                    - multi
+                    type: string
                   tls:
                     properties:
                       acme:
@@ -9488,6 +9493,7 @@ spec:
                 - dns
                 - host
                 - hostType
+                - tenantSpreadPolicy
                 - tls
                 type: object
               vaultServer:
