@@ -14,3 +14,12 @@ spec:
     name: qdrantopsrequests
     scope: Namespaced
     version: v1alpha1
+  ui:
+    editor:
+      name: opskubedbcom-qdrantopsrequest-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:a099472456af4b175d6efe86a38b7c2464be57a81a2448ae2900e2ab52b6a10b
+    enforceQuota: false

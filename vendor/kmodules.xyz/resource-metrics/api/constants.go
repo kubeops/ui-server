@@ -68,6 +68,12 @@ const (
 	PodRoleHistoricals    PodRole = "historicals"
 	PodRoleRouters        PodRole = "routers"
 
+	PodRoleDataNode      PodRole = "datanode"
+	PodRoleMixCoord      PodRole = "mixcoord"
+	PodRoleProxy         PodRole = "proxy"
+	PodRoleQueryNode     PodRole = "querynode"
+	PodRoleStreamingNode PodRole = "streamingnode"
+
 	PodRolePrimary   PodRole = "primary"
 	PodRoleSecondary PodRole = "secondary"
 )

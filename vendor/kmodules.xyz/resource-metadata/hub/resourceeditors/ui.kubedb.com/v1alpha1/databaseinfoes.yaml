@@ -14,3 +14,12 @@ spec:
     name: databaseinfoes
     scope: Namespaced
     version: v1alpha1
+  ui:
+    editor:
+      name: uikubedbcom-databaseinfo-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:4b5a182c589a957ee0d9c5a9074f154c91b9494580776b9e21bd2728105e5502
+    enforceQuota: false

@@ -14,3 +14,12 @@ spec:
     name: hanadbversions
     scope: Cluster
     version: v1alpha1
+  ui:
+    editor:
+      name: catalogkubedbcom-hanadbversion-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:9f3f67565a6f88205c1cac863e4c038cf9ad22088c9c6099a61190d5bc9c1393
+    enforceQuota: false
