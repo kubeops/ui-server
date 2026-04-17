@@ -252,6 +252,7 @@ const (
 )
 
 type EnvoyServiceSpec struct {
+	Annotations map[string]string `json:"annotations"`
 	// +kubebuilder:default="10000-12767"
 	PortRange string `json:"portRange"`
 	// +kubebuilder:default="30000-32767"
