@@ -232,7 +232,7 @@ func EnsureBackendTLSPolicy(c client.Client, serviceName, tlsSecretName, namespa
 						Name:  gwapiv1a2.ObjectName(tlsSecretName),
 					},
 				},
-				Hostname: gwapiv1.PreciseHostname(serviceName),
+				Hostname: "unused",
 			},
 		},
 	}
