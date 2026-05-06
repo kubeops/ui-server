@@ -48,8 +48,8 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.3
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.44.0
-	kmodules.xyz/resource-metrics v0.34.1
+	kmodules.xyz/resource-metadata v0.44.2
+	kmodules.xyz/resource-metrics v0.34.2
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.6-0.20251227130353-14d6f838d2f4
