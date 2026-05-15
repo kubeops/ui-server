@@ -14,3 +14,12 @@ spec:
     name: weaviateversions
     scope: Cluster
     version: v1alpha1
+  ui:
+    editor:
+      name: catalogkubedbcom-weaviateversion-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:706a63a640d57fe073572cbf45d70ef8490c344a9d66f7febe7de804d6ec1693
+    enforceQuota: false

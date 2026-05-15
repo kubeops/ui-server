@@ -14,3 +14,12 @@ spec:
     name: backendtlspolicies
     scope: Namespaced
     version: v1
+  ui:
+    editor:
+      name: gatewaynetworkingk8sio-backendtlspolicy-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:1b3cd8589f7884f9fa9b21acf4c6b6d54164c0bedb565b22c55f62e2637c0b61
+    enforceQuota: false

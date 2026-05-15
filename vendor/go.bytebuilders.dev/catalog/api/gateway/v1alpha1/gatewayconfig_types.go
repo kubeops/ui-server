@@ -66,10 +66,19 @@ type GatewayParameter struct {
 }
 
 type ServiceProviderInfra struct {
-	HostInfo `json:",inline"`
-	TLS      InfraTLS   `json:"tls"`
-	DNS      GatewayDns `json:"dns"`
+	HostInfo           `json:",inline"`
+	TLS                InfraTLS           `json:"tls"`
+	DNS                GatewayDns         `json:"dns"`
+	TenantSpreadPolicy TenantSpreadPolicy `json:"tenantSpreadPolicy"`
 }
+
+// +kubebuilder:validation:Enum=single;multi
+type TenantSpreadPolicy string
+
+const (
+	TenantSpreadPolicySingle TenantSpreadPolicy = "single"
+	TenantSpreadPolicyMulti  TenantSpreadPolicy = "multi"
+)
 
 // +kubebuilder:validation:Enum=ca;letsencrypt;letsencrypt-staging;external
 type TLSIssuerType string
@@ -243,6 +252,7 @@ const (
 )
 
 type EnvoyServiceSpec struct {
+	Annotations map[string]string `json:"annotations"`
 	// +kubebuilder:default="10000-12767"
 	PortRange string `json:"portRange"`
 	// +kubebuilder:default="30000-32767"

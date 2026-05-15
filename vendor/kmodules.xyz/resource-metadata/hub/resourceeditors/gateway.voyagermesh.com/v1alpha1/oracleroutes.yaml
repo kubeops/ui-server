@@ -14,3 +14,12 @@ spec:
     name: oracleroutes
     scope: Namespaced
     version: v1alpha1
+  ui:
+    editor:
+      name: gatewayvoyagermeshcom-oracleroute-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:d5048cbc2624b63b594231a0194af20cd8e16f12e32934d8c8394c962c309cdb
+    enforceQuota: false

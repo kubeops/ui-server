@@ -14,3 +14,12 @@ spec:
     name: neo4jversions
     scope: Cluster
     version: v1alpha1
+  ui:
+    editor:
+      name: catalogkubedbcom-neo4jversion-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:0234152a694958e40f721b46d19c8b8dfb2db87b42805e0a3c10c19518ce5954
+    enforceQuota: false

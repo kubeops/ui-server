@@ -14,3 +14,12 @@ spec:
     name: qdrantversions
     scope: Cluster
     version: v1alpha1
+  ui:
+    editor:
+      name: catalogkubedbcom-qdrantversion-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:9ade8d66b2bc7c164888bfb459b9f59250a6d5de4bf65937ba37d6b1fcc2787e
+    enforceQuota: false

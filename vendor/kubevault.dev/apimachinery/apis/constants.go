@@ -90,6 +90,7 @@ const (
 
 	// health check constants
 	VaultHealthCheckPaused = "HealthCheckPaused"
+	RaftLeaderHealthy      = "RaftLeaderHealthy"
 )
 
 const (

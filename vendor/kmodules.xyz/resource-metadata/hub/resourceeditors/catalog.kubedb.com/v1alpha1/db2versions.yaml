@@ -14,3 +14,12 @@ spec:
     name: db2versions
     scope: Cluster
     version: v1alpha1
+  ui:
+    editor:
+      name: catalogkubedbcom-db2version-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:d0b70d967801418c8de0f48a7c22ef4f313188bdbc62efcde311aba3a5c34c0a
+    enforceQuota: false
