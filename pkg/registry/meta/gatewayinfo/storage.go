@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"strings"
 
-	"go.bytebuilders.dev/catalog-manager/pkg/gateway"
+	catgwlib "go.bytebuilders.dev/catalog/pkg/lib"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -79,7 +79,7 @@ func (r *Storage) Get(ctx context.Context, name string, options *metav1.GetOptio
 		return nil, fmt.Errorf("kind GatewayClass from %v group is not present in this cluster", gwv1.GroupName)
 	}
 
-	class, err := gateway.FindGatewayClass(context.TODO(), r.kc, name)
+	class, err := catgwlib.FindGatewayClass(context.TODO(), r.kc, name)
 	if err != nil {
 		return nil, err
 	}

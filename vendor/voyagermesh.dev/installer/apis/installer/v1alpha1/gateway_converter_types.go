@@ -57,7 +57,7 @@ type GatewayConverterSpec struct {
 	//+optional
 	CriticalAddon bool `json:"criticalAddon,omitempty"`
 	//+optional
-	LogLevel int32 `json:"logLevel,omitempty,omitempty"`
+	LogLevel int32 `json:"logLevel,omitempty"`
 	//+optional
 	Annotations map[string]string `json:"annotations,omitempty"`
 	//+optional

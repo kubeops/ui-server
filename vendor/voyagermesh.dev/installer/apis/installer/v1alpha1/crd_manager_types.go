@@ -52,7 +52,7 @@ type CrdManagerSpec struct {
 	//+optional
 	RegistryFQDN string `json:"registryFQDN,omitempty"`
 	// +optional
-	Image ImageRef `json:"image,omitempty"`
+	Image *ImageRef `json:"image,omitempty"`
 	// +optional
 	ImagePullPolicy string `json:"imagePullPolicy,omitempty"`
 	//+optional
@@ -76,7 +76,7 @@ type CrdManagerSpec struct {
 	// +optional
 	Affinity *core.Affinity `json:"affinity,omitempty"`
 	// +optional
-	ServiceAccount ServiceAccountSpec `json:"serviceAccount,omitempty"`
+	ServiceAccount *ServiceAccountSpec `json:"serviceAccount,omitempty"`
 	// +optional
 	FeatureGates            map[string]bool `json:"featureGates,omitempty"`
 	RemoveUnusedCRDs        bool            `json:"removeUnusedCRDs,omitempty"`

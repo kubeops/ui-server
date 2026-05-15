@@ -56,6 +56,8 @@ cloud.google.com/go/storage/internal/apiv2/storagepb
 ## explicit; go 1.20
 filippo.io/edwards25519
 filippo.io/edwards25519/field
+# github.com/AdaLogics/go-fuzz-headers v0.0.0-20240806141605-e8a1dd7889d6
+## explicit; go 1.20
 # github.com/Azure/azure-sdk-for-go/sdk/azcore v1.20.0
 ## explicit; go 1.23.0
 github.com/Azure/azure-sdk-for-go/sdk/azcore
@@ -181,9 +183,6 @@ github.com/alessio/shellescape
 # github.com/antlr4-go/antlr/v4 v4.13.1
 ## explicit; go 1.22
 github.com/antlr4-go/antlr/v4
-# github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2
-## explicit
-github.com/armon/circbuf
 # github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 ## explicit; go 1.13
 github.com/asaskevich/govalidator
@@ -386,14 +385,6 @@ github.com/blang/semver/v4
 # github.com/cenkalti/backoff/v5 v5.0.3
 ## explicit; go 1.23
 github.com/cenkalti/backoff/v5
-# github.com/cert-manager/cert-manager v1.19.3
-## explicit; go 1.25.0
-github.com/cert-manager/cert-manager/pkg/apis/acme
-github.com/cert-manager/cert-manager/pkg/apis/acme/v1
-github.com/cert-manager/cert-manager/pkg/apis/certmanager
-github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1
-github.com/cert-manager/cert-manager/pkg/apis/meta
-github.com/cert-manager/cert-manager/pkg/apis/meta/v1
 # github.com/cespare/xxhash/v2 v2.3.0
 ## explicit; go 1.11
 github.com/cespare/xxhash/v2
@@ -413,9 +404,6 @@ github.com/cncf/xds/go/xds/data/orca/v3
 github.com/cncf/xds/go/xds/service/orca/v3
 github.com/cncf/xds/go/xds/type/matcher/v3
 github.com/cncf/xds/go/xds/type/v3
-# github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0
-## explicit
-github.com/codegangsta/inject
 # github.com/containerd/containerd v1.7.29
 ## explicit; go 1.23.0
 github.com/containerd/containerd/archive/compression
@@ -1125,15 +1113,12 @@ github.com/zeebo/errs
 # github.com/zeebo/xxh3 v1.0.2
 ## explicit; go 1.17
 github.com/zeebo/xxh3
-# go.bytebuilders.dev/catalog v0.0.23-0.20260505092112-c1c647c186bc
+# go.bytebuilders.dev/catalog v0.0.23-0.20260515174034-3a69a8a44bd3
 ## explicit; go 1.25.6
 go.bytebuilders.dev/catalog/api/catalog/v1alpha1
 go.bytebuilders.dev/catalog/api/gateway/v1alpha1
 go.bytebuilders.dev/catalog/crds
-# go.bytebuilders.dev/catalog-manager v0.11.0
-## explicit; go 1.25.6
-go.bytebuilders.dev/catalog-manager/pkg/gateway
-go.bytebuilders.dev/catalog-manager/pkg/portmanager
+go.bytebuilders.dev/catalog/pkg/lib
 # go.bytebuilders.dev/license-verifier v0.15.0
 ## explicit; go 1.25
 go.bytebuilders.dev/license-verifier
@@ -1292,10 +1277,6 @@ go.uber.org/zap/internal/pool
 go.uber.org/zap/internal/stacktrace
 go.uber.org/zap/zapcore
 go.uber.org/zap/zapgrpc
-# go.virtual-secrets.dev/apimachinery v0.0.1
-## explicit; go 1.23.0
-go.virtual-secrets.dev/apimachinery/apis/virtual/v1alpha1
-go.virtual-secrets.dev/apimachinery/crds
 # go.yaml.in/yaml/v2 v2.4.3
 ## explicit; go 1.15
 go.yaml.in/yaml/v2
@@ -1437,9 +1418,6 @@ golang.org/x/xerrors/internal
 # gomodules.xyz/atomic-writer v0.0.2
 ## explicit; go 1.16
 gomodules.xyz/atomic-writer
-# gomodules.xyz/bits v0.1.0
-## explicit; go 1.23.2
-gomodules.xyz/bits
 # gomodules.xyz/blobfs v0.2.2
 ## explicit; go 1.18
 gomodules.xyz/blobfs
@@ -1454,9 +1432,6 @@ gomodules.xyz/encoding/json/query
 # gomodules.xyz/flags v0.1.3
 ## explicit; go 1.16
 gomodules.xyz/flags
-# gomodules.xyz/go-sh v0.2.0
-## explicit; go 1.15
-gomodules.xyz/go-sh
 # gomodules.xyz/jsonpatch/v2 v2.5.0
 ## explicit; go 1.20
 gomodules.xyz/jsonpatch/v2
@@ -1482,9 +1457,6 @@ gomodules.xyz/password-generator
 # gomodules.xyz/pointer v0.1.0
 ## explicit; go 1.15
 gomodules.xyz/pointer
-# gomodules.xyz/restic v0.2.0
-## explicit; go 1.25
-gomodules.xyz/restic
 # gomodules.xyz/sets v0.2.1
 ## explicit; go 1.14
 gomodules.xyz/sets
@@ -1496,7 +1468,6 @@ gomodules.xyz/sync
 gomodules.xyz/wait
 # gomodules.xyz/x v0.0.17
 ## explicit; go 1.22.0
-gomodules.xyz/x/filepath
 gomodules.xyz/x/ioutil
 gomodules.xyz/x/version
 # google.golang.org/api v0.256.0
@@ -1751,6 +1722,8 @@ gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
+# gotest.tools/v3 v3.5.1
+## explicit; go 1.17
 # helm.sh/helm/v3 v3.19.5 => github.com/x-helm/helm/v3 v3.19.5-0.20251227115143-3b9f6f6b7797
 ## explicit; go 1.24.0
 helm.sh/helm/v3/internal/fileutil
@@ -2636,14 +2609,10 @@ kmodules.xyz/go-containerregistry/name
 ## explicit; go 1.24.0
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/client
-# kmodules.xyz/objectstore-api v0.34.0
-## explicit; go 1.25
-kmodules.xyz/objectstore-api/api/v1
 # kmodules.xyz/offshoot-api v0.34.0
 ## explicit; go 1.24.0
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-kmodules.xyz/offshoot-api/util
 # kmodules.xyz/resource-metadata v0.44.3-0.20260515054821-6302a68aced7
 ## explicit; go 1.25
 kmodules.xyz/resource-metadata/apis/core/install
@@ -2694,16 +2663,6 @@ kmodules.xyz/resource-metrics/utils
 # kmodules.xyz/sets v0.29.0
 ## explicit; go 1.21.5
 kmodules.xyz/sets
-# kubedb.dev/apimachinery v0.63.0
-## explicit; go 1.25.0
-kubedb.dev/apimachinery/apis
-kubedb.dev/apimachinery/apis/catalog
-kubedb.dev/apimachinery/apis/catalog/v1alpha1
-kubedb.dev/apimachinery/apis/kubedb
-kubedb.dev/apimachinery/apis/kubedb/v1
-kubedb.dev/apimachinery/apis/migrator
-kubedb.dev/apimachinery/apis/migrator/v1alpha1
-kubedb.dev/apimachinery/crds
 # kubeops.dev/external-dns-operator v0.3.1-0.20260409053434-d3838ac10fdf
 ## explicit; go 1.25
 kubeops.dev/external-dns-operator/apis/external
@@ -2712,13 +2671,6 @@ kubeops.dev/external-dns-operator/apis/external/v1alpha1
 ## explicit; go 1.24.0
 kubeops.dev/falco-ui-server/apis/falco
 kubeops.dev/falco-ui-server/apis/falco/v1alpha1
-# kubeops.dev/petset v0.0.16-0.20251228050140-c7926722b687
-## explicit; go 1.24.0
-kubeops.dev/petset/apis/apps/v1
-kubeops.dev/petset/client/clientset/versioned/scheme
-kubeops.dev/petset/client/clientset/versioned/typed/apps/v1
-kubeops.dev/petset/client/listers/apps/v1
-kubeops.dev/petset/crds
 # kubeops.dev/scanner v0.0.21-0.20251228044914-f03cf9e0e521
 ## explicit; go 1.24.0
 kubeops.dev/scanner/apis/reports
@@ -2727,11 +2679,6 @@ kubeops.dev/scanner/apis/scanner
 kubeops.dev/scanner/apis/scanner/v1alpha1
 kubeops.dev/scanner/apis/trivy
 kubeops.dev/scanner/client/clientset/versioned/scheme
-# kubeops.dev/sidekick v0.0.13-0.20251228040406-08fe6cf3da94
-## explicit; go 1.24.0
-kubeops.dev/sidekick/apis/apps
-kubeops.dev/sidekick/apis/apps/v1alpha1
-kubeops.dev/sidekick/crds
 # kubepack.dev/kubepack v0.34.0
 ## explicit; go 1.24.0
 kubepack.dev/kubepack/pkg/lib
@@ -2759,11 +2706,6 @@ kubepack.dev/lib-helm/pkg/kube
 kubepack.dev/lib-helm/pkg/repo
 kubepack.dev/lib-helm/pkg/storage/driver
 kubepack.dev/lib-helm/pkg/values
-# kubestash.dev/apimachinery v0.26.0
-## explicit; go 1.25.0
-kubestash.dev/apimachinery/apis
-kubestash.dev/apimachinery/apis/storage/v1alpha1
-kubestash.dev/apimachinery/crds
 # kubevault.dev/apimachinery v0.24.0
 ## explicit; go 1.25.0
 kubevault.dev/apimachinery/apis
@@ -2773,7 +2715,6 @@ moul.io/http2curl/v2
 # open-cluster-management.io/api v1.2.0
 ## explicit; go 1.25.0
 open-cluster-management.io/api/cluster/v1alpha1
-open-cluster-management.io/api/work/v1
 # oras.land/oras-go/v2 v2.6.0
 ## explicit; go 1.23.0
 oras.land/oras-go/v2
@@ -2874,8 +2815,6 @@ sigs.k8s.io/controller-runtime/pkg/webhook/internal/metrics
 # sigs.k8s.io/gateway-api v1.4.1
 ## explicit; go 1.24.0
 sigs.k8s.io/gateway-api/apis/v1
-sigs.k8s.io/gateway-api/apis/v1alpha2
-sigs.k8s.io/gateway-api/apis/v1beta1
 # sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730
 ## explicit; go 1.23
 sigs.k8s.io/json
@@ -2974,11 +2913,7 @@ sigs.k8s.io/structured-merge-diff/v6/value
 sigs.k8s.io/yaml
 sigs.k8s.io/yaml/goyaml.v3
 sigs.k8s.io/yaml/kyaml
-# voyagermesh.dev/gateway-api v0.0.10
-## explicit; go 1.24.0
-voyagermesh.dev/gateway-api/apis/gateway/v1alpha1
-voyagermesh.dev/gateway-api/config/crd/bases
-# voyagermesh.dev/installer v0.0.0-20260427124054-e6fbf86716f0
+# voyagermesh.dev/installer v0.0.0-20260515120941-8ff789f06253
 ## explicit; go 1.25.0
 voyagermesh.dev/installer/apis/installer
 voyagermesh.dev/installer/apis/installer/v1alpha1
