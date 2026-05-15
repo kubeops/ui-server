@@ -27,6 +27,7 @@ import (
 	egv1a1 "github.com/envoyproxy/gateway/api/v1alpha1"
 	"gomodules.xyz/bits"
 	"k8s.io/apimachinery/pkg/util/net"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gwv1 "sigs.k8s.io/gateway-api/apis/v1"
@@ -40,6 +41,7 @@ type GatewayClassPortManager struct {
 	listenerPorts    *bits.PortRange
 	nodePorts        *net.PortRange
 	svcMgr           *ServicePortManager
+	reserved         sets.Set[int] // listener ports that must remain allocated regardless of gateway churn
 	mu               sync.RWMutex
 }
 
@@ -49,6 +51,7 @@ func NewGatewayClassPortManager(gwp *catgwapi.GatewayParameter, svcMgr *ServiceP
 		portRange:        gwp.Service.PortRange,
 		nodePortRange:    gwp.Service.NodeportRange,
 		svcMgr:           svcMgr,
+		reserved:         sets.New[int](),
 	}
 
 	pr, err := net.ParsePortRange(gwp.Service.PortRange)
@@ -185,12 +188,15 @@ func (gm *GatewayClassPortManager) AllocatePorts(n int) ([]PortInfo, bool, error
 		return nil, false, err
 	}
 
+	klog.Infof("port allocator = %v ", pa)
+
 	var ports []int
 	if pa == PortAllocUnique {
 		ports, err = gm.listenerPorts.AllocateNextPorts(n)
 		if err != nil {
 			return nil, false, err
 		}
+		klog.Infof("allocated ports = %v", ports)
 	} else {
 		ports, err = gm.svcMgr.AllocatePorts(net.ParsePortRangeOrDie(gm.portRange), n)
 		if err != nil {
@@ -202,6 +208,7 @@ func (gm *GatewayClassPortManager) AllocatePorts(n int) ([]PortInfo, bool, error
 				return nil, false, err
 			}
 		}
+		klog.Infof("allocated ports = %v", ports)
 	}
 
 	var nodeports []int
@@ -241,6 +248,19 @@ func (gm *GatewayClassPortManager) MarkAsAllocated(ports []int) {
 	}
 }
 
+func (gm *GatewayClassPortManager) MarkReserved(ports []int) {
+	gm.mu.Lock()
+	defer gm.mu.Unlock()
+
+	for _, port := range ports {
+		gm.reserved.Insert(port)
+		if gm.listenerPorts != nil {
+			// ignore error if port is out of range
+			_ = gm.listenerPorts.SetPortAllocated(port)
+		}
+	}
+}
+
 func (gm *GatewayClassPortManager) UpdatePorts(old, cur []int) {
 	gm.mu.Lock()
 	defer gm.mu.Unlock()
@@ -249,7 +269,7 @@ func (gm *GatewayClassPortManager) UpdatePorts(old, cur []int) {
 		return
 	}
 	// ignore error if port is out of range
-	_ = gm.listenerPorts.ReleasePorts(old)
+	_ = gm.listenerPorts.ReleasePorts(filterReserved(old, gm.reserved))
 	for _, port := range cur {
 		// ignore error if port is out of range
 		_ = gm.listenerPorts.SetPortAllocated(port)
@@ -264,7 +284,20 @@ func (gm *GatewayClassPortManager) ReleasePorts(ports []int) {
 		return
 	}
 	// ignore error if port is out of range
-	_ = gm.listenerPorts.ReleasePorts(ports)
+	_ = gm.listenerPorts.ReleasePorts(filterReserved(ports, gm.reserved))
+}
+
+func filterReserved(ports []int, reserved sets.Set[int]) []int {
+	if reserved.Len() == 0 {
+		return ports
+	}
+	out := make([]int, 0, len(ports))
+	for _, p := range ports {
+		if !reserved.Has(p) {
+			out = append(out, p)
+		}
+	}
+	return out
 }
 
 func ListGatewayInfo(ctx context.Context, kc client.Reader, gatewayClassName string) (map[string]*GatewayInfo, error) {

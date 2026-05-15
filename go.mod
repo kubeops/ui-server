@@ -19,7 +19,7 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	github.com/zeebo/xxh3 v1.0.2
-	go.bytebuilders.dev/catalog v0.0.21
+	go.bytebuilders.dev/catalog v0.0.23-0.20260505092112-c1c647c186bc
 	go.bytebuilders.dev/catalog-manager v0.11.0
 	go.bytebuilders.dev/license-verifier v0.15.0
 	go.openviz.dev/apimachinery v0.0.10
@@ -48,7 +48,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.3
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.44.2
+	kmodules.xyz/resource-metadata v0.44.3-0.20260515054821-6302a68aced7
 	kmodules.xyz/resource-metrics v0.34.2
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
@@ -328,7 +328,7 @@ require (
 	kmodules.xyz/apply v0.34.0 // indirect
 	kmodules.xyz/objectstore-api v0.34.0 // indirect
 	kubedb.dev/apimachinery v0.63.0 // indirect
-	kubeops.dev/external-dns-operator v0.3.0 // indirect
+	kubeops.dev/external-dns-operator v0.3.1-0.20260409053434-d3838ac10fdf // indirect
 	kubeops.dev/petset v0.0.16-0.20251228050140-c7926722b687 // indirect
 	kubeops.dev/sidekick v0.0.13-0.20251228040406-08fe6cf3da94 // indirect
 	kubepack.dev/kubepack v0.34.0 // indirect
@@ -342,7 +342,7 @@ require (
 	sigs.k8s.io/kustomize/kyaml v0.20.1 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	voyagermesh.dev/gateway-api v0.0.10 // indirect
-	voyagermesh.dev/installer v0.0.0-20260311084402-0a1bb5665734 // indirect
+	voyagermesh.dev/installer v0.0.0-20260427124054-e6fbf86716f0 // indirect
 )
 
 replace github.com/Masterminds/sprig/v3 => github.com/gomodules/sprig/v3 v3.2.3-0.20220405051441-0a8a99bac1b8

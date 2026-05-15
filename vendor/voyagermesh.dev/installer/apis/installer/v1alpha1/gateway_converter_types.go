@@ -53,22 +53,22 @@ type GatewayConverterSpec struct {
 	Server           *Container `json:"server,omitempty"`
 	ImagePullPolicy  *string    `json:"imagePullPolicy,omitempty"`
 	//+optional
-	ImagePullSecrets []string `json:"imagePullSecrets"`
+	ImagePullSecrets []string `json:"imagePullSecrets,omitempty"`
 	//+optional
-	CriticalAddon bool `json:"criticalAddon"`
+	CriticalAddon bool `json:"criticalAddon,omitempty"`
 	//+optional
-	LogLevel int32 `json:"logLevel,omitempty"`
+	LogLevel int32 `json:"logLevel,omitempty,omitempty"`
 	//+optional
-	Annotations map[string]string `json:"annotations"`
+	Annotations map[string]string `json:"annotations,omitempty"`
 	//+optional
-	PodAnnotations map[string]string `json:"podAnnotations"`
+	PodAnnotations map[string]string `json:"podAnnotations,omitempty"`
 	//+optional
-	PodLabels map[string]string `json:"podLabels"`
+	PodLabels map[string]string `json:"podLabels,omitempty"`
 	//+optional
 	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
 	// If specified, the pod's tolerations.
 	// +optional
-	Tolerations []core.Toleration `json:"tolerations"`
+	Tolerations []core.Toleration `json:"tolerations,omitempty"`
 	// If specified, the pod's scheduling constraints
 	// +optional
 	Affinity *core.Affinity `json:"affinity,omitempty"`

@@ -46,37 +46,41 @@ type CrdManager struct {
 // CrdManagerSpec is the schema for Identity Server values file
 type CrdManagerSpec struct {
 	//+optional
-	NameOverride string `json:"nameOverride"`
+	NameOverride string `json:"nameOverride,omitempty"`
 	//+optional
-	FullnameOverride string `json:"fullnameOverride"`
+	FullnameOverride string `json:"fullnameOverride,omitempty"`
 	//+optional
-	RegistryFQDN    string   `json:"registryFQDN"`
-	Image           ImageRef `json:"image"`
-	ImagePullPolicy string   `json:"imagePullPolicy"`
+	RegistryFQDN string `json:"registryFQDN,omitempty"`
+	// +optional
+	Image ImageRef `json:"image,omitempty"`
+	// +optional
+	ImagePullPolicy string `json:"imagePullPolicy,omitempty"`
 	//+optional
-	ImagePullSecrets []string `json:"imagePullSecrets"`
+	ImagePullSecrets []string `json:"imagePullSecrets,omitempty"`
 	//+optional
-	PodAnnotations map[string]string `json:"podAnnotations"`
+	PodAnnotations map[string]string `json:"podAnnotations,omitempty"`
 	// PodSecurityContext holds pod-level security attributes and common container settings.
 	// Optional: Defaults to empty.  See type description for default values of each field.
 	// +optional
-	PodSecurityContext *core.PodSecurityContext `json:"podSecurityContext"`
+	PodSecurityContext *core.PodSecurityContext `json:"podSecurityContext,omitempty"`
 	//+optional
-	SecurityContext *core.SecurityContext `json:"securityContext"`
+	SecurityContext *core.SecurityContext `json:"securityContext,omitempty"`
 	//+optional
-	Resources core.ResourceRequirements `json:"resources"`
+	Resources core.ResourceRequirements `json:"resources,omitempty"`
 	//+optional
-	NodeSelector map[string]string `json:"nodeSelector"`
+	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
 	// If specified, the pod's tolerations.
 	// +optional
-	Tolerations []core.Toleration `json:"tolerations"`
+	Tolerations []core.Toleration `json:"tolerations,omitempty"`
 	// If specified, the pod's scheduling constraints
 	// +optional
-	Affinity                *core.Affinity     `json:"affinity"`
-	ServiceAccount          ServiceAccountSpec `json:"serviceAccount"`
-	FeatureGates            map[string]bool    `json:"featureGates"`
-	RemoveUnusedCRDs        bool               `json:"removeUnusedCRDs"`
-	TTLSecondsAfterFinished int                `json:"ttlSecondsAfterFinished"`
+	Affinity *core.Affinity `json:"affinity,omitempty"`
+	// +optional
+	ServiceAccount ServiceAccountSpec `json:"serviceAccount,omitempty"`
+	// +optional
+	FeatureGates            map[string]bool `json:"featureGates,omitempty"`
+	RemoveUnusedCRDs        bool            `json:"removeUnusedCRDs,omitempty"`
+	TTLSecondsAfterFinished int             `json:"ttlSecondsAfterFinished,omitempty"`
 	// +optional
 	Distro shared.DistroSpec `json:"distro"`
 }

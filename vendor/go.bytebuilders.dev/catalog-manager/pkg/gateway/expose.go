@@ -139,6 +139,8 @@ func PatchListener(cm *portmanager.ClusterManager, gw *gwapiv1.Gateway, lisName 
 	} else {
 		gw.Spec.Listeners = append(gw.Spec.Listeners, *listener)
 	}
+
+	cm.Print()
 	return nil
 }
 
@@ -232,7 +234,7 @@ func EnsureBackendTLSPolicy(c client.Client, serviceName, tlsSecretName, namespa
 						Name:  gwapiv1a2.ObjectName(tlsSecretName),
 					},
 				},
-				Hostname: "unused",
+				Hostname: gwapiv1.PreciseHostname(serviceName),
 			},
 		},
 	}

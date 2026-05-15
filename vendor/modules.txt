@@ -1125,7 +1125,7 @@ github.com/zeebo/errs
 # github.com/zeebo/xxh3 v1.0.2
 ## explicit; go 1.17
 github.com/zeebo/xxh3
-# go.bytebuilders.dev/catalog v0.0.21
+# go.bytebuilders.dev/catalog v0.0.23-0.20260505092112-c1c647c186bc
 ## explicit; go 1.25.6
 go.bytebuilders.dev/catalog/api/catalog/v1alpha1
 go.bytebuilders.dev/catalog/api/gateway/v1alpha1
@@ -2644,7 +2644,7 @@ kmodules.xyz/objectstore-api/api/v1
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
 kmodules.xyz/offshoot-api/util
-# kmodules.xyz/resource-metadata v0.44.2
+# kmodules.xyz/resource-metadata v0.44.3-0.20260515054821-6302a68aced7
 ## explicit; go 1.25
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2704,7 +2704,7 @@ kubedb.dev/apimachinery/apis/kubedb/v1
 kubedb.dev/apimachinery/apis/migrator
 kubedb.dev/apimachinery/apis/migrator/v1alpha1
 kubedb.dev/apimachinery/crds
-# kubeops.dev/external-dns-operator v0.3.0
+# kubeops.dev/external-dns-operator v0.3.1-0.20260409053434-d3838ac10fdf
 ## explicit; go 1.25
 kubeops.dev/external-dns-operator/apis/external
 kubeops.dev/external-dns-operator/apis/external/v1alpha1
@@ -2978,8 +2978,8 @@ sigs.k8s.io/yaml/kyaml
 ## explicit; go 1.24.0
 voyagermesh.dev/gateway-api/apis/gateway/v1alpha1
 voyagermesh.dev/gateway-api/config/crd/bases
-# voyagermesh.dev/installer v0.0.0-20260311084402-0a1bb5665734
-## explicit; go 1.25
+# voyagermesh.dev/installer v0.0.0-20260427124054-e6fbf86716f0
+## explicit; go 1.25.0
 voyagermesh.dev/installer/apis/installer
 voyagermesh.dev/installer/apis/installer/v1alpha1
 # x-helm.dev/apimachinery v0.0.18

@@ -19,6 +19,8 @@ package portmanager
 import (
 	"context"
 	"sort"
+	"strconv"
+	"strings"
 	"sync"
 
 	"gomodules.xyz/bits"
@@ -46,7 +48,10 @@ type ServicePortManager struct {
 
 	nodePorts *bits.BitField
 	npMap     map[string][]int // ns/name -> []ports
-	mu        sync.RWMutex
+
+	reserved sets.Set[int] // ports that must remain allocated regardless of service churn
+
+	mu sync.RWMutex
 
 	algPA PortAlloc
 	muPA  sync.Mutex
@@ -59,6 +64,7 @@ func NewServicePortManager(kc client.Reader) *ServicePortManager {
 		portMap:   map[string][]int{},
 		nodePorts: bits.NewBitField(0xFFFF + 1),
 		npMap:     map[string][]int{},
+		reserved:  sets.New[int](),
 		algPA:     PortAllocUnknown,
 	}
 }
@@ -79,6 +85,29 @@ func (sm *ServicePortManager) Init(kc client.Reader) error {
 	return nil
 }
 
+func ParsePortList(s string) []int {
+	s = strings.Trim(strings.TrimSpace(s), `"'`)
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	ports := make([]int, 0, len(parts))
+
+	for _, p := range parts {
+		p = strings.Trim(strings.TrimSpace(p), `"'`)
+		if p == "" {
+			continue
+		}
+		port, err := strconv.Atoi(p)
+		if err != nil || port <= 0 || port > 65535 {
+			klog.Warningf("ignoring invalid reserved port %q", p)
+			continue
+		}
+		ports = append(ports, port)
+	}
+	return ports
+}
+
 func (sm *ServicePortManager) AllocatePorts(pr *net.PortRange, n int) ([]int, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -91,6 +120,14 @@ func (sm *ServicePortManager) SetPortAllocated(port int) {
 	defer sm.mu.Unlock()
 
 	sm.ports.SetBit(port)
+	sm.reserved.Insert(port)
+}
+
+func (sm *ServicePortManager) IsReserved(port int) bool {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	return sm.reserved.Has(port)
 }
 
 func (sm *ServicePortManager) AllocateNodePorts(pr *net.PortRange, n int) ([]int, error) {
@@ -115,7 +152,9 @@ func (sm *ServicePortManager) Delete(svc types.NamespacedName) {
 
 	if existing, ok := sm.portMap[key]; ok {
 		for _, port := range existing {
-			sm.ports.ClearBit(port)
+			if !sm.reserved.Has(port) {
+				sm.ports.ClearBit(port)
+			}
 		}
 		delete(sm.portMap, key)
 	}
@@ -131,11 +170,11 @@ func (sm *ServicePortManager) Delete(svc types.NamespacedName) {
 func (sm *ServicePortManager) update(svc *core.Service) bool {
 	key := client.ObjectKeyFromObject(svc).String()
 
-	return updatePorts(sm.ports, sm.portMap, key, ListServicePorts(svc)) ||
-		updatePorts(sm.nodePorts, sm.npMap, key, ListServiceNodePorts(svc))
+	return updatePorts(sm.ports, sm.portMap, key, ListServicePorts(svc), sm.reserved) ||
+		updatePorts(sm.nodePorts, sm.npMap, key, ListServiceNodePorts(svc), nil)
 }
 
-func updatePorts(ports *bits.BitField, portMap map[string][]int, svcKey string, svcPorts []int) bool {
+func updatePorts(ports *bits.BitField, portMap map[string][]int, svcKey string, svcPorts []int, reserved sets.Set[int]) bool {
 	existing, ok := portMap[svcKey]
 	if !ok {
 		for _, port := range svcPorts {
@@ -150,6 +189,9 @@ func updatePorts(ports *bits.BitField, portMap map[string][]int, svcKey string, 
 	}
 
 	for _, port := range existing {
+		if reserved != nil && reserved.Has(port) {
+			continue
+		}
 		ports.ClearBit(port)
 	}
 	for _, port := range svcPorts {
@@ -198,6 +240,13 @@ func equals(x, y []int) bool {
 func (sm *ServicePortManager) Print() {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
+	for svc, ports := range sm.portMap {
+		if len(ports) == 0 {
+			continue
+		}
+		klog.Infof("svc=%v, ports=%v \n", svc, ports)
+	}
+
 	for svc, ports := range sm.npMap {
 		if len(ports) == 0 {
 			continue
@@ -233,12 +282,6 @@ func (sm *ServicePortManager) GetPortAlloc() (PortAlloc, error) {
 			sm.algPA = PortAllocShared
 			return sm.algPA, nil
 		}
-	}
-
-	var list core.ServiceList
-	err = sm.kc.List(context.TODO(), &list)
-	if err != nil {
-		return sm.algPA, err
 	}
 
 	baseline := sets.New[string]()

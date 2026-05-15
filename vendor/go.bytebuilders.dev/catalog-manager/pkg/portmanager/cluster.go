@@ -71,19 +71,24 @@ func ParsePortInfo(str string) (*PortInfo, error) {
 }
 
 type ClusterManager struct {
-	kc           client.Reader
-	portManagers map[string]*GatewayClassPortManager // gwcName -> gatewayClassPortManager
-	gwMap        map[string]*GatewayInfo             // ns/name -> {gwclass, []ports}
-	svcMgr       *ServicePortManager
-	mu           sync.RWMutex
+	kc            client.Reader
+	portManagers  map[string]*GatewayClassPortManager // gwcName -> gatewayClassPortManager
+	gwMap         map[string]*GatewayInfo             // ns/name -> {gwclass, []ports}
+	svcMgr        *ServicePortManager
+	reservedPorts []int
+	mu            sync.RWMutex
 }
 
-func NewClusterManager(kc client.Reader, svcMgr *ServicePortManager) *ClusterManager {
+func NewClusterManager(kc client.Reader, svcMgr *ServicePortManager, reservedPorts []int) *ClusterManager {
+	for _, p := range reservedPorts {
+		svcMgr.SetPortAllocated(p)
+	}
 	return &ClusterManager{
-		kc:           kc,
-		portManagers: map[string]*GatewayClassPortManager{},
-		gwMap:        map[string]*GatewayInfo{},
-		svcMgr:       svcMgr,
+		kc:            kc,
+		portManagers:  map[string]*GatewayClassPortManager{},
+		gwMap:         map[string]*GatewayInfo{},
+		svcMgr:        svcMgr,
+		reservedPorts: reservedPorts,
 	}
 }
 
@@ -105,6 +110,7 @@ func (cm *ClusterManager) UpdateGatewayClass(ctx context.Context, gwp *catgwapi.
 			return false, err
 		}
 		gm.InitListenerPorts(gwMap)
+		gm.MarkReserved(cm.reservedPorts)
 		for gw, info := range gwMap {
 			cm.gwMap[gw] = info
 		}

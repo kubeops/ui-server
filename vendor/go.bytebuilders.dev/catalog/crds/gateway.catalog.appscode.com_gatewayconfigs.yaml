@@ -561,7 +561,6 @@ spec:
                         - NodePort
                         type: string
                     required:
-                    - annotations
                     - externalTrafficPolicy
                     - nodeportRange
                     - portRange
@@ -3369,8 +3368,6 @@ spec:
                             type: boolean
                           name:
                             type: string
-                        required:
-                        - create
                         type: object
                       tolerations:
                         description: If specified, the pod's tolerations.
@@ -3415,12 +3412,6 @@ spec:
                         type: integer
                     required:
                     - enabled
-                    - featureGates
-                    - image
-                    - imagePullPolicy
-                    - removeUnusedCRDs
-                    - serviceAccount
-                    - ttlSecondsAfterFinished
                     type: object
                   createNamespace:
                     type: boolean
@@ -4891,8 +4882,6 @@ spec:
                         type: string
                       replicas:
                         type: integer
-                    required:
-                    - priorityClassName
                     type: object
                   gateway-converter:
                     properties:
@@ -6424,8 +6413,6 @@ spec:
                             type: boolean
                           name:
                             type: string
-                        required:
-                        - create
                         type: object
                       tolerations:
                         description: If specified, the pod's tolerations.
@@ -6519,8 +6506,6 @@ spec:
                                 type: array
                             required:
                             - image
-                            - pullPolicy
-                            - pullSecrets
                             type: object
                           ratelimit:
                             properties:
@@ -6548,8 +6533,6 @@ spec:
                                 type: array
                             required:
                             - image
-                            - pullPolicy
-                            - pullSecrets
                             type: object
                         required:
                         - envoyGateway
@@ -8890,8 +8873,6 @@ spec:
                         type: object
                     required:
                     - image
-                    - pullPolicy
-                    - pullSecrets
                     type: object
                   topologyInjector:
                     properties:

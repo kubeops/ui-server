@@ -93,11 +93,11 @@ type VoyagerSpec struct {
 
 type ImageRef struct {
 	// +optional
-	Registry string `json:"registry"`
+	Registry string `json:"registry,omitempty"`
 	// +optional
-	Repository string `json:"repository"`
+	Repository string `json:"repository,omitempty"`
 	// +optional
-	Tag string `json:"tag"`
+	Tag string `json:"tag,omitempty"`
 }
 
 type CleanerRef struct {
@@ -122,11 +122,12 @@ type CloudConfig struct {
 }
 
 type ServiceAccountSpec struct {
-	Create bool `json:"create"`
 	//+optional
-	Name *string `json:"name"`
+	Create bool `json:"create,omitempty"`
 	//+optional
-	Annotations map[string]string `json:"annotations"`
+	Name *string `json:"name,omitempty"`
+	//+optional
+	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
 type WebHookSpec struct {
