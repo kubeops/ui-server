@@ -218,6 +218,8 @@ github.com/docker/go-events v0.0.0-20250114142523-c867878c5e32 h1:EHZfspsnLAz8Hz
 github.com/docker/go-events v0.0.0-20250114142523-c867878c5e32/go.mod h1:Uw6UezgYA44ePAFQYUehOuCzmy5zmg/+nl2ZfMWGkpA=
 github.com/docker/go-metrics v0.0.1 h1:AgB/0SvBxihN0X8OR4SjsblXkbMvalQ8cjmtKQ2rQV8=
 github.com/docker/go-metrics v0.0.1/go.mod h1:cG1hvH2utMXtqgqqYE9plW6lDxS3/5ayHzueweSI3Vw=
+github.com/docker/go-units v0.5.0 h1:69rxXcBk27SvSaaxTtLh/8llcHD8vYHT7WSdRZ/jvr4=
+github.com/docker/go-units v0.5.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/emicklei/go-restful/v3 v3.13.0 h1:C4Bl2xDndpU6nJ4bc1jXd+uTmYPVUwkD6bFY/oTyCes=
@@ -1187,8 +1189,8 @@ kmodules.xyz/monitoring-agent-api v0.34.3 h1:8dCTSatkKbi9CTAQ3+u7OmoyUghLvKTqqcl
 kmodules.xyz/monitoring-agent-api v0.34.3/go.mod h1:0WtVdliczkCmjA/QyB2ZriVwABSA8Fhzt01yMEukFLY=
 kmodules.xyz/offshoot-api v0.34.0 h1:HnOOp8FrCjTWjtNApRDo6Ahe79tOlLrJmyye4xxO4Kk=
 kmodules.xyz/offshoot-api v0.34.0/go.mod h1:F+B59yYw4CZJ4uD4xu6C+mMLzIXUtuH7E+SbDICl9jE=
-kmodules.xyz/resource-metadata v0.44.3-0.20260515054821-6302a68aced7 h1:sMocFysylGeJEw7t0fAkkL818cx2J/Kj7hstMsZ/jb0=
-kmodules.xyz/resource-metadata v0.44.3-0.20260515054821-6302a68aced7/go.mod h1:bqm4/ZqHxA04H1/Mz79YhHgrePSKJfUVL7cpG8teKsA=
+kmodules.xyz/resource-metadata v0.44.3-0.20260516134121-b1b93d3e6a54 h1:P5o48fl+8EmJhpKw0H1+0EkgJZvYAurlNKxI5a5uHUQ=
+kmodules.xyz/resource-metadata v0.44.3-0.20260516134121-b1b93d3e6a54/go.mod h1:2A80iHv+kkkgLBhCBbPRwsRrqhmvjnEo6UDQKFx06xA=
 kmodules.xyz/resource-metrics v0.34.2 h1:rwK/6pl56htEXAx+PErRnQESPprLL5EpeD0OFqFa6uk=
 kmodules.xyz/resource-metrics v0.34.2/go.mod h1:R34IKtp5+NqcQz7AQJheBJK6Iem0LqrCbm/55Mn+ECQ=
 kmodules.xyz/resource-metrics/utils v0.34.0 h1:IAwJNoXQZu7bNiWgbwEp+w26uBH1AScprKMA2HX+Bbg=

@@ -25,6 +25,7 @@ import (
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"github.com/google/uuid"
+	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
@@ -194,6 +195,7 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 
 		// hasPermission to check if the user has permission to list the resources
 		hasPermission := false
+		var totalReqRL, totalLimRL, appReqRL, appLimRL core.ResourceList
 		for _, item := range list.Items {
 			attrs.Name = item.GetName()
 			attrs.Namespace = item.GetNamespace()
@@ -212,30 +214,34 @@ func (r *Storage) List(ctx context.Context, options *internalversion.ListOptions
 				if err != nil {
 					return nil, err
 				}
-				summary.Spec.TotalResource.Requests = api.AddResourceList(summary.Spec.TotalResource.Requests, rv)
+				totalReqRL = api.AddResourceList(totalReqRL, rv)
 			}
 			{
 				rv, err := resourcemetrics.TotalResourceLimits(content)
 				if err != nil {
 					return nil, err
 				}
-				summary.Spec.TotalResource.Limits = api.AddResourceList(summary.Spec.TotalResource.Limits, rv)
+				totalLimRL = api.AddResourceList(totalLimRL, rv)
 			}
 			{
 				rv, err := resourcemetrics.AppResourceRequests(content)
 				if err != nil {
 					return nil, err
 				}
-				summary.Spec.AppResource.Requests = api.AddResourceList(summary.Spec.AppResource.Requests, rv)
+				appReqRL = api.AddResourceList(appReqRL, rv)
 			}
 			{
 				rv, err := resourcemetrics.AppResourceLimits(content)
 				if err != nil {
 					return nil, err
 				}
-				summary.Spec.AppResource.Limits = api.AddResourceList(summary.Spec.AppResource.Limits, rv)
+				appLimRL = api.AddResourceList(appLimRL, rv)
 			}
 		}
+		summary.Spec.TotalResource.Requests = rscoreapi.ConvertToStringQuantity(totalReqRL)
+		summary.Spec.TotalResource.Limits = rscoreapi.ConvertToStringQuantity(totalLimRL)
+		summary.Spec.AppResource.Requests = rscoreapi.ConvertToStringQuantity(appReqRL)
+		summary.Spec.AppResource.Limits = rscoreapi.ConvertToStringQuantity(appLimRL)
 
 		if hasPermission {
 			summary.Spec.Count = len(list.Items)

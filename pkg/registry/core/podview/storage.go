@@ -165,8 +165,8 @@ func (r *Storage) toPodView(pod *core.Pod) *rscoreapi.PodView {
 			EnvFrom:    c.EnvFrom,
 			Env:        c.Env,
 			Resources: rscoreapi.ResourceView{
-				Limits:   c.Resources.Limits,
-				Requests: c.Resources.Requests,
+				Limits:   rscoreapi.ConvertToStringQuantity(c.Resources.Limits),
+				Requests: rscoreapi.ConvertToStringQuantity(c.Resources.Requests),
 				Usage:    nil,
 			},
 			VolumeMounts:             c.VolumeMounts,
@@ -189,17 +189,14 @@ func (r *Storage) toPodView(pod *core.Pod) *rscoreapi.PodView {
 		requests = rmapi.MaxResourceList(requests, c.Resources.Requests)
 	}
 
-	rv := rscoreapi.ResourceView{
-		Limits:   limits,
-		Requests: requests,
-	}
-
 	pc, err := r.builder.GetPrometheusClient()
 	if err != nil {
 		klog.ErrorS(err, "failed to create Prometheus client")
 	}
+
+	var usage core.ResourceList
 	if pc != nil {
-		rv.Usage = promclient.GetPodResourceUsage(pc, pod.ObjectMeta)
+		usage = promclient.GetPodResourceUsage(pc, pod.ObjectMeta)
 	}
 	{
 		// storage
@@ -212,15 +209,21 @@ func (r *Storage) toPodView(pod *core.Pod) *rscoreapi.PodView {
 					storageReq.Add(*pvc.Spec.Resources.Requests.Storage())
 					storageCap.Add(*pvc.Status.Capacity.Storage())
 					if pc != nil {
-						tmp := rv.Usage[core.ResourceStorage]
+						tmp := usage[core.ResourceStorage]
 						tmp.Add(promclient.GetPVCUsage(pc, pvc.ObjectMeta))
-						rv.Usage[core.ResourceStorage] = tmp
+						usage[core.ResourceStorage] = tmp
 					}
 				}
 			}
 		}
-		rv.Requests[core.ResourceStorage] = storageReq
-		rv.Limits[core.ResourceStorage] = storageCap
+		limits[core.ResourceStorage] = storageCap
+		requests[core.ResourceStorage] = storageReq
+	}
+
+	rv := rscoreapi.ResourceView{
+		Limits:   rscoreapi.ConvertToStringQuantity(limits),
+		Requests: rscoreapi.ConvertToStringQuantity(requests),
+		Usage:    rscoreapi.ConvertToStringQuantity(usage),
 	}
 	result.Spec.Resources = rv
 
