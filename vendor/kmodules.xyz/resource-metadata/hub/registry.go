@@ -94,9 +94,7 @@ func NewRegistry(uid string, cache KV) *Registry {
 }
 
 func NewRegistryOfKnownResources() *Registry {
-	return NewRegistry(KnownUID, &KVMap{
-		cache: resourcedescriptors.KnownDescriptors(),
-	})
+	return NewRegistry(KnownUID, NewKVMapFromKnown())
 }
 
 func (r *Registry) DiscoverResources(cfg *rest.Config) error {
@@ -113,6 +111,15 @@ func (r *Registry) discoverResources() error {
 		return err
 	}
 
+	// Preserve manually-registered GroupResources that server discovery did
+	// not see (e.g. a CRD just applied but not yet in the discovery cache).
+	// Discovery wins for GroupResources it does know about, since the
+	// api-server is authoritative on its own preferred version.
+	for gr, gvr := range r.preferred {
+		if _, ok := preferred[gr]; !ok {
+			preferred[gr] = gvr
+		}
+	}
 	r.preferred = preferred
 	r.lastRefreshed = time.Now()
 	for filename, rd := range reg {
@@ -481,7 +488,7 @@ func (r *Registry) Resources() []schema.GroupVersionResource {
 	r.m.RLock()
 	defer r.m.RUnlock()
 
-	out := make([]schema.GroupVersionResource, len(r.preferred))
+	out := make([]schema.GroupVersionResource, 0, len(r.preferred))
 	for _, gvr := range r.preferred {
 		out = append(out, gvr)
 	}
@@ -492,7 +499,7 @@ func (r *Registry) Kinds() []schema.GroupVersionKind {
 	r.m.RLock()
 	defer r.m.RUnlock()
 
-	out := make([]schema.GroupVersionKind, len(r.preferred))
+	out := make([]schema.GroupVersionKind, 0, len(r.preferred))
 	for _, gvr := range r.preferred {
 		out = append(out, r.regGVR[gvr].GroupVersionKind())
 	}
