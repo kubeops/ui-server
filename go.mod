@@ -47,7 +47,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.3
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.44.3-0.20260515054821-6302a68aced7
+	kmodules.xyz/resource-metadata v0.44.3-0.20260518093406-11c2af3e0041
 	kmodules.xyz/resource-metrics v0.34.2
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
@@ -136,6 +136,7 @@ require (
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.4 // indirect
 	github.com/docker/go-events v0.0.0-20250114142523-c867878c5e32 // indirect
+	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.13.0 // indirect
 	github.com/envoyproxy/gateway v1.6.3 // indirect
