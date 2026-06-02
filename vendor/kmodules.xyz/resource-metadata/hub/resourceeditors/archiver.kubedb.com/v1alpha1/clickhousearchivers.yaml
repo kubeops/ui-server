@@ -14,3 +14,12 @@ spec:
     name: clickhousearchivers
     scope: Namespaced
     version: v1alpha1
+  ui:
+    editor:
+      name: archiverkubedbcom-clickhousearchiver-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:27269fafdfb904463f189c329b2157b4c36b93f0945e6124afbf5c47c7c4597e
+    enforceQuota: false

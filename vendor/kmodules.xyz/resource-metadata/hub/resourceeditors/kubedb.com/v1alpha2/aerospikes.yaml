@@ -14,3 +14,12 @@ spec:
     name: aerospikes
     scope: Namespaced
     version: v1alpha2
+  ui:
+    editor:
+      name: kubedbcom-aerospike-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:793f4211df208f5fdb7324b1b459edc6d99e354ff793a8e408352fd9199a18c9
+    enforceQuota: false

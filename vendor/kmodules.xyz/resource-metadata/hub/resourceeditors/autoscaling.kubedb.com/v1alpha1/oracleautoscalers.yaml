@@ -14,3 +14,12 @@ spec:
     name: oracleautoscalers
     scope: Namespaced
     version: v1alpha1
+  ui:
+    editor:
+      name: autoscalingkubedbcom-oracleautoscaler-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:4b47521c63815f11160c48ff137d51fe2f6abb77acd98ff7e180a89bb180b09e
+    enforceQuota: false

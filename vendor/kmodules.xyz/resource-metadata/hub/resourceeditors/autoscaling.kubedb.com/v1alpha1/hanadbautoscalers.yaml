@@ -14,3 +14,12 @@ spec:
     name: hanadbautoscalers
     scope: Namespaced
     version: v1alpha1
+  ui:
+    editor:
+      name: autoscalingkubedbcom-hanadbautoscaler-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:e5e0eec16c1da05aaa81169490920ee206ca962553c578f6d75d495ff1011024
+    enforceQuota: false

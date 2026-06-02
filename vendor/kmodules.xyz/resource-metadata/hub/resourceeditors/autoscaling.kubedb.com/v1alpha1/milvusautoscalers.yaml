@@ -14,3 +14,12 @@ spec:
     name: milvusautoscalers
     scope: Namespaced
     version: v1alpha1
+  ui:
+    editor:
+      name: autoscalingkubedbcom-milvusautoscaler-editor
+      sourceRef:
+        apiGroup: source.toolkit.fluxcd.io
+        kind: HelmRepository
+        name: appscode-charts-oci
+      version: sha256:aa78f38ab6ebc26ffaaeb14784da26a16681274017484016121b6c1120ce42d4
+    enforceQuota: false
