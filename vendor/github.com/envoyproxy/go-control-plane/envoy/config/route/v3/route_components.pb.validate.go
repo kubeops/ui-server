@@ -3107,8 +3107,6 @@ func (m *RouteAction) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for PathRewrite
-
 	// no validation rules for AppendXForwardedHost
 
 	if all {
@@ -3966,18 +3964,6 @@ func (m *RouteAction) validate(all bool) error {
 			}
 		}
 
-	case *RouteAction_HostRewrite:
-		if v == nil {
-			err := RouteActionValidationError{
-				field:  "HostRewriteSpecifier",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-		// no validation rules for HostRewrite
 	default:
 		_ = v // ensures v is used
 	}

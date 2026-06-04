@@ -73,6 +73,14 @@ const (
 type BindingSpec struct {
 	// SourceRef refers to the source app instance.
 	SourceRef kmapi.ObjectReference `json:"sourceRef"`
+	// UIExposure holds the specification of UI exposer
+	// +optional
+	UIExposure *UIExposureSpec `json:"uiExposure,omitempty"`
+}
+
+type UIExposureSpec struct {
+	DisableUI             bool `json:"disableUI"`
+	DisableCostEfficiency bool `json:"disableCostEfficiency"`
 }
 
 // +kubebuilder:validation:Enum=Pending;InProgress;Terminating;Current;Failed;Expired

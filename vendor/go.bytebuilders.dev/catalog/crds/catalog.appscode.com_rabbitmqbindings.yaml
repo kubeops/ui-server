@@ -75,6 +75,17 @@ spec:
                 required:
                 - name
                 type: object
+              uiExposure:
+                description: UIExposure holds the specification of UI exposer
+                properties:
+                  disableCostEfficiency:
+                    type: boolean
+                  disableUI:
+                    type: boolean
+                required:
+                - disableCostEfficiency
+                - disableUI
+                type: object
             required:
             - sourceRef
             type: object

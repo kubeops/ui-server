@@ -457,12 +457,9 @@ type FilterChain struct {
 	// establishment, the connection is summarily closed.
 	TransportSocketConnectTimeout *durationpb.Duration `protobuf:"bytes,9,opt,name=transport_socket_connect_timeout,json=transportSocketConnectTimeout,proto3" json:"transport_socket_connect_timeout,omitempty"`
 	// The unique name (or empty) by which this filter chain is known.
-	//
-	// .. note::
-	//
-	//	:ref:`filter_chain_matcher
-	//	<envoy_v3_api_field_config.listener.v3.Listener.filter_chain_matcher>`
-	//	requires that filter chains are uniquely named within a listener.
+	// Note: :ref:`filter_chain_matcher
+	// <envoy_v3_api_field_config.listener.v3.Listener.filter_chain_matcher>`
+	// requires that filter chains are uniquely named within a listener.
 	Name string `protobuf:"bytes,7,opt,name=name,proto3" json:"name,omitempty"`
 }
 

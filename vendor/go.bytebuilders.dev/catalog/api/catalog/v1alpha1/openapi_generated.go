@@ -83,6 +83,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"go.bytebuilders.dev/catalog/api/catalog/v1alpha1.SinglestoreBindingList":   schema_catalog_api_catalog_v1alpha1_SinglestoreBindingList(ref),
 		"go.bytebuilders.dev/catalog/api/catalog/v1alpha1.SolrBinding":              schema_catalog_api_catalog_v1alpha1_SolrBinding(ref),
 		"go.bytebuilders.dev/catalog/api/catalog/v1alpha1.SolrBindingList":          schema_catalog_api_catalog_v1alpha1_SolrBindingList(ref),
+		"go.bytebuilders.dev/catalog/api/catalog/v1alpha1.UIExposureSpec":           schema_catalog_api_catalog_v1alpha1_UIExposureSpec(ref),
 		"go.bytebuilders.dev/catalog/api/catalog/v1alpha1.ZooKeeperBinding":         schema_catalog_api_catalog_v1alpha1_ZooKeeperBinding(ref),
 		"go.bytebuilders.dev/catalog/api/catalog/v1alpha1.ZooKeeperBindingList":     schema_catalog_api_catalog_v1alpha1_ZooKeeperBindingList(ref),
 		"k8s.io/api/apps/v1.ControllerRevision":                                     schema_k8sio_api_apps_v1_ControllerRevision(ref),
@@ -447,12 +448,18 @@ func schema_catalog_api_catalog_v1alpha1_BindingSpec(ref common.ReferenceCallbac
 							Ref:         ref("kmodules.xyz/client-go/api/v1.ObjectReference"),
 						},
 					},
+					"uiExposure": {
+						SchemaProps: spec.SchemaProps{
+							Description: "UIExposure holds the specification of UI exposer",
+							Ref:         ref("go.bytebuilders.dev/catalog/api/catalog/v1alpha1.UIExposureSpec"),
+						},
+					},
 				},
 				Required: []string{"sourceRef"},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/client-go/api/v1.ObjectReference"},
+			"go.bytebuilders.dev/catalog/api/catalog/v1alpha1.UIExposureSpec", "kmodules.xyz/client-go/api/v1.ObjectReference"},
 	}
 }
 
@@ -2719,6 +2726,33 @@ func schema_catalog_api_catalog_v1alpha1_SolrBindingList(ref common.ReferenceCal
 		},
 		Dependencies: []string{
 			"go.bytebuilders.dev/catalog/api/catalog/v1alpha1.SolrBinding", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_catalog_api_catalog_v1alpha1_UIExposureSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"disableUI": {
+						SchemaProps: spec.SchemaProps{
+							Default: false,
+							Type:    []string{"boolean"},
+							Format:  "",
+						},
+					},
+					"disableCostEfficiency": {
+						SchemaProps: spec.SchemaProps{
+							Default: false,
+							Type:    []string{"boolean"},
+							Format:  "",
+						},
+					},
+				},
+				Required: []string{"disableUI", "disableCostEfficiency"},
+			},
+		},
 	}
 }
 
