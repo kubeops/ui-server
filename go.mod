@@ -344,3 +344,5 @@ replace k8s.io/apimachinery => github.com/kmodules/apimachinery v0.35.0-alpha.0.
 replace k8s.io/apiserver => github.com/kmodules/apiserver v0.34.4-0.20251227112449-07fa35efc6fc
 
 replace helm.sh/helm/v3 => github.com/x-helm/helm/v3 v3.19.5-0.20251227115143-3b9f6f6b7797
+
+replace kmodules.xyz/resource-metadata => ../../kmodules.xyz/resource-metadata
