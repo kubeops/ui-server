@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package natscredentialrequest
+package audittokenrequest
 
 import (
 	"context"
@@ -51,7 +51,7 @@ func NewStorage(kc client.Client, bc *identitylib.Client) *Storage {
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return identityapi.SchemeGroupVersion.WithKind(identityapi.ResourceKindNatsCredentialRequest)
+	return identityapi.SchemeGroupVersion.WithKind(identityapi.ResourceKindAuditTokenRequest)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -59,19 +59,19 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) GetSingularName() string {
-	return strings.ToLower(identityapi.ResourceKindNatsCredentialRequest)
+	return strings.ToLower(identityapi.ResourceKindAuditTokenRequest)
 }
 
 func (r *Storage) New() runtime.Object {
-	return &identityapi.NatsCredentialRequest{}
+	return &identityapi.AuditTokenRequest{}
 }
 
 func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
-	req, ok := obj.(*identityapi.NatsCredentialRequest)
+	req, ok := obj.(*identityapi.AuditTokenRequest)
 	if !ok {
-		return nil, apierrors.NewBadRequest("expected NatsCredentialRequest")
+		return nil, apierrors.NewBadRequest("expected AuditTokenRequest")
 	}
 	if req.Request == nil {
 		return nil, apierrors.NewBadRequest("request is required")
@@ -80,7 +80,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, apierrors.NewBadRequest("request.license is required")
 	}
 
-	resp, err := r.bc.GetNatsCredential(req.Request.Features, req.Request.License)
+	resp, err := r.bc.GetAuditToken(req.Request.Features, req.Request.License)
 	if err != nil {
 		return nil, err
 	}

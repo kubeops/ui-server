@@ -45,7 +45,7 @@ import (
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
 	clusteridstorage "kubeops.dev/ui-server/pkg/registry/identity/clusteridentity"
 	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/inboxtokenrequest"
-	natscredreqstorage "kubeops.dev/ui-server/pkg/registry/identity/natscredentialrequest"
+	audittokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/audittokenrequest"
 	"kubeops.dev/ui-server/pkg/registry/identity/selfsubjectnamespaceaccessreview"
 	siteinfostorage "kubeops.dev/ui-server/pkg/registry/identity/siteinfo"
 	"kubeops.dev/ui-server/pkg/registry/meta/chartpresetquery"
@@ -373,7 +373,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[identityapi.ResourceClusterIdentities] = clusteridstorage.NewStorage(ctrlClient, bc)
 		v1alpha1storage[identityapi.ResourceInboxTokenRequests] = inboxtokenreqstorage.NewStorage(ctrlClient, bc)
-		v1alpha1storage[identityapi.ResourceNatsCredentialRequests] = natscredreqstorage.NewStorage(ctrlClient, bc)
+		v1alpha1storage[identityapi.ResourceAuditTokenRequests] = audittokenreqstorage.NewStorage(ctrlClient, bc)
 		v1alpha1storage[identityapi.ResourceSelfSubjectNamespaceAccessReviews] = selfsubjectnamespaceaccessreview.NewStorage(kc, ctrlClient)
 		v1alpha1storage[identityapi.ResourceSiteInfos] = siteinfostorage.NewStorage(mgr.GetConfig(), kc, ctrlClient)
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
