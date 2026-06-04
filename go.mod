@@ -47,7 +47,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.3
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.46.0
+	kmodules.xyz/resource-metadata v0.46.1-0.20260604054459-ba20b6454d28
 	kmodules.xyz/resource-metrics v0.34.2
 	kmodules.xyz/resource-metrics/utils v0.34.0
 	kmodules.xyz/sets v0.29.0
