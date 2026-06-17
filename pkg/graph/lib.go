@@ -37,6 +37,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/tools/cache"
 	"kmodules.xyz/apiversion"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -155,6 +156,7 @@ func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured
 	}
 
 	edges := map[kmapi.EdgeLabel]ksets.OID{}
+	var errs []error
 	for _, conns := range connsPerGKL {
 		if len(conns) > 1 {
 			sort.Slice(conns, func(i, j int) bool {
@@ -162,9 +164,10 @@ func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured
 				return d > 0
 			})
 		}
+		dst := conns[0].Target.GroupVersionKind()
 		objects, err := finder.ResourcesFor(src, &Edge{
 			Src:        srcGVK,
-			Dst:        conns[0].Target.GroupVersionKind(),
+			Dst:        dst,
 			W:          0,
 			Connection: conns[0].ResourceConnectionSpec,
 			Forward:    true,
@@ -172,7 +175,9 @@ func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured
 		if kerr.IsNotFound(err) || meta.IsNoMatchError(err) || (err == nil && len(objects) == 0) {
 			continue
 		} else if err != nil {
-			return nil, err
+			// Skip this connection but keep the edges resolved from the others.
+			errs = append(errs, fmt.Errorf("failed to resolve connection %v -> %v: %w", srcGVK, dst, err))
+			continue
 		}
 		for _, obj := range objects {
 			oid := kmapi.NewObjectID(obj).OID()
@@ -185,7 +190,7 @@ func (finder ObjectFinder) ListConnectedObjectIDs(src *unstructured.Unstructured
 		}
 	}
 
-	return edges, nil
+	return edges, utilerrors.NewAggregate(errs)
 }
 
 func (finder ObjectFinder) ResourcesFor(src *unstructured.Unstructured, e *Edge) ([]*unstructured.Unstructured, error) {

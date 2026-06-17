@@ -19,12 +19,14 @@ package graph
 import (
 	"context"
 	"errors"
+	"slices"
 	"time"
 
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/discovery"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -71,21 +73,27 @@ func (r *Reconciler) Reconcile(ctx context.Context, req reconcile.Request) (reco
 		finder := ObjectFinder{
 			Client: r.Client,
 		}
-		if result, err := finder.ListConnectedObjectIDs(&obj, rd.Spec.Connections); err != nil {
-			// In case of discovery error, we don't return error because errors are rate limited.
-			// We need to keep trying until the reconciliation is successful.
-			if IsDiscoveryError(err) {
-				log.Error(err, "unable to list connections", "group", r.R.Group, "kind", r.R.Kind)
-				return reconcile.Result{RequeueAfter: 500 * time.Millisecond}, nil
-			}
-			// we'll ignore not-found errors, since they can't be fixed by an immediate
-			// requeue (we'll need to wait for a new notification), and we can get them
-			// on deleted requests.
-			return reconcile.Result{}, client.IgnoreNotFound(err)
-		} else if gvk == gvkService && result[kmapi.EdgeLabelExposedBy].Len() == 0 {
+		// result holds the edges that resolved even when ferr != nil, so one bad
+		// connection doesn't discard the rest of the object's graph.
+		result, ferr := finder.ListConnectedObjectIDs(&obj, rd.Spec.Connections)
+
+		// Discovery errors are transient: keep the existing graph and retry fast.
+		if ferr != nil && anyDiscoveryError(ferr) {
+			log.Error(ferr, "unable to list some connections", "group", r.R.Group, "kind", r.R.Kind)
+			return reconcile.Result{RequeueAfter: 500 * time.Millisecond}, nil
+		}
+
+		if gvk == gvkService && result[kmapi.EdgeLabelExposedBy].Len() == 0 {
 			return reconcile.Result{RequeueAfter: 2 * time.Minute}, nil
-		} else {
-			objGraph.Update(kmapi.NewObjectID(&obj).OID(), result)
+		}
+
+		// Persist whatever resolved, even if some connections failed.
+		objGraph.Update(kmapi.NewObjectID(&obj).OID(), result)
+
+		if ferr != nil {
+			// Partial graph already persisted; return err for exponential-backoff retry.
+			log.Error(ferr, "some connections failed to resolve; graph updated with partial result", "group", r.R.Group, "kind", r.R.Kind)
+			return reconcile.Result{}, client.IgnoreNotFound(ferr)
 		}
 	}
 
@@ -98,6 +106,15 @@ func IsDiscoveryError(err error) bool {
 		return true
 	}
 	return errors.Is(err, &discovery.ErrGroupDiscoveryFailed{})
+}
+
+// anyDiscoveryError reports whether err (or any error in an aggregate) is a
+// discovery error; needed because the k8s aggregate type implements Is but not As.
+func anyDiscoveryError(err error) bool {
+	if agg, ok := err.(utilerrors.Aggregate); ok {
+		return slices.ContainsFunc(utilerrors.Flatten(agg).Errors(), IsDiscoveryError)
+	}
+	return IsDiscoveryError(err)
 }
 
 // SetupWithManager sets up the controller with the Manager.
