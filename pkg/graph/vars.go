@@ -19,6 +19,7 @@ package graph
 import (
 	"sync"
 
+	"gomodules.xyz/sets"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/hub"
@@ -38,6 +39,18 @@ var Schema = getGraphQLSchema()
 var (
 	resourceChannel = make(chan kmapi.ResourceID, 100)
 	resourceTracker = map[schema.GroupVersionKind]kmapi.ResourceID{}
+)
+
+// groupSet lists API groups served by kube-ui-server's own aggregated API.
+// Watching these during startup would fail because the aggregated API isn't ready yet.
+var groupSet = sets.NewString(
+	"meta.k8s.appscode.com",
+	"identity.k8s.appscode.com",
+	"core.k8s.appscode.com",
+	"policy.k8s.appscode.com",
+	"cost.k8s.appscode.com",
+	"offline.licenses.appscode.com",
+	"reports.scanner.appscode.com",
 )
 
 var gkSet = ksets.NewGroupKind(

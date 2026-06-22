@@ -75,7 +75,7 @@ func PollNewResourceTypes(cfg *restclient.Config, pqr *projectquotacontroller.Pr
 					}
 
 					gvk := schema.FromAPIVersionAndKind(rsList.GroupVersion, rs.Kind)
-					if gkSet.Has(gvk.GroupKind()) {
+					if groupSet.Has(gvk.Group) || gkSet.Has(gvk.GroupKind()) {
 						continue
 					}
 
