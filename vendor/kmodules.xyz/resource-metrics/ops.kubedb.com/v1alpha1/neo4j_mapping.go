@@ -19,37 +19,39 @@ package v1alpha1
 import "k8s.io/apimachinery/pkg/runtime/schema"
 
 func init() {
-	RegisterOpsPathMapperToPlugins(&FerretDBOpsRequest{})
+	RegisterOpsPathMapperToPlugins(&Neo4jOpsRequest{})
 }
 
-type FerretDBOpsRequest struct{}
+type Neo4jOpsRequest struct{}
 
-var _ OpsPathMapper = (*FerretDBOpsRequest)(nil)
+var _ OpsPathMapper = (*Neo4jOpsRequest)(nil)
 
-func (m *FerretDBOpsRequest) HorizontalPathMapping() map[OpsReqPath]ReferencedObjPath {
+func (m *Neo4jOpsRequest) HorizontalPathMapping() map[OpsReqPath]ReferencedObjPath {
 	return map[OpsReqPath]ReferencedObjPath{
-		"spec.horizontalScaling.node": "spec.replicas",
+		"spec.horizontalScaling.server": "spec.replicas",
 	}
 }
 
-func (m *FerretDBOpsRequest) VerticalPathMapping() map[OpsReqPath]ReferencedObjPath {
+func (m *Neo4jOpsRequest) VerticalPathMapping() map[OpsReqPath]ReferencedObjPath {
 	return map[OpsReqPath]ReferencedObjPath{
-		"spec.verticalScaling.node": "spec.podTemplate.spec.resources",
+		"spec.verticalScaling.server": "spec.podTemplate.spec.resources",
 	}
 }
 
-func (m *FerretDBOpsRequest) VolumeExpansionPathMapping() map[OpsReqPath]ReferencedObjPath {
-	return map[OpsReqPath]ReferencedObjPath{}
+func (m *Neo4jOpsRequest) VolumeExpansionPathMapping() map[OpsReqPath]ReferencedObjPath {
+	return map[OpsReqPath]ReferencedObjPath{
+		"spec.volumeExpansion.server": "spec.storage.resources.requests.storage",
+	}
 }
 
-func (m *FerretDBOpsRequest) GetAppRefPath() []string {
+func (m *Neo4jOpsRequest) GetAppRefPath() []string {
 	return []string{"spec", "databaseRef"}
 }
 
-func (m *FerretDBOpsRequest) GroupVersionKind() schema.GroupVersionKind {
+func (m *Neo4jOpsRequest) GroupVersionKind() schema.GroupVersionKind {
 	return schema.GroupVersionKind{
 		Group:   "ops.kubedb.com",
 		Version: "v1alpha1",
-		Kind:    "FerretDBOpsRequest",
+		Kind:    "Neo4jOpsRequest",
 	}
 }

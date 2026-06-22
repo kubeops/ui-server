@@ -38,7 +38,6 @@ const (
 	DocumentDBContainerName  = "documentdb"
 	HazelcastContainerName   = "hazelcast"
 	HanaDBContainerName      = "hanadb"
-	FerretDBContainerName    = "ferretdb"
 	IgniteContainerName      = "ignite"
 	MilvusContainerName      = "milvus"
 	MSSQLServerContainerName = "mssql"
