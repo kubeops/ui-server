@@ -2616,10 +2616,13 @@ kmodules.xyz/monitoring-agent-api/client
 ## explicit; go 1.24.0
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-# kmodules.xyz/resource-metadata v0.47.0
+# kmodules.xyz/resource-metadata v0.47.1-0.20260626135212-050db1fc9442
 ## explicit; go 1.25.0
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
+kmodules.xyz/resource-metadata/apis/editor
+kmodules.xyz/resource-metadata/apis/editor/install
+kmodules.xyz/resource-metadata/apis/editor/v1alpha1
 kmodules.xyz/resource-metadata/apis/identity/install
 kmodules.xyz/resource-metadata/apis/identity/v1alpha1
 kmodules.xyz/resource-metadata/apis/management

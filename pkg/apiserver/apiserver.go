@@ -43,6 +43,8 @@ import (
 	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/core/resourceservice"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
+	editorrenderstorage "kubeops.dev/ui-server/pkg/registry/editor/render"
+	editortemplatestorage "kubeops.dev/ui-server/pkg/registry/editor/template"
 	audittokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/audittokenrequest"
 	clusteridstorage "kubeops.dev/ui-server/pkg/registry/identity/clusteridentity"
 	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/inboxtokenrequest"
@@ -101,6 +103,8 @@ import (
 	promclient "kmodules.xyz/monitoring-agent-api/client"
 	rscoreinstall "kmodules.xyz/resource-metadata/apis/core/install"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	editorinstall "kmodules.xyz/resource-metadata/apis/editor/install"
+	editorapi "kmodules.xyz/resource-metadata/apis/editor/v1alpha1"
 	identityinstall "kmodules.xyz/resource-metadata/apis/identity/install"
 	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	mgmtinstall "kmodules.xyz/resource-metadata/apis/management/install"
@@ -133,6 +137,7 @@ func init() {
 	costinstall.Install(Scheme)
 	rsinstall.Install(Scheme)
 	uiinstall.Install(Scheme)
+	editorinstall.Install(Scheme)
 	rscoreinstall.Install(Scheme)
 	mgmtinstall.Install(Scheme)
 	crdinstall.Install(Scheme)
@@ -425,6 +430,22 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 
 		v1alpha1storage := map[string]rest.Storage{}
 		v1alpha1storage[costapi.ResourceCostReports] = coststorage.NewStorage(ctrlClient)
+		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, err
+		}
+	}
+	{
+		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(editorapi.SchemeGroupVersion.Group, Scheme, metav1.ParameterCodec, Codecs)
+
+		// EditorRender and EditorTemplate are read-only render/load actions. Each
+		// request is served with a client that impersonates the caller, so reads
+		// performed while rendering or loading are authorized against the caller's
+		// own RBAC.
+		v1alpha1storage := map[string]rest.Storage{}
+		v1alpha1storage[editorapi.ResourceEditorRenders] = editorrenderstorage.NewStorage(cfg, Scheme, mgr.GetRESTMapper())
+		v1alpha1storage[editorapi.ResourceEditorTemplates] = editortemplatestorage.NewStorage(cfg, Scheme, mgr.GetRESTMapper())
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
