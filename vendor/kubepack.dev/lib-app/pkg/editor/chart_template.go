@@ -30,7 +30,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gomodules.xyz/jsonpatch/v3"
-	"helm.sh/helm/v3/pkg/chart"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -173,10 +172,10 @@ func loadEditorModel(kc client.Client, reg repo.IRegistry, chartRef releasesapi.
 		return nil, err
 	}
 
-	return EditorChartValueManifest(kc, &app, opts.Metadata, chrt.Chart)
+	return EditorChartValueManifest(kc, &app, opts.Metadata, chrt.Chart.Values)
 }
 
-func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt releasesapi.Metadata, chrt *chart.Chart) (*releasesapi.EditorTemplate, error) {
+func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt releasesapi.Metadata, values map[string]any) (*releasesapi.EditorTemplate, error) {
 	isFeaturesetEditor := hub.IsFeaturesetGR(mt.Resource.GroupResource())
 	chartName := mt.Release.Name
 	if isFeaturesetEditor {
@@ -199,7 +198,7 @@ func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt r
 	resourceKeys := sets.New[string](app.Spec.ResourceKeys...)
 	formKeys := sets.New[string](app.Spec.FormKeys...)
 
-	_, usesForm := chrt.Values["form"]
+	_, usesForm := values["form"]
 
 	var resources []*unstructured.Unstructured
 	for _, gvk := range app.Spec.Components {
@@ -306,7 +305,7 @@ func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt r
 		Values: &unstructured.Unstructured{
 			Object: map[string]any{
 				"metadata": map[string]any{
-					"resource": chrt.Values["metadata"].(map[string]any)["resource"],
+					"resource": values["metadata"].(map[string]any)["resource"],
 					"release":  mt.Release,
 				},
 				"resources": resourceMap,
