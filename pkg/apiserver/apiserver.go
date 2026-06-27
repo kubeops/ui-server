@@ -43,7 +43,7 @@ import (
 	resourcesservicestorage "kubeops.dev/ui-server/pkg/registry/core/resourceservice"
 	resourcesummarystorage "kubeops.dev/ui-server/pkg/registry/core/resourcesummary"
 	coststorage "kubeops.dev/ui-server/pkg/registry/cost/reports"
-	editortemplatestorage "kubeops.dev/ui-server/pkg/registry/editor/editortemplate"
+	editormodelstorage "kubeops.dev/ui-server/pkg/registry/editor/editormodel"
 	audittokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/audittokenrequest"
 	clusteridstorage "kubeops.dev/ui-server/pkg/registry/identity/clusteridentity"
 	inboxtokenreqstorage "kubeops.dev/ui-server/pkg/registry/identity/inboxtokenrequest"
@@ -439,7 +439,7 @@ func (c completedConfig) New(ctx context.Context) (*UIServer, error) {
 		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(editorapi.SchemeGroupVersion.Group, Scheme, metav1.ParameterCodec, Codecs)
 
 		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[editorapi.ResourceEditorTemplates] = editortemplatestorage.NewStorage(ctrlClient)
+		v1alpha1storage[editorapi.ResourceEditorModels] = editormodelstorage.NewStorage(cfg, Scheme, mgr.GetRESTMapper())
 		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
 
 		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
