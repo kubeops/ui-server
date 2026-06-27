@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package editortemplate
+package editormodel
 
 import (
 	"context"
@@ -23,10 +23,13 @@ import (
 	"strings"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	restclient "k8s.io/client-go/rest"
 	editorapi "kmodules.xyz/resource-metadata/apis/editor/v1alpha1"
 	"kubepack.dev/lib-app/pkg/editor"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -34,7 +37,9 @@ import (
 )
 
 type Storage struct {
-	kc client.Client
+	cfg    *restclient.Config
+	scheme *runtime.Scheme
+	mapper meta.RESTMapper
 }
 
 var (
@@ -45,12 +50,12 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
-	return &Storage{kc: kc}
+func NewStorage(cfg *restclient.Config, scheme *runtime.Scheme, mapper meta.RESTMapper) *Storage {
+	return &Storage{cfg: cfg, scheme: scheme, mapper: mapper}
 }
 
 func (r *Storage) GroupVersionKind(_ schema.GroupVersion) schema.GroupVersionKind {
-	return editorapi.SchemeGroupVersion.WithKind(editorapi.ResourceKindEditorTemplate)
+	return editorapi.SchemeGroupVersion.WithKind(editorapi.ResourceKindEditorModel)
 }
 
 func (r *Storage) NamespaceScoped() bool {
@@ -58,22 +63,41 @@ func (r *Storage) NamespaceScoped() bool {
 }
 
 func (r *Storage) GetSingularName() string {
-	return strings.ToLower(editorapi.ResourceKindEditorTemplate)
+	return strings.ToLower(editorapi.ResourceKindEditorModel)
 }
 
 func (r *Storage) New() runtime.Object {
-	return &editorapi.EditorTemplate{}
+	return &editorapi.EditorModel{}
 }
 
 func (r *Storage) Destroy() {}
 
-// Create reconstructs the editor template for an existing installation from the
+// callerClient returns a controller-runtime client that impersonates the API
+// caller, so the in-cluster reads done while reconstructing the editor model are
+// authorized against the caller's own RBAC.
+func (r *Storage) callerClient(ctx context.Context) (client.Client, error) {
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info in request context")
+	}
+	cfg := restclient.CopyConfig(r.cfg)
+	cfg.Impersonate = restclient.ImpersonationConfig{
+		UserName: user.GetName(),
+		UID:      user.GetUID(),
+		Groups:   user.GetGroups(),
+		Extra:    user.GetExtra(),
+	}
+	return client.New(cfg, client.Options{Scheme: r.scheme, Mapper: r.mapper})
+}
+
+// Create reconstructs the editor model for an existing installation from the
 // chart values supplied in the request. The caller (b3) is responsible for the
 // slow parts -- pulling the chart (getChart) and creating the AppRelease if
 // missing -- so this method only performs fast in-cluster reads and stays within
-// the aggregated apiserver request budget.
+// the aggregated apiserver request budget. Those reads run as the caller via
+// impersonation, so they are authorized against the caller's own RBAC.
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
-	in, ok := obj.(*editorapi.EditorTemplate)
+	in, ok := obj.(*editorapi.EditorModel)
 	if !ok {
 		return nil, fmt.Errorf("invalid object type: %T", obj)
 	}
@@ -89,17 +113,22 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		}
 	}
 
-	var app driversapi.AppRelease
-	if err := r.kc.Get(ctx, client.ObjectKey{Namespace: md.Release.Namespace, Name: md.Release.Name}, &app); err != nil {
-		return nil, err
-	}
-
-	tpl, err := editor.EditorChartValueManifest(r.kc, &app, md, values)
+	kc, err := r.callerClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := &editorapi.EditorTemplateResponse{
+	var app driversapi.AppRelease
+	if err := kc.Get(ctx, client.ObjectKey{Namespace: md.Release.Namespace, Name: md.Release.Name}, &app); err != nil {
+		return nil, err
+	}
+
+	tpl, err := editor.EditorChartValueManifest(kc, &app, md, values)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &editorapi.EditorModelResponse{
 		Manifest: string(tpl.Manifest),
 	}
 	if tpl.Values != nil {
@@ -110,7 +139,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		resp.Values = &runtime.RawExtension{Raw: raw}
 	}
 	for _, res := range tpl.Resources {
-		item := editorapi.EditorTemplateResource{
+		item := editorapi.EditorModelResource{
 			Filename: res.Filename,
 			Key:      res.Key,
 		}
