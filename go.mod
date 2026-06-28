@@ -47,13 +47,13 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.3
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.47.1-0.20260627061026-da58ac8b5beb
+	kmodules.xyz/resource-metadata v0.47.1
 	kmodules.xyz/resource-metrics v0.34.4-0.20260626131047-afdc9726717d
 	kmodules.xyz/resource-metrics/utils v0.34.1-0.20260622121456-42ed2b0a80a4
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.6-0.20251227130353-14d6f838d2f4
 	kubeops.dev/scanner v0.0.21-0.20251228044914-f03cf9e0e521
-	kubepack.dev/lib-app v0.23.1-0.20260626193801-519cc46890f2
+	kubepack.dev/lib-app v0.23.1
 	kubepack.dev/lib-helm v0.34.1
 	open-cluster-management.io/api v1.2.0
 	sigs.k8s.io/cli-utils v0.37.2
@@ -123,7 +123,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.3 // indirect
 	github.com/cncf/xds/go v0.0.0-20251210132809-ee656c7534f5 // indirect
-	github.com/containerd/containerd v1.7.32 // indirect
+	github.com/containerd/containerd v1.7.33 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/platforms v0.2.1 // indirect

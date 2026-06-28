@@ -149,14 +149,10 @@ func LoadResourceEditorModel(kc client.Client, reg repo.IRegistry, opts releases
 	if ed.Spec.UI == nil || ed.Spec.UI.Editor == nil {
 		return nil, fmt.Errorf("missing editor chart for %+v", ed.Spec.Resource.GroupVersionKind())
 	}
-	return loadEditorModel(kc, reg, *ed.Spec.UI.Editor, opts)
+	return LoadEditorModel(kc, reg, *ed.Spec.UI.Editor, opts)
 }
 
 func LoadEditorModel(kc client.Client, reg repo.IRegistry, chartRef releasesapi.ChartSourceRef, opts releasesapi.ModelMetadata) (*releasesapi.EditorTemplate, error) {
-	return loadEditorModel(kc, reg, chartRef, opts)
-}
-
-func loadEditorModel(kc client.Client, reg repo.IRegistry, chartRef releasesapi.ChartSourceRef, opts releasesapi.ModelMetadata) (*releasesapi.EditorTemplate, error) {
 	if chartRef.SourceRef.Namespace == "" {
 		chartRef.SourceRef.Namespace = hub.BootstrapHelmRepositoryNamespace()
 	}
@@ -166,13 +162,17 @@ func loadEditorModel(kc client.Client, reg repo.IRegistry, chartRef releasesapi.
 		return nil, err
 	}
 
+	return loadEditorModel(kc, opts, chrt.Values)
+}
+
+func loadEditorModel(kc client.Client, opts releasesapi.ModelMetadata, values map[string]any) (*releasesapi.EditorTemplate, error) {
 	var app driversapi.AppRelease
-	err = kc.Get(context.TODO(), client.ObjectKey{Namespace: opts.Release.Namespace, Name: opts.Release.Name}, &app)
+	err := kc.Get(context.TODO(), client.ObjectKey{Namespace: opts.Release.Namespace, Name: opts.Release.Name}, &app)
 	if err != nil {
 		return nil, err
 	}
 
-	return EditorChartValueManifest(kc, &app, opts.Metadata, chrt.Chart.Values)
+	return EditorChartValueManifest(kc, &app, opts.Metadata, values)
 }
 
 func EditorChartValueManifest(kc client.Client, app *driversapi.AppRelease, mt releasesapi.Metadata, values map[string]any) (*releasesapi.EditorTemplate, error) {

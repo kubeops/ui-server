@@ -405,7 +405,7 @@ github.com/cncf/xds/go/xds/data/orca/v3
 github.com/cncf/xds/go/xds/service/orca/v3
 github.com/cncf/xds/go/xds/type/matcher/v3
 github.com/cncf/xds/go/xds/type/v3
-# github.com/containerd/containerd v1.7.32
+# github.com/containerd/containerd v1.7.33
 ## explicit; go 1.24.0
 github.com/containerd/containerd/archive/compression
 github.com/containerd/containerd/content
@@ -2617,7 +2617,7 @@ kmodules.xyz/monitoring-agent-api/client
 ## explicit; go 1.24.0
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-# kmodules.xyz/resource-metadata v0.47.1-0.20260627061026-da58ac8b5beb
+# kmodules.xyz/resource-metadata v0.47.1
 ## explicit; go 1.25.0
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
@@ -2689,7 +2689,7 @@ kubeops.dev/scanner/client/clientset/versioned/scheme
 # kubepack.dev/kubepack v0.34.0
 ## explicit; go 1.24.0
 kubepack.dev/kubepack/pkg/lib
-# kubepack.dev/lib-app v0.23.1-0.20260626193801-519cc46890f2
+# kubepack.dev/lib-app v0.23.1
 ## explicit; go 1.25.6
 kubepack.dev/lib-app/pkg/editor
 # kubepack.dev/lib-helm v0.34.1
