@@ -51,6 +51,7 @@ import (
 	"kmodules.xyz/client-go/tools/clientcmd"
 	promclient "kmodules.xyz/monitoring-agent-api/client"
 	rscoreapi "kmodules.xyz/resource-metadata/apis/core/v1alpha1"
+	editorapi "kmodules.xyz/resource-metadata/apis/editor/v1alpha1"
 	identityapi "kmodules.xyz/resource-metadata/apis/identity/v1alpha1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	uiapi "kmodules.xyz/resource-metadata/apis/ui/v1alpha1"
@@ -160,6 +161,8 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceQueries),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, rsapi.ResourceResourceTableDefinitions),
 		fmt.Sprintf("/apis/%s/%s", rsapi.SchemeGroupVersion, uiapi.ResourceResourceEditors),
+
+		fmt.Sprintf("/apis/%s/%s", editorapi.SchemeGroupVersion, editorapi.ResourceEditorModels),
 
 		fmt.Sprintf("/apis/%s/%s", rscoreapi.SchemeGroupVersion, rscoreapi.ResourceProjects),
 
