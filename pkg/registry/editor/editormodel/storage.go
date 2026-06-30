@@ -85,9 +85,27 @@ func (r *Storage) callerClient(ctx context.Context) (client.Client, error) {
 		UserName: user.GetName(),
 		UID:      user.GetUID(),
 		Groups:   user.GetGroups(),
-		Extra:    user.GetExtra(),
+		Extra:    impersonableExtra(user.GetExtra()),
 	}
 	return client.New(cfg, client.Options{Scheme: r.scheme, Mapper: r.mapper})
+}
+
+// impersonableExtra drops the reserved authentication.kubernetes.io/* extras
+// (e.g. credential-id added for X509/SA auth on k8s >=1.30). These are injected
+// by the apiserver and impersonating them needs a dedicated userextras RBAC verb
+// that kube-ui-server does not hold; they carry no authorization identity.
+func impersonableExtra(in map[string][]string) map[string][]string {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make(map[string][]string, len(in))
+	for k, v := range in {
+		if strings.HasPrefix(k, "authentication.kubernetes.io/") {
+			continue
+		}
+		out[k] = v
+	}
+	return out
 }
 
 // Create reconstructs the editor model for an existing installation from the
