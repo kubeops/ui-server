@@ -18,6 +18,7 @@ package projectquota
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -373,17 +374,17 @@ func (r *ProjectQuotaReconciler) SetupWithManager(mgr ctrl.Manager) (*ProjectQuo
 	return r, nil
 }
 
-func (r *ProjectQuotaReconciler) StartWatcher(rid kmapi.ResourceID) {
+func (r *ProjectQuotaReconciler) StartWatcher(rid kmapi.ResourceID) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	if r.ctrl == nil {
-		klog.Fatalln("ProjectQuota reconciler is not setup yet!")
+		return errors.New("ProjectQuota reconciler is not setup yet")
 	}
 
 	gvk := rid.GroupVersionKind()
 	if gvk.Kind == "" {
-		klog.Fatalln("can't start ProjectQuota reconciler for unknown Kind!")
+		return fmt.Errorf("can't start ProjectQuota reconciler for unknown Kind of resource %s", rid.GroupResource())
 	}
 
 	if api.IsRegistered(gvk) && !r.regTypes[gvk] {
@@ -396,10 +397,11 @@ func (r *ProjectQuotaReconciler) StartWatcher(rid kmapi.ResourceID) {
 				handler.EnqueueRequestsFromMapFunc(ProjectQuotaForObjects(r.Client))),
 		)
 		if err != nil {
-			klog.Fatalln(err)
+			return fmt.Errorf("failed to start ProjectQuota watcher for %s: %w", gvk, err)
 		}
 		r.regTypes[gvk] = true
 	}
+	return nil
 }
 
 // Obj -> ProjectQuota
