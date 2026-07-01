@@ -33,6 +33,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/client/apiutil"
@@ -42,6 +43,7 @@ import (
 
 type Storage struct {
 	kc client.Client
+	a  authorizer.Authorizer
 }
 
 var (
@@ -52,9 +54,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc: kc,
+		a:  a,
 	}
 }
 
@@ -76,6 +79,59 @@ func (r *Storage) New() runtime.Object {
 
 func (r *Storage) Destroy() {}
 
+// authorize ensures the caller may read the pods that back the requested CVE report.
+// The required access mirrors what graph.LocatePods reads for each request scope.
+func (r *Storage) authorize(ctx context.Context, oi *kmapi.ObjectInfo) error {
+	switch {
+	case shared.IsClusterRequest(oi), shared.IsImageRequest(oi), shared.IsClusterCVERequest(oi):
+		// enumerates pods across the whole cluster
+		return shared.Authorize(ctx, r.a, authorizer.AttributesRecord{
+			Verb:     "list",
+			Resource: "pods",
+		})
+	case shared.IsNamespaceRequest(oi):
+		return shared.Authorize(ctx, r.a, authorizer.AttributesRecord{
+			Verb:      "list",
+			Resource:  "pods",
+			Namespace: oi.Ref.Name,
+		})
+	case shared.IsNamespaceCVERequest(oi):
+		return shared.Authorize(ctx, r.a, authorizer.AttributesRecord{
+			Verb:      "list",
+			Resource:  "pods",
+			Namespace: oi.Ref.Namespace,
+		})
+	case shared.IsPodRequest(oi):
+		return shared.Authorize(ctx, r.a, authorizer.AttributesRecord{
+			Verb:      "get",
+			Resource:  "pods",
+			Namespace: oi.Ref.Namespace,
+			Name:      oi.Ref.Name,
+		})
+	default:
+		// object request (e.g. a workload): require get access to the referenced object
+		rid := oi.Resource
+		if rid.Kind == "" {
+			r2, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), oi.Resource)
+			if err != nil {
+				return err
+			}
+			rid = *r2
+		}
+		mapping, err := r.kc.RESTMapper().RESTMapping(schema.GroupKind{Group: rid.Group, Kind: rid.Kind})
+		if err != nil {
+			return apierrors.NewInternalError(err)
+		}
+		return shared.Authorize(ctx, r.a, authorizer.AttributesRecord{
+			Verb:      "get",
+			APIGroup:  mapping.Resource.Group,
+			Resource:  mapping.Resource.Resource,
+			Namespace: oi.Ref.Namespace,
+			Name:      oi.Ref.Name,
+		})
+	}
+}
+
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	in := obj.(*reportsapi.CVEReport)
 
@@ -83,6 +139,13 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	if in.Request != nil {
 		oi = &in.Request.ObjectInfo
 	}
+
+	// The CVE report enumerates the pods (and therefore the images) of the requested
+	// scope, so require the caller to be allowed to read that scope before returning it.
+	if err := r.authorize(ctx, oi); err != nil {
+		return nil, err
+	}
+
 	pods, err := graph.LocatePods(ctx, r.kc, oi)
 	if err != nil {
 		return nil, err
