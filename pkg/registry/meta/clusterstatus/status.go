@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"gomodules.xyz/pointer"
+	apps "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/types"
 	clustermeta "kmodules.xyz/client-go/cluster"
@@ -78,7 +79,13 @@ func checkClusterReadiness(kc client.Client) (bool, string, error) {
 	}
 
 	if !ready {
-		return false, MessageFluxCDMissing, nil
+		ready, err = isFargoCDReady(kc)
+		if err != nil {
+			return false, "", err
+		}
+		if !ready {
+			return false, "FluxCD and FargoCD are not ready", nil
+		}
 	}
 
 	ready, err = isKubeUiServerReady(kc)
@@ -110,4 +117,17 @@ func isFluxCDReady(kc client.Client) (bool, error) {
 		return false, err
 	}
 	return status.Ready, nil
+}
+
+func isFargoCDReady(kc client.Client) (bool, error) {
+	var deployments apps.DeploymentList
+	if err := kc.List(context.TODO(), &deployments); err != nil {
+		return false, err
+	}
+	for _, deploy := range deployments.Items {
+		if deploy.Name == "fargocd" && deploy.Status.ReadyReplicas > 0 {
+			return true, nil
+		}
+	}
+	return false, nil
 }
