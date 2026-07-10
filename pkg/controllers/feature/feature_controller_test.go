@@ -402,7 +402,8 @@ func TestFeatureSetStatus(t *testing.T) {
 					Group:    uiapi.SchemeGroupVersion.Group,
 					Resource: uiapi.ResourceFeatureSets,
 				},
-				""),
+				"",
+			),
 		},
 		"Should not be enabled when no features are enabled": {
 			requireFeatures: []string{"foo", "bar"},

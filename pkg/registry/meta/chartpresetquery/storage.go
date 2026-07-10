@@ -90,7 +90,8 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			preset.Source.Generation <= 0 {
 			break
 		}
-		oids = append(oids, fmt.Sprintf("G=%s,K=%s,I=%s,V=%d",
+		oids = append(oids, fmt.Sprintf(
+			"G=%s,K=%s,I=%s,V=%d",
 			preset.Source.Resource.Group,
 			preset.Source.Resource.Kind,
 			preset.Source.UID,

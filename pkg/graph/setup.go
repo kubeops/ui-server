@@ -197,7 +197,7 @@ func execRawGraphQLQuery(query string, vars map[string]any) ([]kmapi.ObjectRefer
 	}
 	result := graphql.Do(params)
 	if result.HasErrors() {
-		var errs []error
+		errs := make([]error, 0, len(result.Errors))
 		for _, e := range result.Errors {
 			errs = append(errs, e)
 		}

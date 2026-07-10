@@ -294,7 +294,8 @@ func ListRancherProjects(kc client.Client) ([]rscoreapi.Project, error) {
 					prj.Spec.Monitoring.PrometheusURL,
 					"/services/http:rancher-monitoring-prometheus:9090/proxy",
 					"/services/http:rancher-monitoring-grafana:80/proxy/?orgId=1",
-					1)
+					1,
+				)
 			} else {
 				prj.Spec.Monitoring.AlertmanagerURL,
 					prj.Spec.Monitoring.GrafanaURL,
