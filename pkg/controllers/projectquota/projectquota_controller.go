@@ -393,7 +393,8 @@ func (r *ProjectQuotaReconciler) StartWatcher(rid kmapi.ResourceID) {
 			source.Kind[client.Object](
 				r.cache,
 				&obj,
-				handler.EnqueueRequestsFromMapFunc(ProjectQuotaForObjects(r.Client))),
+				handler.EnqueueRequestsFromMapFunc(ProjectQuotaForObjects(r.Client)),
+			),
 		)
 		if err != nil {
 			klog.Fatalln(err)

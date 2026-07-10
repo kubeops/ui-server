@@ -100,8 +100,9 @@ func (o UIServerOptions) AddFlags(fs *pflag.FlagSet) {
 
 // Validate validates UIServerOptions
 func (o UIServerOptions) Validate(args []string) error {
-	var errors []error
-	errors = append(errors, o.RecommendedOptions.Validate()...)
+	recommendedErrors := o.RecommendedOptions.Validate()
+	errors := make([]error, 0, len(recommendedErrors)+1)
+	errors = append(errors, recommendedErrors...)
 	errors = append(errors, o.PrometheusOptions.Validate())
 	return utilerrors.NewAggregate(errors)
 }
@@ -184,7 +185,8 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 			rscoreapi.GetOpenAPIDefinitions,
 			catalogapi.GetOpenAPIDefinitions,
 		),
-		openapi.NewDefinitionNamer(apiserver.Scheme))
+		openapi.NewDefinitionNamer(apiserver.Scheme),
+	)
 	serverConfig.OpenAPIConfig.Info.Title = "kube-uiapi-server"
 	serverConfig.OpenAPIConfig.Info.Version = v.Version.Version
 	serverConfig.OpenAPIConfig.IgnorePrefixes = ignorePrefixes
@@ -194,7 +196,8 @@ func (o *UIServerOptions) Config() (*apiserver.Config, error) {
 			identityapi.GetOpenAPIDefinitions,
 			rscoreapi.GetOpenAPIDefinitions,
 		),
-		openapi.NewDefinitionNamer(apiserver.Scheme))
+		openapi.NewDefinitionNamer(apiserver.Scheme),
+	)
 	serverConfig.OpenAPIV3Config.Info.Title = "kube-uiapi-server"
 	serverConfig.OpenAPIV3Config.Info.Version = v.Version.Version
 	serverConfig.OpenAPIV3Config.IgnorePrefixes = ignorePrefixes

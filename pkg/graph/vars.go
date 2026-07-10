@@ -89,4 +89,5 @@ var gkSet = ksets.NewGroupKind(
 	schema.GroupKind{
 		Group: "",
 		Kind:  "Event",
-	})
+	},
+)
