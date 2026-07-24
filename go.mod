@@ -29,7 +29,7 @@ require (
 	gomodules.xyz/pointer v0.1.0
 	gomodules.xyz/sets v0.2.1
 	gomodules.xyz/sync v0.1.0
-	gomodules.xyz/x v0.0.17
+	gomodules.xyz/x v0.0.18
 	k8s.io/api v0.34.3
 	k8s.io/apiextensions-apiserver v0.34.3
 	k8s.io/apimachinery v0.34.3
@@ -47,7 +47,7 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.3
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.48.0
+	kmodules.xyz/resource-metadata v0.48.1-0.20260722090532-cb240e637951
 	kmodules.xyz/resource-metrics v0.34.4-0.20260626131047-afdc9726717d
 	kmodules.xyz/resource-metrics/utils v0.34.1-0.20260622121456-42ed2b0a80a4
 	kmodules.xyz/sets v0.29.0

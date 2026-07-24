@@ -1467,8 +1467,8 @@ gomodules.xyz/sync
 # gomodules.xyz/wait v0.2.0
 ## explicit; go 1.14
 gomodules.xyz/wait
-# gomodules.xyz/x v0.0.17
-## explicit; go 1.22.0
+# gomodules.xyz/x v0.0.18
+## explicit; go 1.25.0
 gomodules.xyz/x/ioutil
 gomodules.xyz/x/version
 # google.golang.org/api v0.256.0
@@ -2617,7 +2617,7 @@ kmodules.xyz/monitoring-agent-api/client
 ## explicit; go 1.24.0
 kmodules.xyz/offshoot-api/api/v1
 kmodules.xyz/offshoot-api/api/v2
-# kmodules.xyz/resource-metadata v0.48.0
+# kmodules.xyz/resource-metadata v0.48.1-0.20260722090532-cb240e637951
 ## explicit; go 1.25.0
 kmodules.xyz/resource-metadata/apis/core/install
 kmodules.xyz/resource-metadata/apis/core/v1alpha1
