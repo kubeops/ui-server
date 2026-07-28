@@ -2580,7 +2580,7 @@ kmodules.xyz/authorizer/apiserver
 kmodules.xyz/authorizer/rbac
 kmodules.xyz/authorizer/rbac/helpers
 kmodules.xyz/authorizer/rbac/validation
-# kmodules.xyz/client-go v0.34.6-0.20260726164328-778b1ba80e3a
+# kmodules.xyz/client-go v0.34.6-0.20260728083845-0d1ff93aa771
 ## explicit; go 1.25.0
 kmodules.xyz/client-go
 kmodules.xyz/client-go/api/v1
