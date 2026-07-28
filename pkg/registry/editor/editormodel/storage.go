@@ -90,20 +90,25 @@ func (r *Storage) callerClient(ctx context.Context) (client.Client, error) {
 	return client.New(cfg, client.Options{Scheme: r.scheme, Mapper: r.mapper})
 }
 
-// impersonableExtra drops the reserved authentication.kubernetes.io/* extras
-// (e.g. credential-id added for X509/SA auth on k8s >=1.30). These are injected
-// by the apiserver and impersonating them needs a dedicated userextras RBAC verb
-// that kube-ui-server does not hold; they carry no authorization identity.
+// aceExtraPrefix is the only extra-key namespace kube-ui-server holds
+// `impersonate` on `userextras/<key>` for.
+const aceExtraPrefix = "ace.appscode.com/"
+
+// impersonableExtra keeps only the ACE extras. Every other extra key is provider
+// bookkeeping the apiserver or the platform injected -- Rancher's principalid,
+// EKS' arn, the reserved authentication.kubernetes.io/* keys -- and impersonating
+// any of them needs a userextras/<key> RBAC grant kube-ui-server does not hold,
+// which would fail the whole request in impersonation authorization. They carry
+// no identity for RBAC, which ignores extras.
 func impersonableExtra(in map[string][]string) map[string][]string {
-	if len(in) == 0 {
-		return nil
-	}
 	out := make(map[string][]string, len(in))
 	for k, v := range in {
-		if strings.HasPrefix(k, "authentication.kubernetes.io/") {
-			continue
+		if strings.HasPrefix(k, aceExtraPrefix) {
+			out[k] = v
 		}
-		out[k] = v
+	}
+	if len(out) == 0 {
+		return nil
 	}
 	return out
 }
