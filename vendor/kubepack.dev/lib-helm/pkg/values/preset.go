@@ -16,34 +16,45 @@ import (
 	chartsapi "x-helm.dev/apimachinery/apis/charts/v1alpha1"
 )
 
-func LoadPresetValues(kc client.Client, ref chartsapi.ChartPresetFlatRef) ([]chartsapi.ChartPresetValues, error) {
-	if ref.Variant == "" {
-		// required for editor charts
-		return nil, nil
-	}
+const defaultVariant = "default"
 
-	rid := &kmapi.ResourceID{
+func LoadPresetValues(kc client.Client, ref chartsapi.ChartPresetFlatRef) ([]chartsapi.ChartPresetValues, error) {
+	in := kmapi.ResourceID{
 		Group: ref.Group,
 		Name:  ref.Resource,
 		Kind:  ref.Kind,
 	}
-	rid, err := kmapi.ExtractResourceID(kc.RESTMapper(), *rid)
+	rid, err := kmapi.ExtractResourceID(kc.RESTMapper(), in)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to detect resource ID for %#v", *rid)
+		if ref.Variant == "" {
+			return nil, nil
+		}
+		return nil, errors.Wrapf(err, "failed to detect resource ID for %#v", in)
 	}
 	ed, err := resourceeditors.LoadByGVR(kc, rid.GroupVersionResource())
 	if err != nil {
+		if ref.Variant == "" {
+			return nil, nil
+		}
 		return nil, err
 	}
 
+	variantName := ref.Variant
+	if variantName == "" {
+		variantName = defaultVariant
+	}
 	var variant *uiapi.VariantRef
 	for i := range ed.Spec.Variants {
-		if ed.Spec.Variants[i].Name == ref.Variant {
+		if ed.Spec.Variants[i].Name == variantName {
 			variant = &ed.Spec.Variants[i]
 			break
 		}
 	}
 	if variant == nil {
+		if ref.Variant == "" {
+			// editor either declares no variants or none named defaultVariant, so the caller must pick one
+			return nil, nil
+		}
 		return nil, errors.Errorf("No variant with name %s found for %+v", ref.Variant, *rid)
 	}
 

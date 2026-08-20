@@ -47,14 +47,14 @@ require (
 	kmodules.xyz/go-containerregistry v0.0.15
 	kmodules.xyz/monitoring-agent-api v0.34.3
 	kmodules.xyz/offshoot-api v0.34.0
-	kmodules.xyz/resource-metadata v0.48.1-0.20260813085436-fa5b82af1a31
+	kmodules.xyz/resource-metadata v0.48.1-0.20260821132820-ad726603c537
 	kmodules.xyz/resource-metrics v0.34.4-0.20260626131047-afdc9726717d
 	kmodules.xyz/resource-metrics/utils v0.34.1-0.20260622121456-42ed2b0a80a4
 	kmodules.xyz/sets v0.29.0
 	kubeops.dev/falco-ui-server v0.0.6-0.20251227130353-14d6f838d2f4
 	kubeops.dev/scanner v0.0.21-0.20251228044914-f03cf9e0e521
 	kubepack.dev/lib-app v0.23.1
-	kubepack.dev/lib-helm v0.34.1
+	kubepack.dev/lib-helm v0.34.2-0.20260820072249-c28c17ee524f
 	open-cluster-management.io/api v1.2.0
 	sigs.k8s.io/cli-utils v0.37.2
 	sigs.k8s.io/controller-runtime v0.22.4
