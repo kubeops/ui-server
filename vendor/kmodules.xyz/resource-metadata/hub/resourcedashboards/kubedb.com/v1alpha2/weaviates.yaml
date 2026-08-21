@@ -8,7 +8,25 @@ metadata:
     k8s.io/version: v1alpha2
   name: kubedb.com-v1alpha2-weaviates
 spec:
-  dashboards: null
+  dashboards:
+  - title: KubeDB / Weaviate / Summary
+    vars:
+    - name: namespace
+      value: '{{ .metadata.namespace }}'
+    - name: app
+      value: '{{ .metadata.name }}'
+  - title: KubeDB / Weaviate / Database
+    vars:
+    - name: namespace
+      value: '{{ .metadata.namespace }}'
+    - name: app
+      value: '{{ .metadata.name }}'
+  - title: KubeDB / Weaviate / Pod
+    vars:
+    - name: namespace
+      value: '{{ .metadata.namespace }}'
+    - name: app
+      value: '{{ .metadata.name }}'
   provider: Grafana
   resource:
     group: kubedb.com
