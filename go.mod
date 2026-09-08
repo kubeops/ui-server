@@ -22,7 +22,7 @@ require (
 	go.bytebuilders.dev/catalog v0.0.24
 	go.bytebuilders.dev/license-verifier v0.15.0
 	go.openviz.dev/apimachinery v0.0.10
-	golang.org/x/sync v0.20.0
+	golang.org/x/sync v0.22.0
 	gomodules.xyz/jsonpath v0.0.2
 	gomodules.xyz/logs v0.0.7
 	gomodules.xyz/password-generator v0.2.9
@@ -324,7 +324,7 @@ require (
 	kubepack.dev/kubepack v0.34.0 // indirect
 	kubevault.dev/apimachinery v0.24.0 // indirect
 	moul.io/http2curl/v2 v2.3.1-0.20221024080105-10c404f653f7 // indirect
-	oras.land/oras-go/v2 v2.6.0 // indirect
+	oras.land/oras-go/v2 v2.6.2 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.33.0 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 	sigs.k8s.io/kustomize/api v0.20.1 // indirect
