@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	costapi "kubeops.dev/ui-server/apis/cost/v1alpha1"
+	"kubeops.dev/ui-server/pkg/shared"
 
 	gs "github.com/gorilla/schema"
 	"github.com/pkg/errors"
@@ -34,6 +35,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -45,6 +47,7 @@ var (
 
 type Storage struct {
 	kc client.Client
+	a  authorizer.Authorizer
 }
 
 var (
@@ -55,9 +58,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc: kc,
+		a:  a,
 	}
 }
 
@@ -81,6 +85,12 @@ func (r *Storage) Destroy() {}
 
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	in := obj.(*costapi.CostReport)
+
+	// The cost report aggregates spend across the whole cluster and has no single
+	// resource to scope to, so require cluster-wide read access.
+	if err := shared.Authorize(ctx, r.a, shared.ClusterReadAttributes()); err != nil {
+		return nil, err
+	}
 
 	once.Do(func() error {
 		var svcs core.ServiceList
