@@ -47,7 +47,6 @@ func getFluxCDStatus(kc client.Client) (FluxCDStatus, error) {
 
 	var deployments apps.DeploymentList
 	err := kc.List(context.Background(), &deployments, client.MatchingLabels{
-		"app.kubernetes.io/instance": "flux-system",
 		"app.kubernetes.io/part-of":  "flux",
 		"control-plane":              "controller",
 	})
