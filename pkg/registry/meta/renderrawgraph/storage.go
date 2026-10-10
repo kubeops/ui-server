@@ -18,6 +18,7 @@ package renderrawgraph
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"kubeops.dev/ui-server/pkg/graph"
@@ -26,6 +27,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
+	apirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -34,6 +37,7 @@ import (
 
 type Storage struct {
 	kc client.Client
+	a  authorizer.Authorizer
 }
 
 var (
@@ -44,9 +48,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc: kc,
+		a:  a,
 	}
 }
 
@@ -90,7 +95,16 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			Namespace: in.Request.Source.Ref.Namespace,
 			Name:      in.Request.Source.Ref.Name,
 		}
+
+		// The graph response exposes the names and namespaces of related objects across
+		// the cluster, so only serve it to callers who can read the source object.
+		if err := r.authorizeGetSource(ctx, src); err != nil {
+			return nil, err
+		}
 		oid = src.OID()
+	} else if err := r.authorizeClusterRead(ctx); err != nil {
+		// Without a source the whole cluster graph is rendered; require cluster-wide read access.
+		return nil, err
 	}
 
 	resp, err := graph.Render(oid)
@@ -99,4 +113,62 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 	in.Response = resp
 	return in, nil
+}
+
+// authorizeGetSource ensures the requesting user is allowed to "get" the source object
+// before its object graph is returned.
+func (r *Storage) authorizeGetSource(ctx context.Context, src kmapi.ObjectID) error {
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return apierrors.NewBadRequest("missing user info in request context")
+	}
+
+	mapping, err := r.kc.RESTMapper().RESTMapping(schema.GroupKind{Group: src.Group, Kind: src.Kind})
+	if err != nil {
+		return apierrors.NewInternalError(err)
+	}
+
+	attrs := authorizer.AttributesRecord{
+		User:            user,
+		Verb:            "get",
+		APIGroup:        mapping.Resource.Group,
+		Resource:        mapping.Resource.Resource,
+		Namespace:       src.Namespace,
+		Name:            src.Name,
+		ResourceRequest: true,
+	}
+	decision, why, err := r.a.Authorize(ctx, attrs)
+	if err != nil {
+		return apierrors.NewInternalError(err)
+	}
+	if decision != authorizer.DecisionAllow {
+		return apierrors.NewForbidden(mapping.Resource.GroupResource(), src.Name, errors.New(why))
+	}
+	return nil
+}
+
+// authorizeClusterRead requires cluster-wide read access, used when the whole cluster
+// graph (no specific source) is requested. Only callers granted "get" on all resources
+// in all groups (e.g. cluster-admin) are allowed.
+func (r *Storage) authorizeClusterRead(ctx context.Context) error {
+	user, ok := apirequest.UserFrom(ctx)
+	if !ok {
+		return apierrors.NewBadRequest("missing user info in request context")
+	}
+
+	attrs := authorizer.AttributesRecord{
+		User:            user,
+		Verb:            "get",
+		APIGroup:        "*",
+		Resource:        "*",
+		ResourceRequest: true,
+	}
+	decision, why, err := r.a.Authorize(ctx, attrs)
+	if err != nil {
+		return apierrors.NewInternalError(err)
+	}
+	if decision != authorizer.DecisionAllow {
+		return apierrors.NewForbidden(schema.GroupResource{Resource: rsapi.ResourceRenderRawGraphs}, "", errors.New(why))
+	}
+	return nil
 }
