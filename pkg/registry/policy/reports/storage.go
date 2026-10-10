@@ -29,10 +29,12 @@ import (
 	"kubeops.dev/ui-server/pkg/shared"
 
 	"gomodules.xyz/sets"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -41,6 +43,7 @@ import (
 
 type Storage struct {
 	kc client.Client
+	a  authorizer.Authorizer
 }
 
 var (
@@ -51,9 +54,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc: kc,
+		a:  a,
 	}
 }
 
@@ -75,8 +79,50 @@ func (r *Storage) New() runtime.Object {
 
 func (r *Storage) Destroy() {}
 
+// authorize ensures the caller may read the scope whose policy violations are reported:
+// cluster scope requires cluster-wide read, namespace scope requires access to the
+// namespace, and a resource scope requires get access to the referenced object.
+func (r *Storage) authorize(ctx context.Context, req *policyapi.PolicyReportRequest) error {
+	if req == nil || shared.IsClusterRequest(&req.ObjectInfo) {
+		return shared.Authorize(ctx, r.a, shared.ClusterReadAttributes())
+	}
+	if shared.IsNamespaceRequest(&req.ObjectInfo) {
+		return shared.Authorize(ctx, r.a, authorizer.AttributesRecord{
+			Verb:     "get",
+			Resource: "namespaces",
+			Name:     req.Ref.Name,
+		})
+	}
+
+	rid := req.Resource
+	if rid.Kind == "" {
+		r2, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), req.Resource)
+		if err != nil {
+			return err
+		}
+		rid = *r2
+	}
+	mapping, err := r.kc.RESTMapper().RESTMapping(schema.GroupKind{Group: rid.Group, Kind: rid.Kind})
+	if err != nil {
+		return apierrors.NewInternalError(err)
+	}
+	return shared.Authorize(ctx, r.a, authorizer.AttributesRecord{
+		Verb:      "get",
+		APIGroup:  mapping.Resource.Group,
+		Resource:  mapping.Resource.Resource,
+		Namespace: req.Ref.Namespace,
+		Name:      req.Ref.Name,
+	})
+}
+
 func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.ValidateObjectFunc, _ *metav1.CreateOptions) (runtime.Object, error) {
 	in := obj.(*policyapi.PolicyReport)
+
+	// The policy report exposes constraint violations for the requested scope, so require
+	// the caller to be allowed to read that scope before returning it.
+	if err := r.authorize(ctx, in.Request); err != nil {
+		return nil, err
+	}
 
 	var (
 		scp           scopeDetails
