@@ -103,7 +103,9 @@ func PollNewResourceTypes(cfg *restclient.Config, pqr *projectquotacontroller.Pr
 						resourceTracker[gvk] = rid
 						resourceChannel <- rid
 						if pqr != nil {
-							pqr.StartWatcher(rid)
+							if err := pqr.StartWatcher(rid); err != nil {
+								klog.ErrorS(err, "failed to start ProjectQuota watcher", "gvk", gvk)
+							}
 						}
 					}
 				}
