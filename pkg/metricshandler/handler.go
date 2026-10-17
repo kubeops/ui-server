@@ -26,6 +26,7 @@ import (
 	"kubeops.dev/ui-server/pkg/metricsstore"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apiserver/pkg/server/mux"
 	"k8s.io/klog/v2"
 	"k8s.io/kube-state-metrics/v2/pkg/metric"
@@ -92,25 +93,27 @@ func (h *MetricsHandler) Install(c *mux.PathRecorderMux) {
 func StartMetricsCollector(mgr manager.Manager) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		klog.Infoln("Starts the Metrics Collector")
-		for {
+		// Recollect every MetricsRefreshPeriod until the manager shuts down. Using
+		// wait.UntilWithContext ensures we honor ctx cancellation and always wait a
+		// full period between runs, even when a collection fails (a bare "continue"
+		// here previously busy-looped on persistent errors).
+		wait.UntilWithContext(ctx, func(ctx context.Context) {
 			collector := &Collector{
 				kc:               mgr.GetClient(),
 				opaInstalled:     graph.OPAInstalled.Load(),
 				scannerInstalled: graph.ScannerInstalled.Load(),
 			}
 			collector.init()
-			err := collector.collectMetrics()
-			if err != nil {
+			if err := collector.collectMetrics(); err != nil {
 				klog.Errorf("Error occurred while collecting metrics : %s \n", err.Error())
-				continue
+				return
 			}
 
 			mu.Lock()
 			store = collector.store
 			mu.Unlock()
-
-			time.Sleep(MetricsRefreshPeriod)
-		}
+		}, MetricsRefreshPeriod)
+		return nil
 	}
 }
 
