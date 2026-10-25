@@ -52,6 +52,12 @@ func (s *MetricsStore) Add(family ...*metric.Family) {
 // help text of each metric family.
 func (s *MetricsStore) WriteAll(w io.Writer) error {
 	for i, help := range s.headers {
+		// Defensive: headers and families are expected to be the same length (one
+		// family per header), but guard against a short families slice so a partially
+		// populated store cannot panic the /metrics handler.
+		if i >= len(s.families) {
+			break
+		}
 		_, err := w.Write([]byte(help))
 		if err != nil {
 			return err
