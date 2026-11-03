@@ -29,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 	tabledefs "kmodules.xyz/resource-metadata/hub/resourcetabledefinitions"
@@ -81,6 +82,15 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 	req := in.Request
 
+	// Render fetches and creates caller-chosen objects. Read as the server (cache-backed) but
+	// authorize every object against the caller, so it cannot see what it could not get itself.
+	u, ok := request.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+	utx := graph.NewUserContext(ctx)
+	cc := graph.NewAuthorizedClient(r.kc, r.a, u)
+
 	var resp rsapi.RenderResponse
 	if req.Block != nil {
 		var autoColumns bool
@@ -104,7 +114,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			autoColumns = true
 		}
 
-		bv, err := graph.RenderPageBlock(graph.NewUserContext(ctx), r.kc, req.Source, req.Block, req.ConvertToTable)
+		bv, err := graph.RenderPageBlock(utx, cc, req.Source, req.Block, req.ConvertToTable)
 		if err != nil {
 			return nil, err
 		}
@@ -118,8 +128,8 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			renderBlocks.Insert(string(k))
 		}
 		rv, err := graph.RenderLayout(
-			graph.NewUserContext(ctx),
-			r.kc,
+			utx,
+			cc,
 			req.Source,
 			req.LayoutName, // optional
 			req.PageName,   // optional

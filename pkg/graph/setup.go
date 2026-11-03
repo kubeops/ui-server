@@ -41,7 +41,6 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
-	cu "kmodules.xyz/client-go/client"
 	meta_util "kmodules.xyz/client-go/meta"
 	sharedapi "kmodules.xyz/resource-metadata/apis/shared"
 	ksets "kmodules.xyz/sets"
@@ -180,7 +179,8 @@ func ExecGraphQLQuery(c client.Client, query string, vars map[string]any) ([]uns
 		var obj unstructured.Unstructured
 		obj.SetGroupVersionKind(mapping.GroupVersionKind)
 		err = c.Get(context.TODO(), client.ObjectKey{Namespace: ref.Namespace, Name: ref.Name}, &obj)
-		if client.IgnoreNotFound(err) != nil {
+		// Skip refs the caller cannot get: the authorizing client denies them with Forbidden.
+		if client.IgnoreNotFound(IgnoreForbidden(err)) != nil {
 			return nil, errors.Wrap(err, "failed to expand refs")
 		} else if err == nil {
 			objs = append(objs, obj)
@@ -250,10 +250,8 @@ func extractRefs(data map[string]any, result ksets.ObjectReference) error {
 }
 
 func ExecRawQuery(ctx context.Context, kc client.Client, src kmapi.OID, target sharedapi.ResourceLocator) (*kmapi.ResourceID, []kmapi.ObjectReference, error) {
-	cc, err := NewClient(ctx, kc, target.Impersonate)
-	if err != nil {
-		return nil, nil, err
-	}
+	// kc is already authorized for the caller; target.Impersonate is no longer consulted.
+	cc := kc
 
 	mapping, err := cc.RESTMapper().RESTMapping(schema.GroupKind{
 		Group: target.Ref.Group,
@@ -286,10 +284,8 @@ func ExecRawQuery(ctx context.Context, kc client.Client, src kmapi.OID, target s
 }
 
 func ExecQuery(ctx context.Context, kc client.Client, src kmapi.OID, target sharedapi.ResourceLocator) (*kmapi.ResourceID, []unstructured.Unstructured, error) {
-	cc, err := NewClient(ctx, kc, target.Impersonate)
-	if err != nil {
-		return nil, nil, err
-	}
+	// kc is already authorized for the caller; target.Impersonate is no longer consulted.
+	cc := kc
 
 	mapping, err := cc.RESTMapper().RESTMapping(schema.GroupKind{
 		Group: target.Ref.Group,
@@ -324,6 +320,9 @@ func execRestQuery(ctx context.Context, kc client.Client, q string, gvk schema.G
 		return nil, errors.Wrapf(err, "failed to unmarshal query %s", q)
 	}
 
+	if err := checkRESTQueryTarget(gvk.GroupKind()); err != nil {
+		return nil, err
+	}
 	out.SetGroupVersionKind(gvk)
 	err = kc.Create(ctx, &out)
 	if err != nil {
@@ -332,18 +331,17 @@ func execRestQuery(ctx context.Context, kc client.Client, q string, gvk schema.G
 	return &out, nil
 }
 
-func NewClient(ctx context.Context, kc client.Client, impersonate bool) (client.Client, error) {
-	u, found := request.UserFrom(ctx)
+// REST queries create objects, so only request-style virtual resources may be targeted.
+var restQueryTargets = map[schema.GroupKind]struct{}{
+	{Group: "meta.k8s.appscode.com", Kind: "RenderDashboard"}: {},
+	{Group: "ui.openviz.dev", Kind: "DashboardGroup"}:         {},
+}
 
-	if !impersonate || !found || len(u.GetExtra()[kmapi.AceOrgIDKey]) != 1 {
-		return kc, nil
+func checkRESTQueryTarget(gk schema.GroupKind) error {
+	if _, ok := restQueryTargets[gk]; !ok {
+		return fmt.Errorf("REST query not allowed for %s", gk)
 	}
-
-	if rw, ok := kc.(*cu.DelegatingClient); ok {
-		_, cc, err := rw.Impersonate(u)
-		return cc, err
-	}
-	return nil, fmt.Errorf("can't impersonate client")
+	return nil
 }
 
 func NewUserContext(in context.Context) context.Context {

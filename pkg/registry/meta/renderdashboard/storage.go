@@ -28,6 +28,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -40,6 +41,7 @@ import (
 
 type Storage struct {
 	kc client.Client
+	a  authorizer.Authorizer
 }
 
 var (
@@ -50,9 +52,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc: kc,
+		a:  a,
 	}
 }
 
@@ -81,7 +84,16 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 	req := in.Request
 
+	// Dashboard rendering fetches the source object and templates its fields into the returned
+	// URLs. Read as the server (cache-backed) but authorize every object against the caller.
+	u, ok := request.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+	utx := graph.NewUserContext(ctx)
+	cc := graph.NewAuthorizedClient(r.kc, r.a, u)
 	var err error
+
 	var gvr schema.GroupVersionResource
 	var src *unstructured.Unstructured
 
@@ -111,7 +123,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 
 		src = &unstructured.Unstructured{}
 		src.SetGroupVersionKind(rid.GroupVersionKind())
-		err = r.kc.Get(context.TODO(), req.SourceLocator.Ref.ObjectKey(), src)
+		err = cc.Get(utx, req.SourceLocator.Ref.ObjectKey(), src)
 		if err != nil {
 			return nil, err
 		}
@@ -129,12 +141,6 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		if rd, err = resourcedashboards.LoadByName(r.kc, req.Name); err != nil {
 			return nil, err
 		}
-	}
-
-	utx := graph.NewUserContext(ctx)
-	cc, err := graph.NewClient(utx, r.kc, true)
-	if err != nil {
-		return nil, err
 	}
 
 	dg, err := graph.RenderDashboard(utx, cc, rd, src, req.EmbeddedLink)
