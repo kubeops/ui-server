@@ -344,6 +344,9 @@ func _renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.Resou
 				return &out, errors.Wrapf(err, "failed to unmarshal query %s", q)
 			}
 		}
+		if err := checkRESTQueryTarget(mapping.GroupVersionKind.GroupKind()); err != nil {
+			return &out, err
+		}
 		u := unstructured.Unstructured{Object: obj}
 		u.SetGroupVersionKind(mapping.GroupVersionKind)
 		err = cc.Create(ctx, &u)

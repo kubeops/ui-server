@@ -81,6 +81,13 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 	req := in.Request
 
+	// Render fetches and creates caller-chosen objects, so it must run with the caller's permissions.
+	utx := graph.NewUserContext(ctx)
+	cc, err := graph.NewImpersonatedClient(utx, r.kc)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
+
 	var resp rsapi.RenderResponse
 	if req.Block != nil {
 		var autoColumns bool
@@ -104,7 +111,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			autoColumns = true
 		}
 
-		bv, err := graph.RenderPageBlock(graph.NewUserContext(ctx), r.kc, req.Source, req.Block, req.ConvertToTable)
+		bv, err := graph.RenderPageBlock(utx, cc, req.Source, req.Block, req.ConvertToTable)
 		if err != nil {
 			return nil, err
 		}
@@ -118,8 +125,8 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 			renderBlocks.Insert(string(k))
 		}
 		rv, err := graph.RenderLayout(
-			graph.NewUserContext(ctx),
-			r.kc,
+			utx,
+			cc,
 			req.Source,
 			req.LayoutName, // optional
 			req.PageName,   // optional

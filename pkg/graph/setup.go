@@ -324,12 +324,41 @@ func execRestQuery(ctx context.Context, kc client.Client, q string, gvk schema.G
 		return nil, errors.Wrapf(err, "failed to unmarshal query %s", q)
 	}
 
+	if err := checkRESTQueryTarget(gvk.GroupKind()); err != nil {
+		return nil, err
+	}
 	out.SetGroupVersionKind(gvk)
 	err = kc.Create(ctx, &out)
 	if err != nil {
 		return nil, err
 	}
 	return &out, nil
+}
+
+// REST queries create objects, so only request-style virtual resources may be targeted.
+var restQueryTargets = map[schema.GroupKind]struct{}{
+	{Group: "meta.k8s.appscode.com", Kind: "RenderDashboard"}: {},
+	{Group: "ui.openviz.dev", Kind: "DashboardGroup"}:         {},
+}
+
+func checkRESTQueryTarget(gk schema.GroupKind) error {
+	if _, ok := restQueryTargets[gk]; !ok {
+		return fmt.Errorf("REST query not allowed for %s", gk)
+	}
+	return nil
+}
+
+func NewImpersonatedClient(ctx context.Context, kc client.Client) (client.Client, error) {
+	u, found := request.UserFrom(ctx)
+	if !found {
+		return nil, fmt.Errorf("missing user info in request context")
+	}
+	rw, ok := kc.(*cu.DelegatingClient)
+	if !ok {
+		return nil, fmt.Errorf("can't impersonate client")
+	}
+	_, cc, err := rw.Impersonate(u)
+	return cc, err
 }
 
 func NewClient(ctx context.Context, kc client.Client, impersonate bool) (client.Client, error) {
