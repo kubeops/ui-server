@@ -34,6 +34,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/apiserver/pkg/authentication/user"
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes"
@@ -348,22 +349,54 @@ func checkRESTQueryTarget(gk schema.GroupKind) error {
 	return nil
 }
 
+// aceExtraPrefix is the only extra-key namespace the kube-ui-server SA may impersonate
+// (it holds impersonate on userextras/ace.appscode.com/org-id). Every other extra would
+// fail impersonation authorization, so it is dropped. Mirrors the vendored impersonableExtra.
+const aceExtraPrefix = "ace.appscode.com/"
+
+func aceImpersonableExtra(in map[string][]string) map[string][]string {
+	var out map[string][]string
+	for k, v := range in {
+		if strings.HasPrefix(k, aceExtraPrefix) {
+			if out == nil {
+				out = make(map[string][]string, len(in))
+			}
+			out[k] = v
+		}
+	}
+	return out
+}
+
+// newImpersonatedClient returns a cache-free client that acts as u. It does not use
+// DelegatingClient.Impersonate, which inherits the manager's server-SA informer cache and
+// would serve typed reads without the impersonation headers (see plan.md). A plain
+// controller-runtime client reads directly from the API, so every read carries u's identity.
+func newImpersonatedClient(kc client.Client, u user.Info) (client.Client, error) {
+	rw, ok := kc.(*cu.DelegatingClient)
+	if !ok {
+		return nil, fmt.Errorf("can't impersonate client")
+	}
+	cfg := restclient.CopyConfig(rw.RestConfig())
+	cfg.Impersonate = restclient.ImpersonationConfig{
+		UserName: u.GetName(),
+		UID:      u.GetUID(),
+		Groups:   u.GetGroups(),
+		Extra:    aceImpersonableExtra(u.GetExtra()),
+	}
+	return client.New(cfg, client.Options{Scheme: rw.Scheme(), Mapper: rw.RESTMapper()})
+}
+
 func NewImpersonatedClient(ctx context.Context, kc client.Client) (client.Client, error) {
 	u, found := request.UserFrom(ctx)
 	if !found {
 		return nil, fmt.Errorf("missing user info in request context")
 	}
-	rw, ok := kc.(*cu.DelegatingClient)
-	if !ok {
-		return nil, fmt.Errorf("can't impersonate client")
-	}
-	_, cc, err := rw.Impersonate(u)
-	return cc, err
+	return newImpersonatedClient(kc, u)
 }
 
 // AuthorizeSourceGet confirms the caller can get the source object, enforcing their RBAC
 // before the in-memory object graph (which is built with the server's credentials) is
-// returned. It reads the object as an unstructured, which bypasses the shared cache.
+// returned.
 func AuthorizeSourceGet(ctx context.Context, kc client.Client, gvk schema.GroupVersionKind, key client.ObjectKey) error {
 	if key.Name == "" {
 		return fmt.Errorf("source name is required")
@@ -383,12 +416,7 @@ func NewClient(ctx context.Context, kc client.Client, impersonate bool) (client.
 	if !impersonate || !found || len(u.GetExtra()[kmapi.AceOrgIDKey]) != 1 {
 		return kc, nil
 	}
-
-	if rw, ok := kc.(*cu.DelegatingClient); ok {
-		_, cc, err := rw.Impersonate(u)
-		return cc, err
-	}
-	return nil, fmt.Errorf("can't impersonate client")
+	return newImpersonatedClient(kc, u)
 }
 
 func NewUserContext(in context.Context) context.Context {
