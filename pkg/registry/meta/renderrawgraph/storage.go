@@ -18,6 +18,7 @@ package renderrawgraph
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"kubeops.dev/ui-server/pkg/graph"
@@ -26,6 +27,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -34,6 +37,7 @@ import (
 
 type Storage struct {
 	kc client.Client
+	a  authorizer.Authorizer
 }
 
 var (
@@ -44,9 +48,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc: kc,
+		a:  a,
 	}
 }
 
@@ -74,26 +79,33 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, apierrors.NewBadRequest("missing apirequest")
 	}
 
-	var oid kmapi.OID
-	if in.Request.Source != nil {
-		rid := in.Request.Source.Resource
-		if rid.Kind == "" {
-			r2, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
-			if err != nil {
-				return nil, err
-			}
-			rid = *r2
-		}
-		src := kmapi.ObjectID{
-			Group:     rid.Group,
-			Kind:      rid.Kind,
-			Namespace: in.Request.Source.Ref.Namespace,
-			Name:      in.Request.Source.Ref.Name,
-		}
-		oid = src.OID()
+	// An empty source renders the entire object graph, so require a source and confirm the
+	// caller can get it. The raw edge dump is not per-node filtered (no UI calls this endpoint).
+	if in.Request.Source == nil {
+		return nil, apierrors.NewBadRequest("source is required")
+	}
+	u, ok := request.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+	rid, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
+	if err != nil {
+		return nil, err
+	}
+	src := kmapi.ObjectID{
+		Group:     rid.Group,
+		Kind:      rid.Kind,
+		Namespace: in.Request.Source.Ref.Namespace,
+		Name:      in.Request.Source.Ref.Name,
+	}
+	srcGK := schema.GroupKind{Group: rid.Group, Kind: rid.Kind}
+	if allowed, gr, err := graph.CanAccess(ctx, r.a, u, r.kc.RESTMapper(), "get", srcGK, src.Namespace, src.Name); err != nil {
+		return nil, apierrors.NewInternalError(err)
+	} else if !allowed {
+		return nil, apierrors.NewForbidden(gr, src.Name, fmt.Errorf("user %q cannot get %s %s/%s", u.GetName(), rid.Kind, src.Namespace, src.Name))
 	}
 
-	resp, err := graph.Render(oid)
+	resp, err := graph.Render(src.OID())
 	if err != nil {
 		return nil, err
 	}
