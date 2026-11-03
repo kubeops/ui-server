@@ -74,19 +74,18 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, apierrors.NewBadRequest("missing apirequest")
 	}
 
-	rid := in.Request.Source.Resource
-	if rid.Kind == "" {
-		r2, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
-		if err != nil {
-			return nil, err
-		}
-		rid = *r2
+	rid, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
+	if err != nil {
+		return nil, err
 	}
 	src := kmapi.ObjectID{
 		Group:     rid.Group,
 		Kind:      rid.Kind,
 		Namespace: in.Request.Source.Ref.Namespace,
 		Name:      in.Request.Source.Ref.Name,
+	}
+	if err := graph.AuthorizeSourceGet(graph.NewUserContext(ctx), r.kc, rid.GroupVersionKind(), in.Request.Source.Ref.ObjectKey()); err != nil {
+		return nil, err
 	}
 	resp, err := graph.ResourceGraph(r.kc.RESTMapper(), src, kmapi.EdgeLabelValues())
 	if err != nil {

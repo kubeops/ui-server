@@ -74,26 +74,26 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, apierrors.NewBadRequest("missing apirequest")
 	}
 
-	var oid kmapi.OID
-	if in.Request.Source != nil {
-		rid := in.Request.Source.Resource
-		if rid.Kind == "" {
-			r2, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
-			if err != nil {
-				return nil, err
-			}
-			rid = *r2
-		}
-		src := kmapi.ObjectID{
-			Group:     rid.Group,
-			Kind:      rid.Kind,
-			Namespace: in.Request.Source.Ref.Namespace,
-			Name:      in.Request.Source.Ref.Name,
-		}
-		oid = src.OID()
+	// An empty source renders the entire object graph, so require a source and confirm the
+	// caller can read it before returning its connections.
+	if in.Request.Source == nil {
+		return nil, apierrors.NewBadRequest("source is required")
+	}
+	rid, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
+	if err != nil {
+		return nil, err
+	}
+	src := kmapi.ObjectID{
+		Group:     rid.Group,
+		Kind:      rid.Kind,
+		Namespace: in.Request.Source.Ref.Namespace,
+		Name:      in.Request.Source.Ref.Name,
+	}
+	if err := graph.AuthorizeSourceGet(graph.NewUserContext(ctx), r.kc, rid.GroupVersionKind(), in.Request.Source.Ref.ObjectKey()); err != nil {
+		return nil, err
 	}
 
-	resp, err := graph.Render(oid)
+	resp, err := graph.Render(src.OID())
 	if err != nil {
 		return nil, err
 	}

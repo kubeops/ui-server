@@ -361,6 +361,22 @@ func NewImpersonatedClient(ctx context.Context, kc client.Client) (client.Client
 	return cc, err
 }
 
+// AuthorizeSourceGet confirms the caller can get the source object, enforcing their RBAC
+// before the in-memory object graph (which is built with the server's credentials) is
+// returned. It reads the object as an unstructured, which bypasses the shared cache.
+func AuthorizeSourceGet(ctx context.Context, kc client.Client, gvk schema.GroupVersionKind, key client.ObjectKey) error {
+	if key.Name == "" {
+		return fmt.Errorf("source name is required")
+	}
+	cc, err := NewImpersonatedClient(ctx, kc)
+	if err != nil {
+		return err
+	}
+	var obj unstructured.Unstructured
+	obj.SetGroupVersionKind(gvk)
+	return cc.Get(ctx, key, &obj)
+}
+
 func NewClient(ctx context.Context, kc client.Client, impersonate bool) (client.Client, error) {
 	u, found := request.UserFrom(ctx)
 

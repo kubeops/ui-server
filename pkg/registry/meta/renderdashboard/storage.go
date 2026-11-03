@@ -81,7 +81,14 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 	}
 	req := in.Request
 
-	var err error
+	// Dashboard rendering fetches the source object and templates its fields into the
+	// returned URLs, so it must run with the caller's permissions.
+	utx := graph.NewUserContext(ctx)
+	cc, err := graph.NewImpersonatedClient(utx, r.kc)
+	if err != nil {
+		return nil, apierrors.NewInternalError(err)
+	}
+
 	var gvr schema.GroupVersionResource
 	var src *unstructured.Unstructured
 
@@ -111,7 +118,7 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 
 		src = &unstructured.Unstructured{}
 		src.SetGroupVersionKind(rid.GroupVersionKind())
-		err = r.kc.Get(context.TODO(), req.SourceLocator.Ref.ObjectKey(), src)
+		err = cc.Get(utx, req.SourceLocator.Ref.ObjectKey(), src)
 		if err != nil {
 			return nil, err
 		}
@@ -129,12 +136,6 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		if rd, err = resourcedashboards.LoadByName(r.kc, req.Name); err != nil {
 			return nil, err
 		}
-	}
-
-	utx := graph.NewUserContext(ctx)
-	cc, err := graph.NewClient(utx, r.kc, true)
-	if err != nil {
-		return nil, err
 	}
 
 	dg, err := graph.RenderDashboard(utx, cc, rd, src, req.EmbeddedLink)
