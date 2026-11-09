@@ -224,14 +224,9 @@ func renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.Resour
 }
 
 func _renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.ResourceID, srcObj *unstructured.Unstructured, block *rsapi.PageBlockLayout, convertToTable bool) (*rsapi.PageBlockView, error) {
-	var impersonate bool
-	if block != nil && block.ResourceLocator != nil && block.Impersonate {
-		impersonate = true
-	}
-	cc, err := NewClient(ctx, kc, impersonate)
-	if err != nil {
-		return nil, err
-	}
+	// kc is already authorized for the caller (see NewAuthorizedClient); every read it
+	// performs is checked per object, so block.Impersonate is no longer consulted.
+	cc := kc
 
 	out := rsapi.PageBlockView{
 		Kind:    block.Kind,
@@ -343,6 +338,9 @@ func _renderPageBlock(ctx context.Context, kc client.Client, srcRID *kmapi.Resou
 			if err != nil {
 				return &out, errors.Wrapf(err, "failed to unmarshal query %s", q)
 			}
+		}
+		if err := checkRESTQueryTarget(mapping.GroupVersionKind.GroupKind()); err != nil {
+			return &out, err
 		}
 		u := unstructured.Unstructured{Object: obj}
 		u.SetGroupVersionKind(mapping.GroupVersionKind)

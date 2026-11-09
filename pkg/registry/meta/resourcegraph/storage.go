@@ -18,6 +18,7 @@ package resourcegraph
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"kubeops.dev/ui-server/pkg/graph"
@@ -26,6 +27,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apiserver/pkg/authentication/user"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	rsapi "kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
@@ -34,6 +38,7 @@ import (
 
 type Storage struct {
 	kc client.Client
+	a  authorizer.Authorizer
 }
 
 var (
@@ -44,9 +49,10 @@ var (
 	_ rest.SingularNameProvider     = &Storage{}
 )
 
-func NewStorage(kc client.Client) *Storage {
+func NewStorage(kc client.Client, a authorizer.Authorizer) *Storage {
 	return &Storage{
 		kc: kc,
+		a:  a,
 	}
 }
 
@@ -74,13 +80,14 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		return nil, apierrors.NewBadRequest("missing apirequest")
 	}
 
-	rid := in.Request.Source.Resource
-	if rid.Kind == "" {
-		r2, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
-		if err != nil {
-			return nil, err
-		}
-		rid = *r2
+	u, ok := request.UserFrom(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("missing user info")
+	}
+
+	rid, err := kmapi.ExtractResourceID(r.kc.RESTMapper(), in.Request.Source.Resource)
+	if err != nil {
+		return nil, err
 	}
 	src := kmapi.ObjectID{
 		Group:     rid.Group,
@@ -88,10 +95,47 @@ func (r *Storage) Create(ctx context.Context, obj runtime.Object, _ rest.Validat
 		Namespace: in.Request.Source.Ref.Namespace,
 		Name:      in.Request.Source.Ref.Name,
 	}
+	// The caller must be able to get the source object before we return its connections.
+	srcGK := schema.GroupKind{Group: rid.Group, Kind: rid.Kind}
+	if allowed, gr, err := graph.CanAccess(ctx, r.a, u, r.kc.RESTMapper(), "get", srcGK, src.Namespace, src.Name); err != nil {
+		return nil, apierrors.NewInternalError(err)
+	} else if !allowed {
+		return nil, apierrors.NewForbidden(gr, src.Name, fmt.Errorf("user %q cannot get %s %s/%s", u.GetName(), rid.Kind, src.Namespace, src.Name))
+	}
+
 	resp, err := graph.ResourceGraph(r.kc.RESTMapper(), src, kmapi.EdgeLabelValues())
 	if err != nil {
 		return nil, err
 	}
+	// Drop connections to objects the caller cannot get, so the graph does not leak the
+	// names of related objects outside their reach. Resources holds kinds only, so it stays.
+	resp.Connections = r.filterConnections(ctx, u, resp)
 	in.Response = resp
 	return in, nil
+}
+
+func (r *Storage) filterConnections(ctx context.Context, u user.Info, resp *rsapi.ResourceGraphResponse) []rsapi.ObjectConnection {
+	decided := map[string]bool{}
+	canGet := func(ptr rsapi.ObjectPointer) bool {
+		if ptr.ResourceID < 0 || ptr.ResourceID >= len(resp.Resources) {
+			return false
+		}
+		res := resp.Resources[ptr.ResourceID]
+		key := fmt.Sprintf("%s/%s/%s/%s", res.Group, res.Kind, ptr.Namespace, ptr.Name)
+		if v, ok := decided[key]; ok {
+			return v
+		}
+		allowed, _, err := graph.CanAccess(ctx, r.a, u, r.kc.RESTMapper(), "get", schema.GroupKind{Group: res.Group, Kind: res.Kind}, ptr.Namespace, ptr.Name)
+		v := err == nil && allowed
+		decided[key] = v
+		return v
+	}
+
+	kept := resp.Connections[:0]
+	for _, c := range resp.Connections {
+		if canGet(c.Source) && canGet(c.Target) {
+			kept = append(kept, c)
+		}
+	}
+	return kept
 }
