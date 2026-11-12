@@ -80,7 +80,19 @@ func CanAccess(ctx context.Context, authz authorizer.Authorizer, u user.Info, ma
 	return decision == authorizer.DecisionAllow, gr, nil
 }
 
+// UI config objects carry no tenant data, but layout/dashboard/table rendering must read
+// them for every caller, including those without RBAC on these kinds.
+var publicReadKinds = map[schema.GroupKind]struct{}{
+	{Group: "ui.k8s.appscode.com", Kind: "ResourceOutlineFilter"}:     {},
+	{Group: "ui.k8s.appscode.com", Kind: "ResourceDashboard"}:         {},
+	{Group: "ui.k8s.appscode.com", Kind: "ResourceEditor"}:            {},
+	{Group: "apiextensions.k8s.io", Kind: "CustomResourceDefinition"}: {},
+}
+
 func (c *authzClient) allowed(ctx context.Context, verb string, gvk schema.GroupVersionKind, namespace, name string) (bool, schema.GroupResource, error) {
+	if _, ok := publicReadKinds[gvk.GroupKind()]; ok && verb == "get" {
+		return true, schema.GroupResource{}, nil
+	}
 	return CanAccess(ctx, c.authz, c.user, c.RESTMapper(), verb, gvk.GroupKind(), namespace, name)
 }
 
